@@ -2,7 +2,6 @@ package bff
 
 type Room struct {
 	IDInfo
-	Icon
 
 	ControlGroups        []ControlGroup `json:"controlGroups"`
 	SelectedControlGroup ID             `json:"selectedControlGroup"`
@@ -12,13 +11,13 @@ type Room struct {
 
 type ControlGroup struct {
 	IDInfo
-	Icon
 
 	Displays      []Display      `json:"displays"`
 	Inputs        []Input        `json:"inputs"`
 	AudioGroups   []AudioGroup   `json:"audioGroups"`
 	PresentGroups []PresentGroup `json:"presentGroups"`
 
+	// pointer?
 	HelpRequested bool `json:"helpRequested"`
 }
 
@@ -26,6 +25,7 @@ type Display struct {
 	IDInfo
 	Icon
 
+	// again, pointers...?
 	Input   ID   `json:"input"`
 	Blanked bool `json:"blanked"`
 	// allowedInputs ?
@@ -46,7 +46,6 @@ type AudioGroup struct {
 
 type AudioDevice struct {
 	IDInfo
-	Icon // ?
 
 	// should these be pointers?
 	Level int  `json:"level"`

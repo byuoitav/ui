@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
+	"sync"
 
 	"github.com/byuoitav/ui/bff"
 	"github.com/gorilla/websocket"
@@ -18,7 +20,12 @@ var (
 )
 
 func NewClient(c echo.Context) error {
-	// check that the room ID is valid, or do that in middleware
+	// TODO check that the room ID is valid, or do that in middleware
+	client, err := bff.RegisterClient(c.Request().Context(), "ITB-1101", "The Cube")
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	// client.close?
 
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
@@ -26,6 +33,21 @@ func NewClient(c echo.Context) error {
 	}
 	defer ws.Close()
 
-	bff.RegisterClient("ITB-1101", "The Cube")
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+
+		for msg := range client.Out {
+			err := ws.WriteMessage(websocket.BinaryMessage, msg)
+			if err != nil {
+				log.Printf("failed to write message: %s\n", err)
+				return
+			}
+		}
+	}()
+
+	wg.Wait()
 	return nil
 }
