@@ -1,74 +1,84 @@
 package bff
 
 type Room struct {
-	IDInfo
+	ID   ID     `json:"id"`
+	Name string `json:"name"`
 
-	ControlGroups        []ControlGroup `json:"controlGroups"`
-	SelectedControlGroup ID             `json:"selectedControlGroup"`
-
-	// SharingGroups []SharingGroup `json:"sharingGroups"`
+	ControlGroups        map[string]ControlGroup `json:"controlGroups"`
+	SelectedControlGroup ID                      `json:"selectedControlGroup"`
 }
 
 type ControlGroup struct {
-	IDInfo
+	ID   ID     `json:"id"`
+	Name string `json:"name"`
 
 	Displays      []Display      `json:"displays"`
 	Inputs        []Input        `json:"inputs"`
 	AudioGroups   []AudioGroup   `json:"audioGroups"`
 	PresentGroups []PresentGroup `json:"presentGroups"`
 
-	// pointer?
+	Support Support `json:"support"`
+}
+
+type Support struct {
 	HelpRequested bool `json:"helpRequested"`
+
+	HelpMessage string `json:"helpMessage"`
+	HelpEnabled bool   `json:"helpEnabled"`
 }
 
 type Display struct {
-	IDInfo
-	Icon
+	ID ID `json:"id"`
 
-	// again, pointers...?
+	Outputs []IconPair `json:"outputs"`
+
 	Input   ID   `json:"input"`
 	Blanked bool `json:"blanked"`
-	// allowedInputs ?
 }
 
 type Input struct {
-	IDInfo
-	Icon
+	ID ID `json:"id"`
+	IconPair
 
 	SubInputs []Input `json:"subInputs"`
+	Disabled  bool    `json:"disabled"`
 }
 
 type AudioGroup struct {
-	IDInfo
+	ID   ID     `json:"id"`
+	Name string `json:"name"`
 
 	AudioDevices []AudioDevice `json:"audioDevices"`
+	Muted        bool          `json:"muted"`
 }
 
 type AudioDevice struct {
-	IDInfo
+	ID ID `json:"id"`
+	IconPair
 
-	// should these be pointers?
 	Level int  `json:"level"`
 	Muted bool `json:"muted"`
 }
 
 type PresentGroup struct {
-	IDInfo
+	ID   ID     `json:"id"`
+	Name string `json:"name"`
 
-	Items []PresentItem `json:"presentItems"`
+	Items []PresentItem `json:"items"`
 }
 
 type PresentItem struct {
-	IDInfo
+	ID   ID     `json:"id"`
+	Name string `json:"name"`
 }
 
 type Icon struct {
 	Icon string `json:"icon"`
 }
 
-type IDInfo struct {
-	ID   ID     `json:"id"`
-	Name string `json:"name"`
+type IconPair struct {
+	Name string `json:"name,omitempty"`
+	Icon
 }
 
 type ID string

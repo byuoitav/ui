@@ -10,8 +10,11 @@ import (
 	"time"
 
 	"github.com/byuoitav/common/structs"
+	"github.com/byuoitav/ui/log"
+	"go.uber.org/zap"
 )
 
+// TODO send function
 type Client struct {
 	buildingID string
 	roomID     string
@@ -23,24 +26,27 @@ type Client struct {
 	httpClient *http.Client
 
 	Out chan []byte
-	// probably add a send function
-	// 	In  chan []byte
+
+	*zap.Logger
 }
 
-func RegisterClient(ctx context.Context, roomID, controlGroupID string) (*Client, error) {
+func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*Client, error) {
+	log.P.Info("Registering client", zap.String("roomID", roomID), zap.String("controlGroupID", controlGroupID), zap.String("name", name))
+
 	split := strings.Split(roomID, "-")
 	if len(split) != 2 {
-		return nil, fmt.Errorf("invalid roomID - must match format BLDG-ROOM")
+		return nil, fmt.Errorf("invalid roomID %q - must match format BLDG-ROOM", roomID)
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	client := &Client{
+	c := &Client{
 		buildingID: split[0],
 		roomID:     roomID,
 		httpClient: &http.Client{},
 		Out:        make(chan []byte, 8),
+		Logger:     log.P.Named(name),
 	}
 
 	errCh := make(chan error, 3)
@@ -58,30 +64,39 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID string) (*Client
 		var err error
 		defer wg.Done()
 
-		client.state, err = GetRoomState(ctx, client.httpClient, client.roomID)
+		c.state, err = GetRoomState(ctx, c.httpClient, c.roomID)
 		if err != nil {
+			c.Warn("unable to get room state", zap.Error(err))
 			errCh <- fmt.Errorf("unable to get ui config: %v", err)
 		}
+
+		c.Debug("Successfully got room state")
 	}()
 
 	go func() {
 		var err error
 		defer wg.Done()
 
-		client.room, err = GetRoomConfig(ctx, client.httpClient, client.roomID)
+		c.room, err = GetRoomConfig(ctx, c.httpClient, c.roomID)
 		if err != nil {
+			c.Warn("unable to get room config", zap.Error(err))
 			errCh <- fmt.Errorf("unable to get room config: %v", err)
 		}
+
+		c.Debug("Successfully got room config")
 	}()
 
 	go func() {
 		var err error
 		defer wg.Done()
 
-		client.uiConfig, err = GetUIConfig(ctx, client.httpClient, client.roomID)
+		c.uiConfig, err = GetUIConfig(ctx, c.httpClient, c.roomID)
 		if err != nil {
+			c.Warn("unable to get ui config", zap.Error(err))
 			errCh <- fmt.Errorf("unable to get ui config: %v", err)
 		}
+
+		c.Debug("Successfully got ui config")
 	}()
 
 	select {
@@ -92,35 +107,52 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID string) (*Client
 	case <-doneCh:
 	}
 
+	c.Info("Got all initial information, sending room to client")
+
 	// write the inital room info
-	room := client.GetRoom()
+	room := c.GetRoom()
 	buf, err := json.Marshal(room)
 	if err != nil {
 		return nil, fmt.Errorf("unable to marshal room: %s", err)
 	}
 
-	client.Out <- buf
-	return client, nil
+	c.Out <- buf
+	return c, nil
 }
 
 func (c *Client) GetRoom() Room {
-	var room Room
-	room.ID = ID(c.roomID)
-	room.Name = c.room.Name
+	room := Room{
+		ID:                   ID(c.roomID),
+		Name:                 c.room.Name,
+		ControlGroups:        make(map[string]ControlGroup),
+		SelectedControlGroup: "", // TODO where is this saved? c?
+	}
 
 	for _, preset := range c.uiConfig.Presets {
-		var cg ControlGroup
-		cg.ID = ID(preset.Name)
-		cg.Name = preset.Name
+		cg := ControlGroup{
+			ID:   ID(preset.Name),
+			Name: preset.Name,
+			Support: Support{
+				HelpRequested: false, // This info also needs to be saved...
+				HelpMessage:   "Request Help",
+				HelpEnabled:   true,
+			},
+		}
 
 		for _, name := range preset.Displays {
-			var d Display
 			config := GetDeviceConfigByName(c.room.Devices, name)
 			state := GetDisplayStateByName(c.state.Displays, name)
 
-			d.ID = ID(config.ID)
-			d.Name = config.DisplayName
-			d.Input = ID(state.Input)
+			d := Display{
+				ID:    ID(config.ID),
+				Input: ID(state.Input),
+			}
+
+			// TODO outputs when we do sharing
+			d.Outputs = append(d.Outputs, IconPair{
+				Name: config.Name,
+				Icon: Icon{"tv"}, // TODO get this from the ui config
+			})
 
 			if state.Blanked != nil {
 				d.Blanked = *state.Blanked
@@ -129,30 +161,51 @@ func (c *Client) GetRoom() Room {
 			cg.Displays = append(cg.Displays, d)
 		}
 
+		// add a blank input as the first input
+		cg.Inputs = append(cg.Inputs, Input{
+			ID: ID("blank"),
+			IconPair: IconPair{
+				Name: "Blank",
+				Icon: Icon{"blank_icon"},
+			},
+			Disabled: false,
+		})
+
 		for _, name := range preset.Inputs {
-			var i Input
 			config := GetDeviceConfigByName(c.room.Devices, name)
 
-			i.ID = ID(config.ID)
-			i.Name = config.DisplayName
-			// i.Icon = preset.
+			i := Input{
+				ID: ID(config.ID),
+				IconPair: IconPair{
+					Name: config.DisplayName,
+					Icon: Icon{"settings_input_hdmi"},
+				},
+				Disabled: false, // TODO look at the current displays reachable inputs to determine
+			}
+
 			// TODO subinputs
 
 			cg.Inputs = append(cg.Inputs, i)
 		}
 
 		for group, audioDevices := range preset.AudioGroups {
-			var ag AudioGroup
-			ag.ID = ID(group)
-			ag.Name = group
+			ag := AudioGroup{
+				ID:    ID(group),
+				Name:  group,
+				Muted: true,
+			}
 
 			for _, name := range audioDevices {
-				var ad AudioDevice
 				config := GetDeviceConfigByName(c.room.Devices, name)
 				state := GetAudioDeviceStateByName(c.state.AudioDevices, name)
 
-				ad.ID = ID(config.ID)
-				ad.Name = config.DisplayName
+				ad := AudioDevice{
+					ID: ID(config.ID),
+					IconPair: IconPair{
+						Name: config.DisplayName,
+						Icon: Icon{"mic"}, // TODO
+					},
+				}
 
 				if state.Volume != nil {
 					ad.Level = *state.Volume
@@ -162,14 +215,19 @@ func (c *Client) GetRoom() Room {
 					ad.Muted = *state.Muted
 				}
 
+				// set all muted if one of them isn't
+				if !ad.Muted {
+					ag.Muted = false
+				}
+
 				ag.AudioDevices = append(ag.AudioDevices, ad)
 			}
 
 			cg.AudioGroups = append(cg.AudioGroups, ag)
 		}
 
+		room.ControlGroups[string(cg.ID)] = cg
 		// TODO PresentGroups
-		room.ControlGroups = append(room.ControlGroups, cg)
 	}
 
 	return room
