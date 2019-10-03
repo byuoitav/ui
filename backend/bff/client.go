@@ -189,14 +189,52 @@ func (c *Client) GetRoom() Room {
 			cg.Inputs = append(cg.Inputs, i)
 		}
 
-		for group, audioDevices := range preset.AudioGroups {
+		if len(preset.AudioGroups) > 0 {
+			for group, audioDevices := range preset.AudioGroups {
+				ag := AudioGroup{
+					ID:    ID(group),
+					Name:  group,
+					Muted: true,
+				}
+
+				for _, name := range audioDevices {
+					config := GetDeviceConfigByName(c.room.Devices, name)
+					state := GetAudioDeviceStateByName(c.state.AudioDevices, name)
+
+					ad := AudioDevice{
+						ID: ID(config.ID),
+						IconPair: IconPair{
+							Name: config.DisplayName,
+							Icon: Icon{"mic"}, // TODO
+						},
+					}
+
+					if state.Volume != nil {
+						ad.Level = *state.Volume
+					}
+
+					if state.Muted != nil {
+						ad.Muted = *state.Muted
+					}
+
+					if !ad.Muted {
+						ag.Muted = false
+					}
+
+					ag.AudioDevices = append(ag.AudioDevices, ad)
+				}
+
+				cg.AudioGroups = append(cg.AudioGroups, ag)
+			}
+		} else {
+			// create the displaysAG
 			ag := AudioGroup{
-				ID:    ID(group),
-				Name:  group,
+				ID:    "displaysAG",
+				Name:  "Display Volume Mixing",
 				Muted: true,
 			}
 
-			for _, name := range audioDevices {
+			for _, name := range preset.AudioDevices {
 				config := GetDeviceConfigByName(c.room.Devices, name)
 				state := GetAudioDeviceStateByName(c.state.AudioDevices, name)
 
@@ -204,7 +242,7 @@ func (c *Client) GetRoom() Room {
 					ID: ID(config.ID),
 					IconPair: IconPair{
 						Name: config.DisplayName,
-						Icon: Icon{"mic"}, // TODO
+						Icon: Icon{"tv"},
 					},
 				}
 
@@ -216,7 +254,6 @@ func (c *Client) GetRoom() Room {
 					ad.Muted = *state.Muted
 				}
 
-				// set all muted if one of them isn't
 				if !ad.Muted {
 					ag.Muted = false
 				}
@@ -224,6 +261,44 @@ func (c *Client) GetRoom() Room {
 				ag.AudioDevices = append(ag.AudioDevices, ad)
 			}
 
+			// add displaysAG
+			cg.AudioGroups = append(cg.AudioGroups, ag)
+
+			// create the micsAG
+			ag = AudioGroup{
+				ID:    "micsAG",
+				Name:  "Microphones",
+				Muted: true,
+			}
+
+			for _, name := range preset.IndependentAudioDevices {
+				config := GetDeviceConfigByName(c.room.Devices, name)
+				state := GetAudioDeviceStateByName(c.state.AudioDevices, name)
+
+				ad := AudioDevice{
+					ID: ID(config.ID),
+					IconPair: IconPair{
+						Name: config.DisplayName,
+						Icon: Icon{"mic"},
+					},
+				}
+
+				if state.Volume != nil {
+					ad.Level = *state.Volume
+				}
+
+				if state.Muted != nil {
+					ad.Muted = *state.Muted
+				}
+
+				if !ad.Muted {
+					ag.Muted = false
+				}
+
+				ag.AudioDevices = append(ag.AudioDevices, ad)
+			}
+
+			// add micsAG
 			cg.AudioGroups = append(cg.AudioGroups, ag)
 		}
 
