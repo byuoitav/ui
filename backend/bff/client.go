@@ -16,8 +16,9 @@ import (
 
 // TODO send function
 type Client struct {
-	buildingID string
-	roomID     string
+	buildingID             string
+	roomID                 string
+	selectedControlGroupID string
 
 	room     structs.Room
 	state    structs.PublicRoom
@@ -150,7 +151,7 @@ func (c *Client) GetRoom() Room {
 
 			// TODO outputs when we do sharing
 			d.Outputs = append(d.Outputs, IconPair{
-				Name: config.Name,
+				Name: config.DisplayName,
 				Icon: Icon{"tv"}, // TODO get this from the ui config
 			})
 
@@ -166,7 +167,7 @@ func (c *Client) GetRoom() Room {
 			ID: ID("blank"),
 			IconPair: IconPair{
 				Name: "Blank",
-				Icon: Icon{"blank_icon"},
+				Icon: Icon{"crop_landscape"},
 			},
 			Disabled: false,
 		})
