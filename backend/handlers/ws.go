@@ -45,7 +45,7 @@ func NewClient(c echo.Context) error {
 		for msg := range client.Out {
 			client.Info("writing message to client", zap.ByteString("toClient", msg))
 
-			err := ws.WriteMessage(websocket.BinaryMessage, msg)
+			err := ws.WriteMessage(websocket.TextMessage, msg)
 			if err != nil {
 				// log.Printf("failed to write message: %s\n", err)
 				return
