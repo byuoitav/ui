@@ -16,7 +16,7 @@ func main() {
 
 	e.GET("ws/:key", handlers.NewClient)
 
-	err := e.Start(":88")
+	err := e.Start(":80")
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.P.Fatal("failed to start server", zap.Error(err))
 	}

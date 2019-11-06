@@ -2,7 +2,6 @@ package bff
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -26,7 +25,11 @@ type Client struct {
 
 	httpClient *http.Client
 
-	Out chan []byte
+	// messages going out to the client
+	Out chan Message
+
+	// messages coming from the client
+	// In chan []byte
 
 	*zap.Logger
 }
@@ -46,8 +49,9 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*
 		buildingID: split[0],
 		roomID:     roomID,
 		httpClient: &http.Client{},
-		Out:        make(chan []byte, 8),
-		Logger:     log.P.Named(name),
+		Out:        make(chan Message),
+		// In:         make(chan []byte),
+		Logger: log.P.Named(name),
 	}
 
 	errCh := make(chan error, 3)
@@ -111,13 +115,15 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*
 	c.Info("Got all initial information, sending room to client")
 
 	// write the inital room info
-	room := c.GetRoom()
-	buf, err := json.Marshal(room)
+	msg, err := JSONMessage("room", c.GetRoom())
 	if err != nil {
 		return nil, fmt.Errorf("unable to marshal room: %s", err)
 	}
 
-	c.Out <- buf
+	go func() {
+		c.Out <- msg
+	}()
+
 	return c, nil
 }
 

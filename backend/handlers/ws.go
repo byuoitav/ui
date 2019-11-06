@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/byuoitav/ui/bff"
@@ -27,7 +31,7 @@ func NewClient(c echo.Context) error {
 		log.P.Warn("unable to register client", zap.Error(err))
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	// client.close?
+	// TODO client.close?
 
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
@@ -37,18 +41,63 @@ func NewClient(c echo.Context) error {
 	defer ws.Close()
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
+	wg.Add(2)
 
+	// send messages out
 	go func() {
 		defer wg.Done()
 
 		for msg := range client.Out {
-			client.Info("writing message to client", zap.ByteString("toClient", msg))
-
-			err := ws.WriteMessage(websocket.TextMessage, msg)
+			data, err := json.Marshal(msg)
 			if err != nil {
-				// log.Printf("failed to write message: %s\n", err)
-				return
+				client.Warn("unable to marshal message to send to client", zap.Error(err))
+				continue
+			}
+
+			// log that we are sending a message
+			if _, ok := msg["error"]; ok {
+				client.Warn("sending error to client", zap.ByteString("msg", data))
+			} else {
+				client.Debug("Sending message to client", zap.ByteString("msg", data))
+			}
+
+			err = ws.WriteMessage(websocket.TextMessage, data)
+			if err != nil {
+				client.Error("failed to write message", zap.Error(err))
+				return // ?
+			}
+		}
+	}()
+
+	// recv messages
+	go func() {
+		defer wg.Done()
+
+		for {
+			msgType, msg, err := ws.ReadMessage()
+			switch {
+			case err != nil:
+				client.Error("failed to read messsage", zap.Error(err))
+				switch {
+				case errors.Is(err, io.ErrUnexpectedEOF) || strings.Contains(err.Error(), io.ErrUnexpectedEOF.Error()):
+					ws.Close()
+					return
+				}
+			case msgType == websocket.PingMessage:
+				// send a pong
+			default:
+				var m bff.Message
+				err = json.Unmarshal(msg, &m)
+				if err != nil {
+					client.Warn("unable to unmarshal message", zap.Error(err))
+					client.Out <- bff.ErrorMessage("unable to parse message: %w", err)
+					continue
+				}
+
+				resps := client.HandleMessage(m)
+				for resp := range resps {
+					client.Out <- resp
+				}
 			}
 		}
 	}()
