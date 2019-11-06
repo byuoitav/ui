@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -51,14 +52,15 @@ func NewClient(c echo.Context) error {
 			data, err := json.Marshal(msg)
 			if err != nil {
 				client.Warn("unable to marshal message to send to client", zap.Error(err))
+				fmt.Printf("\nmap: %s\n", msg)
 				continue
 			}
 
 			// log that we are sending a message
 			if _, ok := msg["error"]; ok {
-				client.Warn("sending error to client", zap.ByteString("msg", data))
+				client.Warn("sending error to client", zap.ByteString("message", data))
 			} else {
-				client.Debug("Sending message to client", zap.ByteString("msg", data))
+				client.Debug("Sending message to client", zap.ByteString("message", data))
 			}
 
 			err = ws.WriteMessage(websocket.TextMessage, data)

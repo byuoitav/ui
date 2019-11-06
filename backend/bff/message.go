@@ -3,6 +3,7 @@ package bff
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 type Message map[string]json.RawMessage
@@ -13,7 +14,7 @@ func ErrorMessage(format string, a ...interface{}) Message {
 
 func StringMessage(key string, format string, a ...interface{}) Message {
 	m := make(map[string]json.RawMessage)
-	m[key] = []byte(fmt.Sprintf(format, a...))
+	m[key] = []byte(strconv.Quote(fmt.Sprintf(format, a...)))
 	return m
 }
 
