@@ -16,7 +16,7 @@ var Config zap.Config
 func init() {
 	var err error
 	Config = zap.Config{
-		Level:       zap.NewAtomicLevelAt(zap.DebugLevel),
+		Level:       zap.NewAtomicLevelAt(zap.InfoLevel),
 		Development: false,
 		Sampling: &zap.SamplingConfig{
 			Initial:    100,

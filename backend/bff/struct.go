@@ -1,5 +1,7 @@
 package bff
 
+import "encoding/json"
+
 type Room struct {
 	ID   ID     `json:"id"`
 	Name string `json:"name"`
@@ -77,8 +79,15 @@ type Icon struct {
 }
 
 type IconPair struct {
+	ID   ID     `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 	Icon
 }
 
 type ID string
+
+type HttpRequest struct {
+	Method string          `json:"method"`
+	URL    string          `json:"url"`
+	Body   json.RawMessage `json:"body"`
+}

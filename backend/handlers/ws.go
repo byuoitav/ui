@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -49,12 +48,19 @@ func NewClient(c echo.Context) error {
 		defer wg.Done()
 
 		for msg := range client.Out {
-			data, err := json.Marshal(msg)
-			if err != nil {
-				client.Warn("unable to marshal message to send to client", zap.Error(err))
-				fmt.Printf("\nmap: %s\n", msg)
-				continue
+			var data []byte
+			for _, v := range msg {
+				data = v
+				break
 			}
+			/*
+				data, err := json.Marshal(msg)
+				if err != nil {
+					client.Warn("unable to marshal message to send to client", zap.Error(err))
+					fmt.Printf("\nmap: %s\n", msg)
+					continue
+				}
+			*/
 
 			// log that we are sending a message
 			if _, ok := msg["error"]; ok {
@@ -84,6 +90,10 @@ func NewClient(c echo.Context) error {
 				case errors.Is(err, io.ErrUnexpectedEOF) || strings.Contains(err.Error(), io.ErrUnexpectedEOF.Error()):
 					ws.Close()
 					return
+					// TODO what other errors are we getting?
+				default:
+					ws.Close()
+					return
 				}
 			case msgType == websocket.PingMessage:
 				// send a pong
@@ -92,14 +102,11 @@ func NewClient(c echo.Context) error {
 				err = json.Unmarshal(msg, &m)
 				if err != nil {
 					client.Warn("unable to unmarshal message", zap.Error(err))
-					client.Out <- bff.ErrorMessage("unable to parse message: %w", err)
+					client.Out <- bff.ErrorMessage("unable to parse message: %s", err)
 					continue
 				}
 
-				resps := client.HandleMessage(m)
-				for resp := range resps {
-					client.Out <- resp
-				}
+				go client.HandleMessage(m)
 			}
 		}
 	}()

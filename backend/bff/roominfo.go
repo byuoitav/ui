@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
-	"github.com/byuoitav/common/db"
 	"github.com/byuoitav/common/structs"
 )
 
@@ -78,6 +78,41 @@ func GetRoomState(ctx context.Context, client *http.Client, roomID string) (stru
 	return state, nil
 }
 
-func GetUIConfig(ctx context.Context, client *http.Client, roomID string) (structs.UIConfig, error) {
-	return db.GetDB().GetUIConfig(roomID)
+func GetUIConfig(ctx context.Context, client *http.Client, roomID string) (UIConfig, error) {
+	var config UIConfig
+
+	endpoint := fmt.Sprintf("ui-configuration/%s", roomID)
+	url := fmt.Sprintf("%s/%s", os.Getenv("DB_ADDRESS"), endpoint)
+	url = strings.TrimSpace(url)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return config, err
+	}
+
+	uname := os.Getenv("DB_USERNAME")
+	pass := os.Getenv("DB_PASSWORD")
+	if len(uname) > 0 && len(pass) > 0 {
+		req.SetBasicAuth(uname, pass)
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return config, err
+	}
+	defer resp.Body.Close()
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return config, err
+	}
+
+	err = json.Unmarshal(b, &config)
+	if err != nil {
+		return config, fmt.Errorf("failed to parse response: %s. response: %s", err, b)
+	}
+
+	return config, nil
 }

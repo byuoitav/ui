@@ -13,7 +13,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// TODO send function
 type Client struct {
 	buildingID             string
 	roomID                 string
@@ -21,7 +20,7 @@ type Client struct {
 
 	room     structs.Room
 	state    structs.PublicRoom
-	uiConfig structs.UIConfig
+	uiConfig UIConfig
 
 	httpClient *http.Client
 
@@ -49,9 +48,8 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*
 		buildingID: split[0],
 		roomID:     roomID,
 		httpClient: &http.Client{},
-		Out:        make(chan Message),
-		// In:         make(chan []byte),
-		Logger: log.P.Named(name),
+		Out:        make(chan Message, 1),
+		Logger:     log.P.Named(name),
 	}
 
 	errCh := make(chan error, 3)
@@ -120,10 +118,7 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*
 		return nil, fmt.Errorf("unable to marshal room: %s", err)
 	}
 
-	go func() {
-		c.Out <- msg
-	}()
-
+	c.Out <- msg
 	return c, nil
 }
 
@@ -157,6 +152,7 @@ func (c *Client) GetRoom() Room {
 
 			// TODO outputs when we do sharing
 			d.Outputs = append(d.Outputs, IconPair{
+				ID:   ID(config.ID),
 				Name: config.DisplayName,
 				Icon: Icon{"tv"}, // TODO get this from the ui config
 			})
@@ -312,5 +308,21 @@ func (c *Client) GetRoom() Room {
 		// TODO PresentGroups
 	}
 
+	for k := range room.ControlGroups {
+		c.selectedControlGroupID = k
+		room.SelectedControlGroup = ID(k)
+		break
+	}
+
 	return room
+}
+
+func (c *Client) CurrentPreset() Preset {
+	for _, p := range c.uiConfig.Presets {
+		if p.Name == c.selectedControlGroupID {
+			return p
+		}
+	}
+
+	return Preset{}
 }

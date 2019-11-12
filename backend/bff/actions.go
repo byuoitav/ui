@@ -2,38 +2,68 @@ package bff
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 
+	"github.com/byuoitav/common/structs"
 	"go.uber.org/zap"
 )
 
-type SetVolume struct {
-	AudioDeviceID string `json:"audioDevice"`
-	Level         int    `json:"level"`
+type SetInput struct {
+	OnSameInput HttpRequest `json:"onSameInput"`
 }
 
-func (c *Client) HandleMessage(msg Message) chan Message {
-	resps := make(chan Message)
+func (si SetInput) Do(c *Client, data []byte) {
+	var msg SetInputMessage
+	err := json.Unmarshal(data, &msg)
+	if err != nil {
+		c.Out <- ErrorMessage("invalid value for setInput: %s", err)
+		return
+	}
 
-	go func() {
-		for k, v := range msg {
-			switch k {
-			case "setInput":
-			case "setMuted":
-			case "setVolume":
-				var val SetVolume
-				err := json.Unmarshal(v, &val)
-				if err != nil {
-					resps <- ErrorMessage("invalid value for key %q: %s", k, err)
-					return
-				}
+	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
+	if len(cg.ID) == 0 {
+		// error
+	}
 
-				c.Info("setting volume", zap.String("id", val.AudioDeviceID), zap.Int("level", val.Level))
-			default:
-				// c.Warn("received message with unknown key", zap.String("key", k), zap.ByteString("val", v))
-				resps <- ErrorMessage("unknown key %q", k)
-			}
+	c.Info("setting input", zap.String("on", msg.DisplayID), zap.String("to", msg.InputID), zap.String("controlGroup", string(cg.ID)))
+
+	// find the display by ID
+	var disp Display
+	for i := range cg.Displays {
+		if cg.Displays[i].ID == ID(msg.DisplayID) {
+			disp = cg.Displays[i]
+			break
 		}
-	}()
+	}
 
-	return resps
+	if len(disp.ID) <= 0 {
+		// error
+		fmt.Printf("no!!!\n")
+		return
+	}
+
+	var state structs.PublicRoom
+	for _, out := range disp.Outputs {
+		// TODO write a getnamefromid func
+		dSplit := strings.Split(string(out.ID), "-")
+		iSplit := strings.Split(string(msg.InputID), "-")
+
+		state.Displays = append(state.Displays, structs.Display{
+			PublicDevice: structs.PublicDevice{
+				Name:  dSplit[2],
+				Input: iSplit[2], // TODO do i need to get the name?
+			},
+		})
+	}
+
+	if len(si.OnSameInput.URL) > 0 {
+		// send mute request
+	}
+
+	err = c.SendAPIRequest(state)
+	if err != nil {
+		c.Warn("failed to change input", zap.Error(err))
+		c.Out <- ErrorMessage("failed to change input: %s", err)
+	}
 }
