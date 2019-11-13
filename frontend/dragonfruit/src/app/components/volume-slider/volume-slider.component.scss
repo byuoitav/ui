@@ -1,0 +1,87 @@
+.wrapper {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    height: 36px;
+    background-color: #858585;
+    color: white;
+    // margin-left: 5%;
+    // margin-right: 5%;
+    margin: auto;
+    border-radius: 10px;
+}
+
+.mute-button {
+    display: flex;
+    justify-items: center;
+    margin-right: 5px;
+}
+
+.volume-icon {
+    transform: scale(1.25);
+}
+
+.volume-slider {
+    width: 100%;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+::ng-deep .mat-accent .mat-slider-thumb,
+::ng-deep .mat-accent .mat-slider-track-fill,
+::ng-deep .mat-accent .mat-slider-toggle-bar {
+    background-color: white;
+}
+
+::ng-deep .mat-accent .mat-slider-thumb-label {
+    background-color: #1e88e5;
+}
+
+::ng-deep .mat-slider .mat-slider-thumb {
+    border: solid 2px white;
+    background-color: white;
+    width: 24px;
+    height: 24px;
+    right: -12px;
+    bottom: -12px;
+}
+
+::ng-deep .mat-slider-min-value.mat-slider-thumb-label-showing .mat-slider-thumb {
+    background-color: white;
+}
+
+::ng-deep .mat-slider.mat-slider-horizontal .mat-slider-track-wrapper {
+    width: 100%;
+    border-radius: 20px;
+    height: 8px;
+    top: -2px;
+}
+
+::ng-deep .mat-slider.mat-slider-horizontal .mat-slider-track-background,
+::ng-deep .mat-slider.mat-slider-horizontal .mat-slider-track-fill {
+    width: 100%;
+    height: 100%;
+}
+
+@media (min-width: 768px) {
+    .wrapper {
+        &.master {
+            margin-left: 30px;
+            padding-left: 10px;
+            padding-right: 5px;
+            height: 50px;
+            width: 87%;
+             ::ng-deep .mat-slider .mat-slider-thumb {
+                width: 38px;
+                height: 38px;
+                right: -16px;
+                bottom: -19px;
+            }
+        }
+    }
+    .volume-icon {
+        transform: scale(1.55);
+    }
+}

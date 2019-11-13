@@ -1,0 +1,26 @@
+<div class="column">
+    <img src="../../../assets/logo.svg" class="logo">
+    <span>Enter Control Key:</span>
+    <div class="room-code" (click)="showNumpad()">
+        <mat-form-field class="code-char">
+            <input matInput readonly=true [value]="getCodeChar(0)">
+        </mat-form-field>
+        <mat-form-field class="code-char">
+            <input matInput readonly=true [value]="getCodeChar(1)">
+        </mat-form-field>
+        <mat-form-field class="code-char">
+            <input matInput readonly=true [value]="getCodeChar(2)">
+        </mat-form-field>
+        <mat-form-field class="code-char">
+            <input matInput readonly=true [value]="getCodeChar(3)">
+        </mat-form-field>
+        <mat-form-field class="code-char">
+            <input matInput readonly=true [value]="getCodeChar(4)">
+        </mat-form-field>
+        <mat-form-field class="code-char">
+            <input matInput readonly=true [value]="getCodeChar(5)">
+        </mat-form-field>
+    </div>
+    <span>or</span>
+    <button mat-button color="primary" class="sign-in" [disableRipple]=true>Sign In</button>
+</div>

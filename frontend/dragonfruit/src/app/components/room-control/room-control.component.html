@@ -1,0 +1,37 @@
+<div class="base">
+    <div class="header">
+        <button mat-button color="primary" class="exit-button" (click)="goBack()"><mat-icon class="exit-icon">exit_to_app</mat-icon>{{bff.room?.controlGroups?.size > 1 ? "Select Group" : "Exit Room"}}</button>
+        <span class="room-title">{{controlGroup?.name}}</span>
+        <div class="empty-thing"></div>
+    </div>
+    <mat-tab-group [headerPosition]="tabPosition" [disableRipple]=true (selectedTabChange)="tabChange($event.index)" [selectedIndex]="selectedTab">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span class="tab-button" [class.selected]="selectedTab === 0">
+                    <mat-icon class="tab-icon">filter_center_focus</mat-icon>
+                    <span>Control</span>
+                </span>
+            </ng-template>
+            <app-single-display *ngIf="controlGroup?.displays.length < 2" [cg]="controlGroup" [display]="controlGroup?.displays[0]"></app-single-display>
+            <app-multi-display *ngIf="controlGroup?.displays.length > 1" [cg]="controlGroup"></app-multi-display>
+        </mat-tab>
+        <mat-tab (click)="tabChange('Audio')">
+            <ng-template mat-tab-label>
+                <span class="tab-button" [class.selected]="selectedTab === 1"><mat-icon class="tab-icon">volume_up</mat-icon><span>Audio</span></span>
+            </ng-template>
+            <app-audio *ngIf="controlGroup?.audioGroups" [cg]="controlGroup"></app-audio>
+        </mat-tab>
+        <mat-tab label="Tab Two">
+            <ng-template mat-tab-label>
+                <span class="tab-button" [class.selected]="selectedTab === 2"><mat-icon class="tab-icon">present_to_all</mat-icon><span>Present</span></span>
+            </ng-template>
+            <app-present [cg]="controlGroup"></app-present>
+        </mat-tab>
+        <mat-tab label="Tab Two">
+            <ng-template mat-tab-label>
+                <span class="tab-button" [class.selected]="selectedTab === 3"><mat-icon class="tab-icon">help</mat-icon><span>Help</span></span>
+            </ng-template>
+            <app-help [cg]="controlGroup"></app-help>
+        </mat-tab>
+    </mat-tab-group>
+</div>

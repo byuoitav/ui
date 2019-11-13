@@ -1,0 +1,12 @@
+<div *ngFor="let pg of cg?.presentGroups" class="present-group">
+    <div class="group-label">
+        <span style="margin-left: 5px;">{{pg.name}}</span>
+    </div>
+    <ng-container *ngFor="let item of pg?.items">
+        <div class="present-item">
+            <span class="item-name">{{item.name}}</span>
+            <mat-icon>keyboard_arrow_right</mat-icon>
+        </div>
+        <mat-divider></mat-divider>
+    </ng-container>
+</div>

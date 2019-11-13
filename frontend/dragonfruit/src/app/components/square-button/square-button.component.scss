@@ -1,0 +1,83 @@
+$side-length: 80px;
+square-button {
+    .wrapper {
+        display: flex;
+        flex-flow: column nowrap;
+        min-width: $side-length;
+        // max-width: wrap;
+        width: wrap;
+        min-height: $side-length;
+        justify-content: space-evenly;
+        text-align: center;
+        align-items: center;
+        border: solid #757575 1.25px;
+        border-radius: 15px;
+        color: #757575;
+        font-size: 14pt;
+        &.selected {
+            border: solid #1e88e5 2.5px;
+            color: #1e88e5;
+        }
+        &.multi {
+            min-width: 30vw;
+        }
+    }
+    .empty {
+        visibility: hidden;
+    }
+}
+
+.button-icon {
+    transform: scale(1.5);
+}
+
+.icon-title {
+    display: flex;
+    flex-flow: row wrap;
+    font-size: 16pt;
+    width: 70px;
+    max-width: 70px;
+    justify-content: space-evenly;
+}
+
+.title {
+    display: flex;
+    flex-flow: row wrap;
+    font-size: 10pt;
+    width: 60px;
+    max-width: 60px;
+    justify-content: space-evenly;
+}
+
+.sub-icon {
+    font-size: 8pt;
+}
+
+.sub-title {
+    display: flex;
+    flex-flow: row wrap;
+    font-size: 8pt;
+    width: 60px;
+    max-width: 60px;
+}
+
+@media (min-width: 768px) {
+    $side-length: 110px;
+    square-button {
+        .wrapper {
+            // transform: scale(1.5);
+            width: $side-length;
+            height: $side-length;
+        }
+    }
+    .button-icon {
+        transform: scale(1.75);
+    }
+    .title {
+        font-size: 14pt;
+    }
+    .icon-title {
+        width: 90px;
+        // height: 90px;
+    }
+}

@@ -1,0 +1,39 @@
+.present-group {
+    display: flex;
+    flex-flow: column nowrap;
+    width: 100%;
+    color: #6b6b6b;
+}
+
+.group-label {
+    display: flex;
+    flex-flow: row nowrap;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #dbdbdb;
+    box-shadow: 0 1px 1px #c4c4c4;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.present-item {
+    display: flex;
+    flex-flow: row nowrap;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+}
+
+.item-name {
+    width: 80%;
+    max-width: 80%;
+    text-align: left;
+}
+
+.shorter {
+    width: 75%;
+    max-width: 75%;
+}

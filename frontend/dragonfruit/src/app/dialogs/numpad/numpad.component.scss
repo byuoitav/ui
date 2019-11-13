@@ -1,0 +1,21 @@
+.user-input {
+    background: transparent;
+    color: white;
+    caret-color: transparent;
+    width: 95%;
+    padding-left: 20px;
+    margin-bottom: 15px;
+    border: none;
+    font-size: 24px;
+    &:focus {
+        outline: none;
+    }
+}
+
+.simple-keyboard {
+    color: black;
+}
+
+.kb-done {
+    color: #1e88e5
+}

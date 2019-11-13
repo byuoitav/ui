@@ -1,0 +1,25 @@
+.base {
+    display: flex;
+    flex-flow: column nowrap;
+    width: 100%;
+    height: 100%;
+    justify-content: flex-start;
+    align-items: center;
+    // padding-top: 5%;
+    // padding-bottom: 5%;
+}
+
+.help-text {
+    text-align: center;
+    font-size: 18pt;
+    color: #6b6b6b;
+    max-width: 80%;
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+}
+
+.request-button {
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+    transform: scale(2);
+}

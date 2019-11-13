@@ -1,0 +1,13 @@
+<div class="base">
+    <ng-container *ngIf="!cg?.support.helpRequested">
+        <span class="help-text">Please call AV Support at 801-422-7671 for help.</span>
+        <span class="help-text">You can request to have a technician sent to the room by clicking the link below:</span>
+        <button mat-button color="primary" class="request-button" (click)="sendForHelp()">{{cg?.support.helpMessage}}</button>
+    </ng-container>
+
+    <ng-container *ngIf="cg?.support.helpRequested">
+        <span class="help-text">A technician has been dispatched to this room to provide support.</span>
+        <span class="help-text">Please call AV Support at 801-422-7671 for questions.</span>
+        <span></span>
+    </ng-container>
+</div>

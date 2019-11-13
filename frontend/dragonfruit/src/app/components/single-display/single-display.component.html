@@ -1,0 +1,189 @@
+<div class="base">
+  <div class="column">
+    <span class="mat-h1 display-title">{{ (display?.outputs)[0].name }}</span>
+    <mat-icon class="large-icon">{{ (display?.outputs)[0].icon }}</mat-icon>
+  </div>
+
+  <div class="input-section">
+    <div class="input-column" (swipe)="onSwipe($event)">
+      <div *ngFor="let p of pages; let i = index">
+        <ng-container [ngSwitch]="p">
+          <div
+            [id]="'page' + i"
+            class="button-row two center"
+            *ngSwitchCase="1"
+          >
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 0]"
+              [icon]="(cg?.inputs)[i * 6 + 0].icon"
+              [title]="(cg?.inputs)[i * 6 + 0].name"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 1]"
+              [icon]="(cg?.inputs)[i * 6 + 1].icon"
+              [title]="(cg?.inputs)[i * 6 + 1].name"
+            ></square-button>
+          </div>
+          <div [id]="'page' + i" class="button-row two left" *ngSwitchCase="2">
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 0]"
+              [icon]="(cg?.inputs)[i * 6 + 0].icon"
+              [title]="(cg?.inputs)[i * 6 + 0].name"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 1]"
+              [icon]="(cg?.inputs)[i * 6 + 1].icon"
+              [title]="(cg?.inputs)[i * 6 + 1].name"
+            ></square-button>
+            <square-button class="input" [empty]="true"></square-button>
+          </div>
+          <div [id]="'page' + i" class="button-row three" *ngSwitchCase="3">
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 0]"
+              [icon]="(cg?.inputs)[i * 6 + 0].icon"
+              [title]="(cg?.inputs)[i * 6 + 0].name"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 1]"
+              [icon]="(cg?.inputs)[i * 6 + 1].icon"
+              [title]="(cg?.inputs)[i * 6 + 1].name"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 2]"
+              [icon]="(cg?.inputs)[i * 6 + 2].icon"
+              [title]="(cg?.inputs)[i * 6 + 2].name"
+            ></square-button>
+          </div>
+          <div [id]="'page' + i" class="button-row four" *ngSwitchCase="4">
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 0]"
+              [icon]="(cg?.inputs)[i * 6 + 0].icon"
+              [title]="(cg?.inputs)[i * 6 + 0].name"
+              [click]="selectInput"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 1]"
+              [icon]="(cg?.inputs)[i * 6 + 1].icon"
+              [title]="(cg?.inputs)[i * 6 + 1].name"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 2]"
+              [icon]="(cg?.inputs)[i * 6 + 2].icon"
+              [title]="(cg?.inputs)[i * 6 + 2].name"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 3]"
+              [icon]="(cg?.inputs)[i * 6 + 3].icon"
+              [title]="(cg?.inputs)[i * 6 + 3].name"
+            ></square-button>
+          </div>
+          <div [id]="'page' + i" class="button-row five" *ngSwitchCase="5">
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 0]"
+              [icon]="(cg?.inputs)[i * 6 + 0].icon"
+              [title]="(cg?.inputs)[i * 6 + 0].name"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 1]"
+              [icon]="(cg?.inputs)[i * 6 + 1].icon"
+              [title]="(cg?.inputs)[i * 6 + 1].name"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 2]"
+              [icon]="(cg?.inputs)[i * 6 + 2].icon"
+              [title]="(cg?.inputs)[i * 6 + 2].name"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 3]"
+              [icon]="(cg?.inputs)[i * 6 + 3].icon"
+              [title]="(cg?.inputs)[i * 6 + 3].name"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 4]"
+              [icon]="(cg?.inputs)[i * 6 + 4].icon"
+              [title]="(cg?.inputs)[i * 6 + 4].name"
+            ></square-button>
+          </div>
+          <div [id]="'page' + i" class="button-row six" *ngSwitchCase="6">
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 0]"
+              [icon]="(cg?.inputs)[i * 6 + 0].icon"
+              [title]="(cg?.inputs)[i * 6 + 0].name"
+              [click]="selectInput"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 1]"
+              [icon]="(cg?.inputs)[i * 6 + 1].icon"
+              [title]="(cg?.inputs)[i * 6 + 1].name"
+              [click]="selectInput"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 2]"
+              [icon]="(cg?.inputs)[i * 6 + 2].icon"
+              [title]="(cg?.inputs)[i * 6 + 2].name"
+              [click]="selectInput"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 3]"
+              [icon]="(cg?.inputs)[i * 6 + 3].icon"
+              [title]="(cg?.inputs)[i * 6 + 3].name"
+              [click]="selectInput"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 4]"
+              [icon]="(cg?.inputs)[i * 6 + 4].icon"
+              [title]="(cg?.inputs)[i * 6 + 4].name"
+              [click]="selectInput"
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 5]"
+              [icon]="(cg?.inputs)[i * 6 + 5].icon"
+              [title]="(cg?.inputs)[i * 6 + 5].name"
+              [click]="selectInput"
+            ></square-button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+    <div class="page-indicator" [class.blank]="cg?.inputs.length <= 6">
+      <span
+        *ngFor="let p of pages; let i = index"
+        class="dot"
+        [class.selected]="i === curPage"
+      ></span>
+    </div>
+  </div>
+
+  <div class="volume">
+    <volume-slider
+      class="master"
+      [master]="true"
+      [muted]="cg?.muted"
+      [level]="cg?.level"
+      [levelChange]="setVolume"
+      [muteChange]="setMute"
+    ></volume-slider>
+  </div>
+</div>

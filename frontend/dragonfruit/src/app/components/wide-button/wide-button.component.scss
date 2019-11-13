@@ -1,0 +1,80 @@
+$width-value: 80px;
+$height-value: 100px;
+$double-width: calc(2 * #{$width-value});
+$triple-width: calc(3 * #{$width-value});
+$full-width: calc(4 * #{$width-value});
+wide-button {
+    .wrapper {
+        display: flex;
+        flex-flow: column nowrap;
+        min-width: $width-value;
+        width: $width-value;
+        min-height: $height-value;
+        justify-content: space-evenly;
+        text-align: center;
+        align-items: center;
+        border: solid #757575 1.25px;
+        border-radius: 15px;
+        color: #757575;
+        font-size: 12pt;
+        &.selected {
+            border: solid #1e88e5 2.5px;
+            color: #1e88e5;
+        }
+        &.double {
+            width: $double-width;
+        }
+        &.triple {
+            width: $triple-width;
+        }
+        &.full {
+            width: $full-width;
+        }
+    }
+}
+
+.output {
+    font-size: 16pt;
+    .icon {
+        transform: scale(1.5);
+    }
+}
+
+.ellipse {
+    margin-top: 15px;
+}
+
+$output-ht: calc(#{$height-value} * 0.55);
+$input-ht: calc(#{$height-value} - #{$output-ht});
+.column {
+    display: flex;
+    flex-flow: column nowrap;
+    height: $output-ht;
+    width: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+    &.input {
+        height: $input-ht;
+    }
+}
+
+.row {
+    display: flex;
+    flex-flow: row nowrap;
+    width: 90%;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+@media (min-width: 768px) {
+    $height-value: 150px;
+    $width-value: 110px;
+    wide-button {
+        .wrapper {
+            min-height: $height-value;
+            min-width: $width-value;
+            width: $width-value;
+        }
+    }
+}

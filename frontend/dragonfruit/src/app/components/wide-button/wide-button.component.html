@@ -1,0 +1,41 @@
+<div class="wrapper" [class.double]="outputs.length == 2" [class.triple]="outputs.length >= 3" [class.full]="full" (click)="do(click)" (press)="do(press)" [class.selected]="selected">
+    <div class="row" *ngIf="outputs.length < 5">
+        <ng-container *ngFor="let out of outputs">
+            <div class="column output">
+                <mat-icon class="icon">{{out.icon}}</mat-icon>
+                <span>{{out.name}}</span>
+            </div>
+        </ng-container>
+
+    </div>
+    <div class="row" *ngIf="outputs.length >= 5">
+        <div class="column output">
+            <mat-icon class="icon">{{outputs[0].icon}}</mat-icon>
+            <span>{{outputs[0].name}}</span>
+        </div>
+        <div class="column output">
+            <mat-icon class="icon">{{outputs[1].icon}}</mat-icon>
+            <span>{{outputs[1].name}}</span>
+        </div>
+        <div class="column output">
+            <mat-icon class="icon">{{outputs[2].icon}}</mat-icon>
+            <span>{{outputs[2].name}}</span>
+        </div>
+        <div class="column output">
+            <mat-icon class="icon">{{outputs[3].icon}}</mat-icon>
+            <span>{{outputs[3].name}}</span>
+        </div>
+        <!-- <div class="column output">
+            <mat-icon class="icon">{{outputs[4].icon}}</mat-icon>
+            <span>{{outputs[4].name}}</span>
+        </div> -->
+        <div class="column output">
+            <span class="ellipse">...</span>
+        </div>
+
+    </div>
+    <div class="column input">
+        <mat-icon>{{input?.icon}}</mat-icon>
+        <span>{{input?.name}}</span>
+    </div>
+</div>

@@ -1,0 +1,61 @@
+.logo {
+    height: 15vh;
+    width: 15vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    // filter: invert(100%);
+}
+
+.column {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 80vh;
+    width: 100%;
+    justify-content: space-evenly;
+    align-items: center;
+    font-size: 22pt;
+    color: #757575;
+    overflow: hidden;
+}
+
+.sign-in {
+    margin-top: 3vh;
+    transform: scale(2.5);
+}
+
+.keyboard-bg {
+    background: unset;
+}
+
+.room-code {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-evenly;
+    width: 60%;
+}
+
+.code-char {
+    width: 20px;
+    text-align: center;
+}
+
+:host ::ng-deep .mat-form-field-infix {
+    padding-bottom: 0;
+}
+
+@media (min-width: 768px) {
+    .column {
+        max-width: 800px;
+        margin: auto;
+    }
+    .code-char {
+        width: 30px;
+        text-align: center;
+    }
+    .logo {
+        height: 20vh;
+        width: 20vh;
+    }
+}

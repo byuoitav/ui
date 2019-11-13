@@ -1,0 +1,50 @@
+.title-container {
+  position: relative;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  width: 100%;
+  height: 4vh;
+  font-size: 12pt;
+  border-bottom: 1px solid grey;
+}
+
+.device-title {
+  position: absolute;
+}
+
+.button-close {
+  color: #1e88e5;
+  position: absolute;
+  right: 5vw;
+}
+
+.dialog-body {
+  width: 100%;
+  //   height: 100%;
+}
+
+.icon-container {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  padding-top: 2.5vh;
+  padding-bottom: 2.5vh;
+}
+
+.icon-container mat-icon {
+  transform: scale(2);
+  color: #707070;
+}
+
+.inputs-container {
+  width: 100%;
+  //   height: 100%;
+}
+
+.volume-text {
+  width: 100%;
+  text-align: center;
+  color: #707070;
+}

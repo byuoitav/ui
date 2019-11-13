@@ -1,0 +1,15 @@
+<div class="title-container">
+    <div class="device-title">{{ data.displayName }}</div>
+    <div class="button-close" (click)="onCloseClick()" (press)="onCloseClick()">Close</div>
+</div>
+
+<div class="dialog-body">
+    <div class="icon-container">
+        <mat-icon>{{ data.displayIcon }}</mat-icon>
+    </div>
+    <div class="inputs-container">
+
+    </div>
+    <div class="volume-text">Volume relative to master</div>
+    <volume-slider></volume-slider>
+</div>
