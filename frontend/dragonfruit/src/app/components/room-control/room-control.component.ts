@@ -1,29 +1,35 @@
-import { Component, OnInit, HostListener } from '@angular/core';
-import { BFFService } from 'src/app/services/bff.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Preset } from 'src/app/objects/database';
-import { ControlGroup, CONTROL_TAB, AUDIO_TAB, PRESENT_TAB, HELP_TAB } from 'src/app/objects/control';
-import { MatTabChangeEvent, MatTab } from '@angular/material';
+import { Component, OnInit, HostListener } from "@angular/core";
+import { BFFService } from "src/app/services/bff.service";
+import { ActivatedRoute, Router } from "@angular/router";
+import { Preset } from "src/app/objects/database";
+import {
+  ControlGroup,
+  CONTROL_TAB,
+  AUDIO_TAB,
+  PRESENT_TAB,
+  HELP_TAB
+} from "src/app/objects/control";
+import { MatTabChangeEvent, MatTab } from "@angular/material";
 
 @Component({
-  selector: 'app-room-control',
-  templateUrl: './room-control.component.html',
-  styleUrls: ['./room-control.component.scss']
+  selector: "app-room-control",
+  templateUrl: "./room-control.component.html",
+  styleUrls: ["./room-control.component.scss"]
 })
 export class RoomControlComponent implements OnInit {
   controlGroup: ControlGroup;
   groupIndex: string;
   roomID: string;
 
-  tabPosition = 'below';
+  tabPosition = "below";
   selectedTab: number;
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener("window:resize", ["$event"])
   onResize(event) {
     if (window.innerWidth >= 768) {
-      this.tabPosition = 'above';
+      this.tabPosition = "above";
     } else {
-      this.tabPosition = 'below';
+      this.tabPosition = "below";
     }
   }
 
@@ -33,22 +39,22 @@ export class RoomControlComponent implements OnInit {
     private router: Router
   ) {
     this.route.params.subscribe(params => {
-      this.roomID = params['id'];
-      this.groupIndex = params['index'];
-      this.selectedTab = +params['tabName'];
+      this.roomID = params["id"];
+      this.groupIndex = params["index"];
+      this.selectedTab = +params["tabName"];
       if (this.bff.room === undefined) {
         this.bff.connectToRoom(this.roomID);
 
         this.bff.done.subscribe(e => {
           this.controlGroup = this.bff.room.controlGroups[this.groupIndex];
-          if (this.controlGroup.id === 'Third') {
-            this.setExtraDisplays();
+          if (this.controlGroup.id === "Third") {
+            // this.setExtraDisplays();
           }
         });
       } else {
         this.controlGroup = this.bff.room.controlGroups[this.groupIndex];
-        if (this.controlGroup.id === 'Third') {
-          this.setExtraDisplays();
+        if (this.controlGroup.id === "Third") {
+          // this.setExtraDisplays();
         }
       }
 
@@ -62,6 +68,7 @@ export class RoomControlComponent implements OnInit {
   }
 
   // for testing only
+  /*
   setExtraDisplays() {
     this.controlGroup.displays = [
       {
@@ -257,23 +264,25 @@ export class RoomControlComponent implements OnInit {
       }
     ];
   }
+  */
 
   ngOnInit() {
     if (window.innerWidth >= 768) {
-      this.tabPosition = 'above';
+      this.tabPosition = "above";
     } else {
-      this.tabPosition = 'below';
+      this.tabPosition = "below";
     }
   }
 
   goBack = () => {
-    this.router.navigate(['/room/' + this.roomID]);
-  }
+    this.router.navigate(["/room/" + this.roomID]);
+  };
 
   tabChange(index: number) {
     this.selectedTab = index;
     const currentURL = decodeURI(window.location.pathname);
-    const newURL = currentURL.substr(0, currentURL.lastIndexOf('/') + 1) + (this.selectedTab);
+    const newURL =
+      currentURL.substr(0, currentURL.lastIndexOf("/") + 1) + this.selectedTab;
     this.router.navigate([newURL]);
   }
 }

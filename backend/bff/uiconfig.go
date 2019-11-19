@@ -35,7 +35,7 @@ type Preset struct {
 	Actions       struct {
 		SetInput  SetInput          `json:"setInput,omitempty"`
 		SetVolume actions.SetVolume `json:"setVolume,omitempty"`
-		SetMuted  actions.SetMuted  `json:"setMuted,omitempty"`
+		SetMuted  SetMuted          `json:"setMuted,omitempty"`
 	} `json:"-"`
 }
 

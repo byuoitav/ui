@@ -1,14 +1,19 @@
-import { Component, OnInit, Input as AngularInput, ViewChild, ViewEncapsulation } from '@angular/core';
-import { MatSlider } from '@angular/material';
-import { AudioDevice } from 'src/app/objects/control';
-
+import {
+  Component,
+  OnInit,
+  Input as AngularInput,
+  ViewChild,
+  ViewEncapsulation
+} from "@angular/core";
+import { MatSlider } from "@angular/material";
+import { AudioDevice } from "src/app/objects/control";
 
 export type SliderAction = (attribute: any, data?: any) => Promise<boolean>;
 
 @Component({
-  selector: 'volume-slider',
-  templateUrl: './volume-slider.component.html',
-  styleUrls: ['./volume-slider.component.scss'],
+  selector: "volume-slider",
+  templateUrl: "./volume-slider.component.html",
+  styleUrls: ["./volume-slider.component.scss"],
   encapsulation: ViewEncapsulation.Emulated
 })
 export class VolumeSliderComponent implements OnInit {
@@ -22,12 +27,11 @@ export class VolumeSliderComponent implements OnInit {
 
   @AngularInput() master = false;
 
-  @ViewChild('slider', null) slider: MatSlider;
+  @ViewChild("slider", null) slider: MatSlider;
 
-  constructor() { }
+  constructor() {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   // toggleMute() {
   //   this.muted = !this.muted;
@@ -41,7 +45,7 @@ export class VolumeSliderComponent implements OnInit {
 
   setLevel(f: SliderAction, newLevel: number) {
     if (!f) {
-      console.warn('no function for this action has been defined');
+      console.warn("no function for this action has been defined");
       return;
     }
 
@@ -54,7 +58,7 @@ export class VolumeSliderComponent implements OnInit {
 
   setMute(f: SliderAction, mute: boolean) {
     if (!f) {
-      console.warn('no function for this action has been defined');
+      console.warn("no function for this action has been defined");
       return;
     }
 

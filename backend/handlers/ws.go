@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -102,7 +103,7 @@ func NewClient(c echo.Context) error {
 				err = json.Unmarshal(msg, &m)
 				if err != nil {
 					client.Warn("unable to unmarshal message", zap.Error(err))
-					client.Out <- bff.ErrorMessage("unable to parse message: %s", err)
+					client.Out <- bff.ErrorMessage(fmt.Errorf("unable to parse message: %s", err))
 					continue
 				}
 

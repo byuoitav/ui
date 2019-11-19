@@ -1,6 +1,10 @@
 package bff
 
-import "github.com/byuoitav/common/structs"
+import (
+	"fmt"
+
+	"github.com/byuoitav/common/structs"
+)
 
 func GetDeviceConfigByID(devices []structs.Device, id ID) structs.Device {
 	for i := range devices {
@@ -40,4 +44,16 @@ func GetAudioDeviceStateByName(audioDevices []structs.AudioDevice, name string) 
 	}
 
 	return structs.AudioDevice{}
+}
+
+func GetAudioDeviceByID(audioGroups []AudioGroup, id ID) (AudioDevice, error) {
+	for i := range audioGroups {
+		for j := range audioGroups[i].AudioDevices {
+			if id == audioGroups[i].AudioDevices[j].ID {
+				return audioGroups[i].AudioDevices[j], nil
+			}
+		}
+	}
+
+	return AudioDevice{}, fmt.Errorf("audioDevice %q not found", id)
 }

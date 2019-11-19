@@ -8,13 +8,12 @@ import (
 
 type Message map[string]json.RawMessage
 
-type SetInputMessage struct {
-	DisplayID string `json:"display"`
-	InputID   string `json:"input"`
-}
+//func ErrorMessage(format string, a ...interface{}) Message {
+//	return StringMessage("error", format, a...)
+//}
 
-func ErrorMessage(format string, a ...interface{}) Message {
-	return StringMessage("error", format, a...)
+func ErrorMessage(err error) Message {
+	return StringMessage("error", err.Error())
 }
 
 func StringMessage(key string, format string, a ...interface{}) Message {
@@ -40,11 +39,12 @@ func (c *Client) HandleMessage(msg Message) {
 		case "setInput":
 			c.CurrentPreset().Actions.SetInput.Do(c, v)
 		case "setMuted":
+			c.CurrentPreset().Actions.SetMuted.Do(c, v)
 		case "setVolume":
 		default:
 			// c.Warn("received message with unknown key", zap.String("key", k), zap.ByteString("val", v))
 			fmt.Printf("v: %s", v)
-			c.Out <- ErrorMessage("unknown key %q", k)
+			c.Out <- ErrorMessage(fmt.Errorf("unknown key %q", k))
 		}
 	}
 }

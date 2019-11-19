@@ -13,11 +13,16 @@ type SetInput struct {
 	OnSameInput HttpRequest `json:"onSameInput"`
 }
 
+type SetInputMessage struct {
+	DisplayID string `json:"display"`
+	InputID   string `json:"input"`
+}
+
 func (si SetInput) Do(c *Client, data []byte) {
 	var msg SetInputMessage
 	err := json.Unmarshal(data, &msg)
 	if err != nil {
-		c.Out <- ErrorMessage("invalid value for setInput: %s", err)
+		c.Out <- ErrorMessage(fmt.Errorf("invalid value for setInput: %s", err))
 		return
 	}
 
@@ -64,6 +69,6 @@ func (si SetInput) Do(c *Client, data []byte) {
 	err = c.SendAPIRequest(state)
 	if err != nil {
 		c.Warn("failed to change input", zap.Error(err))
-		c.Out <- ErrorMessage("failed to change input: %s", err)
+		c.Out <- ErrorMessage(fmt.Errorf("failed to change input: %s", err))
 	}
 }

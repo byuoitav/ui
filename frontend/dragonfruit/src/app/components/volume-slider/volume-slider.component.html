@@ -1,9 +1,25 @@
 <div class="wrapper" [class.master]="master">
-    <mat-slider #slider class="volume-slider" min="0" max="100" step="1" [(value)]="level" thumbLabel (change)="setLevel(levelChange, $event.value); closeThumb()"></mat-slider>
-    <button mat-icon-button class="mute-button" (click)="setMute(muteChange, !muted)" (press)="setMute(muteChange, !muted)">
-        <mat-icon *ngIf="muted === false; else elseBlock" class="volume-icon">volume_up</mat-icon>
-        <ng-template #elseBlock>
-            <mat-icon class="volume-icon">volume_off</mat-icon>
-        </ng-template>
-    </button>
+  <mat-slider
+    #slider
+    class="volume-slider"
+    min="0"
+    max="100"
+    step="1"
+    [(value)]="level"
+    thumbLabel
+    (change)="setLevel(levelChange, $event.value); closeThumb()"
+  ></mat-slider>
+  <button
+    mat-icon-button
+    class="mute-button"
+    (click)="setMute(muteChange, !muted)"
+    (press)="setMute(muteChange, !muted)"
+  >
+    <mat-icon *ngIf="muted === false; else elseBlock" class="volume-icon"
+      >volume_up</mat-icon
+    >
+    <ng-template #elseBlock>
+      <mat-icon class="volume-icon">volume_off</mat-icon>
+    </ng-template>
+  </button>
 </div>
