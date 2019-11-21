@@ -2,8 +2,6 @@ package bff
 
 import (
 	"encoding/json"
-
-	"github.com/byuoitav/ui/bff/actions"
 )
 
 type UIConfig struct {
@@ -33,9 +31,10 @@ type Preset struct {
 
 	ActionsConfig json.RawMessage `json:"actions,omitempty"`
 	Actions       struct {
-		SetInput  SetInput          `json:"setInput,omitempty"`
-		SetVolume actions.SetVolume `json:"setVolume,omitempty"`
-		SetMuted  SetMuted          `json:"setMuted,omitempty"`
+		SetInput  SetInput  `json:"setInput,omitempty"`
+		SetVolume SetVolume `json:"setVolume,omitempty"`
+		SetMuted  SetMuted  `json:"setMuted,omitempty"`
+		SetPower  SetPower  `json:"setPower,omitempty"`
 	} `json:"-"`
 }
 

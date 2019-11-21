@@ -91,3 +91,7 @@ type HttpRequest struct {
 	URL    string          `json:"url"`
 	Body   json.RawMessage `json:"body"`
 }
+
+func BoolP(b bool) *bool {
+	return &b
+}

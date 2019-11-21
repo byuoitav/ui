@@ -90,4 +90,16 @@ export class BFFService {
     console.log(JSON.stringify(kv));
     this.ws.send(JSON.stringify(kv));
   }
+
+  setPower(display: Display, s: string) {
+    const kv = {
+      setMuted: {
+        display: display.id,
+        status: s
+      }
+    };
+
+    console.log(JSON.stringify(kv));
+    this.ws.send(JSON.stringify(kv));
+  }
 }

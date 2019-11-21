@@ -9,20 +9,19 @@ import (
 	"go.uber.org/zap"
 )
 
-type SetInput struct {
-	OnSameInput HttpRequest `json:"onSameInput"`
+type SetPower struct {
 }
 
-type SetInputMessage struct {
+type SetPowerMessage struct {
 	DisplayID string `json:"display"`
-	InputID   string `json:"input"`
+	Status    string `json:"status"`
 }
 
-func (si SetInput) Do(c *Client, data []byte) {
-	var msg SetInputMessage
+func (sp SetPower) Do(c *Client, data []byte) {
+	var msg SetPowerMessage
 	err := json.Unmarshal(data, &msg)
 	if err != nil {
-		c.Out <- ErrorMessage(fmt.Errorf("invalid value for setInput: %s", err))
+		c.Out <- ErrorMessage(fmt.Errorf("invalid value for setPower: %s", err))
 		return
 	}
 
@@ -31,7 +30,7 @@ func (si SetInput) Do(c *Client, data []byte) {
 		// error
 	}
 
-	c.Info("setting input", zap.String("on", msg.DisplayID), zap.String("to", msg.InputID), zap.String("controlGroup", string(cg.ID)))
+	c.Info("setting Power", zap.String("on", msg.DisplayID), zap.String("to", msg.Status), zap.String("controlGroup", string(cg.ID)))
 
 	// find the display by ID
 	var disp Display
@@ -57,20 +56,9 @@ func (si SetInput) Do(c *Client, data []byte) {
 				Name: dSplit[2],
 			},
 		}
-
-		if msg.InputID == "blank" {
-			display.Blanked = BoolP(true)
-		} else {
-			iSplit := strings.Split(string(msg.InputID), "-")
-			display.Input = iSplit[2]
-			display.Blanked = BoolP(false)
-		}
+		display.Power = msg.Status
 
 		state.Displays = append(state.Displays, display)
-	}
-
-	if len(si.OnSameInput.URL) > 0 {
-		// send mute request
 	}
 
 	err = c.SendAPIRequest(state)

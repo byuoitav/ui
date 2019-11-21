@@ -37,10 +37,14 @@ func (c *Client) HandleMessage(msg Message) {
 	for k, v := range msg {
 		switch k {
 		case "setInput":
+			//This will also blank and unblank the device
 			c.CurrentPreset().Actions.SetInput.Do(c, v)
 		case "setMuted":
 			c.CurrentPreset().Actions.SetMuted.Do(c, v)
 		case "setVolume":
+			c.CurrentPreset().Actions.SetVolume.Do(c, v)
+		case "setPower":
+			c.CurrentPreset().Actions.SetPower.Do(c, v)
 		default:
 			// c.Warn("received message with unknown key", zap.String("key", k), zap.ByteString("val", v))
 			fmt.Printf("v: %s", v)
