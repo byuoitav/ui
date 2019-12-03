@@ -112,6 +112,8 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*
 
 	c.Info("Got all initial information, sending room to client")
 
+	//TODO Turn on room
+	//c.CurrentPreset().Actions.SetPower()
 	// write the inital room info
 	msg, err := JSONMessage("room", c.GetRoom())
 	if err != nil {
