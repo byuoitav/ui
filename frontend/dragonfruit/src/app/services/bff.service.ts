@@ -82,7 +82,7 @@ export class BFFService {
   setMuted(ad: AudioDevice, m: boolean) {
     const kv = {
       setMuted: {
-        audioDevice: ad,
+        audioDevice: ad.id,
         muted: m
       }
     };

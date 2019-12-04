@@ -16,7 +16,7 @@ import { IControlTab } from "../control-tab/icontrol-tab";
 export class SingleDisplayComponent implements OnInit, IControlTab {
   @AngularInput() cg: ControlGroup;
   @AngularInput() display: Display;
-  // @AngularInput() displayAudio: AudioDevice;
+  @AngularInput() displayAudio: AudioDevice;
 
   pages: number[] = [];
   curPage = 0;
@@ -57,11 +57,11 @@ export class SingleDisplayComponent implements OnInit, IControlTab {
   };
 
   setVolume = (level: number) => {
-    this.bff.setVolume(this.cg, level, this.displayAudio.id);
+    this.bff.setVolume(this.displayAudio, level);
   };
 
   setMute = (muted: boolean) => {
-    this.bff.setMute(this.cg, muted, this.displayAudio.id);
+    this.bff.setMuted(this.displayAudio, muted);
   };
 
   onSwipe(evt) {

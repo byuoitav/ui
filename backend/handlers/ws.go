@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 
@@ -17,11 +18,6 @@ import (
 	"go.uber.org/zap"
 )
 
-type preset struct {
-	RoomID     string `json:"RoomID"`
-	PresetName string `json:"PresetName"`
-}
-
 var (
 	upgrader = websocket.Upgrader{
 		EnableCompression: true,
@@ -31,44 +27,50 @@ var (
 	}
 )
 
-func NewClient(c echo.Context) (string, error) {
-	// TODO check that the room ID is valid, or do that in middleware
-	controlKey := c.Param("key")
-	var resp preset
-	url := fmt.Sprintf("https://control-keys.avs.byu.edu/%s/getPreset", controlKey)
-	req, err := http.NewRequest("GET", url, nil)
+func NewClient(c echo.Context) error {
+	// TODO check if it's coming from localhost and accept that, figure out which preset it's supposed to be
+	url := fmt.Sprintf("%s/%s/getPreset", os.Getenv("CODE_SERVICE_URL"), c.Param("key"))
+
+	req, err := http.NewRequestWithContext(c.Request().Context(), "GET", url, nil)
 	if err != nil {
-		return "", fmt.Errorf("an error occured while making the call: %w", err)
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("unable to build request to check room code: %s", err))
 	}
 
-	res, gerr := http.DefaultClient.Do(req)
-	if gerr != nil {
-		return "", fmt.Errorf("error when making call: %w", gerr)
+	log.P.Info("Getting room/preset from control key", zap.String("key", c.Param("key")))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("unable to make request to check room code: %s", err))
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("unable to read response from code service: %s", err))
 	}
 
-	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return "", fmt.Errorf("error when unmarshalling the response: %w", err)
-	}
+	// TODO check the response code/response body to return a better error
 
-	err = json.Unmarshal(body, &resp)
-	if err != nil {
-		fmt.Printf("%s/n", body)
-		return "", fmt.Errorf("error when unmarshalling the response: %w", err)
+	preset := struct {
+		RoomID     string `json:"RoomID"`
+		PresetName string `json:"PresetName"`
+	}{}
+
+	if err = json.Unmarshal(body, &preset); err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("unable to parse response from code service: %s. response: %s", err, body))
 	}
 
 	client, err := bff.RegisterClient(c.Request().Context(), resp.RoomID, resp.PresetName, c.Request().RemoteAddr)
 	if err != nil {
 		log.P.Warn("unable to register client", zap.Error(err))
-		return "", c.String(http.StatusInternalServerError, err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	// TODO client.close?
 
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		log.P.Warn("unable to upgrade connection", zap.Error(err))
-		return "", c.String(http.StatusBadRequest, "unable to upgrade connection "+err.Error())
+		return c.String(http.StatusBadRequest, "unable to upgrade connection "+err.Error())
 	}
 	defer ws.Close()
 
@@ -85,7 +87,9 @@ func NewClient(c echo.Context) (string, error) {
 				data = v
 				break
 			}
+
 			/*
+				TODO once the front end is ready, this is the code we should use
 				data, err := json.Marshal(msg)
 				if err != nil {
 					client.Warn("unable to marshal message to send to client", zap.Error(err))
@@ -144,5 +148,5 @@ func NewClient(c echo.Context) (string, error) {
 	}()
 
 	wg.Wait()
-	return "", nil
+	return nil
 }
