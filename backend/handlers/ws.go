@@ -60,7 +60,7 @@ func NewClient(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, fmt.Sprintf("unable to parse response from code service: %s. response: %s", err, body))
 	}
 
-	client, err := bff.RegisterClient(c.Request().Context(), resp.RoomID, resp.PresetName, c.Request().RemoteAddr)
+	client, err := bff.RegisterClient(c.Request().Context(), preset.RoomID, preset.PresetName, c.Request().RemoteAddr)
 	if err != nil {
 		log.P.Warn("unable to register client", zap.Error(err))
 		return c.String(http.StatusInternalServerError, err.Error())
