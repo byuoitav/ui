@@ -113,6 +113,25 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*
 	c.Info("Got all initial information, sending room to client")
 
 	//TODO Turn on room
+	c.selectedControlGroupID = controlGroupID
+	//check if controlgroup is empty, if not turn on displays in controlgroup
+	if c.selectedControlGroupID != "" {
+		room := c.GetRoom()
+		var displays []ID
+		for _, display := range room.ControlGroups[c.selectedControlGroupID].Displays {
+			displays = append(displays, display.ID)
+		}
+		setPowerMessage := SetPowerMessage{
+			Displays: displays,
+			Status:   "on",
+		}
+		// send the message
+		err := c.CurrentPreset().Actions.SetPower.DoWithMessage(c, setPowerMessage)
+		if err != nil {
+			return nil, fmt.Errorf("unable to power on the following displays %s: %s", displays, err)
+		}
+	}
+
 	//c.CurrentPreset().Actions.SetPower()
 	// write the inital room info
 	msg, err := JSONMessage("room", c.GetRoom())
@@ -310,11 +329,7 @@ func (c *Client) GetRoom() Room {
 		// TODO PresentGroups
 	}
 
-	for k := range room.ControlGroups {
-		c.selectedControlGroupID = k
-		room.SelectedControlGroup = ID(k)
-		break
-	}
+	room.SelectedControlGroup = ID(c.selectedControlGroupID)
 
 	return room
 }
