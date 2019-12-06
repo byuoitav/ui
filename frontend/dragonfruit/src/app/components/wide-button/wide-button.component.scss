@@ -1,5 +1,5 @@
-$width-value: 80px;
-$height-value: 100px;
+$width-value: 90px;
+$height-value: 120px;
 $double-width: calc(2 * #{$width-value});
 $triple-width: calc(3 * #{$width-value});
 $full-width: calc(4 * #{$width-value});
@@ -10,6 +10,9 @@ wide-button {
         min-width: $width-value;
         width: $width-value;
         min-height: $height-value;
+        // height: inherit;
+        flex-grow: 1 1 auto;
+        // overflow: auto;
         justify-content: space-evenly;
         text-align: center;
         align-items: center;
@@ -34,9 +37,10 @@ wide-button {
 }
 
 .output {
-    font-size: 16pt;
+    font-size: 13pt;
     .icon {
         transform: scale(1.5);
+        margin-bottom: 5px;
     }
 }
 
@@ -50,8 +54,11 @@ $input-ht: calc(#{$height-value} - #{$output-ht});
     display: flex;
     flex-flow: column nowrap;
     height: $output-ht;
+    // height: inherit;
     width: wrap;
     justify-content: space-between;
+    flex-grow: 1 1 auto;
+    // overflow: auto;
     align-items: center;
     margin-top: 5px;
     &.input {

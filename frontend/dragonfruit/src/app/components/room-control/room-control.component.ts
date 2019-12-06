@@ -20,6 +20,7 @@ export class RoomControlComponent implements OnInit {
   controlGroup: ControlGroup;
   groupIndex: string;
   roomID: string;
+  controlKey: string;
 
   tabPosition = "below";
   selectedTab: number;
@@ -39,11 +40,12 @@ export class RoomControlComponent implements OnInit {
     private router: Router
   ) {
     this.route.params.subscribe(params => {
+      this.controlKey = params["key"];
       this.roomID = params["id"];
       this.groupIndex = params["index"];
       this.selectedTab = +params["tabName"];
       if (this.bff.room === undefined) {
-        this.bff.connectToRoom(this.roomID);
+        this.bff.connectToRoom(this.controlKey);
 
         this.bff.done.subscribe(e => {
           this.controlGroup = this.bff.room.controlGroups[this.groupIndex];
@@ -275,7 +277,7 @@ export class RoomControlComponent implements OnInit {
   }
 
   goBack = () => {
-    this.router.navigate(["/room/" + this.roomID]);
+    this.router.navigate(["/key/" + this.controlKey + "/room/" + this.roomID]);
   };
 
   tabChange(index: number) {

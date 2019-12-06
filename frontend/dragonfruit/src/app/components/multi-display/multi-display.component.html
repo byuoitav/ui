@@ -38,7 +38,7 @@
             </div>
         </div>
         <button mat-icon-button class="page-button right" [disableRipple]=true (click)="pageRight('display')" [class.blank]="!canPageRight('display')"><mat-icon>keyboard_arrow_right</mat-icon></button>
-        <div class="page-indicator" [class.blank]="displayPages.length <= 1">
+        <div *ngIf="displayPages.length > 1" class="page-indicator" [class.blank]="displayPages.length <= 1">
             <span *ngFor="let p of displayPages; let i = index;" class="dot" [class.selected]="i === curDisplayPage" (click)="pageToNumber('display', i)"></span>
         </div>
         <mat-divider></mat-divider>

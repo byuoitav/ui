@@ -15,11 +15,11 @@ const routes: Routes = [
     component: LoginComponent
   },
   {
-    path: 'room/:id',
+    path: 'key/:key/room/:id',
     component: SelectionComponent
   },
   {
-    path: 'room/:id/group/:index/tab/:tabName',
+    path: 'key/:key/room/:id/group/:index/tab/:tabName',
     component: RoomControlComponent
   }
 ];

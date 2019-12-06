@@ -33,16 +33,63 @@
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-evenly;
-    width: 60%;
+    min-height: 30px;
+    height: 30px;
 }
 
 .code-char {
     width: 20px;
-    text-align: center;
+    border-block-end: 1px solid black;
+    min-height: 30px;
+    height: 30px;
 }
 
-:host ::ng-deep .mat-form-field-infix {
-    padding-bottom: 0;
+// :host ::ng-deep .mat-form-field-infix {
+//     padding-bottom: 0;
+// }
+$code-width: 190px;
+$letter-space: 16px;
+#partitioned {
+    width: $code-width;
+    min-width: $code-width;
+    max-width: $code-width;
+    letter-spacing: $letter-space;
+    padding-left: 10px;
+    // padding-right: 2px;
+    background-image: linear-gradient(to left, black 70%, rgba(255, 255, 255, 0) 0%);
+    background-position: bottom;
+    background-size: 32px 1px;
+    background-repeat: repeat-x;
+    background-position-x: 32px;
+    margin-left: -7px;
+}
+
+// #partitioned {
+//     padding-left: 13px;
+//     letter-spacing: 30px;
+//     border: unset;
+//     background-image: linear-gradient(to left, black 70%, rgba(255, 255, 255, 0) 0%);
+//     background-position: bottom;
+//     background-size: 50px 1px;
+//     background-repeat: repeat-x;
+//     background-position-x: 35px;
+//     width: 260px;
+//     min-width: 260px;
+//     &:focus {
+//         outline: none;
+//     }
+// }
+// #divInner {
+//     left: 0;
+//     // margin-left: -40px;
+//     position: sticky;
+// }
+// #divOuter {
+//     width: 250px;
+//     overflow: hidden;
+// }
+::ng-deep .mat-form-field-underline {
+    display: none;
 }
 
 @media (min-width: 768px) {

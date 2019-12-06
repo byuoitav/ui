@@ -10,15 +10,18 @@ import { ControlGroup } from 'src/app/objects/control';
 })
 export class SelectionComponent implements OnInit {
   roomID = '';
+  controlKey = '';
 
   constructor(
     private route: ActivatedRoute,
     public bff: BFFService,
     private router: Router) {
     this.route.params.subscribe(params => {
-      this.roomID = params['id'];
-      if (this.bff.room === undefined) {
-        this.bff.connectToRoom(this.roomID);
+      this.roomID = params["id"]
+      this.controlKey = params["key"]
+
+      if (this.bff.room == undefined) {
+        this.bff.connectToRoom(this.controlKey);
       }
     });
   }
@@ -34,7 +37,7 @@ export class SelectionComponent implements OnInit {
     return new Promise<boolean>(() => {
       const index = cg.id;
       this.bff.room.selectedControlGroup = cg.id;
-      this.router.navigate(['/room/' + this.roomID + '/group/' + index + '/tab/0']);
+      this.router.navigate(['/key/' + this.controlKey + '/room/' + this.roomID + '/group/' + index + '/tab/0']);
     });
   }
 }
