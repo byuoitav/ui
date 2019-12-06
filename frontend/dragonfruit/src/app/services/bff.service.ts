@@ -21,7 +21,7 @@ import {
   AudioGroup,
   PresentGroup
 } from "../objects/control";
-import { Router } from '@angular/router';
+import { Router } from "@angular/router";
 
 @Injectable({
   providedIn: "root"
@@ -53,7 +53,7 @@ export class BFFService {
 
     this.ws.onerror = event => {
       console.error("Websocket error", event);
-      this.router.navigate(['/login'])      
+      this.router.navigate(["/login"]);
     };
   }
 

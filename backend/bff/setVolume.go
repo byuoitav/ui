@@ -1,6 +1,7 @@
 package bff
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -50,7 +51,7 @@ func (sv SetVolume) Do(c *Client, data []byte) {
 		Volume: &msg.Level,
 	})
 
-	if err := c.SendAPIRequest(state); err != nil {
+	if err := c.SendAPIRequest(context.TODO(), state); err != nil {
 		c.Warn("failed to set volume", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to set volume: %s", err))
 	}
