@@ -1,6 +1,7 @@
 package bff
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -73,7 +74,7 @@ func (si SetInput) Do(c *Client, data []byte) {
 		// send mute request
 	}
 
-	err = c.SendAPIRequest(state)
+	err = c.SendAPIRequest(context.TODO(), state)
 	if err != nil {
 		c.Warn("failed to change input", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to change input: %s", err))

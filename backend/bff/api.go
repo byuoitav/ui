@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (c *Client) SendAPIRequest(room structs.PublicRoom) error {
+func (c *Client) SendAPIRequest(ctx context.Context, room structs.PublicRoom) error {
 	body, err := json.Marshal(room)
 	if err != nil {
 		return err
@@ -21,14 +21,13 @@ func (c *Client) SendAPIRequest(room structs.PublicRoom) error {
 
 	roomSplit := strings.Split(c.roomID, "-")
 
-	url := fmt.Sprintf("http://itb-3310-cp1:8000/buildings/%s/rooms/%s", c.buildingID, roomSplit[1])
-	req, err := http.NewRequestWithContext(context.TODO(), "PUT", url, bytes.NewReader(body))
+	url := fmt.Sprintf("http://itb-1006-cp1.byu.edu:8000/buildings/%s/rooms/%s", c.buildingID, roomSplit[1])
+	req, err := http.NewRequestWithContext(ctx, "PUT", url, bytes.NewReader(body))
 	if err != nil {
 		return err
 	}
 
 	req.Header.Add("Content-Type", "application/json")
-
 	c.Debug("sending API request", zap.String("url", url), zap.ByteString("body", body))
 
 	resp, err := c.httpClient.Do(req)
@@ -49,6 +48,7 @@ func (c *Client) SendAPIRequest(room structs.PublicRoom) error {
 	}
 
 	c.updateRoom(newState)
+	c.Info("Updated room, sending to client")
 
 	roomMsg, err := JSONMessage("room", c.GetRoom())
 	if err != nil {
@@ -59,6 +59,7 @@ func (c *Client) SendAPIRequest(room structs.PublicRoom) error {
 	return nil
 }
 
+// return if there are changes (true/false)
 func (c *Client) updateRoom(newRoom structs.PublicRoom) {
 	for _, disp := range newRoom.Displays {
 		// go find the current one

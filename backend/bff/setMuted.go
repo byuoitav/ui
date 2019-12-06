@@ -1,6 +1,7 @@
 package bff
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -50,7 +51,7 @@ func (sm SetMuted) Do(c *Client, data []byte) {
 		Muted: &msg.Muted,
 	})
 
-	if err := c.SendAPIRequest(state); err != nil {
+	if err := c.SendAPIRequest(context.TODO(), state); err != nil {
 		c.Warn("failed to set muted", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to set muted: %s", err))
 	}
