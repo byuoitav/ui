@@ -2,27 +2,6 @@
     <img src="../../../assets/logo.svg" class="logo" />
     <span>Enter Control Key:</span>
     <mat-form-field (click)="showNumpad()">
-        <!-- <mat-form-field class="code-char">
-            <input id="codeKey0" inputmode="numeric" matInput readonly=false [value]="getCodeChar(0)" (keyup)="codeKeyUp($event, 0)" maxlength="1">
-        </mat-form-field>
-        <mat-form-field class="code-char">
-            <input id="codeKey1" inputmode="numeric" matInput readonly=false [value]="getCodeChar(1)" (keyup)="codeKeyUp($event, 1)" maxlength="1">
-        </mat-form-field>
-        <mat-form-field class="code-char">
-            <input id="codeKey2" inputmode="numeric" matInput readonly=false [value]="getCodeChar(2)" (keyup)="codeKeyUp($event, 2)" maxlength="1">
-        </mat-form-field>
-        <mat-form-field class="code-char">
-            <input id="codeKey3" inputmode="numeric" matInput readonly=false [value]="getCodeChar(3)" (keyup)="codeKeyUp($event, 3)" maxlength="1">
-        </mat-form-field>
-        <mat-form-field class="code-char">
-            <input id="codeKey4" inputmode="numeric" matInput readonly=false [value]="getCodeChar(4)" (keyup)="codeKeyUp($event, 4)" maxlength="1">
-        </mat-form-field>
-        <mat-form-field class="code-char">
-            <input id="codeKey5" inputmode="numeric" matInput readonly=false [value]="getCodeChar(5)" (keyup)="codeKeyUp($event, 5)" maxlength="1">
-        </mat-form-field>
-        <mat-form-field>
-            <input id="partitioned" matInput inputmode="numeric" maxlength="6">
-        </mat-form-field> -->
         <input matInput inputmode="numeric" [(ngModel)]="roomCode" style="opacity: 0; border: solid 1px green; z-index: -1; position: absolute" maxlength="6" />
         <div class="room-code">
             <div class="code-char">{{ roomCode[0] ? roomCode[0] : " " }}</div>
@@ -35,6 +14,5 @@
     </mat-form-field>
 
 
-    </mat-form-field>
     <button mat-stroked-button color="primary" class="sign-in" [disableRipple]=true (click)="goToRoomControl()">Enter</button>
 </div>
