@@ -1,10 +1,10 @@
-name: Test & Build Release
+name: Deploy New Version
 on:
   release:
     types: [published]
 
 jobs:
-  test:
+  deploy-test:
     name: Test
     runs-on: ubuntu-latest
     steps:
@@ -25,7 +25,7 @@ jobs:
           token: ${{secrets.CODECOV_TOKEN}}
           file: ./coverage.txt
 
-  build:
+  deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
     steps:

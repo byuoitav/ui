@@ -1,12 +1,12 @@
-name: Lint, Test, & Validate Build
+name: Pull Request Checks
 on:
   pull_request:
     branches:
       - master
 
 jobs:
-  lint:
-    name: Lint
+  pr-lint:
+    name: Lint on PR
     runs-on: ubuntu-latest
     steps:
       - name: Set up go (TODO - lint frontend)
@@ -23,8 +23,8 @@ jobs:
           curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.18.0
           make lint
 
-  test:
-    name: Test
+  pr-test:
+    name: Test on PR
     runs-on: ubuntu-latest
     steps:
       - name: Set up go (TODO - test frontend)
@@ -38,8 +38,8 @@ jobs:
       - name: Run tests
         run: make test
 
-  build:
-    name: Validate Build
+  pr-build:
+    name: Test build on PR
     runs-on: ubuntu-latest
     steps:
       - name: Set up go
