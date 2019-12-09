@@ -37,13 +37,13 @@ build: deps
 
 docker: clean build
 	@echo Building docker container ${OWNER}/${NAME}:${VERSION}
-	docker build -f dockerfile -t ${DOCKER_URL}/${OWNER}/${NAME}/linux-amd64:${VERSION} dist
+	docker build -f dockerfile -t ${DOCKER_URL}/${OWNER}/${NAME}/amd64:${VERSION} dist
 
 	@echo Logging into Dockerhub
 	docker login ${DOCKER_URL} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
 
 	@echo Pushing container to Dockerhub
-	docker push ${OWNER}/${NAME}:${VERSION}
+	docker push ${DOCKER_URL}/${OWNER}/${NAME}/amd64:${VERSION}
 
 test:
 	@cd backend && go test -v ${PKG_LIST} && pwd
