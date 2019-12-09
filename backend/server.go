@@ -8,6 +8,7 @@ import (
 	"github.com/byuoitav/ui/handlers"
 	"github.com/byuoitav/ui/log"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
 )
@@ -43,6 +44,12 @@ func main() {
 	e := echo.New()
 
 	e.GET("ws/:key", handlers.NewClient)
+	e.Group("/", middleware.StaticWithConfig(middleware.StaticConfig{
+		Root:   "dragonfruit",
+		Index:  "index.html",
+		HTML5:  true,
+		Browse: true,
+	}))
 
 	addr := fmt.Sprintf(":%d", port)
 	err := e.Start(addr)

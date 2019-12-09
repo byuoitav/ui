@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BFFService } from 'src/app/services/bff.service';
 import { ControlGroup } from 'src/app/objects/control';
+import { TurnOffRoomDialogComponent } from 'src/app/dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component';
 
 @Component({
   selector: 'app-selection',
@@ -15,6 +17,7 @@ export class SelectionComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     public bff: BFFService,
+    private dialog: MatDialog,
     private router: Router) {
     this.route.params.subscribe(params => {
       this.roomID = params["id"]
@@ -30,7 +33,12 @@ export class SelectionComponent implements OnInit {
   }
 
   goBack = () => {
-    this.router.navigate(['/login']);
+    this.dialog.open(TurnOffRoomDialogComponent).afterClosed().subscribe(result => {
+      // if the result is true then send command to turn off room and redirect page, else redirect webpage
+      console.log(`Dialog result: ${result}`);
+      this.router.navigate(['/login']);
+
+    });
   }
 
   selectControlGroup = (cg: ControlGroup): Promise<boolean> => {
