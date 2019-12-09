@@ -43,6 +43,12 @@ func main() {
 	e := echo.New()
 
 	e.GET("ws/:key", handlers.NewClient)
+	e.Group("/", middleware.StaticWithConfig(middleware.StaticConfig{
+		Root:   "dragonfruit",
+		Index:  "index.html",
+		HTML5:  true,
+		Browse: true,
+	}))
 
 	addr := fmt.Sprintf(":%d", port)
 	err := e.Start(addr)

@@ -26,6 +26,7 @@ import { NumpadComponent } from './dialogs/numpad/numpad.component';
 import { SquareButtonComponent } from './components/square-button/square-button.component';
 import { VolumeSliderComponent } from './components/volume-slider/volume-slider.component';
 import { DisplayDialogComponent } from './dialogs/display-dialog/display-dialog.component';
+import { TurnOffRoomDialogComponent } from './dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component';
 import { RoomControlComponent } from './components/room-control/room-control.component';
 import { SelectionComponent } from './components/selection/selection.component';
 import { AudioComponent } from './components/audio/audio.component';
@@ -46,6 +47,7 @@ import { ControlTabDirective } from './components/control-tab/control-tab.direct
     SquareButtonComponent,
     VolumeSliderComponent,
     DisplayDialogComponent,
+    TurnOffRoomDialogComponent,
     RoomControlComponent,
     SelectionComponent,
     AudioComponent,

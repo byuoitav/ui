@@ -5,7 +5,7 @@
 </div>
 
 <div class="row">
-    <h2 class="mat-h2" style="margin-top: 20px;">Select a station to control</h2>
+    <h2 class="mat-h2" style="margin-top: 20px;">Select a station to control!!</h2>
 </div>
 <div class="row options">
     <square-button class="square-button" *ngFor="let cg of bff.room?.controlGroups | keyvalue" [data]="cg.value" [icon]="cg.value.name" [showIcon]="false" [click]="selectControlGroup" [press]="selectControlGroup"></square-button>
