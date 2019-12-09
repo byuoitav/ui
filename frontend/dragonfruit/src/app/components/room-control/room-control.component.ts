@@ -23,7 +23,7 @@ export class RoomControlComponent implements OnInit {
   controlKey: string;
 
   tabPosition = "below";
-  selectedTab: number;
+  selectedTab: number | string;
 
   @HostListener("window:resize", ["$event"])
   onResize(event) {
@@ -72,7 +72,7 @@ export class RoomControlComponent implements OnInit {
     this.router.navigate(["/key/" + this.controlKey + "/room/" + this.roomID]);
   };
 
-  tabChange(index: number) {
+  tabChange(index: number | string) {
     this.selectedTab = index;
     const currentURL = decodeURI(window.location.pathname);
     const newURL =
