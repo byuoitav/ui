@@ -1,8 +1,9 @@
 name: Lint & Test
 on:
   push:
-    - '*'
-    - '!master'
+    branches:
+      - "*"
+      - "!master"
 
 jobs:
   lint:
