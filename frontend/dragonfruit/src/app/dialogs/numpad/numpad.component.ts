@@ -54,6 +54,9 @@ export class NumpadComponent implements OnInit, AfterViewInit {
 
   onKeyPress = (button: string) => {
     // this.roomCode.nativeElement.focus();
+    if (button === '{bksp}') {
+      this.roomCodeValue = this.roomCodeValue.substring(0, this.roomCodeValue.length - 1);
+    }
     if (button === '{enter}') {
       this.bottomSheetRef.dismiss('all good in the hood');
     }

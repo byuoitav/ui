@@ -60,19 +60,21 @@ func NewClient(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, fmt.Sprintf("unable to parse response from code service: %s. response: %s", err, body))
 	}
 
-	client, err := bff.RegisterClient(c.Request().Context(), preset.RoomID, preset.PresetName, c.Request().RemoteAddr)
-	if err != nil {
-		log.P.Warn("unable to register client", zap.Error(err))
-		return c.String(http.StatusInternalServerError, err.Error())
-	}
-	// TODO client.close?
-
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		log.P.Warn("unable to upgrade connection", zap.Error(err))
 		return c.String(http.StatusBadRequest, "unable to upgrade connection "+err.Error())
 	}
 	defer ws.Close()
+
+	client, err := bff.RegisterClient(c.Request().Context(), preset.RoomID, preset.PresetName, c.Request().RemoteAddr)
+	if err != nil {
+		log.P.Warn("unable to register client", zap.Error(err))
+		ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf(`{"error": "unable to register client: %s"}`, err)))
+		return ws.Close()
+	}
+
+	log.P.Info("Successfully registered client", zap.String("client", c.Request().RemoteAddr))
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
@@ -122,6 +124,7 @@ func NewClient(c echo.Context) error {
 			switch {
 			case err != nil:
 				client.Error("failed to read messsage", zap.Error(err))
+
 				switch {
 				case errors.Is(err, io.ErrUnexpectedEOF) || strings.Contains(err.Error(), io.ErrUnexpectedEOF.Error()):
 					ws.Close()

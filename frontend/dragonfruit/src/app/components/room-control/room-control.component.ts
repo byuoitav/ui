@@ -20,6 +20,7 @@ export class RoomControlComponent implements OnInit {
   controlGroup: ControlGroup;
   groupIndex: string;
   roomID: string;
+  controlKey: string;
 
   tabPosition = "below";
   selectedTab: number;
@@ -39,232 +40,25 @@ export class RoomControlComponent implements OnInit {
     private router: Router
   ) {
     this.route.params.subscribe(params => {
+      this.controlKey = params["key"];
       this.roomID = params["id"];
       this.groupIndex = params["index"];
       this.selectedTab = +params["tabName"];
       if (this.bff.room === undefined) {
-        this.bff.connectToRoom(this.roomID);
+        this.bff.connectToRoom(this.controlKey);
 
         this.bff.done.subscribe(e => {
           this.controlGroup = this.bff.room.controlGroups[this.groupIndex];
           if (this.controlGroup.id === "Third") {
-            // this.setExtraDisplays();
           }
         });
       } else {
         this.controlGroup = this.bff.room.controlGroups[this.groupIndex];
         if (this.controlGroup.id === "Third") {
-          // this.setExtraDisplays();
         }
       }
-
-      // this.bff.done.subscribe(() => {
-      //   this.controlGroup = this.bff.room.controlGroups[this.groupIndex];
-      //   if (this.bff.room.selectedGroup === undefined) {
-      //     this.bff.room.selectedGroup = this.controlGroup.name;
-      //   }
-      // });
     });
   }
-
-  // for testing only
-  /*
-  setExtraDisplays() {
-    this.controlGroup.displays = [
-      {
-        id: '111 - A',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D1',
-            icon: 'tv'
-          }
-        ]
-      },
-      {
-        id: '111 - B',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D2',
-            icon: 'tv'
-          }
-        ]
-      },
-      {
-        id: '111 - C',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D3',
-            icon: 'tv'
-          }
-        ]
-      },
-      {
-        id: '21 - A',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D4',
-            icon: 'tv'
-          },
-          {
-            name: 'D5',
-            icon: 'tv'
-          }
-        ]
-      },
-      {
-        id: '21 - B',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D6',
-            icon: 'tv'
-          }
-        ]
-      },
-      {
-        id: '31 - A',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D11',
-            icon: 'videocam'
-          },
-          {
-            name: 'D12',
-            icon: 'videocam'
-          },
-          {
-            name: 'D13',
-            icon: 'videocam'
-          }
-        ]
-      },
-      {
-        id: '31 - B',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D6',
-            icon: 'tv'
-          }
-        ]
-      },
-      {
-        id: '22 - A',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D7',
-            icon: 'tv'
-          },
-          {
-            name: 'D8',
-            icon: 'tv'
-          }
-        ]
-      },
-      {
-        id: '22 - B',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D9',
-            icon: 'tv'
-          },
-          {
-            name: 'D10',
-            icon: 'tv'
-          }
-        ]
-      },
-      {
-        id: '3 wide',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D11',
-            icon: 'tv'
-          },
-          {
-            name: 'D12',
-            icon: 'tv'
-          },
-          {
-            name: 'D13',
-            icon: 'tv'
-          }
-        ]
-      },
-      {
-        id: '4+',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D14',
-            icon: 'tv'
-          },
-          {
-            name: 'D15',
-            icon: 'tv'
-          },
-          {
-            name: 'D16',
-            icon: 'tv'
-          },
-          {
-            name: 'D17',
-            icon: 'tv'
-          },
-          {
-            name: 'D18',
-            icon: 'tv'
-          },
-          {
-            name: 'D19',
-            icon: 'tv'
-          }
-        ]
-      },
-      {
-        id: 'End 2 - A',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D20',
-            icon: 'tv'
-          }
-        ]
-      },
-      {
-        id: 'End 2 - B',
-        input: this.roomID + '-VIA1',
-        blanked: false,
-        outputs: [
-          {
-            name: 'D21',
-            icon: 'tv'
-          }
-        ]
-      }
-    ];
-  }
-  */
 
   ngOnInit() {
     if (window.innerWidth >= 768) {
@@ -275,7 +69,7 @@ export class RoomControlComponent implements OnInit {
   }
 
   goBack = () => {
-    this.router.navigate(["/room/" + this.roomID]);
+    this.router.navigate(["/key/" + this.controlKey + "/room/" + this.roomID]);
   };
 
   tabChange(index: number) {

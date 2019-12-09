@@ -1,6 +1,7 @@
 package bff
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -17,16 +18,15 @@ type SetPowerMessage struct {
 	Status   string `json:"status"`
 }
 
-func (sp SetPower) DoWithMessage(c *Client, msg SetPowerMessage) error {
+// TODO make sure that the devices are powered on after setting the power
+func (sp SetPower) DoWithMessage(ctx context.Context, c *Client, msg SetPowerMessage) error {
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
 	if len(cg.ID) == 0 {
 		// error
 		return fmt.Errorf("len(display.ID) is equal to zero")
 	}
 
-	for i := range msg.Displays {
-		c.Info("setting Power", zap.String("on", fmt.Sprintf("%v", msg.Displays[i])), zap.String("to", msg.Status), zap.String("controlGroup", string(cg.ID)))
-	}
+	c.Info("Setting power", zap.String("on", fmt.Sprintf("%v", msg.Displays)), zap.String("to", msg.Status), zap.String("controlgroup", string(cg.ID)))
 
 	// find the display by ID
 	var disp []Display
@@ -52,19 +52,19 @@ func (sp SetPower) DoWithMessage(c *Client, msg SetPowerMessage) error {
 			dSplit := strings.Split(string(out.ID), "-")
 			display := structs.Display{
 				PublicDevice: structs.PublicDevice{
-					Name: dSplit[2],
+					Name:  dSplit[2],
+					Power: msg.Status,
 				},
 			}
-			display.Power = msg.Status
 
 			state.Displays = append(state.Displays, display)
 		}
 	}
 
-	err := c.SendAPIRequest(state)
+	err := c.SendAPIRequest(ctx, state)
 	if err != nil {
-		c.Warn("failed to change input", zap.Error(err))
-		c.Out <- ErrorMessage(fmt.Errorf("failed to change input: %s", err))
+		c.Warn("failed to set power", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("failed to set power: %s", err))
 	}
 
 	return nil
@@ -78,7 +78,7 @@ func (sp SetPower) Do(c *Client, data []byte) {
 		return
 	}
 
-	err = sp.DoWithMessage(c, msg)
+	err = sp.DoWithMessage(context.Background(), c, msg)
 	if err != nil {
 		c.Out <- ErrorMessage(fmt.Errorf("error occured when calling DoWithMessage: %s", err))
 		return

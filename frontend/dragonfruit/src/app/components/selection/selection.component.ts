@@ -12,6 +12,7 @@ import { TurnOffRoomDialogComponent } from 'src/app/dialogs/turnOffRoom-dialog/t
 })
 export class SelectionComponent implements OnInit {
   roomID = '';
+  controlKey = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -19,9 +20,11 @@ export class SelectionComponent implements OnInit {
     private dialog: MatDialog,
     private router: Router) {
     this.route.params.subscribe(params => {
-      this.roomID = params['id'];
-      if (this.bff.room === undefined) {
-        this.bff.connectToRoom(this.roomID);
+      this.roomID = params["id"]
+      this.controlKey = params["key"]
+
+      if (this.bff.room == undefined) {
+        this.bff.connectToRoom(this.controlKey);
       }
     });
   }
@@ -42,7 +45,7 @@ export class SelectionComponent implements OnInit {
     return new Promise<boolean>(() => {
       const index = cg.id;
       this.bff.room.selectedControlGroup = cg.id;
-      this.router.navigate(['/room/' + this.roomID + '/group/' + index + '/tab/0']);
+      this.router.navigate(['/key/' + this.controlKey + '/room/' + this.roomID + '/group/' + index + '/tab/0']);
     });
   }
 }

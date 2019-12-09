@@ -22,7 +22,7 @@
 
 .sign-in {
     margin-top: 3vh;
-    transform: scale(2.5);
+    transform: scale(2);
 }
 
 .keyboard-bg {
@@ -33,16 +33,19 @@
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-evenly;
-    width: 60%;
+    min-height: 30px;
+    height: 30px;
 }
 
 .code-char {
     width: 20px;
-    text-align: center;
+    border-block-end: 1px solid black;
+    min-height: 30px;
+    height: 30px;
 }
 
-:host ::ng-deep .mat-form-field-infix {
-    padding-bottom: 0;
+::ng-deep .mat-form-field-underline {
+    display: none;
 }
 
 @media (min-width: 768px) {
@@ -51,8 +54,10 @@
         margin: auto;
     }
     .code-char {
-        width: 30px;
-        text-align: center;
+        width: 20px;
+        border-block-end: 1px solid black;
+        min-height: 30px;
+        height: 30px;
     }
     .logo {
         height: 20vh;

@@ -43,8 +43,8 @@ export class MultiDisplayComponent implements OnInit, IControlTab {
     if (this.cg !== undefined) {
       this.generatePages();
 
-      this.cg.inputs.push(...this.cg.inputs);
-      this.cg.inputs.push(...this.cg.inputs);
+      // this.cg.inputs.push(...this.cg.inputs);
+      // this.cg.inputs.push(...this.cg.inputs);
       const fullPages = Math.floor(this.cg.inputs.length / 6);
       const remainderPage = this.cg.inputs.length % 6;
 
