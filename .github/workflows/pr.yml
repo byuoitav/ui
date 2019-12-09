@@ -1,45 +1,12 @@
-name: Pull Request Checks
+name: Check Pull Request
 on:
   pull_request:
     branches:
       - master
 
 jobs:
-  pr-lint:
-    name: Lint on PR
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up go (TODO - lint frontend)
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.13
-
-      - name: Check out code
-        uses: actions/checkout@v1
-
-      - name: Lint go code
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin # temp fix, https://github.com/actions/setup-go/issues/14
-          curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.18.0
-          make lint
-
-  pr-test:
-    name: Test on PR
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up go (TODO - test frontend)
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.13
-
-      - name: Check out code
-        uses: actions/checkout@v1
-
-      - name: Run tests
-        run: make test
-
-  pr-build:
-    name: Test build on PR
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Set up go

@@ -1,11 +1,11 @@
-name: Deploy New Version
+name: Deploy
 on:
   release:
     types: [published]
 
 jobs:
-  deploy-test:
-    name: Test
+  codecov:
+    name: Code Coverage
     runs-on: ubuntu-latest
     steps:
       - name: Set up go (TODO - test frontend)
@@ -26,7 +26,7 @@ jobs:
           file: ./coverage.txt
 
   deploy:
-    name: Build & Deploy
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
       - name: Set up go

@@ -2,8 +2,8 @@ name: Lint & Test
 on: push
 
 jobs:
-  push-lint:
-    name: Lint on push
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Set up go (TODO - lint frontend)
@@ -20,8 +20,8 @@ jobs:
           curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.18.0
           make lint
 
-  push-test:
-    name: Test on push
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Set up go (TODO - test frontend)
