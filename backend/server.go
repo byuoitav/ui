@@ -8,6 +8,7 @@ import (
 	"github.com/byuoitav/ui/handlers"
 	"github.com/byuoitav/ui/log"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
 )
