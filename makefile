@@ -18,6 +18,15 @@ PKG_LIST := $(shell cd backend && go list ${PKG}/...)
 
 all: clean build
 
+test:
+	@cd backend && go test -v ${PKG_LIST} && pwd
+
+test-cov:
+	@cd backend && go test -coverprofile=coverage.txt -covermode=atomic ${PKG_LIST}
+
+lint:
+	@cd backend && golangci-lint run --tests=false
+
 deps:
 	@echo Downloading backend dependencies...
 	@cd backend && go mod download
@@ -37,22 +46,14 @@ build: deps
 
 docker: clean build
 	@echo Building docker container ${OWNER}/${NAME}:${VERSION}
-	docker build -f dockerfile -t ${DOCKER_URL}/${OWNER}/${NAME}/amd64:${VERSION} dist
+	@docker build -f dockerfile -t ${DOCKER_URL}/${OWNER}/${NAME}/amd64:${VERSION} dist
 
+deploy: docker
 	@echo Logging into Dockerhub
-	docker login ${DOCKER_URL} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+	@docker login ${DOCKER_URL} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
 
 	@echo Pushing container to Dockerhub
-	docker push ${DOCKER_URL}/${OWNER}/${NAME}/amd64:${VERSION}
-
-test:
-	@cd backend && go test -v ${PKG_LIST} && pwd
-
-test-cov:
-	@cd backend && go test -coverprofile=coverage.txt -covermode=atomic ${PKG_LIST}
-
-lint:
-	@cd backend && golangci-lint run --tests=false
+	@docker push ${DOCKER_URL}/${OWNER}/${NAME}/amd64:${VERSION}
 
 clean:
 	@cd backend && go clean
