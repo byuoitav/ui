@@ -1,5 +1,11 @@
 {
   "name": "ui",
   "port": "8080",
-  "env-vars": ["SYSTEM_ID", "DB_USERNAME", "DB_PASSWORD", "DB_ADDRESS"]
+  "env-vars": [
+    "SYSTEM_ID",
+    "DB_USERNAME",
+    "DB_PASSWORD",
+    "DB_ADDRESS",
+    "CODE_SERVICE_URL"
+  ]
 }
