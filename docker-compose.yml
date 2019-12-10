@@ -1,7 +1,7 @@
 version: "3"
 services:
   ui:
-    image: docker.pkg.github.com/byuoitav/ui/amd64:v0.0.1
+    image: docker.pkg.github.com/byuoitav/ui/amd64:v0.1.0
     command: /ui -p 80 -l 2
     ports:
       - "80:80"
