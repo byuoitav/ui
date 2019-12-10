@@ -36,7 +36,7 @@ func NewClient(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, fmt.Sprintf("unable to build request to check room code: %s", err))
 	}
 
-	log.P.Info("Getting room/preset from control key", zap.String("key", c.Param("key")))
+	log.P.Info("Getting room/preset from control key", zap.String("key", c.Param("key")), zap.String("url", url))
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
