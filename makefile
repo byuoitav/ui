@@ -37,7 +37,7 @@ deps:
 build: deps
 	@mkdir -p dist
 	@echo Building backend...
-	@cd backend && env GOOS=linux GOARCH=amd64 go build -v -i -o ../dist/${NAME}-linux-amd64 ${PKG}
+	@cd backend && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o ../dist/${NAME}-linux-amd64 ${PKG}
 
 	@echo Building dragonfruit...
 	@cd frontend/dragonfruit && npm run-script build && mv ./dist/dragonfruit ../../dist/ && rmdir ./dist
@@ -45,14 +45,14 @@ build: deps
 	@echo Build output is located in ./dist/.
 
 docker: clean build
-	@echo Building docker container ${OWNER}/${NAME}:${VERSION}
+	@echo Building container ${DOCKER_URL}/${OWNER}/${NAME}/amd64:${VERSION}
 	@docker build -f dockerfile -t ${DOCKER_URL}/${OWNER}/${NAME}/amd64:${VERSION} dist
 
 deploy: docker
-	@echo Logging into Dockerhub
+	@echo Logging into Github Package Registry
 	@docker login ${DOCKER_URL} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
 
-	@echo Pushing container to Dockerhub
+	@echo Pushing container ${DOCKER_URL}/${OWNER}/${NAME}/amd64:${VERSION}
 	@docker push ${DOCKER_URL}/${OWNER}/${NAME}/amd64:${VERSION}
 
 clean:
