@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BFFService } from 'src/app/services/bff.service';
-import { ControlGroup } from 'src/app/objects/control';
+import { ControlGroup, Display } from 'src/app/objects/control';
 import { TurnOffRoomDialogComponent } from 'src/app/dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component';
 
 @Component({
@@ -35,9 +35,20 @@ export class SelectionComponent implements OnInit {
   goBack = () => {
     this.dialog.open(TurnOffRoomDialogComponent).afterClosed().subscribe(result => {
       // if the result is true then send command to turn off room and redirect page, else redirect webpage
-      console.log(`Dialog result: ${result}`);
-      this.router.navigate(['/login']);
+      if (result) {
+        const displays: Display[] = [];
 
+        this.bff.room.controlGroups.forEach((value: ControlGroup, key: string) => {
+          for (const disp of value.displays) {
+            displays.push(disp);
+          }
+
+        });
+
+        this.bff.setPower(displays, 'off');
+      }
+
+      this.router.navigate(['/login']);
     });
   }
 
