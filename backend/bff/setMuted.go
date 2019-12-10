@@ -27,9 +27,11 @@ func (sm SetMuted) Do(c *Client, data []byte) {
 
 	// get the current control group
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
+	/* TODO
 	if len(cg.ID) == 0 {
 		// error
 	}
+	*/
 
 	// find the audio device
 	ad, err := GetAudioDeviceByID(cg.AudioGroups, ID(msg.AudioDeviceID))

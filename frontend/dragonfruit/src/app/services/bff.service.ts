@@ -37,8 +37,14 @@ export class BFFService {
   }
 
   connectToRoom(controlKey: string) {
+    // use ws for http, wss for https
+    let protocol = "ws:";
+    if (window.location.protocol === "https:") {
+      protocol = "wss:";
+    }
+
     const endpoint =
-      "ws://" + window.location.hostname + ":8080/ws/" + controlKey;
+      protocol + "//" + window.location.host + "/ws/" + controlKey;
     this.ws = new WebSocket(endpoint);
 
     this.ws.onmessage = event => {

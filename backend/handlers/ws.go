@@ -70,7 +70,7 @@ func NewClient(c echo.Context) error {
 	client, err := bff.RegisterClient(c.Request().Context(), preset.RoomID, preset.PresetName, c.Request().RemoteAddr)
 	if err != nil {
 		log.P.Warn("unable to register client", zap.Error(err))
-		ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf(`{"error": "unable to register client: %s"}`, err)))
+		_ = ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf(`{"error": "unable to register client: %s"}`, err)))
 		return ws.Close()
 	}
 
