@@ -20,7 +20,8 @@ func GetRoomConfig(ctx context.Context, client *http.Client, roomID string) (str
 		return config, fmt.Errorf("invalid roomID %q, must be in the format BLDG-ROOM", roomID)
 	}
 
-	url := fmt.Sprintf("http://localhost:8000/buildings/%s/rooms/%s/configuration", split[0], split[1])
+	// TODO use the one in aws
+	url := fmt.Sprintf("http://itb-1006-cp1.byu.edu:8000/buildings/%s/rooms/%s/configuration", split[0], split[1])
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return config, err
@@ -53,7 +54,8 @@ func GetRoomState(ctx context.Context, client *http.Client, roomID string) (stru
 		return state, fmt.Errorf("invalid roomID %q, must be in the format BLDG-ROOM", roomID)
 	}
 
-	url := fmt.Sprintf("http://localhost:8000/buildings/%s/rooms/%s", split[0], split[1])
+	// TODO use the one in aws
+	url := fmt.Sprintf("http://itb-1006-cp1.byu.edu:8000/buildings/%s/rooms/%s", split[0], split[1])
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return state, err
