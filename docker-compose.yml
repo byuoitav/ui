@@ -9,6 +9,7 @@ services:
       - DB_ADDRESS=$DB_ADDRESS
       - DB_USERNAME=$DB_USERNAME
       - DB_PASSWORD=$DB_PASSWORD
+      - CODE_SERVICE_URL=$CODE_SERVICE_URL
     network_mode: "host"
     restart: always
     tty: true
