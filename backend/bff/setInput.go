@@ -28,9 +28,11 @@ func (si SetInput) Do(c *Client, data []byte) {
 	}
 
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
+	/* TODO
 	if len(cg.ID) == 0 {
 		// error
 	}
+	*/
 
 	c.Info("setting input", zap.String("on", msg.DisplayID), zap.String("to", msg.InputID), zap.String("controlGroup", string(cg.ID)))
 
@@ -70,9 +72,11 @@ func (si SetInput) Do(c *Client, data []byte) {
 		state.Displays = append(state.Displays, display)
 	}
 
+	/* TODO
 	if len(si.OnSameInput.URL) > 0 {
 		// send mute request
 	}
+	*/
 
 	err = c.SendAPIRequest(context.TODO(), state)
 	if err != nil {
