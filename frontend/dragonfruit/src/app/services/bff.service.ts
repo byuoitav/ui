@@ -115,4 +115,13 @@ export class BFFService {
     console.log(JSON.stringify(kv));
     this.ws.send(JSON.stringify(kv));
   }
+  turnOffRoom() {
+    const kv = {
+      turnOffRoom: {
+      }
+    };
+
+    console.log(JSON.stringify(kv));
+    this.ws.send(JSON.stringify(kv));
+  }
 }

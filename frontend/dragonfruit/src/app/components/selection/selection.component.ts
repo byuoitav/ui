@@ -36,18 +36,8 @@ export class SelectionComponent implements OnInit {
     this.dialog.open(TurnOffRoomDialogComponent).afterClosed().subscribe(result => {
       // if the result is true then send command to turn off room and redirect page, else redirect webpage
       if (result) {
-        const displays: Display[] = [];
-
-        this.bff.room.controlGroups.forEach((value: ControlGroup, key: string) => {
-          for (const disp of value.displays) {
-            displays.push(disp);
-          }
-
-        });
-
-        this.bff.setPower(displays, 'off');
+        this.bff.turnOffRoom();
       }
-
       this.router.navigate(['/login']);
     });
   }
