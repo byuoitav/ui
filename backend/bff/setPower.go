@@ -92,17 +92,16 @@ func (sp SetPower) PowerOffAll(c *Client) error {
 	controlGroups := c.GetRoom().ControlGroups
 	if controlGroups == nil {
 		// error
-		return fmt.Errorf("Control Groups not found", c.selectedControlGroupID)
+		return fmt.Errorf("Control Groups not found %q", c.selectedControlGroupID)
 	}
 
 	c.Info("Powering off all devices in the room.")
-	var inArray bool
 	var disp []Display
 	for _, cg := range controlGroups {
 		c.Info("Powering off all devices in the room.")
+
 		for _, d := range cg.Displays {
-			inArray = contains(disp, d)
-			if inArray == false {
+			if !contains(disp, d) {
 				disp = append(disp, d)
 			}
 		}
