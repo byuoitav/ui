@@ -45,6 +45,8 @@ func (c *Client) HandleMessage(msg Message) {
 			c.CurrentPreset().Actions.SetVolume.Do(c, v)
 		case "setPower":
 			c.CurrentPreset().Actions.SetPower.Do(c, v)
+		case "turnOffRoom":
+			_ = c.CurrentPreset().Actions.SetPower.PowerOffAll(c)
 		default:
 			// c.Warn("received message with unknown key", zap.String("key", k), zap.ByteString("val", v))
 			fmt.Printf("v: %s", v)

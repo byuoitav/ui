@@ -86,6 +86,7 @@ import { ControlTabDirective } from './components/control-tab/control-tab.direct
     NumpadComponent,
     DisplayDialogComponent,
     HelpInfoComponent,
+    TurnOffRoomDialogComponent,
     SingleDisplayComponent,
     MultiDisplayComponent,
     AudioComponent,
