@@ -99,11 +99,25 @@ export class BFFService {
     this.ws.send(JSON.stringify(kv));
   }
 
-  setPower(display: Display, s: string) {
+  setPower(displays: Display[], s: string) {
     const kv = {
-      setMuted: {
-        display: display.id,
+      setPower: {
+        display: [],
         status: s
+      }
+    };
+    if (displays !== null) {
+      for (const disp of displays) {
+        kv.setPower.display.push(disp.id);
+      }
+    }
+
+    console.log(JSON.stringify(kv));
+    this.ws.send(JSON.stringify(kv));
+  }
+  turnOffRoom() {
+    const kv = {
+      turnOffRoom: {
       }
     };
 
