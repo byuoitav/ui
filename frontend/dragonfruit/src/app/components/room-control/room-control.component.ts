@@ -45,7 +45,8 @@ export class RoomControlComponent implements OnInit {
       this.groupIndex = params["index"];
       this.selectedTab = +params["tabName"];
       if (this.bff.room === undefined) {
-        this.bff.connectToRoom(this.controlKey);
+        this.bff.getRoom(this.controlKey);
+        // this.bff.connectToRoom(this.controlKey);
 
         this.bff.done.subscribe(e => {
           this.controlGroup = this.bff.room.controlGroups[this.groupIndex];

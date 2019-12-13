@@ -1,10 +1,7 @@
 import { Injectable, EventEmitter } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import {
-  $WebSocket,
-  WebSocketConfig
-} from "angular2-websocket/angular2-websocket";
-import { JsonConvert } from "json2typescript";
+import { BehaviorSubject, Observable, throwError } from "rxjs";
+
 import {
   Device,
   UIConfig,
@@ -23,45 +20,93 @@ import {
 } from "../objects/control";
 import { Router } from "@angular/router";
 
+export class RoomRef {
+  private _room: BehaviorSubject<Room>;
+  private _logout;
+
+  get room() {
+    if (this._room) {
+      return this._room.value;
+    }
+
+    return undefined;
+  }
+
+  constructor(room: BehaviorSubject<Room>, logout: () => void) {
+    this._room = room;
+    this._logout = logout;
+  }
+
+  logout = () => {
+    if (this._logout) {
+      return this._logout();
+    }
+
+    return undefined;
+  };
+
+  subject = (): BehaviorSubject<Room> => {
+    return this._room;
+  };
+}
+
 @Injectable({
   providedIn: "root"
 })
 export class BFFService {
-  room: Room;
-  done: EventEmitter<boolean>;
-  ws: WebSocket;
+  constructor(private router: Router) {}
 
-  constructor(private router: Router) {
-    this.done = new EventEmitter();
-    // this.room = new Room();
-  }
+  getRoom = (key: string | number): RoomRef => {
+    const room = new BehaviorSubject<Room>(undefined);
 
-  connectToRoom(controlKey: string) {
     // use ws for http, wss for https
     let protocol = "ws:";
     if (window.location.protocol === "https:") {
       protocol = "wss:";
     }
 
-    const endpoint =
-      protocol + "//" + window.location.host + "/ws/" + controlKey;
-    this.ws = new WebSocket(endpoint);
+    const endpoint = protocol + "//" + window.location.host + "/ws/" + key;
+    const ws = new WebSocket(endpoint);
 
-    this.ws.onmessage = event => {
-      console.log("ws event", event);
-      this.room = JSON.parse(event.data);
-      // this.room = Object.assign(new Room(), JSON.parse(event.data));
+    const roomRef = new RoomRef(room, () => {
+      console.log("closing room connection", room.value.id);
 
-      console.log("Websocket data:", this.room);
+      // close the websocket
+      ws.close();
 
-      this.done.emit(true);
+      // say that we are done with sending rooms
+      room.complete();
+
+      // route back to login page since we are gonna need a new code
+      this.router.navigate(["/login"], { replaceUrl: true });
+    });
+
+    // handle incoming messages from bff
+    ws.onmessage = msg => {
+      const data = JSON.parse(msg.data);
+
+      for (const k in data) {
+        switch (k) {
+          case "room":
+            console.log("new room", data[k]);
+            room.next(data[k]);
+
+            break;
+          default:
+            console.warn(
+              "got key '" + k + "', not sure how to handle that message"
+            );
+        }
+      }
     };
 
-    this.ws.onerror = event => {
-      console.error("Websocket error", event);
-      this.router.navigate(["/login"]);
+    ws.onerror = err => {
+      console.error("websocket error", err);
+      room.error(err);
     };
-  }
+
+    return roomRef;
+  };
 
   setInput(display: Display, input: Input) {
     const kv = {
@@ -115,10 +160,10 @@ export class BFFService {
     console.log(JSON.stringify(kv));
     this.ws.send(JSON.stringify(kv));
   }
+
   turnOffRoom() {
     const kv = {
-      turnOffRoom: {
-      }
+      turnOffRoom: {}
     };
 
     console.log(JSON.stringify(kv));

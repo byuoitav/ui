@@ -84,21 +84,19 @@ func NewClient(c echo.Context) error {
 		defer wg.Done()
 
 		for msg := range client.Out {
-			var data []byte
-			for _, v := range msg {
-				data = v
-				break
-			}
-
 			/*
-				TODO once the front end is ready, this is the code we should use
-				data, err := json.Marshal(msg)
-				if err != nil {
-					client.Warn("unable to marshal message to send to client", zap.Error(err))
-					fmt.Printf("\nmap: %s\n", msg)
-					continue
+				var data []byte
+				for _, v := range msg {
+					data = v
+					break
 				}
 			*/
+
+			data, err := json.Marshal(msg)
+			if err != nil {
+				client.Warn("unable to marshal message to send to client", zap.Error(err))
+				continue
+			}
 
 			// log that we are sending a message
 			if _, ok := msg["error"]; ok {

@@ -68,17 +68,28 @@ export class LoginComponent implements OnInit {
   };
 
   goToRoomControl = () => {
-    console.log("hello")
+    console.log("hello");
     // TODO: actually do something with the room code
-    this.bff.connectToRoom(this.roomCode);
+    // this.bff.connectToRoom(this.roomCode);
+    this.bff.getRoom(this.roomCode);
     // switch (this.roomCode) {
     //   case '1101': {
     this.bff.done.subscribe(e => {
-      console.log("world")
+      console.log("world");
       if (this.bff.room.selectedControlGroup) {
-        this.router.navigate(["/key/" + this.roomCode + "/room/" + this.bff.room.id + "/group/" + this.bff.room.selectedControlGroup + "/tab/0"]);
+        this.router.navigate([
+          "/key/" +
+            this.roomCode +
+            "/room/" +
+            this.bff.room.id +
+            "/group/" +
+            this.bff.room.selectedControlGroup +
+            "/tab/0"
+        ]);
       } else {
-        this.router.navigate(["/key/" + this.roomCode + "/room/" + this.bff.room.id]);
+        this.router.navigate([
+          "/key/" + this.roomCode + "/room/" + this.bff.room.id
+        ]);
       }
     });
     //     break;
