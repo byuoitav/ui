@@ -1,6 +1,6 @@
 .logo {
-    height: 15vh;
-    width: 15vh;
+    height: 30%;
+    width: 30%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -11,9 +11,9 @@
 .column {
     display: flex;
     flex-flow: column nowrap;
-    height: 80vh;
+    height: 100%;
     width: 100%;
-    justify-content: space-evenly;
+    justify-content: flex-start;
     align-items: center;
     font-size: 22pt;
     color: #757575;
@@ -21,12 +21,8 @@
 }
 
 .sign-in {
-    margin-top: 3vh;
+    margin-top: 3%;
     transform: scale(2);
-}
-
-.keyboard-bg {
-    background: unset;
 }
 
 .room-code {
@@ -48,19 +44,19 @@
     display: none;
 }
 
-@media (min-width: 768px) {
-    .column {
-        max-width: 800px;
-        margin: auto;
-    }
-    .code-char {
-        width: 20px;
-        border-block-end: 1px solid black;
-        min-height: 30px;
-        height: 30px;
-    }
-    .logo {
-        height: 20vh;
-        width: 20vh;
-    }
-}
+// @media (min-width: 768px) {
+//     .column {
+//         max-width: 800px;
+//         margin: auto;
+//     }
+//     .code-char {
+//         width: 20px;
+//         border-block-end: 1px solid black;
+//         min-height: 30px;
+//         height: 30px;
+//     }
+//     .logo {
+//         height: 20vh;
+//         width: 20vh;
+//     }
+// }

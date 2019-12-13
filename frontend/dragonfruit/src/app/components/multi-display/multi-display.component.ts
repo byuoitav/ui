@@ -75,6 +75,8 @@ export class MultiDisplayComponent implements OnInit, IControlTab {
   }
 
   generatePages() {
+    console.log("selected display", this.selectedDisplay);
+    this.displayPages = [];
     console.log(this.cg);
     if (this.cg === undefined || this.cg.displays === undefined) {
       console.log("uninitialized control group");
@@ -237,6 +239,7 @@ export class MultiDisplayComponent implements OnInit, IControlTab {
   setInput = (input: Input) => {
     this.selectedDisplay.input = input.id;
     this.bff.setInput(this.selectedDisplay, input);
+    console.log("selected display", this.selectedDisplay);
   };
 
   setVolume = (level: number) => {
