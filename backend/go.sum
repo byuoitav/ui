@@ -1,8 +1,12 @@
 github.com/byuoitav/av-api v1.0.0 h1:1rPfAWEFCRkMw3vZipia3DjqGdR9dUCGYlVaRas/61c=
+github.com/byuoitav/central-event-system v0.0.0-20191010172931-d9547aa9c281 h1:TdDqgZ50OMQBdNmuZA2XcwDIh45C2VAKjkyybqig32k=
+github.com/byuoitav/central-event-system v0.0.0-20191010172931-d9547aa9c281/go.mod h1:+KCvx75wISCCkCrgIWRdlJxRXlA2yxQvR4HHgU/TdpU=
 github.com/byuoitav/common v0.0.0-20190920195725-f0a552fb4032 h1:0/7FaEUmRjDiQ7mciIe+G3iRadQHAL1y0PGRHb+m6DQ=
 github.com/byuoitav/common v0.0.0-20190920195725-f0a552fb4032/go.mod h1:YTDTFEmez7HU3oyCIWjU3RfQ/P6v24LEzH5YUebph7I=
 github.com/byuoitav/common v0.0.0-20191002152922-df81767c74ab h1:CnZeowS2jNSwi7gFn6tfGvfrcCHF5jdQyqE5F88NmtE=
 github.com/byuoitav/common v0.0.0-20191002152922-df81767c74ab/go.mod h1:YTDTFEmez7HU3oyCIWjU3RfQ/P6v24LEzH5YUebph7I=
+github.com/byuoitav/device-monitoring v0.0.0-20191205213852-0975cca54d58 h1:iL3YTd+NlbqR/+Bbt3fsgfzkuQwSttvU7GnUEAM3RzM=
+github.com/byuoitav/device-monitoring v0.0.0-20191205213852-0975cca54d58/go.mod h1:n9PY4PhVKyrO15/M9rPsHSQFo/62Zsanvp0ZT6D2fbg=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
