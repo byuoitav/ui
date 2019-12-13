@@ -2,7 +2,7 @@
     <img src="../../../assets/logo.svg" class="logo" />
     <span>Enter Control Key:</span>
     <mat-form-field (click)="showNumpad()">
-        <input matInput inputmode="numeric" [(ngModel)]="roomCode" style="opacity: 0; border: solid 1px green; z-index: -1; position: absolute" maxlength="6" />
+        <input matInput inputmode="numeric" [(ngModel)]="roomCode" style="opacity: 0; z-index: -1; position: absolute" maxlength="6" />
         <div class="room-code">
             <div class="code-char">{{ roomCode[0] ? roomCode[0] : " " }}</div>
             <div class="code-char">{{ roomCode[1] ? roomCode[1] : " " }}</div>
