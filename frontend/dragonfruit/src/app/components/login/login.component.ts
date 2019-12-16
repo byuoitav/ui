@@ -1,7 +1,14 @@
 import { Component, OnInit, EventEmitter } from "@angular/core";
 import { MatBottomSheet } from "@angular/material";
 import { NumpadComponent } from "../../dialogs/numpad/numpad.component";
-import { Router } from "@angular/router";
+import {
+  Router,
+  Event,
+  NavigationStart,
+  NavigationEnd,
+  NavigationError,
+  NavigationCancel
+} from "@angular/router";
 import { BFFService } from "src/app/services/bff.service";
 
 @Component({
@@ -11,6 +18,7 @@ import { BFFService } from "src/app/services/bff.service";
 })
 export class LoginComponent implements OnInit {
   roomCode = "";
+  loggingIn = false;
   keyboardEmitter: EventEmitter<string>;
 
   constructor(
@@ -21,6 +29,22 @@ export class LoginComponent implements OnInit {
     this.keyboardEmitter = new EventEmitter<string>();
     this.keyboardEmitter.subscribe(s => {
       this.roomCode = s;
+    });
+
+    // subscribe to routing events so that we can
+    // show the loading indicator when logging in
+    this.router.events.subscribe(event => {
+      switch (true) {
+        case event instanceof NavigationStart:
+          this.loggingIn = true;
+          break;
+        case event instanceof NavigationEnd:
+        case event instanceof NavigationCancel:
+        case event instanceof NavigationError:
+          this.loggingIn = false;
+          break;
+        default:
+      }
     });
   }
 
@@ -74,6 +98,7 @@ export class LoginComponent implements OnInit {
     this.bff.getRoom(this.roomCode);
     // switch (this.roomCode) {
     //   case '1101': {
+    /*
     this.bff.done.subscribe(e => {
       console.log("world");
       if (this.bff.room.selectedControlGroup) {
@@ -92,6 +117,7 @@ export class LoginComponent implements OnInit {
         ]);
       }
     });
+    */
     //     break;
     //   }
     //   case '1102': {

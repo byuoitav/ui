@@ -14,13 +14,13 @@ import { Room } from "../objects/control";
 @Injectable({
   providedIn: "root"
 })
-export class RoomResolver implements Resolve<Room> {
+export class RoomResolver implements Resolve<RoomRef> {
   constructor(private bff: BFFService, private router: Router) {}
 
   resolve(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
-  ): Observable<Room> | Observable<never> {
+  ): Observable<RoomRef> | Observable<never> {
     const key = route.paramMap.get("key");
     const unsubscribe = new Subject();
 

@@ -24,10 +24,12 @@ export class SelectionComponent implements OnInit {
       this.roomID = params["id"];
       this.controlKey = params["key"];
 
+      /*
       if (this.bff.room == undefined) {
         this.bff.getRoom(this.controlKey);
         // this.bff.connectToRoom(this.controlKey);
       }
+      */
     });
   }
 
@@ -49,7 +51,7 @@ export class SelectionComponent implements OnInit {
   selectControlGroup = (cg: ControlGroup): Promise<boolean> => {
     return new Promise<boolean>(() => {
       const index = cg.id;
-      this.bff.room.selectedControlGroup = cg.id;
+      // this.bff.room.selectedControlGroup = cg.id;
       this.router.navigate([
         "/key/" +
           this.controlKey +

@@ -5,6 +5,7 @@ import { AppComponent } from "./app.component";
 import { LoginComponent } from "./components/login/login.component";
 import { RoomControlComponent } from "./components/room-control/room-control.component";
 import { SelectionComponent } from "./components/selection/selection.component";
+import { RoomResolver } from "./services/room.resolver";
 
 const routes: Routes = [
   {

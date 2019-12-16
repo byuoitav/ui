@@ -1,11 +1,11 @@
-export interface Room {
+export class Room {
   id: string;
   name: string;
   controlGroups: Map<string, ControlGroup>;
   selectedControlGroup: string;
 }
 
-export interface ControlGroup {
+export class ControlGroup {
   id: string;
   name: string;
   displays: Display[];
@@ -27,13 +27,13 @@ export interface ControlGroup {
   // }
 }
 
-export interface Support {
+export class Support {
   helpRequested: boolean;
   helpMessage: string;
   helpEnabled: boolean;
 }
 
-export interface Display {
+export class Display {
   id: string;
   outputs: IconPair[];
   input: string;
@@ -48,7 +48,7 @@ export interface Display {
   // }
 }
 
-export interface Input {
+export class Input {
   id: string;
   name: string;
   icon: string;
@@ -56,14 +56,14 @@ export interface Input {
   disabled: boolean;
 }
 
-export interface AudioGroup {
+export class AudioGroup {
   id: string;
   name: string;
   audioDevices: AudioDevice[];
   muted: boolean;
 }
 
-export interface AudioDevice {
+export class AudioDevice {
   id: string;
   name: string;
   icon: string;
@@ -71,18 +71,18 @@ export interface AudioDevice {
   muted: boolean;
 }
 
-export interface PresentGroup {
+export class PresentGroup {
   id: string;
   name: string;
   items: PresentItem[];
 }
 
-export interface PresentItem {
+export class PresentItem {
   id: string;
   name: string;
 }
 
-export interface IconPair {
+export class IconPair {
   id: string;
   icon: string;
   name: string;

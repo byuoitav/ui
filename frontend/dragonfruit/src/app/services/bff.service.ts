@@ -117,7 +117,7 @@ export class BFFService {
     };
 
     console.log(JSON.stringify(kv));
-    this.ws.send(JSON.stringify(kv));
+    // this.ws.send(JSON.stringify(kv));
   }
 
   setVolume(ad: AudioDevice, level: number) {
@@ -129,7 +129,7 @@ export class BFFService {
     };
 
     console.log(JSON.stringify(kv));
-    this.ws.send(JSON.stringify(kv));
+    // this.ws.send(JSON.stringify(kv));
   }
 
   setMuted(ad: AudioDevice, m: boolean) {
@@ -141,7 +141,7 @@ export class BFFService {
     };
 
     console.log(JSON.stringify(kv));
-    this.ws.send(JSON.stringify(kv));
+    // this.ws.send(JSON.stringify(kv));
   }
 
   setPower(displays: Display[], s: string) {
@@ -158,7 +158,7 @@ export class BFFService {
     }
 
     console.log(JSON.stringify(kv));
-    this.ws.send(JSON.stringify(kv));
+    // this.ws.send(JSON.stringify(kv));
   }
 
   turnOffRoom() {
@@ -167,6 +167,6 @@ export class BFFService {
     };
 
     console.log(JSON.stringify(kv));
-    this.ws.send(JSON.stringify(kv));
+    // this.ws.send(JSON.stringify(kv));
   }
 }
