@@ -1,7 +1,7 @@
 export interface Room {
   id: string;
   name: string;
-  controlGroups: Map<string, ControlGroup>;
+  controlGroups: Object; // map <string, ControlGroup>
   selectedControlGroup: string;
 }
 

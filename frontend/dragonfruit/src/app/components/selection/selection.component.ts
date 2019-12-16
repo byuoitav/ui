@@ -1,9 +1,10 @@
 import { Component, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material";
 import { ActivatedRoute, Router } from "@angular/router";
-import { BFFService } from "src/app/services/bff.service";
-import { ControlGroup, Display } from "src/app/objects/control";
+
+import { BFFService, RoomRef } from "src/app/services/bff.service";
 import { TurnOffRoomDialogComponent } from "src/app/dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component";
+import { ControlGroup, Display, Room } from "src/app/objects/control";
 
 @Component({
   selector: "app-selection",
@@ -11,8 +12,14 @@ import { TurnOffRoomDialogComponent } from "src/app/dialogs/turnOffRoom-dialog/t
   styleUrls: ["./selection.component.scss"]
 })
 export class SelectionComponent implements OnInit {
-  roomID = "";
-  controlKey = "";
+  private _roomRef: RoomRef;
+  get room(): Room {
+    if (this._roomRef) {
+      return this._roomRef.room;
+    }
+
+    return undefined;
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -20,16 +27,22 @@ export class SelectionComponent implements OnInit {
     private dialog: MatDialog,
     private router: Router
   ) {
-    this.route.params.subscribe(params => {
-      this.roomID = params["id"];
-      this.controlKey = params["key"];
+    this.route.data.subscribe(data => {
+      this._roomRef = data.roomRef;
 
-      /*
-      if (this.bff.room == undefined) {
-        this.bff.getRoom(this.controlKey);
-        // this.bff.connectToRoom(this.controlKey);
-      }
-      */
+      this._roomRef.subject().subscribe(room => {
+        switch (Object.keys(room.controlGroups).length) {
+          case 0:
+            // redirect back to login,
+            // say that something is wrong with this room?
+            break;
+          case 1:
+            this.selectControlGroup(Object.keys(room.controlGroups)[0]);
+            break;
+          default:
+            break;
+        }
+      });
     });
   }
 
@@ -44,23 +57,13 @@ export class SelectionComponent implements OnInit {
         if (result) {
           this.bff.turnOffRoom();
         }
+
         this.router.navigate(["/login"]);
       });
   };
 
-  selectControlGroup = (cg: ControlGroup): Promise<boolean> => {
-    return new Promise<boolean>(() => {
-      const index = cg.id;
-      // this.bff.room.selectedControlGroup = cg.id;
-      this.router.navigate([
-        "/key/" +
-          this.controlKey +
-          "/room/" +
-          this.roomID +
-          "/group/" +
-          index +
-          "/tab/0"
-      ]);
-    });
+  selectControlGroup = (cg: string) => {
+    console.log("selecting", cg);
+    this.router.navigate(["./" + cg], { relativeTo: this.route });
   };
 }
