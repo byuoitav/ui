@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter } from "@angular/core";
-import { MatBottomSheet } from "@angular/material";
+import { MatBottomSheet, MatSpinner } from "@angular/material";
 import { NumpadComponent } from "../../dialogs/numpad/numpad.component";
 import {
   Router,
@@ -9,6 +9,7 @@ import {
   NavigationError,
   NavigationCancel
 } from "@angular/router";
+
 import { BFFService } from "src/app/services/bff.service";
 
 @Component({
@@ -17,7 +18,7 @@ import { BFFService } from "src/app/services/bff.service";
   styleUrls: ["./login.component.scss"]
 })
 export class LoginComponent implements OnInit {
-  roomCode = "";
+  key = "";
   loggingIn = false;
   keyboardEmitter: EventEmitter<string>;
 
@@ -28,7 +29,7 @@ export class LoginComponent implements OnInit {
   ) {
     this.keyboardEmitter = new EventEmitter<string>();
     this.keyboardEmitter.subscribe(s => {
-      this.roomCode = s;
+      this.key = s;
     });
 
     // subscribe to routing events so that we can
@@ -84,20 +85,21 @@ export class LoginComponent implements OnInit {
   }
 
   getCodeChar = (index: number): string => {
-    if (this.roomCode.length > index) {
-      return this.roomCode.charAt(index);
+    if (this.key.length > index) {
+      return this.key.charAt(index);
     }
 
     return "";
   };
 
-  goToRoomControl = () => {
-    console.log("hello");
-    // TODO: actually do something with the room code
-    // this.bff.connectToRoom(this.roomCode);
-    this.bff.getRoom(this.roomCode);
-    // switch (this.roomCode) {
-    //   case '1101': {
+  goToRoomControl = async () => {
+    console.log("logging in with key", this.key);
+    const success = await this.router.navigate(["/key/" + this.key]);
+    if (success) {
+      // do something? maybe don't need this?
+    }
+
+    this.key = "";
     /*
     this.bff.done.subscribe(e => {
       console.log("world");
@@ -118,14 +120,5 @@ export class LoginComponent implements OnInit {
       }
     });
     */
-    //     break;
-    //   }
-    //   case '1102': {
-    //     this.router.navigate(['/room/ITB-1101/group/0/tab/0']);
-    //     break;
-    //   }
-    //   default:
-    //     break;
-    // }
   };
 }

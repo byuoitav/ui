@@ -1,6 +1,8 @@
 import { Injectable, EventEmitter } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { BehaviorSubject, Observable, throwError } from "rxjs";
+import { Router, Event, ActivationEnd } from "@angular/router";
+import { MatDialog } from "@angular/material";
 
 import {
   Device,
@@ -18,7 +20,7 @@ import {
   AudioGroup,
   PresentGroup
 } from "../objects/control";
-import { Router } from "@angular/router";
+import { ErrorDialog } from "../dialogs/error/error.dialog";
 
 export class RoomRef {
   private _room: BehaviorSubject<Room>;
@@ -54,7 +56,19 @@ export class RoomRef {
   providedIn: "root"
 })
 export class BFFService {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private dialog: MatDialog) {
+    // do things based on route changes
+    this.router.events.subscribe(event => {
+      if (event instanceof ActivationEnd) {
+        const snapshot = event.snapshot;
+
+        // show error if the "error" query paramater is present
+        if (snapshot && snapshot.queryParams && snapshot.queryParams.error) {
+          this.error(snapshot.queryParams.error);
+        }
+      }
+    });
+  }
 
   getRoom = (key: string | number): RoomRef => {
     const room = new BehaviorSubject<Room>(undefined);
@@ -106,6 +120,35 @@ export class BFFService {
     };
 
     return roomRef;
+  };
+
+  error = (msg: string) => {
+    console.log("showing error", msg);
+    const dialogs = this.dialog.openDialogs.filter(dialog => {
+      return dialog.componentInstance instanceof ErrorDialog;
+    });
+
+    if (dialogs.length > 0) {
+      // do something?
+      // either open another one on top of the current ones,
+      // change the text on the current one?
+    } else {
+      // open a new dialog
+      const ref = this.dialog.open(ErrorDialog, {
+        width: "80vw",
+        data: {
+          msg: msg
+        }
+      });
+
+      ref.afterClosed().subscribe(result => {
+        this.router.navigate([], {
+          queryParams: { error: null },
+          queryParamsHandling: "merge",
+          preserveFragment: true
+        });
+      });
+    }
   };
 
   setInput(display: Display, input: Input) {

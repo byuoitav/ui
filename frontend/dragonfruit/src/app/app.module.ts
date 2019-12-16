@@ -15,7 +15,8 @@ import {
   MatSliderModule,
   MatDialogModule,
   MatTabsModule,
-  MatDividerModule
+  MatDividerModule,
+  MatProgressSpinnerModule
 } from "@angular/material";
 
 import { AppRoutingModule } from "./app-routing.module";
@@ -38,6 +39,7 @@ import { HelpInfoComponent } from "./components/help/help-info/help-info.compone
 import { WideButtonComponent } from "./components/wide-button/wide-button.component";
 import { ControlTabComponent } from "./components/control-tab/control-tab.component";
 import { ControlTabDirective } from "./components/control-tab/control-tab.directive";
+import { ErrorDialog } from "./dialogs/error/error.dialog";
 
 @NgModule({
   declarations: [
@@ -58,7 +60,8 @@ import { ControlTabDirective } from "./components/control-tab/control-tab.direct
     HelpInfoComponent,
     WideButtonComponent,
     ControlTabComponent,
-    ControlTabDirective
+    ControlTabDirective,
+    ErrorDialog
   ],
   imports: [
     BrowserModule,
@@ -77,7 +80,8 @@ import { ControlTabDirective } from "./components/control-tab/control-tab.direct
     MatBottomSheetModule,
     HttpClientModule,
     MatTabsModule,
-    MatDividerModule
+    MatDividerModule,
+    MatProgressSpinnerModule
   ],
   providers: [BFFService],
   entryComponents: [
@@ -89,7 +93,8 @@ import { ControlTabDirective } from "./components/control-tab/control-tab.direct
     MultiDisplayComponent,
     AudioComponent,
     PresentComponent,
-    HelpComponent
+    HelpComponent,
+    ErrorDialog
   ],
   bootstrap: [AppComponent]
 })
