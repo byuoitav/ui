@@ -15,13 +15,16 @@ import (
 func (c *Client) HandleEvents() {
 	mess, err := messenger.BuildMessenger(os.Getenv("HUB_ADDRESS"), base.Messenger, 1)
 	if err != nil {
-		// error
+		fmt.Printf("%s", err)
 	}
-
+	fmt.Printf("IN THE HANDLE EVENTS FUNC")
+	fmt.Printf("\n%s\n", c.roomID)
 	mess.SubscribeToRooms(c.roomID)
+	fmt.Printf("\n%s\n", os.Getenv("HUB_ADDRESS"))
 
 	for {
 		event := mess.ReceiveEvent()
+		fmt.Printf("\nEVENT RECIEVED: %s", event)
 		isCoreState := false
 
 		for _, tag := range event.EventTags {
@@ -39,19 +42,19 @@ func (c *Client) HandleEvents() {
 		var newstate structs.PublicRoom
 		switch event.Key {
 		case "volume":
-			fmt.Println("RECIEVED VOLUME EVENT")
+			fmt.Printf("RECIEVED VOLUME EVENT")
 			newstate, changed = handleVolume(state, event.Value, event.TargetDevice.DeviceID)
 		case "muted":
-			fmt.Println("RECIEVED MUTED EVENT")
+			fmt.Printf("RECIEVED MUTED EVENT")
 			newstate, changed = handleMuted(state, event.Value, event.TargetDevice.DeviceID)
 		case "power":
-			fmt.Println("RECIEVED POWER EVENT")
+			fmt.Printf("RECIEVED POWER EVENT")
 			newstate, changed = handlePower(state, event.Value, event.TargetDevice.DeviceID)
 		case "input":
-			fmt.Println("RECIEVED INPUT EVENT")
+			fmt.Printf("RECIEVED INPUT EVENT")
 			newstate, changed = handleInput(state, event.Value, event.TargetDevice.DeviceID)
 		case "blanked":
-			fmt.Println("RECIEVED BLANKED EVENT")
+			fmt.Printf("RECIEVED BLANKED EVENT")
 			newstate, changed = handleBlanked(state, event.Value, event.TargetDevice.DeviceID)
 		default:
 			continue
@@ -63,6 +66,7 @@ func (c *Client) HandleEvents() {
 			if err != nil {
 				// error
 			}
+			fmt.Println(msg)
 
 			c.Out <- msg
 		}
