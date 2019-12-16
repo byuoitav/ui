@@ -24,7 +24,8 @@ import { ErrorDialog } from "../dialogs/error/error.dialog";
 
 export class RoomRef {
   private _room: BehaviorSubject<Room>;
-  private _logout;
+  private _ws: WebSocket;
+  private _logout: () => void;
 
   get room() {
     if (this._room) {
@@ -34,8 +35,9 @@ export class RoomRef {
     return undefined;
   }
 
-  constructor(room: BehaviorSubject<Room>, logout: () => void) {
+  constructor(room: BehaviorSubject<Room>, ws: WebSocket, logout: () => void) {
     this._room = room;
+    this._ws = ws;
     this._logout = logout;
   }
 
@@ -49,6 +51,63 @@ export class RoomRef {
 
   subject = (): BehaviorSubject<Room> => {
     return this._room;
+  };
+
+  /* control functions */
+  setInput = (displayID: string, inputID: string) => {
+    const kv = {
+      setInput: {
+        display: displayID,
+        input: inputID
+      }
+    };
+
+    this._ws.send(JSON.stringify(kv));
+  };
+
+  setVolume = (audioDeviceID: string, level: number) => {
+    const kv = {
+      setVolume: {
+        audioDevice: audioDeviceID,
+        level: level
+      }
+    };
+
+    this._ws.send(JSON.stringify(kv));
+  };
+
+  setMuted = (audioDeviceID: string, muted: boolean) => {
+    const kv = {
+      setMuted: {
+        audioDevice: audioDeviceID,
+        muted: muted
+      }
+    };
+
+    this._ws.send(JSON.stringify(kv));
+  };
+
+  setPower = (displays: Display[], power: string) => {
+    const kv = {
+      setPower: {
+        display: [],
+        status: power
+      }
+    };
+
+    for (const disp of displays) {
+      kv.setPower.display.push(disp.id);
+    }
+
+    this._ws.send(JSON.stringify(kv));
+  };
+
+  turnOff = () => {
+    const kv = {
+      turnOffRoom: {}
+    };
+
+    this._ws.send(JSON.stringify(kv));
   };
 }
 
@@ -82,7 +141,7 @@ export class BFFService {
     const endpoint = protocol + "//" + window.location.host + "/ws/" + key;
     const ws = new WebSocket(endpoint);
 
-    const roomRef = new RoomRef(room, () => {
+    const roomRef = new RoomRef(room, ws, () => {
       console.log("closing room connection", room.value.id);
 
       // close the websocket
@@ -151,6 +210,7 @@ export class BFFService {
     }
   };
 
+  /*
   setInput(display: Display, input: Input) {
     const kv = {
       setInput: {
@@ -212,4 +272,5 @@ export class BFFService {
     console.log(JSON.stringify(kv));
     // this.ws.send(JSON.stringify(kv));
   }
+  */
 }

@@ -21,7 +21,7 @@ export class RoomControlComponent implements OnInit {
   // to use in the template
   public objectKeys = Object.keys;
 
-  private _roomRef: RoomRef;
+  public _roomRef: RoomRef;
   get room(): Room {
     if (this._roomRef) {
       return this._roomRef.room;
@@ -30,7 +30,7 @@ export class RoomControlComponent implements OnInit {
     return undefined;
   }
 
-  private _controlGroupID: string;
+  public _controlGroupID: string;
   get controlGroup(): ControlGroup {
     if (this.room && this._controlGroupID) {
       return this.room.controlGroups[this._controlGroupID];

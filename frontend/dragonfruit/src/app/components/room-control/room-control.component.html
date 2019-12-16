@@ -29,11 +29,12 @@
 
       <app-single-display
         *ngIf="controlGroup?.displays?.length === 1"
+        [_roomRef]="roomRef"
         [cg]="controlGroup"
-        [display]="(controlGroup?.displays)[0]"
       ></app-single-display>
       <app-multi-display
         *ngIf="controlGroup?.displays?.length > 1"
+        [_roomRef]="roomRef"
         [cg]="controlGroup"
       ></app-multi-display>
     </mat-tab>
@@ -46,8 +47,10 @@
           ><span>Audio</span></span
         >
       </ng-template>
+
       <app-audio
         *ngIf="controlGroup?.audioGroups"
+        [_roomRef]="_roomRef"
         [cg]="controlGroup"
       ></app-audio>
     </mat-tab>
@@ -60,6 +63,7 @@
           ><span>Present</span></span
         >
       </ng-template>
+
       <app-present [cg]="controlGroup"></app-present>
     </mat-tab>
 
@@ -70,6 +74,7 @@
           ><mat-icon class="tab-icon">help</mat-icon><span>Help</span></span
         >
       </ng-template>
+
       <app-help [cg]="controlGroup"></app-help>
     </mat-tab>
   </mat-tab-group>
