@@ -173,7 +173,7 @@ func (c *Client) GetRoom() Room {
 
 			d := Display{
 				ID:    ID(config.ID),
-				Input: ID(state.Input),
+				Input: ID(c.roomID + "-" + state.Input), // we are assuming that input is RoomID + Input Name
 			}
 
 			// TODO outputs when we do sharing

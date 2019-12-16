@@ -1,41 +1,48 @@
-import { Component, OnInit, Input as AngularInput } from '@angular/core';
-import { ControlGroup, AudioDevice, AudioGroup, Input } from 'src/app/objects/control';
-import { BFFService } from 'src/app/services/bff.service';
-import { IControlTab } from '../control-tab/icontrol-tab';
+import { Component, OnInit, Input as AngularInput } from "@angular/core";
+
+import { RoomRef } from "../../services/bff.service";
+import {
+  ControlGroup,
+  AudioDevice,
+  AudioGroup,
+  Input
+} from "src/app/objects/control";
+import { IControlTab } from "../control-tab/icontrol-tab";
 
 @Component({
-  selector: 'app-audio',
-  templateUrl: './audio.component.html',
-  styleUrls: ['./audio.component.scss']
+  selector: "app-audio",
+  templateUrl: "./audio.component.html",
+  styleUrls: ["./audio.component.scss"]
 })
 export class AudioComponent implements OnInit, IControlTab {
   @AngularInput() cg: ControlGroup;
+  @AngularInput() private _roomRef: RoomRef;
 
-  constructor(private bff: BFFService) {
-  }
+  constructor() {}
 
-  ngOnInit() {
-    console.log('I know who I am', this.cg);
-  }
+  ngOnInit() {}
 
   setVolume = (level: number, device: any) => {
     const audioDevice = device as AudioDevice;
-    this.bff.setVolume(audioDevice, level);
-  }
+    this._roomRef.setVolume(audioDevice.id, level);
+  };
 
   setMute = (muted: boolean, device: any) => {
     const audioDevice = device as AudioDevice;
-    this.bff.setMuted(audioDevice, muted);
-  }
+    this._roomRef.setMuted(audioDevice.id, muted);
+  };
 
+  // if there is at least one that is not muted
+  // then mute everything
+  // if all of them are muted, unmute everything
   muteAll = (ag: AudioGroup) => {
-    let muteState = true;
-    // if (ag.allAreMuted()) {
-    //   muteState = false;
-    // }
+    const muted = ag.audioDevices.some(ad => !ad.muted);
+    // muted = true if there is at least one that is not muted
+    // muted = false if there are no devices that are not muted
+    //                  all devices are muted
 
     for (const ad of ag.audioDevices) {
-      // this.bff.setMute(this.cg, muteState, ad.id);
+      this._roomRef.setMuted(ad.id, muted);
     }
-  }
+  };
 }

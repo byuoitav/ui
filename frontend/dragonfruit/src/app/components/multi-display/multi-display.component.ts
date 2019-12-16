@@ -1,11 +1,12 @@
 import { Component, OnInit, Input as AngularInput } from "@angular/core";
+
+import { RoomRef } from "src/app/services/bff.service";
 import {
   ControlGroup,
   Display,
   Input,
   IconPair
 } from "src/app/objects/control";
-import { BFFService } from "src/app/services/bff.service";
 import { IControlTab } from "../control-tab/icontrol-tab";
 
 class Page {
@@ -27,24 +28,29 @@ class Page {
 })
 export class MultiDisplayComponent implements OnInit, IControlTab {
   @AngularInput() cg: ControlGroup;
+  @AngularInput() private _roomRef: RoomRef;
+
   selectedDisplay: Display;
   displayPages: Page[];
   curDisplayPage = 0;
   inputPages: number[] = [];
   curInputPage = 0;
 
-  constructor(private bff: BFFService) {
+  constructor() {
     this.displayPages = [];
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    // select an initial display
+    if (this.cg && this.cg.displays && this.cg.displays.length > 0) {
+      this.selectedDisplay = this.cg.displays[0];
+    }
+  }
 
   ngOnChanges() {
     if (this.cg !== undefined) {
       this.generatePages();
 
-      // this.cg.inputs.push(...this.cg.inputs);
-      // this.cg.inputs.push(...this.cg.inputs);
       const fullPages = Math.floor(this.cg.inputs.length / 6);
       const remainderPage = this.cg.inputs.length % 6;
 
@@ -237,16 +243,16 @@ export class MultiDisplayComponent implements OnInit, IControlTab {
   };
 
   setInput = (input: Input) => {
+    // select the input now to make it look like it worked :)
     this.selectedDisplay.input = input.id;
-    this.bff.setInput(this.selectedDisplay, input);
-    console.log("selected display", this.selectedDisplay);
+    this._roomRef.setInput(this.selectedDisplay.id, input.id);
   };
 
   setVolume = (level: number) => {
-    // this.bff.setVolume(this.cg, level, this.displayAudio.id);
+    // this._roomRef.setVolume(this.displayAudio.id, level);
   };
 
   setMute = (muted: boolean) => {
-    // this.bff.setMute(this.cg, muted, this.displayAudio.id);
+    // this._roomRef.setMuted(this.displayAudio.id, muted);
   };
 }

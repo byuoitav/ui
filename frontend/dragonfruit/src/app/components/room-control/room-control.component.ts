@@ -1,15 +1,16 @@
 import { Component, OnInit, HostListener } from "@angular/core";
-import { BFFService } from "src/app/services/bff.service";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Preset } from "src/app/objects/database";
+import { MatTabChangeEvent, MatTab } from "@angular/material";
+
+import { BFFService, RoomRef } from "src/app/services/bff.service";
 import {
+  Room,
   ControlGroup,
   CONTROL_TAB,
   AUDIO_TAB,
   PRESENT_TAB,
   HELP_TAB
 } from "src/app/objects/control";
-import { MatTabChangeEvent, MatTab } from "@angular/material";
 
 @Component({
   selector: "app-room-control",
@@ -17,10 +18,26 @@ import { MatTabChangeEvent, MatTab } from "@angular/material";
   styleUrls: ["./room-control.component.scss"]
 })
 export class RoomControlComponent implements OnInit {
-  controlGroup: ControlGroup;
-  groupIndex: string;
-  roomID: string;
-  controlKey: string;
+  // to use in the template
+  public objectKeys = Object.keys;
+
+  public _roomRef: RoomRef;
+  get room(): Room {
+    if (this._roomRef) {
+      return this._roomRef.room;
+    }
+
+    return undefined;
+  }
+
+  public _controlGroupID: string;
+  get controlGroup(): ControlGroup {
+    if (this.room && this._controlGroupID) {
+      return this.room.controlGroups[this._controlGroupID];
+    }
+
+    return undefined;
+  }
 
   tabPosition = "below";
   selectedTab: number | string;
@@ -39,25 +56,37 @@ export class RoomControlComponent implements OnInit {
     public route: ActivatedRoute,
     private router: Router
   ) {
+    this.route.data.subscribe(data => {
+      this._roomRef = data.roomRef;
+    });
+
     this.route.params.subscribe(params => {
-      this.controlKey = params["key"];
-      this.roomID = params["id"];
-      this.groupIndex = params["index"];
+      this._controlGroupID = params["groupid"];
+
+      // TODO make sure the room has this group, if not, redirect up?
+    });
+
+    /*
+    this.route.params.subscribe(params => {
       this.selectedTab = +params["tabName"];
       if (this.bff.room === undefined) {
-        this.bff.connectToRoom(this.controlKey);
+        this.bff.getRoom(this.controlKey);
+        // this.bff.connectToRoom(this.controlKey);
 
+        /*
         this.bff.done.subscribe(e => {
           this.controlGroup = this.bff.room.controlGroups[this.groupIndex];
           if (this.controlGroup.id === "Third") {
           }
         });
+        // *
       } else {
-        this.controlGroup = this.bff.room.controlGroups[this.groupIndex];
+        // this.controlGroup = this.bff.room.controlGroups[this.groupIndex];
         if (this.controlGroup.id === "Third") {
         }
       }
     });
+      */
   }
 
   ngOnInit() {
@@ -69,14 +98,20 @@ export class RoomControlComponent implements OnInit {
   }
 
   goBack = () => {
-    this.router.navigate(["/key/" + this.controlKey + "/room/" + this.roomID]);
+    if (this.room && Object.keys(this.room.controlGroups).length == 1) {
+      this._roomRef.logout();
+    } else {
+      this.router.navigate(["../"], { relativeTo: this.route });
+    }
   };
 
   tabChange(index: number | string) {
+    /*
     this.selectedTab = index;
     const currentURL = decodeURI(window.location.pathname);
     const newURL =
       currentURL.substr(0, currentURL.lastIndexOf("/") + 1) + this.selectedTab;
     this.router.navigate([newURL]);
+    */
   }
 }
