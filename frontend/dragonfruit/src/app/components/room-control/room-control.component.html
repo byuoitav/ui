@@ -29,12 +29,12 @@
 
       <app-single-display
         *ngIf="controlGroup?.displays?.length === 1"
-        [_roomRef]="roomRef"
+        [_roomRef]="_roomRef"
         [cg]="controlGroup"
       ></app-single-display>
       <app-multi-display
         *ngIf="controlGroup?.displays?.length > 1"
-        [_roomRef]="roomRef"
+        [_roomRef]="_roomRef"
         [cg]="controlGroup"
       ></app-multi-display>
     </mat-tab>

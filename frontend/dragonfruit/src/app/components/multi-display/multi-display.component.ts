@@ -40,7 +40,12 @@ export class MultiDisplayComponent implements OnInit, IControlTab {
     this.displayPages = [];
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    // select an initial display
+    if (this.cg && this.cg.displays && this.cg.displays.length > 0) {
+      this.selectedDisplay = this.cg.displays[0];
+    }
+  }
 
   ngOnChanges() {
     if (this.cg !== undefined) {
@@ -238,9 +243,8 @@ export class MultiDisplayComponent implements OnInit, IControlTab {
   };
 
   setInput = (input: Input) => {
-    // this.selectedDisplay.input = input.id;
-    // this.bff.setInput(this.selectedDisplay, input);
-    // console.log("selected display", this.selectedDisplay);
+    // select the input now to make it look like it worked :)
+    this.selectedDisplay.input = input.id;
     this._roomRef.setInput(this.selectedDisplay.id, input.id);
   };
 
