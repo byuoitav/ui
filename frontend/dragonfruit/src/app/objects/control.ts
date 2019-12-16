@@ -1,11 +1,20 @@
-export class Room {
+export interface Room {
   id: string;
   name: string;
   controlGroups: Map<string, ControlGroup>;
   selectedControlGroup: string;
 }
 
-export class ControlGroup {
+export function isRoom(o: Object): o is Room {
+  return (
+    o &&
+    o.hasOwnProperty("controlGroups") &&
+    o.hasOwnProperty("id") &&
+    o.hasOwnProperty("name")
+  );
+}
+
+export interface ControlGroup {
   id: string;
   name: string;
   displays: Display[];
@@ -27,13 +36,13 @@ export class ControlGroup {
   // }
 }
 
-export class Support {
+export interface Support {
   helpRequested: boolean;
   helpMessage: string;
   helpEnabled: boolean;
 }
 
-export class Display {
+export interface Display {
   id: string;
   outputs: IconPair[];
   input: string;
@@ -48,7 +57,7 @@ export class Display {
   // }
 }
 
-export class Input {
+export interface Input {
   id: string;
   name: string;
   icon: string;
@@ -56,14 +65,14 @@ export class Input {
   disabled: boolean;
 }
 
-export class AudioGroup {
+export interface AudioGroup {
   id: string;
   name: string;
   audioDevices: AudioDevice[];
   muted: boolean;
 }
 
-export class AudioDevice {
+export interface AudioDevice {
   id: string;
   name: string;
   icon: string;
@@ -71,18 +80,18 @@ export class AudioDevice {
   muted: boolean;
 }
 
-export class PresentGroup {
+export interface PresentGroup {
   id: string;
   name: string;
   items: PresentItem[];
 }
 
-export class PresentItem {
+export interface PresentItem {
   id: string;
   name: string;
 }
 
-export class IconPair {
+export interface IconPair {
   id: string;
   icon: string;
   name: string;

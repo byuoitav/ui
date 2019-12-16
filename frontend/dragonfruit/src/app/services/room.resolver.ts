@@ -9,7 +9,7 @@ import { Observable, of, EMPTY, Subject, BehaviorSubject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
 import { BFFService, RoomRef } from "./bff.service";
-import { Room } from "../objects/control";
+import { Room, isRoom } from "../objects/control";
 
 @Injectable({
   providedIn: "root"
@@ -32,7 +32,7 @@ export class RoomResolver implements Resolve<RoomRef> {
         .pipe(takeUntil(unsubscribe))
         .subscribe(
           val => {
-            if (val instanceof Room) {
+            if (isRoom(val)) {
               observer.next(roomRef);
               observer.complete();
               unsubscribe.complete();
