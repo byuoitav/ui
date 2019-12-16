@@ -99,7 +99,7 @@ export class RoomControlComponent implements OnInit {
 
   goBack = () => {
     if (this.room && Object.keys(this.room.controlGroups).length == 1) {
-      this.router.navigate(["/login"]);
+      this._roomRef.logout();
     } else {
       this.router.navigate(["../"], { relativeTo: this.route });
     }

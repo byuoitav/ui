@@ -57,7 +57,7 @@ export class SelectionComponent implements OnInit {
           this._roomRef.turnOff();
         }
 
-        this.router.navigate(["/login"]);
+        this._roomRef.logout();
       });
   };
 
