@@ -5,13 +5,6 @@ import { Router, Event, ActivationEnd } from "@angular/router";
 import { MatDialog } from "@angular/material";
 
 import {
-  Device,
-  UIConfig,
-  IOConfiguration,
-  DBRoom,
-  Preset
-} from "../objects/database";
-import {
   Room,
   ControlGroup,
   Display,
