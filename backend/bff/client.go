@@ -133,6 +133,7 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*
 			return nil, fmt.Errorf("unable to power on the following displays %s: %s", displays, err)
 		}
 
+		go c.HandleEvents()
 		return c, nil
 	}
 
@@ -145,6 +146,8 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*
 	}
 
 	c.Out <- msg
+
+	go c.HandleEvents()
 	return c, nil
 }
 
