@@ -1,52 +1,68 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BFFService } from 'src/app/services/bff.service';
-import { ControlGroup, Display } from 'src/app/objects/control';
-import { TurnOffRoomDialogComponent } from 'src/app/dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component';
+import { Component, OnInit } from "@angular/core";
+import { MatDialog } from "@angular/material";
+import { ActivatedRoute, Router } from "@angular/router";
+
+import { RoomRef } from "src/app/services/bff.service";
+import { TurnOffRoomDialogComponent } from "src/app/dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component";
+import { ControlGroup, Display, Room } from "src/app/objects/control";
 
 @Component({
-  selector: 'app-selection',
-  templateUrl: './selection.component.html',
-  styleUrls: ['./selection.component.scss']
+  selector: "app-selection",
+  templateUrl: "./selection.component.html",
+  styleUrls: ["./selection.component.scss"]
 })
 export class SelectionComponent implements OnInit {
-  roomID = '';
-  controlKey = '';
+  private _roomRef: RoomRef;
+  get room(): Room {
+    if (this._roomRef) {
+      return this._roomRef.room;
+    }
+
+    return undefined;
+  }
 
   constructor(
     private route: ActivatedRoute,
-    public bff: BFFService,
     private dialog: MatDialog,
-    private router: Router) {
-    this.route.params.subscribe(params => {
-      this.roomID = params["id"]
-      this.controlKey = params["key"]
+    private router: Router
+  ) {
+    this.route.data.subscribe(data => {
+      this._roomRef = data.roomRef;
 
-      if (this.bff.room == undefined) {
-        this.bff.connectToRoom(this.controlKey);
-      }
+      this._roomRef.subject().subscribe(room => {
+        switch (Object.keys(room.controlGroups).length) {
+          case 0:
+            // redirect back to login,
+            // say that something is wrong with this room?
+            break;
+          case 1:
+            this.selectControlGroup(Object.keys(room.controlGroups)[0]);
+            break;
+          default:
+            break;
+        }
+      });
     });
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   goBack = () => {
-    this.dialog.open(TurnOffRoomDialogComponent).afterClosed().subscribe(result => {
-      // if the result is true then send command to turn off room and redirect page, else redirect webpage
-      if (result) {
-        this.bff.turnOffRoom();
-      }
-      this.router.navigate(['/login']);
-    });
-  }
+    this.dialog
+      .open(TurnOffRoomDialogComponent)
+      .afterClosed()
+      .subscribe(result => {
+        // if the result is true then send command to turn off room and redirect page, else redirect webpage
+        if (result) {
+          this._roomRef.turnOff();
+        }
 
-  selectControlGroup = (cg: ControlGroup): Promise<boolean> => {
-    return new Promise<boolean>(() => {
-      const index = cg.id;
-      this.bff.room.selectedControlGroup = cg.id;
-      this.router.navigate(['/key/' + this.controlKey + '/room/' + this.roomID + '/group/' + index + '/tab/0']);
-    });
-  }
+        this._roomRef.logout();
+      });
+  };
+
+  selectControlGroup = (cg: string) => {
+    console.log("selecting", cg);
+    this.router.navigate(["./" + cg], { relativeTo: this.route });
+  };
 }

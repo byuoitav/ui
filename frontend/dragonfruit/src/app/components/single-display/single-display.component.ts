@@ -1,11 +1,12 @@
 import { Component, OnInit, Input as AngularInput } from "@angular/core";
+
+import { RoomRef } from "src/app/services/bff.service";
 import {
   ControlGroup,
   Input,
   Display,
   AudioDevice
 } from "src/app/objects/control";
-import { BFFService } from "src/app/services/bff.service";
 import { IControlTab } from "../control-tab/icontrol-tab";
 
 @Component({
@@ -15,20 +16,22 @@ import { IControlTab } from "../control-tab/icontrol-tab";
 })
 export class SingleDisplayComponent implements OnInit, IControlTab {
   @AngularInput() cg: ControlGroup;
-  @AngularInput() display: Display;
-  @AngularInput() displayAudio: AudioDevice;
+  @AngularInput() private _roomRef: RoomRef;
+
+  get display(): Display {
+    if (this.cg.displays && this.cg.displays.length > 0) {
+      return this.cg.displays[0];
+    }
+
+    return undefined;
+  }
 
   pages: number[] = [];
   curPage = 0;
 
-  constructor(private bff: BFFService) {}
+  constructor() {}
 
-  ngOnInit() {
-    if (this.cg) {
-      this.display = this.cg.displays[0];
-      // this.displayAudio = this.cg.getAudioDevice(this.display.id);
-    }
-  }
+  ngOnInit() {}
 
   ngOnChanges() {
     if (this.cg) {
@@ -49,19 +52,15 @@ export class SingleDisplayComponent implements OnInit, IControlTab {
   }
 
   selectInput = (input: Input) => {
-    this.bff.setInput(this.display, input);
-  };
-
-  setBlank = () => {
-    // this.bff.setBlank(this.cg, true, this.display.id);
+    this._roomRef.setInput(this.display.id, input.id);
   };
 
   setVolume = (level: number) => {
-    this.bff.setVolume(this.displayAudio, level);
+    // this.bff.setVolume(this.displayAudio, level);
   };
 
   setMute = (muted: boolean) => {
-    this.bff.setMuted(this.displayAudio, muted);
+    // this.bff.setMuted(this.displayAudio, muted);
   };
 
   onSwipe(evt) {

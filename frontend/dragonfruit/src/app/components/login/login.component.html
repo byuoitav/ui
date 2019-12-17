@@ -1,18 +1,39 @@
 <div class="column">
-    <img src="../../../assets/logo.svg" class="logo" />
+  <img src="../../../assets/logo.svg" class="logo" />
+
+  <ng-container *ngIf="loggingIn">
+    <span class="loadingText">Loading room</span>
+    <mat-spinner></mat-spinner>
+  </ng-container>
+
+  <ng-container *ngIf="!loggingIn">
     <span>Enter Control Key:</span>
     <mat-form-field (click)="showNumpad()">
-        <input matInput inputmode="numeric" [(ngModel)]="roomCode" style="opacity: 0; border: solid 1px green; z-index: -1; position: absolute" maxlength="6" />
-        <div class="room-code">
-            <div class="code-char">{{ roomCode[0] ? roomCode[0] : " " }}</div>
-            <div class="code-char">{{ roomCode[1] ? roomCode[1] : " " }}</div>
-            <div class="code-char">{{ roomCode[2] ? roomCode[2] : " " }}</div>
-            <div class="code-char">{{ roomCode[3] ? roomCode[3] : " " }}</div>
-            <div class="code-char">{{ roomCode[4] ? roomCode[4] : " " }}</div>
-            <div class="code-char">{{ roomCode[5] ? roomCode[5] : " " }}</div>
-        </div>
+      <input
+        matInput
+        inputmode="numeric"
+        [(ngModel)]="key"
+        style="opacity: 0; z-index: -1; position: absolute"
+        maxlength="6"
+      />
+      <div class="room-code">
+        <div class="code-char">{{ key[0] ? key[0] : " " }}</div>
+        <div class="code-char">{{ key[1] ? key[1] : " " }}</div>
+        <div class="code-char">{{ key[2] ? key[2] : " " }}</div>
+        <div class="code-char">{{ key[3] ? key[3] : " " }}</div>
+        <div class="code-char">{{ key[4] ? key[4] : " " }}</div>
+        <div class="code-char">{{ key[5] ? key[5] : " " }}</div>
+      </div>
     </mat-form-field>
 
-
-    <button mat-stroked-button color="primary" class="sign-in" [disableRipple]=true (click)="goToRoomControl()">Enter</button>
+    <button
+      mat-stroked-button
+      color="primary"
+      class="sign-in"
+      [disableRipple]="true"
+      (click)="goToRoomControl()"
+    >
+      Enter
+    </button>
+  </ng-container>
 </div>
