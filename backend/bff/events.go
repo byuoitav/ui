@@ -57,12 +57,14 @@ func (c *Client) HandleEvents() {
 			continue
 		}
 
+		fmt.Println("\n A new room state is being sent!")
 		c.state = newstate
 		msg, err := JSONMessage("room", c.state)
 		if err != nil {
 			c.Warn("failed to create JSON message with new room state", zap.Error(err))
 		}
 
+		fmt.Printf("Sending new room down the pipeline: %v", c.state)
 		c.Out <- msg
 
 	}
