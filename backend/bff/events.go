@@ -20,6 +20,7 @@ func (c *Client) HandleEvents() {
 	}
 
 	mess.SubscribeToRooms(c.roomID)
+	fmt.Printf("\nSUBSCRIBED TO ROOM %s\n", c.roomID)
 
 	for {
 		event := mess.ReceiveEvent()
@@ -57,14 +58,11 @@ func (c *Client) HandleEvents() {
 			continue
 		}
 
-		fmt.Println("\n A new room state is being sent!")
 		c.state = newstate
-		msg, err := JSONMessage("room", c.state)
+		msg, err := JSONMessage("room", c.GetRoom())
 		if err != nil {
 			c.Warn("failed to create JSON message with new room state", zap.Error(err))
 		}
-
-		fmt.Printf("Sending new room down the pipeline: %v", c.state)
 		c.Out <- msg
 
 	}
@@ -75,101 +73,101 @@ func (c *Client) HandleEvents() {
 func handleVolume(state structs.PublicRoom, volume, targetDevice string) (structs.PublicRoom, bool) {
 	intVolume, _ := strconv.Atoi(volume)
 	deviceId := getDeviceId(targetDevice)
+	changed := false
 
-	for i, device := range state.AudioDevices {
-		if device.Name != deviceId {
+	for i := range state.AudioDevices {
+		if state.AudioDevices[i].Name != deviceId {
 			continue
 		}
 
-		if device.Volume == &intVolume {
+		if state.AudioDevices[i].Volume == &intVolume {
 			continue
 		}
 
-		newState := state
-		newState.AudioDevices[i].Volume = &intVolume
-		return newState, true
+		state.AudioDevices[i].Volume = &intVolume
+		changed = true
 	}
 
-	return state, false
+	return state, changed
 }
 
 func handleMuted(state structs.PublicRoom, muted, targetDevice string) (structs.PublicRoom, bool) {
 	isMuted, _ := strconv.ParseBool(muted)
 	deviceId := getDeviceId(targetDevice)
+	changed := false
 
-	for i, device := range state.AudioDevices {
-		if device.Name != deviceId {
+	for i := range state.AudioDevices {
+		if state.AudioDevices[i].Name != deviceId {
 			continue
 		}
 
-		if device.Muted == &isMuted {
+		if state.AudioDevices[i].Muted == &isMuted {
 			continue
 		}
 
-		newState := state
-		newState.AudioDevices[i].Muted = &isMuted
-		return newState, true
+		state.AudioDevices[i].Muted = &isMuted
+		changed = true
 	}
 
-	return state, false
+	return state, changed
 }
 func handlePower(state structs.PublicRoom, power, targetDevice string) (structs.PublicRoom, bool) {
 	deviceId := getDeviceId(targetDevice)
+	changed := false
 
-	for i, device := range state.Displays {
-		if device.Name != deviceId {
+	for i := range state.Displays {
+		if state.Displays[i].Name != deviceId {
 			continue
 		}
 
-		if device.Power == power {
+		if state.Displays[i].Power == power {
 			continue
 		}
 
-		newState := state
-		newState.Displays[i].Power = power
-		return newState, true
+		state.Displays[i].Power = power
+		changed = true
 	}
 
-	return state, false
+	return state, changed
 }
 func handleInput(state structs.PublicRoom, input, targetDevice string) (structs.PublicRoom, bool) {
 	deviceId := getDeviceId(targetDevice)
+	changed := false
 
-	for i, device := range state.Displays {
-		if device.Name != deviceId {
+	for i := range state.Displays {
+		if state.Displays[i].Name != deviceId {
 			continue
 		}
 
-		if device.Input == input {
+		if state.Displays[i].Input == input {
 			continue
 		}
 
-		newState := state
-		newState.Displays[i].Input = input
-		return newState, true
+		state.Displays[i].Input = input
+		changed = true
 	}
 
-	return state, false
+	return state, changed
 }
 func handleBlanked(state structs.PublicRoom, blanked, targetDevice string) (structs.PublicRoom, bool) {
 	isBlanked, _ := strconv.ParseBool(blanked)
 	deviceId := getDeviceId(targetDevice)
+	changed := false
 
-	for i, device := range state.Displays {
-		if device.Name != deviceId {
+	for i := range state.Displays {
+		if state.Displays[i].Name != deviceId {
 			continue
 		}
 
-		if device.Blanked == &isBlanked {
+		if state.Displays[i].Blanked == &isBlanked {
 			continue
 		}
 
-		newState := state
-		newState.Displays[i].Blanked = &isBlanked
-		return newState, true
+		state.Displays[i].Blanked = &isBlanked
+		changed = true
 	}
 
-	return state, false
+	return state, changed
 }
 
 func getDeviceId(targetDevice string) string {
