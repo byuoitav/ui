@@ -1,101 +1,503 @@
 <div class="base">
-    <div class="display-section">
-        <button mat-icon-button class="page-button left" [disableRipple]=true (click)="pageLeft('display')" [class.blank]="!canPageLeft('display')"><mat-icon>keyboard_arrow_left</mat-icon></button>
-        <div class="page-column" (swipe)="onSwipe($event, 'display')">
-            <div *ngFor="let p of displayPages; let i = index;">
-                <ng-container [ngSwitch]="p.pageOption">
-                    <div *ngSwitchCase="'111'" [id]="'display-page' + i" class="display-row 111">
-                        <wide-button class="display" [data]="p?.displays[0]" [outputs]="p?.displays[0].outputs" [input]="getInputInfo(p?.displays[0].input)" (click)="selectedDisplay = p?.displays[0]" [selected]="selectedDisplay === p?.displays[0]"></wide-button>
-                        <wide-button class="display" [data]="p?.displays[1]" [outputs]="p?.displays[1].outputs" [input]="getInputInfo(p?.displays[1].input)" (click)="selectedDisplay = p?.displays[1]" [selected]="selectedDisplay === p?.displays[1]"></wide-button>
-                        <wide-button class="display" [data]="p?.displays[2]" [outputs]="p?.displays[2].outputs" [input]="getInputInfo(p?.displays[2].input)" (click)="selectedDisplay = p?.displays[2]" [selected]="selectedDisplay === p?.displays[2]"></wide-button>
-                    </div>
-                    <div *ngSwitchCase="'21'" [id]="'display-page' + i" class="display-row 21">
-                        <wide-button class="display double-wide" [data]="p?.displays[0]" [outputs]="p?.displays[0].outputs" [input]="getInputInfo(p?.displays[0].input)" (click)="selectedDisplay = p?.displays[0]" [selected]="selectedDisplay === p?.displays[0]"></wide-button>
-                        <wide-button class="display" [data]="p?.displays[1]" [outputs]="p?.displays[1].outputs" [input]="getInputInfo(p?.displays[1].input)" (click)="selectedDisplay = p?.displays[1]" [selected]="selectedDisplay === p?.displays[1]"></wide-button>
-                    </div>
-                    <div *ngSwitchCase="'31'" [id]="'display-page' + i" class="display-row 31">
-                        <wide-button class="display triple-wide" [data]="p?.displays[0]" [outputs]="p?.displays[0].outputs" [input]="getInputInfo(p?.displays[0].input)" (click)="selectedDisplay = p?.displays[0]" [selected]="selectedDisplay === p?.displays[0]"></wide-button>
-                        <wide-button class="display" [data]="p?.displays[1]" [outputs]="p?.displays[1].outputs" [input]="getInputInfo(p?.displays[1].input)" (click)="selectedDisplay = p?.displays[1]" [selected]="selectedDisplay === p?.displays[1]"></wide-button>
-                    </div>
-                    <div *ngSwitchCase="'22'" [id]="'display-page' + i" class="display-row 22">
-                        <wide-button class="display half" [data]="p?.displays[0]" [outputs]="p?.displays[0].outputs" [input]="getInputInfo(p?.displays[0].input)" (click)="selectedDisplay = p?.displays[0]" [selected]="selectedDisplay === p?.displays[0]"></wide-button>
-                        <wide-button class="display half" [data]="p?.displays[1]" [outputs]="p?.displays[1].outputs" [input]="getInputInfo(p?.displays[1].input)" (click)="selectedDisplay = p?.displays[1]" [selected]="selectedDisplay === p?.displays[1]"></wide-button>
-                    </div>
-                    <div *ngSwitchCase="'3'" [id]="'display-page' + i" class="display-row 3">
-                        <wide-button class="display full" [full]="true" [data]="p?.displays[0]" [outputs]="p?.displays[0].outputs" [input]="getInputInfo(p?.displays[0].input)" (click)="selectedDisplay = p?.displays[0]" [selected]="selectedDisplay === p?.displays[0]"></wide-button>
-                    </div>
-                    <div *ngSwitchCase="'4'" [id]="'display-page' + i" class="display-row 4">
-                        <wide-button class="display full" [full]="true" [data]="p?.displays[0]" [outputs]="p?.displays[0].outputs" [input]="getInputInfo(p?.displays[0].input)" (click)="selectedDisplay = p?.displays[0]" [selected]="selectedDisplay === p?.displays[0]"></wide-button>
-                    </div>
-                    <div *ngSwitchCase="'11'" [id]="'display-page' + i" class="display-row 11">
-                        <wide-button class="display" [data]="p?.displays[0]" [outputs]="p?.displays[0].outputs" [input]="getInputInfo(p?.displays[0].input)" (click)="selectedDisplay = p?.displays[0]" [selected]="selectedDisplay === p?.displays[0]"></wide-button>
-                        <wide-button class="display" [data]="p?.displays[1]" [outputs]="p?.displays[1].outputs" [input]="getInputInfo(p?.displays[1].input)" (click)="selectedDisplay = p?.displays[1]" [selected]="selectedDisplay === p?.displays[1]"></wide-button>
-                    </div>
-                    <div *ngSwitchCase="'1'" [id]="'display-page' + i" class="display-row 1">
-                        <wide-button class="display" [data]="p?.displays[0]" [outputs]="p?.displays[0].outputs" [input]="getInputInfo(p?.displays[0].input)" (click)="selectedDisplay = p?.displays[0]" [selected]="selectedDisplay === p?.displays[0]"></wide-button>
-                    </div>
-                </ng-container>
-            </div>
-        </div>
-        <button mat-icon-button class="page-button right" [disableRipple]=true (click)="pageRight('display')" [class.blank]="!canPageRight('display')"><mat-icon>keyboard_arrow_right</mat-icon></button>
-        <div *ngIf="displayPages.length > 1" class="page-indicator" [class.blank]="displayPages.length <= 1">
-            <span *ngFor="let p of displayPages; let i = index;" class="dot" [class.selected]="i === curDisplayPage" (click)="pageToNumber('display', i)"></span>
-        </div>
-        <mat-divider></mat-divider>
+  <div class="display-section">
+    <button
+      mat-icon-button
+      class="page-button left"
+      [disableRipple]="true"
+      (click)="pageLeft('display')"
+      [class.blank]="!canPageLeft('display')"
+    >
+      <mat-icon>keyboard_arrow_left</mat-icon>
+    </button>
+    <div class="page-column" (swipe)="onSwipe($event, 'display')">
+      <div *ngFor="let p of displayPages; let i = index">
+        <ng-container [ngSwitch]="p.pageOption">
+          <div
+            *ngSwitchCase="'111'"
+            [id]="'display-page' + i"
+            class="display-row 111"
+          >
+            <wide-button
+              class="display"
+              [data]="(p?.displays)[0]"
+              [outputs]="(p?.displays)[0].outputs"
+              [input]="getInputInfo((p?.displays)[0].input)"
+              (click)="selectedDisplay = (p?.displays)[0]"
+              [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"
+            ></wide-button>
+            <wide-button
+              class="display"
+              [data]="(p?.displays)[1]"
+              [outputs]="(p?.displays)[1].outputs"
+              [input]="getInputInfo((p?.displays)[1].input)"
+              (click)="selectedDisplay = (p?.displays)[1]"
+              [selected]="selectedDisplay?.id === (p?.displays)[1]?.id"
+            ></wide-button>
+            <wide-button
+              class="display"
+              [data]="(p?.displays)[2]"
+              [outputs]="(p?.displays)[2].outputs"
+              [input]="getInputInfo((p?.displays)[2].input)"
+              (click)="selectedDisplay = (p?.displays)[2]"
+              [selected]="selectedDisplay?.id === (p?.displays)[2]?.id"
+            ></wide-button>
+          </div>
+          <div
+            *ngSwitchCase="'21'"
+            [id]="'display-page' + i"
+            class="display-row 21"
+          >
+            <wide-button
+              class="display double-wide"
+              [data]="(p?.displays)[0]"
+              [outputs]="(p?.displays)[0].outputs"
+              [input]="getInputInfo((p?.displays)[0].input)"
+              (click)="selectedDisplay = (p?.displays)[0]"
+              [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"
+            ></wide-button>
+            <wide-button
+              class="display"
+              [data]="(p?.displays)[1]"
+              [outputs]="(p?.displays)[1].outputs"
+              [input]="getInputInfo((p?.displays)[1].input)"
+              (click)="selectedDisplay = (p?.displays)[1]"
+              [selected]="selectedDisplay?.id === (p?.displays)[1]?.id"
+            ></wide-button>
+          </div>
+          <div
+            *ngSwitchCase="'31'"
+            [id]="'display-page' + i"
+            class="display-row 31"
+          >
+            <wide-button
+              class="display triple-wide"
+              [data]="(p?.displays)[0]"
+              [outputs]="(p?.displays)[0].outputs"
+              [input]="getInputInfo((p?.displays)[0].input)"
+              (click)="selectedDisplay = (p?.displays)[0]"
+              [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"
+            ></wide-button>
+            <wide-button
+              class="display"
+              [data]="(p?.displays)[1]"
+              [outputs]="(p?.displays)[1].outputs"
+              [input]="getInputInfo((p?.displays)[1].input)"
+              (click)="selectedDisplay = (p?.displays)[1]"
+              [selected]="selectedDisplay?.id === (p?.displays)[1]?.id"
+            ></wide-button>
+          </div>
+          <div
+            *ngSwitchCase="'22'"
+            [id]="'display-page' + i"
+            class="display-row 22"
+          >
+            <wide-button
+              class="display half"
+              [data]="(p?.displays)[0]"
+              [outputs]="(p?.displays)[0].outputs"
+              [input]="getInputInfo((p?.displays)[0].input)"
+              (click)="selectedDisplay = (p?.displays)[0]"
+              [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"
+            ></wide-button>
+            <wide-button
+              class="display half"
+              [data]="(p?.displays)[1]"
+              [outputs]="(p?.displays)[1].outputs"
+              [input]="getInputInfo((p?.displays)[1].input)"
+              (click)="selectedDisplay = (p?.displays)[1]"
+              [selected]="selectedDisplay?.id === (p?.displays)[1]?.id"
+            ></wide-button>
+          </div>
+          <div
+            *ngSwitchCase="'3'"
+            [id]="'display-page' + i"
+            class="display-row 3"
+          >
+            <wide-button
+              class="display full"
+              [full]="true"
+              [data]="(p?.displays)[0]"
+              [outputs]="(p?.displays)[0].outputs"
+              [input]="getInputInfo((p?.displays)[0].input)"
+              (click)="selectedDisplay = (p?.displays)[0]"
+              [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"
+            ></wide-button>
+          </div>
+          <div
+            *ngSwitchCase="'4'"
+            [id]="'display-page' + i"
+            class="display-row 4"
+          >
+            <wide-button
+              class="display full"
+              [full]="true"
+              [data]="(p?.displays)[0]"
+              [outputs]="(p?.displays)[0].outputs"
+              [input]="getInputInfo((p?.displays)[0].input)"
+              (click)="selectedDisplay = (p?.displays)[0]"
+              [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"
+            ></wide-button>
+          </div>
+          <div
+            *ngSwitchCase="'11'"
+            [id]="'display-page' + i"
+            class="display-row 11"
+          >
+            <wide-button
+              class="display"
+              [data]="(p?.displays)[0]"
+              [outputs]="(p?.displays)[0].outputs"
+              [input]="getInputInfo((p?.displays)[0].input)"
+              (click)="selectedDisplay = (p?.displays)[0]"
+              [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"
+            ></wide-button>
+            <wide-button
+              class="display"
+              [data]="(p?.displays)[1]"
+              [outputs]="(p?.displays)[1].outputs"
+              [input]="getInputInfo((p?.displays)[1].input)"
+              (click)="selectedDisplay = (p?.displays)[1]"
+              [selected]="selectedDisplay?.id === (p?.displays)[1]?.id"
+            ></wide-button>
+          </div>
+          <div
+            *ngSwitchCase="'1'"
+            [id]="'display-page' + i"
+            class="display-row 1"
+          >
+            <wide-button
+              class="display"
+              [data]="(p?.displays)[0]"
+              [outputs]="(p?.displays)[0].outputs"
+              [input]="getInputInfo((p?.displays)[0].input)"
+              (click)="selectedDisplay = (p?.displays)[0]"
+              [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"
+            ></wide-button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+    <button
+      mat-icon-button
+      class="page-button right"
+      [disableRipple]="true"
+      (click)="pageRight('display')"
+      [class.blank]="!canPageRight('display')"
+    >
+      <mat-icon>keyboard_arrow_right</mat-icon>
+    </button>
+    <div
+      *ngIf="displayPages.length > 1"
+      class="page-indicator"
+      [class.blank]="displayPages.length <= 1"
+    >
+      <span
+        *ngFor="let p of displayPages; let i = index"
+        class="dot"
+        [class.selected]="i === curDisplayPage"
+        (click)="pageToNumber('display', i)"
+      ></span>
     </div>
     <mat-divider></mat-divider>
-    <div class="input-section" (swipe)="onSwipe($event, 'input')">
-        <button mat-icon-button class="page-button left" [disableRipple]=true (click)="pageLeft('input')" [class.blank]="!canPageLeft('input')"><mat-icon>keyboard_arrow_left</mat-icon></button>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="input-section" (swipe)="onSwipe($event, 'input')">
+    <button
+      mat-icon-button
+      class="page-button left"
+      [disableRipple]="true"
+      (click)="pageLeft('input')"
+      [class.blank]="!canPageLeft('input')"
+    >
+      <mat-icon>keyboard_arrow_left</mat-icon>
+    </button>
 
-        <div class="input-column">
-            <div *ngFor="let p of inputPages; let i = index;">
-                <ng-container [ngSwitch]="p">
-                    <div [id]="'input-page' + i" class="button-row two center" *ngSwitchCase="1">
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+0]" [icon]="cg?.inputs[(i*6)+0].icon" [title]="cg?.inputs[(i*6)+0].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+0].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+1]" [icon]="cg?.inputs[(i*6)+1].icon" [title]="cg?.inputs[(i*6)+1].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+1].id"></square-button>
-                    </div>
-                    <div [id]="'input-page' + i" class="button-row two left" *ngSwitchCase="2">
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+0]" [icon]="cg?.inputs[(i*6)+0].icon" [title]="cg?.inputs[(i*6)+0].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+0].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+1]" [icon]="cg?.inputs[(i*6)+1].icon" [title]="cg?.inputs[(i*6)+1].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+1].id"></square-button>
-                        <square-button class="input" [empty]=true></square-button>
-                    </div>
-                    <div [id]="'input-page' + i" class="button-row three" *ngSwitchCase="3">
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+0]" [icon]="cg?.inputs[(i*6)+0].icon" [title]="cg?.inputs[(i*6)+0].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+0].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+1]" [icon]="cg?.inputs[(i*6)+1].icon" [title]="cg?.inputs[(i*6)+1].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+1].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+2]" [icon]="cg?.inputs[(i*6)+2].icon" [title]="cg?.inputs[(i*6)+2].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+2].id"></square-button>
-                    </div>
-                    <div [id]="'input-page' + i" class="button-row four" *ngSwitchCase="4">
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+0]" [icon]="cg?.inputs[(i*6)+0].icon" [title]="cg?.inputs[(i*6)+0].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+0].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+1]" [icon]="cg?.inputs[(i*6)+1].icon" [title]="cg?.inputs[(i*6)+1].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+1].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+2]" [icon]="cg?.inputs[(i*6)+2].icon" [title]="cg?.inputs[(i*6)+2].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+2].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+3]" [icon]="cg?.inputs[(i*6)+3].icon" [title]="cg?.inputs[(i*6)+3].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+3].id"></square-button>
-                    </div>
-                    <div [id]="'input-page' + i" class="button-row five" *ngSwitchCase="5">
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+0]" [icon]="cg?.inputs[(i*6)+0].icon" [title]="cg?.inputs[(i*6)+0].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+0].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+1]" [icon]="cg?.inputs[(i*6)+1].icon" [title]="cg?.inputs[(i*6)+1].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+1].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+2]" [icon]="cg?.inputs[(i*6)+2].icon" [title]="cg?.inputs[(i*6)+2].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+2].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+3]" [icon]="cg?.inputs[(i*6)+3].icon" [title]="cg?.inputs[(i*6)+3].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+3].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+4]" [icon]="cg?.inputs[(i*6)+4].icon" [title]="cg?.inputs[(i*6)+4].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+4].id"></square-button>
-                    </div>
-                    <div [id]="'input-page' + i" class="button-row six" *ngSwitchCase="6">
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+0]" [icon]="cg?.inputs[(i*6)+0].icon" [title]="cg?.inputs[(i*6)+0].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+0].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+1]" [icon]="cg?.inputs[(i*6)+1].icon" [title]="cg?.inputs[(i*6)+1].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+1].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+2]" [icon]="cg?.inputs[(i*6)+2].icon" [title]="cg?.inputs[(i*6)+2].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+2].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+3]" [icon]="cg?.inputs[(i*6)+3].icon" [title]="cg?.inputs[(i*6)+3].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+3].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+4]" [icon]="cg?.inputs[(i*6)+4].icon" [title]="cg?.inputs[(i*6)+4].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+4].id"></square-button>
-                        <square-button class="input" [data]="cg?.inputs[(i*6)+5]" [icon]="cg?.inputs[(i*6)+5].icon" [title]="cg?.inputs[(i*6)+5].name" [click]="setInput" [selected]="selectedDisplay?.input === cg?.inputs[(i*6)+5].id"></square-button>
-                    </div>
-                </ng-container>
-            </div>
-
-        </div>
-        <button mat-icon-button class="page-button right" [disableRipple]=true (click)="pageRight('input')" [class.blank]="!canPageRight('input')"><mat-icon>keyboard_arrow_right</mat-icon></button>
-
-        <div class="page-indicator" [class.blank]="cg?.inputs.length <= 6">
-            <span *ngFor="let p of inputPages; let i = index;" class="dot" [class.selected]="i === curInputPage" (click)="pageToNumber('input', i)"></span>
-        </div>
+    <div class="input-column">
+      <div *ngFor="let p of inputPages; let i = index">
+        <ng-container [ngSwitch]="p">
+          <div
+            [id]="'input-page' + i"
+            class="button-row two center"
+            *ngSwitchCase="1"
+          >
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 0]"
+              [icon]="(cg?.inputs)[i * 6 + 0]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 0]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 0]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 1]"
+              [icon]="(cg?.inputs)[i * 6 + 1]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 1]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 1]?.id
+              "
+            ></square-button>
+          </div>
+          <div
+            [id]="'input-page' + i"
+            class="button-row two left"
+            *ngSwitchCase="2"
+          >
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 0]"
+              [icon]="(cg?.inputs)[i * 6 + 0]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 0]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 0]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 1]"
+              [icon]="(cg?.inputs)[i * 6 + 1]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 1]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 1]?.id
+              "
+            ></square-button>
+            <square-button class="input" [empty]="true"></square-button>
+          </div>
+          <div
+            [id]="'input-page' + i"
+            class="button-row three"
+            *ngSwitchCase="3"
+          >
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 0]"
+              [icon]="(cg?.inputs)[i * 6 + 0]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 0]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 0]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 1]"
+              [icon]="(cg?.inputs)[i * 6 + 1]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 1]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 1]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 2]"
+              [icon]="(cg?.inputs)[i * 6 + 2]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 2]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 2]?.id
+              "
+            ></square-button>
+          </div>
+          <div
+            [id]="'input-page' + i"
+            class="button-row four"
+            *ngSwitchCase="4"
+          >
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 0]"
+              [icon]="(cg?.inputs)[i * 6 + 0]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 0]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 0]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 1]"
+              [icon]="(cg?.inputs)[i * 6 + 1]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 1]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 1]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 2]"
+              [icon]="(cg?.inputs)[i * 6 + 2]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 2]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 2]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 3]"
+              [icon]="(cg?.inputs)[i * 6 + 3]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 3]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 3]?.id
+              "
+            ></square-button>
+          </div>
+          <div
+            [id]="'input-page' + i"
+            class="button-row five"
+            *ngSwitchCase="5"
+          >
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 0]"
+              [icon]="(cg?.inputs)[i * 6 + 0]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 0]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 0]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 1]"
+              [icon]="(cg?.inputs)[i * 6 + 1]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 1]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 1]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 2]"
+              [icon]="(cg?.inputs)[i * 6 + 2]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 2]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 2]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 3]"
+              [icon]="(cg?.inputs)[i * 6 + 3]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 3]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 3]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 4]"
+              [icon]="(cg?.inputs)[i * 6 + 4]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 4]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 4]?.id
+              "
+            ></square-button>
+          </div>
+          <div [id]="'input-page' + i" class="button-row six" *ngSwitchCase="6">
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 0]"
+              [icon]="(cg?.inputs)[i * 6 + 0]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 0]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 0]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 1]"
+              [icon]="(cg?.inputs)[i * 6 + 1]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 1]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 1]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 2]"
+              [icon]="(cg?.inputs)[i * 6 + 2]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 2]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 2]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 3]"
+              [icon]="(cg?.inputs)[i * 6 + 3]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 3]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 3]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 4]"
+              [icon]="(cg?.inputs)[i * 6 + 4]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 4]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 4]?.id
+              "
+            ></square-button>
+            <square-button
+              class="input"
+              [data]="(cg?.inputs)[i * 6 + 5]"
+              [icon]="(cg?.inputs)[i * 6 + 5]?.icon"
+              [title]="(cg?.inputs)[i * 6 + 5]?.name"
+              [click]="setInput"
+              [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 5]?.id
+              "
+            ></square-button>
+          </div>
+        </ng-container>
+      </div>
     </div>
-    <div class="volume" *ngIf="cg">
-        <volume-slider class="master" [master]="true" [muted]="cg?.muted" [level]="cg?.level" [levelChange]="setVolume" [muteChange]="setMute"></volume-slider>
+    <button
+      mat-icon-button
+      class="page-button right"
+      [disableRipple]="true"
+      (click)="pageRight('input')"
+      [class.blank]="!canPageRight('input')"
+    >
+      <mat-icon>keyboard_arrow_right</mat-icon>
+    </button>
+
+    <div class="page-indicator" [class.blank]="cg?.inputs.length <= 6">
+      <span
+        *ngFor="let p of inputPages; let i = index"
+        class="dot"
+        [class.selected]="i === curInputPage"
+        (click)="pageToNumber('input', i)"
+      ></span>
     </div>
+  </div>
+  <div class="volume" *ngIf="cg">
+    <volume-slider
+      class="master"
+      [master]="true"
+      [muted]="cg?.muted"
+      [level]="cg?.level"
+      [levelChange]="setVolume"
+      [muteChange]="setMute"
+    ></volume-slider>
+  </div>
 </div>

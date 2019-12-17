@@ -5,8 +5,6 @@
     width: 100%;
     justify-content: center;
     align-items: center;
-    // overflow: hidden;
-    // border: solid 1px green;
     &.header {
         justify-content: space-between;
         background-color: #dbdbdb;
@@ -40,18 +38,18 @@
     margin-right: 1px;
 }
 
-@media (min-width: 768px) {
-    .empty-thing {
-        width: 13%;
-    }
-    .row {
-        &.options {
-            justify-content: flex-start;
-        }
-    }
-    .square-button {
-        margin-left: 15px;
-        margin-right: 15px;
-        cursor: pointer;
-    }
-}
+// @media (min-width: 768px) {
+//     .empty-thing {
+//         width: 13%;
+//     }
+//     .row {
+//         &.options {
+//             justify-content: flex-start;
+//         }
+//     }
+//     .square-button {
+//         margin-left: 15px;
+//         margin-right: 15px;
+//         cursor: pointer;
+//     }
+// }

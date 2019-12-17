@@ -1,11 +1,11 @@
 $header-height: 35px;
-$group-height: calc(100vh - 42px);
+$group-height: calc(100% - 42px);
 $label-height: 70px;
 $body-height: calc(#{$group-height} - #{$label-height});
 .base {
     min-height: 100%;
+    height: 100%;
     min-width: 100%;
-    // border: solid 1px green;
 }
 
 .header {
@@ -42,10 +42,6 @@ $body-height: calc(#{$group-height} - #{$label-height});
     width: 33%;
 }
 
-.full {
-    height: 100%;
-}
-
 .tab-icon {
     transform: scale(1.75);
     margin-bottom: 10px;
@@ -76,7 +72,8 @@ $body-height: calc(#{$group-height} - #{$label-height});
     }
     .mat-tab-body-wrapper {
         // border: solid 1px red;
-        height: $body-height;
+        // height: $body-height;
+        height: 100%;
     }
     .mat-tab-label {
         background-color: #dbdbdb;
@@ -91,59 +88,59 @@ $body-height: calc(#{$group-height} - #{$label-height});
     }
 }
 
-@media (min-width: 768px) {
-     :host {
-         ::ng-deep {
-            .mat-tab-group {
-                flex-direction: row;
-                min-height: $group-height;
-                height: 100%;
-                width: 100%;
-            }
-            .mat-tab-header {
-                border-bottom: none;
-            }
-            .mat-tab-header-pagination {
-                display: none !important;
-            }
-            .mat-tab-labels {
-                flex-direction: column;
-                height: 100%;
-                background-color: #dbdbdb;
-                color: #757575;
-                width: 160px;
-                // border: solid 1px red;
-            }
-            .mat-tab-label {
-                height: 120px !important;
-                // width: 100% !important;
-                max-width: 100px;
-                padding-right: unset;
-                padding-left: unset;
-            }
-            .mat-tab-body-wrapper {
-                min-height: $group-height;
-                width: 100%;
-                height: 100%;
-            }
-            .mat-tab-body-content {
-                overflow: auto;
-                max-height: $group-height;
-            }
-        }
-    }
-    .empty-thing {
-        width: 5%;
-    }
-    .tab-button {
-        font-size: 14pt;
-    }
-    .tab-icon {
-        transform: scale(2.5);
-        margin-bottom: 30px;
-        margin-top: 10px;
-    }
-    .header {
-        background-color: #c2c2c2;
-    }
-}
+// @media (min-width: 768px) {
+//      :host {
+//          ::ng-deep {
+//             .mat-tab-group {
+//                 flex-direction: row;
+//                 min-height: $group-height;
+//                 height: 100%;
+//                 width: 100%;
+//             }
+//             .mat-tab-header {
+//                 border-bottom: none;
+//             }
+//             .mat-tab-header-pagination {
+//                 display: none !important;
+//             }
+//             .mat-tab-labels {
+//                 flex-direction: column;
+//                 height: 100%;
+//                 background-color: #dbdbdb;
+//                 color: #757575;
+//                 width: 160px;
+//                 // border: solid 1px red;
+//             }
+//             .mat-tab-label {
+//                 height: 120px !important;
+//                 // width: 100% !important;
+//                 max-width: 100px;
+//                 padding-right: unset;
+//                 padding-left: unset;
+//             }
+//             .mat-tab-body-wrapper {
+//                 min-height: $group-height;
+//                 width: 100%;
+//                 height: 100%;
+//             }
+//             .mat-tab-body-content {
+//                 overflow: auto;
+//                 max-height: $group-height;
+//             }
+//         }
+//     }
+//     .empty-thing {
+//         width: 5%;
+//     }
+//     .tab-button {
+//         font-size: 14pt;
+//     }
+//     .tab-icon {
+//         transform: scale(2.5);
+//         margin-bottom: 30px;
+//         margin-top: 10px;
+//     }
+//     .header {
+//         background-color: #c2c2c2;
+//     }
+// }

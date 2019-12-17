@@ -1,8 +1,17 @@
 export interface Room {
   id: string;
   name: string;
-  controlGroups: Map<string, ControlGroup>;
+  controlGroups: Object; // map <string, ControlGroup>
   selectedControlGroup: string;
+}
+
+export function isRoom(o: Object): o is Room {
+  return (
+    o &&
+    o.hasOwnProperty("controlGroups") &&
+    o.hasOwnProperty("id") &&
+    o.hasOwnProperty("name")
+  );
 }
 
 export interface ControlGroup {

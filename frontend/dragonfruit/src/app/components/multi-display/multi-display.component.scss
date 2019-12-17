@@ -20,11 +20,10 @@ $full-width: calc(#{$side-length} * 5);
     flex-flow: row wrap;
     justify-content: space-evenly;
     align-items: center;
-    height: 30%;
-    max-height: 30%;
+    height: 40%;
+    max-height: 40%;
     width: 100%;
     max-width: 100%;
-    margin-bottom: 25px;
 }
 
 .page-column {
@@ -87,6 +86,7 @@ $row-width: calc(#{$main-width} - 5px);
 .blank {
     opacity: 0;
     pointer-events: none;
+    display: none;
 }
 
 .display {
@@ -101,12 +101,10 @@ $row-width: calc(#{$main-width} - 5px);
     flex-flow: row wrap;
     justify-content: space-evenly;
     align-items: center;
-    height: 35%;
-    max-height: 35%;
+    height: 45%;
+    max-height: 45%;
     width: 100%;
     max-width: 100%;
-    margin-top: 5%;
-    margin-bottom: 5%;
 }
 
 .input-column {
@@ -156,7 +154,8 @@ $row-width: calc(#{$main-width} - 5px);
 }
 
 .volume {
-    margin-top: 10%;
+    display: none;
+    margin-top: 5%;
     // margin-bottom: 5%;
 }
 
@@ -202,5 +201,8 @@ $row-width: calc(#{$main-width} - 5px);
         &.right {
             // margin-right: 15%;
         }
+    }
+    .volume {
+        display: block;
     }
 }
