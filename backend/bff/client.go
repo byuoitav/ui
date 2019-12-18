@@ -173,6 +173,15 @@ func (c *Client) GetRoom() Room {
 		for _, name := range preset.Displays {
 			config := GetDeviceConfigByName(c.room.Devices, name)
 			state := GetDisplayStateByName(c.state.Displays, name)
+			outputIcon := "tv"
+
+			for _, IOconfig := range c.uiConfig.OutputConfiguration {
+				if config.Name != IOconfig.Name {
+					continue
+				}
+
+				outputIcon = IOconfig.Icon
+			}
 
 			d := Display{
 				ID:    ID(config.ID),
@@ -183,7 +192,7 @@ func (c *Client) GetRoom() Room {
 			d.Outputs = append(d.Outputs, IconPair{
 				ID:   ID(config.ID),
 				Name: config.DisplayName,
-				Icon: Icon{"tv"}, // TODO get this from the ui config
+				Icon: Icon{outputIcon}, // TODO get this from the ui config
 			})
 
 			if state.Blanked != nil {
@@ -205,12 +214,21 @@ func (c *Client) GetRoom() Room {
 
 		for _, name := range preset.Inputs {
 			config := GetDeviceConfigByName(c.room.Devices, name)
+			inputIcon := "settings_input_hdmi"
+
+			for _, IOconfig := range c.uiConfig.InputConfiguration {
+				if config.Name != IOconfig.Name {
+					continue
+				}
+
+				inputIcon = IOconfig.Icon
+			}
 
 			i := Input{
 				ID: ID(config.ID),
 				IconPair: IconPair{
 					Name: config.DisplayName,
-					Icon: Icon{"settings_input_hdmi"},
+					Icon: Icon{inputIcon},
 				},
 				Disabled: false, // TODO look at the current displays reachable inputs to determine
 			}
