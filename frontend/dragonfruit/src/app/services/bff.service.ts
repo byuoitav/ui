@@ -181,9 +181,9 @@ export class BFFService {
       }
     };
 
-    ws.onerror = err => {
-      console.error("websocket error", err);
-      room.error(err);
+    ws.onclose = event => {
+      console.warn("websocket close", event);
+      room.error(event);
     };
 
     return roomRef;
