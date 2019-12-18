@@ -166,9 +166,9 @@ export class BFFService {
       }
     };
 
-    ws.onerror = err => {
-      console.error("websocket error", err);
-      room.error(err);
+    ws.onclose = event => {
+      console.log("websocket close", event);
+      room.error(event);
     };
 
     return roomRef;
@@ -202,68 +202,4 @@ export class BFFService {
       });
     }
   };
-
-  /*
-  setInput(display: Display, input: Input) {
-    const kv = {
-      setInput: {
-        display: display.id,
-        input: input.id
-      }
-    };
-
-    console.log(JSON.stringify(kv));
-    // this.ws.send(JSON.stringify(kv));
-  }
-
-  setVolume(ad: AudioDevice, level: number) {
-    const kv = {
-      setVolume: {
-        audioDevice: ad.id,
-        level: level
-      }
-    };
-
-    console.log(JSON.stringify(kv));
-    // this.ws.send(JSON.stringify(kv));
-  }
-
-  setMuted(ad: AudioDevice, m: boolean) {
-    const kv = {
-      setMuted: {
-        audioDevice: ad.id,
-        muted: m
-      }
-    };
-
-    console.log(JSON.stringify(kv));
-    // this.ws.send(JSON.stringify(kv));
-  }
-
-  setPower(displays: Display[], s: string) {
-    const kv = {
-      setPower: {
-        display: [],
-        status: s
-      }
-    };
-    if (displays !== null) {
-      for (const disp of displays) {
-        kv.setPower.display.push(disp.id);
-      }
-    }
-
-    console.log(JSON.stringify(kv));
-    // this.ws.send(JSON.stringify(kv));
-  }
-
-  turnOffRoom() {
-    const kv = {
-      turnOffRoom: {}
-    };
-
-    console.log(JSON.stringify(kv));
-    // this.ws.send(JSON.stringify(kv));
-  }
-  */
 }

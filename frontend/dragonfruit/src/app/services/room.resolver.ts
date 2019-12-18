@@ -39,12 +39,14 @@ export class RoomResolver implements Resolve<RoomRef> {
             }
           },
           err => {
-            this.router.navigate(["/login"], {
-              queryParams: {
-                error: "Invalid room control key."
-              },
-              queryParamsHandling: "merge"
-            });
+            if (err.code === 4000) {
+              this.router.navigate(["/login"], {
+                queryParams: {
+                  error: err.reason
+                },
+                queryParamsHandling: "merge"
+              });
+            }
 
             observer.error(err);
             unsubscribe.complete();
