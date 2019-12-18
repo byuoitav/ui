@@ -46,6 +46,8 @@ export class RoomResolver implements Resolve<RoomRef> {
                 },
                 queryParamsHandling: "merge"
               });
+            } else {
+              this.router.navigate(["/login"]);
             }
 
             observer.error(err);
