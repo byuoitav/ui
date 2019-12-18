@@ -14,6 +14,7 @@ import {
   PresentGroup
 } from "../objects/control";
 import { ErrorDialog } from "../dialogs/error/error.dialog";
+import { TurnOffRoomDialogComponent } from '../dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component';
 
 export class RoomRef {
   private _room: BehaviorSubject<Room>;
@@ -142,15 +143,22 @@ export class BFFService {
 
     const roomRef = new RoomRef(room, ws, () => {
       console.log("closing room connection", room.value.id);
+      this.dialog.open(TurnOffRoomDialogComponent).afterClosed().subscribe((answer) => {
+        if (answer !== undefined) {
+          if (answer === "yes") {
+            roomRef.turnOff();
+          }
 
-      // close the websocket
-      ws.close();
+          // close the websocket
+          ws.close();
 
-      // say that we are done with sending rooms
-      room.complete();
+          // say that we are done with sending rooms
+          room.complete();
 
-      // route back to login page since we are gonna need a new code
-      this.router.navigate(["/login"], { replaceUrl: true });
+          // route back to login page since we are gonna need a new code
+          this.router.navigate(["/login"], { replaceUrl: true });
+        }
+      });
     });
 
     // handle incoming messages from bff

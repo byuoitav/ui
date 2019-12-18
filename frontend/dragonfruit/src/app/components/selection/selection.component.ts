@@ -63,6 +63,6 @@ export class SelectionComponent implements OnInit {
 
   selectControlGroup = (cg: string) => {
     console.log("selecting", cg);
-    this.router.navigate(["./" + cg], { relativeTo: this.route });
+    this.router.navigate(["./" + cg + "/0"], { relativeTo: this.route });
   };
 }
