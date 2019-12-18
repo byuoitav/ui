@@ -192,7 +192,7 @@ func (c *Client) GetRoom() Room {
 			d.Outputs = append(d.Outputs, IconPair{
 				ID:   ID(config.ID),
 				Name: config.DisplayName,
-				Icon: Icon{outputIcon}, // TODO get this from the ui config
+				Icon: Icon{outputIcon},
 			})
 
 			if state.Blanked != nil {
@@ -249,12 +249,21 @@ func (c *Client) GetRoom() Room {
 				for _, name := range audioDevices {
 					config := GetDeviceConfigByName(c.room.Devices, name)
 					state := GetAudioDeviceStateByName(c.state.AudioDevices, name)
+					audioIcon := "mic"
+
+					for _, IOconfig := range c.uiConfig.OutputConfiguration {
+						if config.Name != IOconfig.Name {
+							continue
+						}
+
+						audioIcon = IOconfig.Icon
+					}
 
 					ad := AudioDevice{
 						ID: ID(config.ID),
 						IconPair: IconPair{
 							Name: config.DisplayName,
-							Icon: Icon{"mic"}, // TODO
+							Icon: Icon{audioIcon},
 						},
 					}
 
