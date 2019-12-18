@@ -24,6 +24,10 @@ $full-width: calc(#{$side-length} * 5);
     max-height: 40%;
     width: 100%;
     max-width: 100%;
+    &.single {
+        height: 25%;
+        max-height: 25%;
+    }
 }
 
 .page-column {
@@ -36,18 +40,27 @@ $full-width: calc(#{$side-length} * 5);
     width: 100%;
     max-width: $main-width;
     min-width: $main-width;
-    margin: auto;
-    overflow: hidden;
-    &::-webkit-scrollbar {
-        display: none;
-    }
 }
 
-$row-width: calc(#{$main-width} - 5px);
+.large-icon {
+    transform: scale(1.75);
+}
+
+.display-column {
+    display: flex;
+    flex-flow: column nowrap;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+    padding: 5%;
+    color: #757575;
+    height: 85%;
+    max-height: 85%;
+}
+
 .display-row {
     display: flex;
     flex-flow: row nowrap;
-    // width: 100%;
     height: 100%;
     width: $main-width;
     min-width: $main-width;
@@ -55,7 +68,6 @@ $row-width: calc(#{$main-width} - 5px);
     align-items: center;
     justify-content: space-evenly;
     margin: auto;
-    // border: solid 1px purple;
 }
 
 .page-indicator {
@@ -63,17 +75,15 @@ $row-width: calc(#{$main-width} - 5px);
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    align-self: flex-start;
+    align-self: center;
     height: 30px;
     width: 100%;
     margin-bottom: 5px;
-    // padding-left: 3px;
     .dot {
         height: 0.5em;
         width: 0.5em;
         margin-left: 0.2em;
         margin-right: 0.175em;
-        // background-color: #b6b4b4;
         border: solid 1px #757575;
         border-radius: 50%;
         display: inline-block;
@@ -86,7 +96,6 @@ $row-width: calc(#{$main-width} - 5px);
 .blank {
     opacity: 0;
     pointer-events: none;
-    display: none;
 }
 
 .display {
@@ -116,10 +125,6 @@ $row-width: calc(#{$main-width} - 5px);
     align-items: center;
     width: 100%;
     max-width: 100%;
-    overflow: hidden;
-    &::-webkit-scrollbar {
-        display: none;
-    }
 }
 
 .button-row {
@@ -133,10 +138,8 @@ $row-width: calc(#{$main-width} - 5px);
     &.two {
         &.center {
             justify-content: space-evenly;
-            // align-items: center;
         }
         &.left {
-            // align-items: flex-start;
             margin-right: 10px;
         }
     }
@@ -154,55 +157,9 @@ $row-width: calc(#{$main-width} - 5px);
 }
 
 .volume {
-    display: none;
-    margin-top: 5%;
-    // margin-bottom: 5%;
-}
-
-@media (min-width: 768px) {
-    $main-width: calc(1.25 * (4.6 * #{$width-value})) !important;
-    $base-width: calc(1.5 * (4.6 * #{$width-value})) !important;
-    .base {
-        width: $base-width;
-        // border: solid 1px purple;
-    }
-    .page-column {
-        width: 100%;
-        max-width: $main-width;
-        min-width: $main-width;
-    }
-    .display-row {
-        width: $main-width;
-        min-width: $main-width;
-        max-width: $main-width;
-    }
-    .input-column {
-        width: $main-width;
-        max-width: $main-width;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .display-section {
-        height: 25%;
-        margin-top: 5%;
-        // border: solid 1px red;
-    }
-    .input-section {
-        height: 30%;
-        // border: solid 1px green;
-    }
-    .page-button {
-        display: block;
-        transform: scale(2);
-        color: #757575;
-        &.left {
-            // margin-left: 15%;
-        }
-        &.right {
-            // margin-right: 15%;
-        }
-    }
-    .volume {
-        display: block;
+    margin-top: 3%;
+    margin-bottom: 3%;
+    &.hidden {
+        display: none;
     }
 }

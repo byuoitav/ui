@@ -1,6 +1,6 @@
 <div class="base">
-  <div class="header">
-    <button mat-button color="primary" class="exit-button" (click)="goBack()">
+    <div class="header">
+        <button mat-button color="primary" class="exit-button" (click)="goBack()">
       <mat-icon class="exit-icon">exit_to_app</mat-icon
       >{{
         objectKeys(room?.controlGroups).length > 1
@@ -8,74 +8,50 @@
           : "Exit Room"
       }}
     </button>
-    <span class="room-title">{{ controlGroup?.name }}</span>
-    <div class="empty-thing"></div>
-  </div>
-
-  <mat-tab-group
-    [headerPosition]="tabPosition"
-    [disableRipple]="true"
-    (selectedTabChange)="tabChange($event.index)"
-    [selectedIndex]="selectedTab"
-  >
-    <!-- display tab -->
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <span class="tab-button" [class.selected]="selectedTab === 0">
+        <span class="room-title">{{ controlGroup?.name }}</span>
+        <div class="empty-thing"></div>
+    </div>
+    <mat-progress-bar *ngIf="_roomRef.loading" [mode]="'indeterminate'" color="primary" class="mpb"></mat-progress-bar>
+    <mat-tab-group [headerPosition]="tabPosition" [disableRipple]="true" (selectedTabChange)="tabChange($event.index)" [selectedIndex]="selectedTab">
+        <!-- display tab -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span class="tab-button" [class.selected]="selectedTab === 0">
           <mat-icon class="tab-icon">filter_center_focus</mat-icon>
           <span>Control</span>
-        </span>
-      </ng-template>
+                </span>
+            </ng-template>
+            <app-display [_roomRef]="_roomRef" [cg]="controlGroup">
+            </app-display>
+        </mat-tab>
 
-      <app-single-display
-        *ngIf="controlGroup?.displays?.length === 1"
-        [_roomRef]="_roomRef"
-        [cg]="controlGroup"
-      ></app-single-display>
-      <app-multi-display
-        *ngIf="controlGroup?.displays?.length > 1"
-        [_roomRef]="_roomRef"
-        [cg]="controlGroup"
-      ></app-multi-display>
-    </mat-tab>
+        <!-- audio tab -->
+        <mat-tab (click)="tabChange('Audio')">
+            <ng-template mat-tab-label>
+                <span class="tab-button" [class.selected]="selectedTab === 1"><mat-icon class="tab-icon">volume_up</mat-icon
+          ><span>Audio</span></span>
+            </ng-template>
 
-    <!-- audio tab -->
-    <mat-tab (click)="tabChange('Audio')">
-      <ng-template mat-tab-label>
-        <span class="tab-button" [class.selected]="selectedTab === 1"
-          ><mat-icon class="tab-icon">volume_up</mat-icon
-          ><span>Audio</span></span
-        >
-      </ng-template>
+            <app-audio *ngIf="controlGroup?.audioGroups" [_roomRef]="_roomRef" [cg]="controlGroup"></app-audio>
+        </mat-tab>
 
-      <app-audio
-        *ngIf="controlGroup?.audioGroups"
-        [_roomRef]="_roomRef"
-        [cg]="controlGroup"
-      ></app-audio>
-    </mat-tab>
+        <!-- present tab -->
+        <mat-tab label="Tab Two">
+            <ng-template mat-tab-label>
+                <span class="tab-button" [class.selected]="selectedTab === 2"><mat-icon class="tab-icon">present_to_all</mat-icon
+          ><span>Present</span></span>
+            </ng-template>
 
-    <!-- present tab -->
-    <mat-tab label="Tab Two">
-      <ng-template mat-tab-label>
-        <span class="tab-button" [class.selected]="selectedTab === 2"
-          ><mat-icon class="tab-icon">present_to_all</mat-icon
-          ><span>Present</span></span
-        >
-      </ng-template>
+            <app-present [cg]="controlGroup"></app-present>
+        </mat-tab>
 
-      <app-present [cg]="controlGroup"></app-present>
-    </mat-tab>
+        <!-- help tab -->
+        <mat-tab label="Tab Two">
+            <ng-template mat-tab-label>
+                <span class="tab-button" [class.selected]="selectedTab === 3"><mat-icon class="tab-icon">help</mat-icon><span>Help</span></span>
+            </ng-template>
 
-    <!-- help tab -->
-    <mat-tab label="Tab Two">
-      <ng-template mat-tab-label>
-        <span class="tab-button" [class.selected]="selectedTab === 3"
-          ><mat-icon class="tab-icon">help</mat-icon><span>Help</span></span
-        >
-      </ng-template>
-
-      <app-help [cg]="controlGroup"></app-help>
-    </mat-tab>
-  </mat-tab-group>
+            <app-help [cg]="controlGroup"></app-help>
+        </mat-tab>
+    </mat-tab-group>
 </div>
