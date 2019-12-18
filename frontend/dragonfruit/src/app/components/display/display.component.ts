@@ -7,7 +7,7 @@ import {
   Input,
   IconPair
 } from "src/app/objects/control";
-import { IControlTab } from '../control-tab/icontrol-tab';
+import { IControlTab } from "../control-tab/icontrol-tab";
 
 class Page {
   pageOption: string;
@@ -22,15 +22,23 @@ class Page {
 }
 
 @Component({
-  selector: 'app-display',
-  templateUrl: './display.component.html',
-  styleUrls: ['./display.component.scss']
+  selector: "app-display",
+  templateUrl: "./display.component.html",
+  styleUrls: ["./display.component.scss"]
 })
 export class DisplayComponent implements OnInit, IControlTab {
   @AngularInput() cg: ControlGroup;
   @AngularInput() private _roomRef: RoomRef;
 
-  selectedDisplay: Display;
+  selectedDisplayIdx: number = 0;
+  get selectedDisplay() {
+    if (this.cg && this.cg.displays && this.cg.displays.length > 0) {
+      return this.cg.displays[this.selectedDisplayIdx];
+    }
+
+    return undefined;
+  }
+
   displayPages: Page[];
   curDisplayPage = 0;
   inputPages: number[] = [];
@@ -40,15 +48,10 @@ export class DisplayComponent implements OnInit, IControlTab {
     this.displayPages = [];
   }
 
-  ngOnInit() {
-    // select an initial display
-    if (this.cg && this.cg.displays && this.cg.displays.length > 0) {
-      this.selectedDisplay = this.cg.displays[0];
-    }
-  }
+  ngOnInit() {}
 
   ngOnChanges() {
-    if (this.cg !== undefined) {
+    if (this.cg) {
       this.generatePages();
     }
   }
@@ -68,7 +71,10 @@ export class DisplayComponent implements OnInit, IControlTab {
     p.displays = [];
 
     while (displayIndex < this.cg.displays.length) {
-      if (p.weight > 0 && p.weight + this.cg.displays[displayIndex].outputs.length >= 5) {
+      if (
+        p.weight > 0 &&
+        p.weight + this.cg.displays[displayIndex].outputs.length >= 5
+      ) {
         this.displayPages.push(p);
         p = new Page();
       }
@@ -109,7 +115,7 @@ export class DisplayComponent implements OnInit, IControlTab {
     }
 
     this.curInputPage = 0;
-  }
+  };
 
   getInputInfo(inputID: string): IconPair {
     const i = this.cg.inputs.find(x => {
@@ -126,8 +132,10 @@ export class DisplayComponent implements OnInit, IControlTab {
   }
 
   onSwipe = (event, section: string) => {
-    const x = Math.abs(event.deltaX) > 40 ? (event.deltaX > 0 ? "right" : "left") : "";
-    const y = Math.abs(event.deltaY) > 40 ? (event.deltaY > 0 ? "down" : "up") : "";
+    const x =
+      Math.abs(event.deltaX) > 40 ? (event.deltaX > 0 ? "right" : "left") : "";
+    const y =
+      Math.abs(event.deltaY) > 40 ? (event.deltaY > 0 ? "down" : "up") : "";
 
     if (x === "right" && this.canPageLeft(section)) {
       this.pageLeft(section);
@@ -135,7 +143,7 @@ export class DisplayComponent implements OnInit, IControlTab {
     if (x === "left" && this.canPageRight(section)) {
       this.pageRight(section);
     }
-  }
+  };
 
   canPageLeft = (section: string): boolean => {
     if (section === "display") {
@@ -150,7 +158,7 @@ export class DisplayComponent implements OnInit, IControlTab {
       }
       return true;
     }
-  }
+  };
 
   canPageRight = (section: string): boolean => {
     if (section === "display") {
@@ -165,7 +173,7 @@ export class DisplayComponent implements OnInit, IControlTab {
       }
       return true;
     }
-  }
+  };
 
   pageLeft = (section: string) => {
     let idx = 0;
@@ -188,7 +196,7 @@ export class DisplayComponent implements OnInit, IControlTab {
       block: "nearest",
       inline: "nearest"
     });
-  }
+  };
 
   pageRight = (section: string) => {
     let idx = 0;
@@ -211,7 +219,7 @@ export class DisplayComponent implements OnInit, IControlTab {
       block: "nearest",
       inline: "nearest"
     });
-  }
+  };
 
   pageToNumber = (section: string, pageNum: number) => {
     if (section === "display") {
@@ -227,18 +235,18 @@ export class DisplayComponent implements OnInit, IControlTab {
       block: "nearest",
       inline: "nearest"
     });
-  }
+  };
 
   setInput = (input: Input) => {
-    this.selectedDisplay.input = input.id;
+    // this.selectedDisplay.input = input.id;
     this._roomRef.setInput(this.selectedDisplay.id, input.id);
-  }
+  };
 
   setVolume = (level: number) => {
     // set the volume in some way
-  }
+  };
 
   setMute = (muted: boolean) => {
     // mute the volume in some way
-  }
+  };
 }
