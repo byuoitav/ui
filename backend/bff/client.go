@@ -183,9 +183,17 @@ func (c *Client) GetRoom() Room {
 				outputIcon = IOconfig.Icon
 			}
 
+			// figure out what the current input for this display is
+			// we are assuming that input is roomid - input name
+			// unless it's blanked, then the "input" is blank
+			curInput := c.roomID + "-" + state.Input
+			if state.Blanked != nil && *state.Blanked {
+				curInput = "blank"
+			}
+
 			d := Display{
 				ID:    ID(config.ID),
-				Input: ID(c.roomID + "-" + state.Input), // we are assuming that input is RoomID + Input Name
+				Input: ID(curInput),
 			}
 
 			// TODO outputs when we do sharing
@@ -194,10 +202,6 @@ func (c *Client) GetRoom() Room {
 				Name: config.DisplayName,
 				Icon: Icon{outputIcon},
 			})
-
-			if state.Blanked != nil {
-				d.Blanked = *state.Blanked
-			}
 
 			cg.Displays = append(cg.Displays, d)
 		}

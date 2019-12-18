@@ -1,7 +1,6 @@
 package bff
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -15,7 +14,7 @@ import (
 func (c *Client) HandleEvents() {
 	mess, err := messenger.BuildMessenger(os.Getenv("HUB_ADDRESS"), base.Messenger, 1)
 	if err != nil {
-		fmt.Printf("%s", err)
+		c.Error("unable to build messenger", zap.Error(err))
 	}
 
 	mess.SubscribeToRooms(c.roomID)
@@ -33,6 +32,8 @@ func (c *Client) HandleEvents() {
 		if !isCoreState {
 			continue
 		}
+
+		c.Debug("Received core state event", zap.String("key", event.Key), zap.String("value", event.Value), zap.String("on", event.TargetDevice.DeviceID))
 
 		state := c.state
 		var changed bool
@@ -53,16 +54,19 @@ func (c *Client) HandleEvents() {
 		}
 
 		if !changed {
+			c.Debug("Ignoring no change event")
 			continue
 		}
 
+		c.Info("Updating room from event", zap.String("key", event.Key), zap.String("value", event.Value), zap.String("on", event.TargetDevice.DeviceID))
 		c.state = newstate
+
 		msg, err := JSONMessage("room", c.GetRoom())
 		if err != nil {
 			c.Warn("failed to create JSON message with new room state", zap.Error(err))
 		}
-		c.Out <- msg
 
+		c.Out <- msg
 	}
 
 	// TODO close messenger when it's done!

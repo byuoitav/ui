@@ -33,9 +33,7 @@ type Display struct {
 	ID ID `json:"id"`
 
 	Outputs []IconPair `json:"outputs"`
-
-	Input   ID   `json:"input"`
-	Blanked bool `json:"blanked"`
+	Input   ID         `json:"input"`
 }
 
 type Input struct {

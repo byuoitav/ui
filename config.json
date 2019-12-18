@@ -6,6 +6,7 @@
     "DB_USERNAME",
     "DB_PASSWORD",
     "DB_ADDRESS",
-    "CODE_SERVICE_URL"
+    "CODE_SERVICE_URL",
+    "HUB_ADDRESS"
   ]
 }
