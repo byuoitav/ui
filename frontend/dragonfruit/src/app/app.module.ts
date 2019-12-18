@@ -16,7 +16,8 @@ import {
   MatDialogModule,
   MatTabsModule,
   MatDividerModule,
-  MatProgressSpinnerModule
+  MatProgressSpinnerModule,
+  MatProgressBarModule
 } from "@angular/material";
 
 import { AppRoutingModule } from "./app-routing.module";
@@ -33,13 +34,12 @@ import { SelectionComponent } from "./components/selection/selection.component";
 import { AudioComponent } from "./components/audio/audio.component";
 import { PresentComponent } from "./components/present/present.component";
 import { HelpComponent } from "./components/help/help.component";
-import { SingleDisplayComponent } from "./components/single-display/single-display.component";
-import { MultiDisplayComponent } from "./components/multi-display/multi-display.component";
 import { HelpInfoComponent } from "./components/help/help-info/help-info.component";
 import { WideButtonComponent } from "./components/wide-button/wide-button.component";
 import { ControlTabComponent } from "./components/control-tab/control-tab.component";
 import { ControlTabDirective } from "./components/control-tab/control-tab.directive";
 import { ErrorDialog } from "./dialogs/error/error.dialog";
+import { DisplayComponent } from './components/display/display.component';
 
 @NgModule({
   declarations: [
@@ -55,13 +55,12 @@ import { ErrorDialog } from "./dialogs/error/error.dialog";
     AudioComponent,
     PresentComponent,
     HelpComponent,
-    SingleDisplayComponent,
-    MultiDisplayComponent,
     HelpInfoComponent,
     WideButtonComponent,
     ControlTabComponent,
     ControlTabDirective,
-    ErrorDialog
+    ErrorDialog,
+    DisplayComponent
   ],
   imports: [
     BrowserModule,
@@ -81,7 +80,8 @@ import { ErrorDialog } from "./dialogs/error/error.dialog";
     HttpClientModule,
     MatTabsModule,
     MatDividerModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatProgressBarModule
   ],
   providers: [BFFService],
   entryComponents: [
@@ -89,8 +89,6 @@ import { ErrorDialog } from "./dialogs/error/error.dialog";
     DisplayDialogComponent,
     HelpInfoComponent,
     TurnOffRoomDialogComponent,
-    SingleDisplayComponent,
-    MultiDisplayComponent,
     AudioComponent,
     PresentComponent,
     HelpComponent,

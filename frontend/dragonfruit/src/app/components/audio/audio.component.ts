@@ -7,7 +7,7 @@ import {
   AudioGroup,
   Input
 } from "src/app/objects/control";
-import { IControlTab } from "../control-tab/icontrol-tab";
+import { IControlTab } from '../control-tab/icontrol-tab';
 
 @Component({
   selector: "app-audio",

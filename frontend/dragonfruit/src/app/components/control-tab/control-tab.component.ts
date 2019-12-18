@@ -2,11 +2,10 @@ import { Component, OnInit, ViewChild, forwardRef, Input, ComponentFactoryResolv
 import { ControlTabDirective } from './control-tab.directive';
 import { IControlTab } from './icontrol-tab';
 import { ControlGroup, CONTROL_TAB, AUDIO_TAB, PRESENT_TAB, HELP_TAB } from '../../objects/control';
-import { SingleDisplayComponent } from '../single-display/single-display.component';
-import { MultiDisplayComponent } from '../multi-display/multi-display.component';
 import { AudioComponent } from '../audio/audio.component';
 import { PresentComponent } from '../present/present.component';
 import { HelpComponent } from '../help/help.component';
+import { DisplayComponent } from '../display/display.component';
 
 @Component({
     selector: 'control-tab',
@@ -41,11 +40,7 @@ export class ControlTabComponent implements OnInit, AfterViewInit {
 
             switch (this.tab) {
                 case CONTROL_TAB:
-                    if (this.controlGroup.displays.length < 2) {
-                        comp = SingleDisplayComponent;
-                    } else {
-                        comp = MultiDisplayComponent;
-                    }
+                    comp = DisplayComponent;
                     break;
                 case AUDIO_TAB:
                     comp = AudioComponent;

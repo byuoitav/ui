@@ -19,6 +19,7 @@ export class RoomRef {
   private _room: BehaviorSubject<Room>;
   private _ws: WebSocket;
   private _logout: () => void;
+  loading: boolean;
 
   get room() {
     if (this._room) {
@@ -55,6 +56,7 @@ export class RoomRef {
       }
     };
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   };
 
@@ -66,6 +68,7 @@ export class RoomRef {
       }
     };
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   };
 
@@ -77,6 +80,7 @@ export class RoomRef {
       }
     };
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   };
 
@@ -92,6 +96,7 @@ export class RoomRef {
       kv.setPower.display.push(disp.id);
     }
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   };
 
@@ -100,6 +105,7 @@ export class RoomRef {
       turnOffRoom: {}
     };
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   };
 }
@@ -156,6 +162,7 @@ export class BFFService {
           case "room":
             console.log("new room", data[k]);
             room.next(data[k]);
+            roomRef.loading = false;
 
             break;
           default:
@@ -202,68 +209,4 @@ export class BFFService {
       });
     }
   };
-
-  /*
-  setInput(display: Display, input: Input) {
-    const kv = {
-      setInput: {
-        display: display.id,
-        input: input.id
-      }
-    };
-
-    console.log(JSON.stringify(kv));
-    // this.ws.send(JSON.stringify(kv));
-  }
-
-  setVolume(ad: AudioDevice, level: number) {
-    const kv = {
-      setVolume: {
-        audioDevice: ad.id,
-        level: level
-      }
-    };
-
-    console.log(JSON.stringify(kv));
-    // this.ws.send(JSON.stringify(kv));
-  }
-
-  setMuted(ad: AudioDevice, m: boolean) {
-    const kv = {
-      setMuted: {
-        audioDevice: ad.id,
-        muted: m
-      }
-    };
-
-    console.log(JSON.stringify(kv));
-    // this.ws.send(JSON.stringify(kv));
-  }
-
-  setPower(displays: Display[], s: string) {
-    const kv = {
-      setPower: {
-        display: [],
-        status: s
-      }
-    };
-    if (displays !== null) {
-      for (const disp of displays) {
-        kv.setPower.display.push(disp.id);
-      }
-    }
-
-    console.log(JSON.stringify(kv));
-    // this.ws.send(JSON.stringify(kv));
-  }
-
-  turnOffRoom() {
-    const kv = {
-      turnOffRoom: {}
-    };
-
-    console.log(JSON.stringify(kv));
-    // this.ws.send(JSON.stringify(kv));
-  }
-  */
 }

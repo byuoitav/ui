@@ -88,6 +88,11 @@ $body-height: calc(#{$group-height} - #{$label-height});
     }
 }
 
+.mpb {
+    position: fixed;
+    // margin-top: 4px;
+}
+
 // @media (min-width: 768px) {
 //      :host {
 //          ::ng-deep {
