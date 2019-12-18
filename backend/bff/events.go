@@ -20,7 +20,6 @@ func (c *Client) HandleEvents() {
 	}
 
 	mess.SubscribeToRooms(c.roomID)
-	fmt.Printf("\nSUBSCRIBED TO ROOM %s\n", c.roomID)
 
 	for {
 		event := mess.ReceiveEvent()
