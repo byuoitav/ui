@@ -174,7 +174,7 @@ export class BFFService {
     };
 
     ws.onclose = event => {
-      console.log("websocket close", event);
+      console.warn("websocket close", event);
       room.error(event);
     };
 
