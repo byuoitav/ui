@@ -32,7 +32,7 @@ const routes: Routes = [
             component: SelectionComponent
           },
           {
-            path: ":groupid",
+            path: ":groupid/:tab",
             component: RoomControlComponent
           }
         ]

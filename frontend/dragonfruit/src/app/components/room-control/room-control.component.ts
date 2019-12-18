@@ -62,6 +62,7 @@ export class RoomControlComponent implements OnInit {
 
     this.route.params.subscribe(params => {
       this._controlGroupID = params["groupid"];
+      this.selectedTab = +params["tab"];
 
       // TODO make sure the room has this group, if not, redirect up?
     });
@@ -106,12 +107,10 @@ export class RoomControlComponent implements OnInit {
   };
 
   tabChange(index: number | string) {
-    /*
     this.selectedTab = index;
     const currentURL = decodeURI(window.location.pathname);
     const newURL =
       currentURL.substr(0, currentURL.lastIndexOf("/") + 1) + this.selectedTab;
     this.router.navigate([newURL]);
-    */
   }
 }
