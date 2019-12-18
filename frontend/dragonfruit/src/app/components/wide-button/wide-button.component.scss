@@ -56,13 +56,14 @@ $input-ht: calc(#{$height-value} - #{$output-ht});
     height: $output-ht;
     // height: inherit;
     width: wrap;
-    justify-content: space-between;
+    justify-content: space-evenly;
     flex-grow: 1 1 auto;
     // overflow: auto;
     align-items: center;
     margin-top: 5px;
     &.input {
         height: $input-ht;
+        font-size: 10pt;
     }
 }
 
