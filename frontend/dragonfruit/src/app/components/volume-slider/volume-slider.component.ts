@@ -19,14 +19,10 @@ export type SliderAction = (attribute: any, data?: any) => Promise<boolean>;
 export class VolumeSliderComponent implements OnInit {
   @AngularInput() muted: boolean;
   @AngularInput() level: number;
-
   @AngularInput() levelChange: SliderAction;
   @AngularInput() muteChange: SliderAction;
-
   @AngularInput() audioDevice: AudioDevice;
-
   @AngularInput() master = false;
-
   @ViewChild("slider", null) slider: MatSlider;
 
   constructor() {}

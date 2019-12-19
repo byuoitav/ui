@@ -508,7 +508,7 @@
       class="master"
       [master]="true"
       [muted]="cg?.muted"
-      [level]="cg?.level"
+      [level]="cg?.audioGroups[0].audioDevices[0].level"
       [levelChange]="setVolume"
       [muteChange]="setMute"
     ></volume-slider>
