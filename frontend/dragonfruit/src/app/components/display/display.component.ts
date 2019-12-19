@@ -244,9 +244,11 @@ export class DisplayComponent implements OnInit, IControlTab {
 
   setVolume = (level: number) => {
     // set the volume in some way
+    this._roomRef.setVolume(this.cg.audioGroups[0].audioDevices[0].id, level);
   };
 
   setMute = (muted: boolean) => {
     // mute the volume in some way
+    this._roomRef.setMuted(this.cg.audioGroups[0].audioDevices[0].id, muted);
   };
 }
