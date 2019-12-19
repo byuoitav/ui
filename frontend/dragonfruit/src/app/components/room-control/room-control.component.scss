@@ -129,7 +129,8 @@ $body-height: calc(#{$group-height} - #{$label-height});
                 height: 100%;
             }
             .mat-tab-body-content {
-                overflow: auto;
+                // border: solid 1px red;
+                overflow: hidden;
                 max-height: $group-height;
             }
         }
@@ -150,5 +151,8 @@ $body-height: calc(#{$group-height} - #{$label-height});
     }
     .room-title {
         margin-left: 9%;
+    }
+    .mpb {
+        max-width: 1024px;
     }
 }
