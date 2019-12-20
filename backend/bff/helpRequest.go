@@ -46,7 +46,7 @@ func (hr HelpRequest) Do(c *Client, data []byte) {
 				BuildingID: c.buildingID,
 				RoomID:     c.roomID,
 			},
-			DeviceID: c.selectedControlGroupID,
+			DeviceID: c.roomID + "-" + c.selectedControlGroupID,
 		},
 	}
 }
