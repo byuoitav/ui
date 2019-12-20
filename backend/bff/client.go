@@ -9,11 +9,13 @@ import (
 	"time"
 
 	"github.com/byuoitav/common/structs"
+	"github.com/byuoitav/common/v2/events"
 	"github.com/byuoitav/ui/log"
 	"go.uber.org/zap"
 )
 
 type Client struct {
+	id                     string
 	buildingID             string
 	roomID                 string
 	selectedControlGroupID string
@@ -27,8 +29,8 @@ type Client struct {
 	// messages going out to the client
 	Out chan Message
 
-	// messages coming from the client
-	// In chan []byte
+	// events put in this channel get sent to the hub
+	SendEvent chan events.Event
 
 	*zap.Logger
 }
@@ -45,10 +47,12 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*
 	defer cancel()
 
 	c := &Client{
+		id:         name,
 		buildingID: split[0],
 		roomID:     roomID,
 		httpClient: &http.Client{},
 		Out:        make(chan Message, 1),
+		SendEvent:  make(chan events.Event),
 		Logger:     log.P.Named(name),
 	}
 
