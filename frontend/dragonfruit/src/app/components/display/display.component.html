@@ -158,7 +158,7 @@
             <span *ngFor="let p of inputPages; let i = index" class="dot" [class.selected]="i === curInputPage" (click)="pageToNumber('input', i)"></span>
         </div>
     </div>
-    <div class="volume" *ngIf="cg && cg?.displays?.length == 1">
+    <div class="volume" [class.hidden]="cg?.displays?.length > 1">
         <volume-slider class="master" [master]="true" [muted]="cg?.audioGroups[0].audioDevices[0].muted" [level]="cg?.audioGroups[0].audioDevices[0].level" [levelChange]="setVolume" [muteChange]="setMute"></volume-slider>
     </div>
 </div>
