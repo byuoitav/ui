@@ -11,11 +11,11 @@ import (
 	"github.com/byuoitav/common/structs"
 	"github.com/byuoitav/common/v2/events"
 	"github.com/byuoitav/ui/log"
+	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 )
 
 type Client struct {
-	id                     string
 	buildingID             string
 	roomID                 string
 	selectedControlGroupID string
@@ -24,6 +24,11 @@ type Client struct {
 	state    structs.PublicRoom
 	uiConfig UIConfig
 
+	// if this channel is closed, then all goroutines
+	// spawned by the client should exit
+	kill chan struct{}
+
+	ws         *websocket.Conn
 	httpClient *http.Client
 
 	// messages going out to the client
@@ -35,26 +40,29 @@ type Client struct {
 	*zap.Logger
 }
 
-func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*Client, error) {
-	log.P.Info("Registering client", zap.String("roomID", roomID), zap.String("controlGroupID", controlGroupID), zap.String("name", name))
+func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGroupID string) (*Client, error) {
+	log.P.Info("Registering client", zap.String("roomID", roomID), zap.String("controlGroupID", controlGroupID), zap.String("name", ws.RemoteAddr().String()))
 
 	split := strings.Split(roomID, "-")
 	if len(split) != 2 {
 		return nil, fmt.Errorf("invalid roomID %q - must match format BLDG-ROOM", roomID)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
+	// build our client
 	c := &Client{
-		id:         name,
 		buildingID: split[0],
 		roomID:     roomID,
+		kill:       make(chan struct{}),
+		ws:         ws,
 		httpClient: &http.Client{},
 		Out:        make(chan Message, 1),
 		SendEvent:  make(chan events.Event),
-		Logger:     log.P.Named(name),
+		Logger:     log.P.Named(ws.RemoteAddr().String()),
 	}
+
+	// setup shoudn't take longer than 10 seconds
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
 
 	errCh := make(chan error, 3)
 	doneCh := make(chan struct{})
@@ -120,7 +128,7 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*
 	}
 
 	//check if controlgroup is empty, if not turn on displays in controlgroup
-	if c.selectedControlGroupID != "" {
+	if len(c.selectedControlGroupID) > 0 {
 		var displays []ID
 		for _, display := range room.ControlGroups[c.selectedControlGroupID].Displays {
 			displays = append(displays, display.ID)
@@ -136,249 +144,23 @@ func RegisterClient(ctx context.Context, roomID, controlGroupID, name string) (*
 		if err != nil {
 			return nil, fmt.Errorf("unable to power on the following displays %s: %s", displays, err)
 		}
+	} else {
+		// write the inital room info
+		msg, err := JSONMessage("room", c.GetRoom())
+		if err != nil {
+			return nil, fmt.Errorf("unable to marshal room: %s", err)
+		}
 
-		go c.HandleEvents()
-		return c, nil
+		c.Out <- msg
 	}
 
-	c.Info("Got all initial information, sending room to client")
+	c.Info("Got all initial information, sent room to client. Starting ws/event goroutines")
 
-	// write the inital room info
-	msg, err := JSONMessage("room", c.GetRoom())
-	if err != nil {
-		return nil, fmt.Errorf("unable to marshal room: %s", err)
-	}
+	go c.handleEvents()
+	go c.readPump()
+	go c.writePump()
 
-	c.Out <- msg
-
-	go c.HandleEvents()
 	return c, nil
-}
-
-func (c *Client) GetRoom() Room {
-	room := Room{
-		ID:                   ID(c.roomID),
-		Name:                 c.room.Name,
-		ControlGroups:        make(map[string]ControlGroup),
-		SelectedControlGroup: "", // TODO where is this saved? c?
-	}
-
-	for _, preset := range c.uiConfig.Presets {
-		cg := ControlGroup{
-			ID:   ID(preset.Name),
-			Name: preset.Name,
-			Support: Support{
-				HelpRequested: false, // This info also needs to be saved...
-				HelpMessage:   "Request Help",
-				HelpEnabled:   true,
-			},
-		}
-
-		for _, name := range preset.Displays {
-			config := GetDeviceConfigByName(c.room.Devices, name)
-			state := GetDisplayStateByName(c.state.Displays, name)
-			outputIcon := "tv"
-
-			for _, IOconfig := range c.uiConfig.OutputConfiguration {
-				if config.Name != IOconfig.Name {
-					continue
-				}
-
-				outputIcon = IOconfig.Icon
-			}
-
-			// figure out what the current input for this display is
-			// we are assuming that input is roomid - input name
-			// unless it's blanked, then the "input" is blank
-			curInput := c.roomID + "-" + state.Input
-			if state.Blanked != nil && *state.Blanked {
-				curInput = "blank"
-			}
-
-			d := Display{
-				ID:    ID(config.ID),
-				Input: ID(curInput),
-			}
-
-			// TODO outputs when we do sharing
-			d.Outputs = append(d.Outputs, IconPair{
-				ID:   ID(config.ID),
-				Name: config.DisplayName,
-				Icon: Icon{outputIcon},
-			})
-
-			cg.Displays = append(cg.Displays, d)
-		}
-
-		// add a blank input as the first input
-		cg.Inputs = append(cg.Inputs, Input{
-			ID: ID("blank"),
-			IconPair: IconPair{
-				Name: "Blank",
-				Icon: Icon{"crop_landscape"},
-			},
-			Disabled: false,
-		})
-
-		for _, name := range preset.Inputs {
-			config := GetDeviceConfigByName(c.room.Devices, name)
-			inputIcon := "settings_input_hdmi"
-
-			for _, IOconfig := range c.uiConfig.InputConfiguration {
-				if config.Name != IOconfig.Name {
-					continue
-				}
-
-				inputIcon = IOconfig.Icon
-			}
-
-			i := Input{
-				ID: ID(config.ID),
-				IconPair: IconPair{
-					Name: config.DisplayName,
-					Icon: Icon{inputIcon},
-				},
-				Disabled: false, // TODO look at the current displays reachable inputs to determine
-			}
-
-			// TODO subinputs
-
-			cg.Inputs = append(cg.Inputs, i)
-		}
-
-		if len(preset.AudioGroups) > 0 {
-			for group, audioDevices := range preset.AudioGroups {
-				ag := AudioGroup{
-					ID:    ID(group),
-					Name:  group,
-					Muted: true,
-				}
-
-				for _, name := range audioDevices {
-					config := GetDeviceConfigByName(c.room.Devices, name)
-					state := GetAudioDeviceStateByName(c.state.AudioDevices, name)
-					audioIcon := "mic"
-
-					for _, IOconfig := range c.uiConfig.OutputConfiguration {
-						if config.Name != IOconfig.Name {
-							continue
-						}
-
-						audioIcon = IOconfig.Icon
-					}
-
-					ad := AudioDevice{
-						ID: ID(config.ID),
-						IconPair: IconPair{
-							Name: config.DisplayName,
-							Icon: Icon{audioIcon},
-						},
-					}
-
-					if state.Volume != nil {
-						ad.Level = *state.Volume
-					}
-
-					if state.Muted != nil {
-						ad.Muted = *state.Muted
-					}
-
-					if !ad.Muted {
-						ag.Muted = false
-					}
-
-					ag.AudioDevices = append(ag.AudioDevices, ad)
-				}
-
-				cg.AudioGroups = append(cg.AudioGroups, ag)
-			}
-		} else {
-			// create the displaysAG
-			if len(preset.AudioDevices) >= 1 {
-				ag := AudioGroup{
-					ID:    "displaysAG",
-					Name:  "Display Volume Mixing",
-					Muted: true,
-				}
-
-				for _, name := range preset.AudioDevices {
-					config := GetDeviceConfigByName(c.room.Devices, name)
-					state := GetAudioDeviceStateByName(c.state.AudioDevices, name)
-
-					ad := AudioDevice{
-						ID: ID(config.ID),
-						IconPair: IconPair{
-							Name: config.DisplayName,
-							Icon: Icon{"tv"},
-						},
-					}
-
-					if state.Volume != nil {
-						ad.Level = *state.Volume
-					}
-
-					if state.Muted != nil {
-						ad.Muted = *state.Muted
-					}
-
-					if !ad.Muted {
-						ag.Muted = false
-					}
-
-					ag.AudioDevices = append(ag.AudioDevices, ad)
-				}
-
-				cg.AudioGroups = append(cg.AudioGroups, ag)
-			}
-
-			// create the micsAG
-			if len(preset.IndependentAudioDevices) >= 1 {
-
-				ag := AudioGroup{
-					ID:    "micsAG",
-					Name:  "Microphones",
-					Muted: true,
-				}
-
-				for _, name := range preset.IndependentAudioDevices {
-					config := GetDeviceConfigByName(c.room.Devices, name)
-					state := GetAudioDeviceStateByName(c.state.AudioDevices, name)
-
-					ad := AudioDevice{
-						ID: ID(config.ID),
-						IconPair: IconPair{
-							Name: config.DisplayName,
-							Icon: Icon{"mic"},
-						},
-					}
-
-					if state.Volume != nil {
-						ad.Level = *state.Volume
-					}
-
-					if state.Muted != nil {
-						ad.Muted = *state.Muted
-					}
-
-					if !ad.Muted {
-						ag.Muted = false
-					}
-
-					ag.AudioDevices = append(ag.AudioDevices, ad)
-				}
-
-				cg.AudioGroups = append(cg.AudioGroups, ag)
-			}
-
-		}
-
-		room.ControlGroups[string(cg.ID)] = cg
-		// TODO PresentGroups
-	}
-
-	room.SelectedControlGroup = ID(c.selectedControlGroupID)
-
-	return room
 }
 
 func (c *Client) CurrentPreset() Preset {

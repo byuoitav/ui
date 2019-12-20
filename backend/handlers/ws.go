@@ -92,7 +92,7 @@ func NewClient(c echo.Context) error {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
-	// send messages out
+	// send messages out from backend
 	go func() {
 		defer wg.Done()
 
@@ -118,7 +118,7 @@ func NewClient(c echo.Context) error {
 		}
 	}()
 
-	// recv messages
+	// recv messages from frontend
 	go func() {
 		defer wg.Done()
 
