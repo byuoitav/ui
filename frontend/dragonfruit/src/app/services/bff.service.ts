@@ -14,7 +14,7 @@ import {
   PresentGroup
 } from "../objects/control";
 import { ErrorDialog } from "../dialogs/error/error.dialog";
-import { TurnOffRoomDialogComponent } from '../dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component';
+import { TurnOffRoomDialogComponent } from "../dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component";
 
 export class RoomRef {
   private _room: BehaviorSubject<Room>;
@@ -108,6 +108,17 @@ export class RoomRef {
 
     this.loading = true;
     this._ws.send(JSON.stringify(kv));
+  };
+
+  requestHelp = (msg: string) => {
+    console.log("requesting help:", msg);
+    const req = {
+      helpRequest: {
+        msg: msg
+      }
+    };
+
+    this._ws.send(JSON.stringify(req));
   };
 }
 
