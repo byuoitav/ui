@@ -27,12 +27,7 @@ const (
 // readPump receives messages from the frontend and passes them to
 //	c.HandleMessage()
 func (c *Client) readPump() {
-	defer func() {
-		// close the websocket
-		c.ws.Close()
-
-		// TODO actually call like a whole client.close function?
-	}()
+	defer c.Close()
 
 	// set max message size
 	c.ws.SetReadLimit(maxMessageSize)
@@ -53,7 +48,9 @@ func (c *Client) readPump() {
 			_, msg, err := c.ws.ReadMessage()
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-					c.Warn("websocket closed unexpectedly: %s", zap.Error(err))
+					c.Error("websocket closed unexpectedly", zap.Error(err))
+				} else {
+					c.Error("unable to read message from websocket", zap.Error(err))
 				}
 
 				return
@@ -76,12 +73,8 @@ func (c *Client) readPump() {
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 
-	defer func() {
-		ticker.Stop()
-		c.ws.Close()
-
-		// TODO actually call like a whole client.close function?
-	}()
+	defer c.Close()
+	defer ticker.Stop()
 
 	for {
 		select {

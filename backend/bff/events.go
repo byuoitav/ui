@@ -23,8 +23,9 @@ func (c *Client) handleEvents() {
 	mess.SubscribeToRooms(c.roomID)
 
 	defer func() {
-		mess.UnsubscribeFromRooms(c.roomID)
+		c.Info("Closing event messenger")
 
+		mess.UnsubscribeFromRooms(c.roomID)
 		// TODO close the messenger ??? apparently you can't do that?
 	}()
 
@@ -105,6 +106,7 @@ func (c *Client) handleEvents() {
 				msg, err := JSONMessage("room", c.GetRoom())
 				if err != nil {
 					c.Warn("failed to create JSON message with new room state", zap.Error(err))
+					continue
 				}
 
 				c.Out <- msg

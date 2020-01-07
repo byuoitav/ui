@@ -26,7 +26,8 @@ type Client struct {
 
 	// if this channel is closed, then all goroutines
 	// spawned by the client should exit
-	kill chan struct{}
+	kill  chan struct{}
+	close sync.Once
 
 	ws         *websocket.Conn
 	httpClient *http.Client
@@ -161,6 +162,22 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 	go c.writePump()
 
 	return c, nil
+}
+
+func (c *Client) Wait() {
+	<-c.kill
+}
+
+func (c *Client) Close() {
+	c.close.Do(func() {
+		c.Info("Closing client. Bye!")
+
+		// close the kill chan to clean up all resources
+		close(c.kill)
+
+		// close our websocket with the frontend
+		c.ws.Close()
+	})
 }
 
 func (c *Client) CurrentPreset() Preset {

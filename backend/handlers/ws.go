@@ -77,12 +77,17 @@ func NewClient(c echo.Context) error {
 		return closeWithReason(fmt.Sprintf("unable to parse response from code service: %s. response: %s", err, body))
 	}
 
-	_, err = bff.RegisterClient(c.Request().Context(), ws, preset.RoomID, preset.PresetName)
+	client, err := bff.RegisterClient(c.Request().Context(), ws, preset.RoomID, preset.PresetName)
 	if err != nil {
 		log.P.Warn("unable to register client", zap.Error(err))
 		return closeWithReason(fmt.Sprintf("unable to register client: %s", err))
 	}
 
 	log.P.Info("Successfully registered client", zap.String("client", c.Request().RemoteAddr))
+
+	// if this function exists, the websocket connection is closed
+	// so we need to wait for the client to be finished
+	client.Wait()
+
 	return nil
 }
