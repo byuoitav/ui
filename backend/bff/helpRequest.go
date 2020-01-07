@@ -29,7 +29,7 @@ func (hr HelpRequest) Do(c *Client, data []byte) {
 
 	c.SendEvent <- events.Event{
 		GeneratingSystem: os.Getenv("SYSTEM_ID"),
-		User:             c.id,
+		User:             c.ws.RemoteAddr().String(),
 		Key:              "help-request",
 		Value:            "confirm",
 		Data:             msg.Message,

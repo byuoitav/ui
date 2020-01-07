@@ -2,6 +2,7 @@ package bff
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -45,25 +46,30 @@ func (c *Client) readPump() {
 
 	// read messages from websocket
 	for {
-		_, msg, err := c.ws.ReadMessage()
-		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-				c.Warn("websocket closed unexpectedly: %s", zap.Error(err))
+		select {
+		case <-c.kill:
+			return
+		default:
+			_, msg, err := c.ws.ReadMessage()
+			if err != nil {
+				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
+					c.Warn("websocket closed unexpectedly: %s", zap.Error(err))
+				}
+
+				return
 			}
 
-			break
-		}
+			// parse message
+			var m Message
+			if err := json.Unmarshal(msg, &m); err != nil {
+				c.Warn("unable to parse message", zap.Error(err))
+				c.Out <- ErrorMessage(fmt.Errorf("unable to parse message: %s", err))
+				continue
+			}
 
-		// parse message
-		var m Message
-		if err := json.Unmarshal(msg, &m); err != nil {
-			c.Warn("unable to parse message", zap.Error(err))
-			// send a message to client
-			continue
+			// handle message
+			go c.HandleMessage(m)
 		}
-
-		// handle message
-		go c.HandleMessage(m)
 	}
 }
 
@@ -73,6 +79,8 @@ func (c *Client) writePump() {
 	defer func() {
 		ticker.Stop()
 		c.ws.Close()
+
+		// TODO actually call like a whole client.close function?
 	}()
 
 	for {
@@ -111,6 +119,8 @@ func (c *Client) writePump() {
 			if err := c.ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 				return
 			}
+		case <-c.kill:
+			return
 		}
 	}
 }

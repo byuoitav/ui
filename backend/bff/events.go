@@ -1,13 +1,16 @@
 package bff
 
 import (
+	"encoding/json"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/byuoitav/central-event-system/hub/base"
 	"github.com/byuoitav/central-event-system/messenger"
 	"github.com/byuoitav/common/structs"
+	"github.com/byuoitav/common/v2/events"
 	"go.uber.org/zap"
 )
 
@@ -22,11 +25,16 @@ func (c *Client) handleEvents() {
 	defer func() {
 		mess.UnsubscribeFromRooms(c.roomID)
 
-		// close the messenger
+		// TODO close the messenger ??? apparently you can't do that?
 	}()
+
+	wg := sync.WaitGroup{}
+	wg.Add(2)
 
 	// send events
 	go func() {
+		defer wg.Done()
+
 		for {
 			select {
 			case event := <-c.SendEvent:
@@ -38,56 +46,75 @@ func (c *Client) handleEvents() {
 	}()
 
 	// receive events
-	for {
-		event := mess.ReceiveEvent()
-		isCoreState := false
+	eventCh := make(chan base.EventWrapper, 1)
+	mess.SetReceiveChannel(eventCh)
 
-		for _, tag := range event.EventTags {
-			if tag == "core-state" {
-				isCoreState = true
+	go func() {
+		defer wg.Done()
+
+		for {
+			select {
+			case eventWrap := <-eventCh:
+				var event events.Event
+				if err := json.Unmarshal(eventWrap.Event, &event); err != nil {
+					c.Warn("received an invalid event", zap.Error(err))
+					continue
+				}
+
+				isCoreState := false
+
+				for _, tag := range event.EventTags {
+					if tag == "core-state" {
+						isCoreState = true
+					}
+				}
+
+				if !isCoreState {
+					continue
+				}
+
+				c.Debug("Received core state event", zap.String("key", event.Key), zap.String("value", event.Value), zap.String("on", event.TargetDevice.DeviceID))
+
+				state := c.state
+				var changed bool
+				var newstate structs.PublicRoom
+				switch event.Key {
+				case "volume":
+					newstate, changed = handleVolume(state, event.Value, event.TargetDevice.DeviceID)
+				case "muted":
+					newstate, changed = handleMuted(state, event.Value, event.TargetDevice.DeviceID)
+				case "power":
+					newstate, changed = handlePower(state, event.Value, event.TargetDevice.DeviceID)
+				case "input":
+					newstate, changed = handleInput(state, event.Value, event.TargetDevice.DeviceID)
+				case "blanked":
+					newstate, changed = handleBlanked(state, event.Value, event.TargetDevice.DeviceID)
+				default:
+					continue
+				}
+
+				if !changed {
+					c.Debug("Ignoring no change event")
+					continue
+				}
+
+				c.Info("Updating room from event", zap.String("key", event.Key), zap.String("value", event.Value), zap.String("on", event.TargetDevice.DeviceID))
+				c.state = newstate
+
+				// send an updated room to the client
+				msg, err := JSONMessage("room", c.GetRoom())
+				if err != nil {
+					c.Warn("failed to create JSON message with new room state", zap.Error(err))
+				}
+
+				c.Out <- msg
+			case <-c.kill:
+				return
 			}
 		}
+	}()
 
-		if !isCoreState {
-			continue
-		}
-
-		c.Debug("Received core state event", zap.String("key", event.Key), zap.String("value", event.Value), zap.String("on", event.TargetDevice.DeviceID))
-
-		state := c.state
-		var changed bool
-		var newstate structs.PublicRoom
-		switch event.Key {
-		case "volume":
-			newstate, changed = handleVolume(state, event.Value, event.TargetDevice.DeviceID)
-		case "muted":
-			newstate, changed = handleMuted(state, event.Value, event.TargetDevice.DeviceID)
-		case "power":
-			newstate, changed = handlePower(state, event.Value, event.TargetDevice.DeviceID)
-		case "input":
-			newstate, changed = handleInput(state, event.Value, event.TargetDevice.DeviceID)
-		case "blanked":
-			newstate, changed = handleBlanked(state, event.Value, event.TargetDevice.DeviceID)
-		default:
-			continue
-		}
-
-		if !changed {
-			c.Debug("Ignoring no change event")
-			continue
-		}
-
-		c.Info("Updating room from event", zap.String("key", event.Key), zap.String("value", event.Value), zap.String("on", event.TargetDevice.DeviceID))
-		c.state = newstate
-
-		msg, err := JSONMessage("room", c.GetRoom())
-		if err != nil {
-			c.Warn("failed to create JSON message with new room state", zap.Error(err))
-		}
-
-		c.Out <- msg
-	}
-
+	wg.Wait()
 }
 
 func handleVolume(state structs.PublicRoom, volume, targetDevice string) (structs.PublicRoom, bool) {
