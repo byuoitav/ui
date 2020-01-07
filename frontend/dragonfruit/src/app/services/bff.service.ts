@@ -153,16 +153,14 @@ export class BFFService {
     const ws = new WebSocket(endpoint);
 
     const roomRef = new RoomRef(room, ws, () => {
-      console.log("closing room connection", room.value.id);
-      this.dialog
-        .open(TurnOffRoomDialogComponent)
-        .afterClosed()
-        .subscribe(answer => {
-          if (answer !== undefined) {
-            if (answer === "yes") {
-              roomRef.turnOff();
-            }
+      console.log('closing room connection', room.value.id);
+      this.dialog.open(TurnOffRoomDialogComponent).afterClosed().subscribe((answer) => {
+        if (answer !== undefined) {
+          if (answer === 'yes') {
+            roomRef.turnOff();
+          }
 
+          if (answer === 'yes' || answer === 'no') {
             // close the websocket
             ws.close();
 
@@ -172,7 +170,8 @@ export class BFFService {
             // route back to login page since we are gonna need a new code
             this.router.navigate(["/login"], { replaceUrl: true });
           }
-        });
+        }
+      });
     });
 
     // handle incoming messages from bff

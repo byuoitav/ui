@@ -6,11 +6,9 @@ import (
 	"strconv"
 )
 
-type Message map[string]json.RawMessage
+// TODO all messages should take a ctx
 
-//func ErrorMessage(format string, a ...interface{}) Message {
-//	return StringMessage("error", format, a...)
-//}
+type Message map[string]json.RawMessage
 
 func ErrorMessage(err error) Message {
 	return StringMessage("error", err.Error())
