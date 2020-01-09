@@ -1,5 +1,5 @@
 $header-height: 35px;
-$group-height: calc(100% - 42px);
+$group-height: calc(100% - 35px);
 $label-height: 70px;
 $body-height: calc(#{$group-height} - #{$label-height});
 .base {
@@ -79,7 +79,7 @@ $body-height: calc(#{$group-height} - #{$label-height});
         background-color: #dbdbdb;
         color: #757575;
         height: $label-height !important;
-        width: 25%;
+        width: 33%;
     }
     mat-tab {
         &.selected {
