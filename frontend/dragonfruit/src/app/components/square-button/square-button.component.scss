@@ -1,4 +1,10 @@
 $side-length: 80px;
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 square-button {
     .wrapper {
         display: flex;
@@ -10,13 +16,17 @@ square-button {
         justify-content: space-evenly;
         text-align: center;
         align-items: center;
-        border: solid #757575 1.25px;
+        border: solid #757575 1px;
         border-radius: 15px;
         color: #757575;
         font-size: 14pt;
+        overflow: hidden;
+        z-index: 5;
+        position: relative;
         &.selected {
             border: solid #1e88e5 2.5px;
             color: #1e88e5;
+            animation: none;
         }
         &.multi {
             min-width: 30vw;
@@ -27,8 +37,86 @@ square-button {
     }
 }
 
+@keyframes rotate {
+    100% {
+        transform: rotate(1turn);
+    }
+}
+
+.feedback {
+    // animation: pulse 0.7s;
+    &::before {
+        content: '';
+        position: absolute;
+        // z-index: -2;
+        left: -50%;
+        top: -50%;
+        width: 200%;
+        height: 200%;
+        background-repeat: no-repeat;
+        background-size: 50% 50%, 50% 50%;
+        background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+        background-image: linear-gradient(#ffffff, #ffffff), linear-gradient(#377af5, #377af5), linear-gradient(#ffffff, #ffffff), linear-gradient(#377af5, #377af5);
+        animation: rotate 4s linear infinite;
+    }
+    &::after {
+        content: '';
+        position: absolute;
+        // z-index: -1;
+        width: calc(100% - 4px);
+        height: calc(100% - 4px);
+        background: white;
+        border-radius: 14px;
+    }
+}
+
+@-webkit-keyframes pulse {
+    0% {
+        -webkit-box-shadow: 0 0 0 0 rgba(30, 136, 229, 0.4);
+    }
+    70% {
+        -webkit-box-shadow: 0 0 0 8px rgba(30, 136, 229, 0);
+    }
+    100% {
+        -webkit-box-shadow: 0 0 0 0 rgba(30, 136, 229, 0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        -moz-box-shadow: 0 0 0 0 rgba(30, 136, 229, 0.4);
+        box-shadow: 0 0 0 0 rgba(30, 136, 229, 0.4);
+    }
+    70% {
+        -moz-box-shadow: 0 0 0 8px rgba(30, 136, 229, 0);
+        box-shadow: 0 0 0 8px rgba(30, 136, 229, 0);
+    }
+    100% {
+        -moz-box-shadow: 0 0 0 0 rgba(30, 136, 229, 0);
+        box-shadow: 0 0 0 0 rgba(30, 136, 229, 0);
+    }
+}
+
+// .inside {
+//     z-index: 5;
+//     display: flex;
+//     flex-flow: column nowrap;
+//     min-width: $side-length;
+//     // max-width: wrap;
+//     width: wrap;
+//     height: $side-length;
+//     justify-content: space-evenly;
+//     text-align: center;
+//     align-items: center;
+//     color: #757575;
+//     font-size: 14pt;
+//     overflow: hidden;
+//     z-index: 5;
+//     position: relative;
+// }
 .button-icon {
     transform: scale(1.5);
+    z-index: 5;
 }
 
 .icon-title {
@@ -38,6 +126,7 @@ square-button {
     width: 70px;
     max-width: 70px;
     justify-content: space-evenly;
+    z-index: 5;
 }
 
 .title {
@@ -47,10 +136,12 @@ square-button {
     width: 60px;
     max-width: 60px;
     justify-content: space-evenly;
+    z-index: 5;
 }
 
 .sub-icon {
     font-size: 8pt;
+    z-index: 5;
 }
 
 .sub-title {
@@ -59,6 +150,7 @@ square-button {
     font-size: 8pt;
     width: 60px;
     max-width: 60px;
+    z-index: 5;
 }
 
 @media (min-width: 768px) {
@@ -66,6 +158,7 @@ square-button {
     square-button {
         .wrapper {
             // transform: scale(1.5);
+            z-index: 0;
             width: $side-length;
             height: $side-length;
         }
@@ -79,5 +172,32 @@ square-button {
     .icon-title {
         width: 90px;
         // height: 90px;
+    }
+    .feedback {
+        animation: pulse 0.7s;
+        &::before {
+            content: '';
+            position: absolute;
+            left: -50%;
+            top: -50%;
+            width: 200%;
+            height: 200%;
+            background-color: #399953;
+            background-repeat: no-repeat;
+            background-size: 50% 50%, 50% 50%;
+            background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+            background-image: linear-gradient(#ffffff, #ffffff), linear-gradient(#377af5, #377af5), linear-gradient(#ffffff, #ffffff), linear-gradient(#377af5, #377af5);
+            animation: rotate 4s linear infinite;
+        }
+        &::after {
+            content: '';
+            position: absolute;
+            // left: 6px;
+            // top: 6px;
+            width: calc(100% - 4px);
+            height: calc(100% - 4px);
+            background: white;
+            border-radius: 10px;
+        }
     }
 }

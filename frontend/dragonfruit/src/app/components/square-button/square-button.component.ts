@@ -32,17 +32,33 @@ export class SquareButtonComponent extends SquareButtonBase implements OnInit {
   ngOnInit() {
   }
 
+  ngOnChanges() {
+    if (this.title) {
+      let btn = document.getElementById(this.title);
+      if (btn && this.selected && btn.classList.contains("feedback")) {
+        btn.classList.remove("feedback")
+      }
+    }
+    
+  }
+
   toggleSelect = () => {
     // this.selected = !this.selected;
   }
 
   do(f: ButtonAction) {
+    
     this.toggleSelect();
+    document.getElementById(this.title).classList.toggle("feedback")
     if (!f) {
       console.warn('no function for this action has been defined');
       return;
     }
 
     f(this.data);
+    // setTimeout(() => {
+      
+
+    // }, 700);
   }
 }
