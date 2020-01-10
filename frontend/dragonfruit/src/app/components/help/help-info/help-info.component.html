@@ -1,36 +1,24 @@
 <div class="column">
-  <h2 mat-dialog-title class="bold">Request Help</h2>
+    <h2 mat-dialog-title class="bold">Request Help</h2>
 
-  <ng-container *ngIf="!cg?.support.helpRequested">
-    <span>Please let us know what we can help with:</span><br />
-    <mat-dialog-content class="column">
-      <mat-form-field appearance="outline" class="text">
-        <textarea
-          class="text"
-          matInput
-		  [(ngModel)]="info"
-          [matTextareaAutosize]="false"
-          [rows]="5"
-          [cols]="20"
-        ></textarea>
-      </mat-form-field>
-    </mat-dialog-content>
+    <ng-container *ngIf="!cg?.support.helpRequested">
+        <span>Please let us know what we can help with:</span><br />
+        <mat-dialog-content class="column">
+            <mat-form-field appearance="outline" class="text">
+                <textarea class="text" matInput [(ngModel)]="info" [matTextareaAutosize]="false" [rows]="5" [cols]="20"></textarea>
+            </mat-form-field>
+        </mat-dialog-content>
 
-    <mat-dialog-actions class="row">
-      <button mat-button color="warn">Cancel</button>
-      <button
-        mat-button
-        color="primary"
-        (click)="cg.support.helpRequested = true"
-      >
+        <mat-dialog-actions class="row">
+            <button mat-button color="warn" (click)="dialogRef.close()">Cancel</button>
+            <button mat-button color="primary" (click)="cg.support.helpRequested = true">
         Request Help
       </button>
-    </mat-dialog-actions>
-  </ng-container>
+        </mat-dialog-actions>
+    </ng-container>
 
-  <ng-container *ngIf="cg?.support.helpRequested">
-    <span
-      >A technician has been dispatched to your room. They will arrive in a few
+    <ng-container *ngIf="cg?.support.helpRequested">
+        <span>A technician has been dispatched to your room. They will arrive in a few
       minutes. Please wait in the room.</span
     >
     <button
