@@ -1,18 +1,20 @@
 package bff
 
 import (
+	"encoding/json"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/byuoitav/central-event-system/hub/base"
 	"github.com/byuoitav/central-event-system/messenger"
 	"github.com/byuoitav/common/structs"
+	"github.com/byuoitav/common/v2/events"
 	"go.uber.org/zap"
 )
 
-func (c *Client) HandleEvents() {
-	// TODO have a way to kill this
+func (c *Client) handleEvents() {
 	mess, err := messenger.BuildMessenger(os.Getenv("HUB_ADDRESS"), base.Messenger, 1)
 	if err != nil {
 		c.Error("unable to build messenger", zap.Error(err))
@@ -20,65 +22,101 @@ func (c *Client) HandleEvents() {
 
 	mess.SubscribeToRooms(c.roomID)
 
-	// start reading event routine
+	defer func() {
+		c.Info("Closing event messenger")
+
+		mess.UnsubscribeFromRooms(c.roomID)
+		// TODO close the messenger ??? apparently you can't do that?
+	}()
+
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	// send events
 	go func() {
+		defer wg.Done()
+
 		for {
-			event := mess.ReceiveEvent()
-			isCoreState := false
-
-			for _, tag := range event.EventTags {
-				if tag == "core-state" {
-					isCoreState = true
-				}
+			select {
+			case event := <-c.SendEvent:
+				mess.SendEvent(event)
+			case <-c.kill:
+				return
 			}
-
-			if !isCoreState {
-				continue
-			}
-
-			c.Debug("Received core state event", zap.String("key", event.Key), zap.String("value", event.Value), zap.String("on", event.TargetDevice.DeviceID))
-
-			state := c.state
-			var changed bool
-			var newstate structs.PublicRoom
-			switch event.Key {
-			case "volume":
-				newstate, changed = handleVolume(state, event.Value, event.TargetDevice.DeviceID)
-			case "muted":
-				newstate, changed = handleMuted(state, event.Value, event.TargetDevice.DeviceID)
-			case "power":
-				newstate, changed = handlePower(state, event.Value, event.TargetDevice.DeviceID)
-			case "input":
-				newstate, changed = handleInput(state, event.Value, event.TargetDevice.DeviceID)
-			case "blanked":
-				newstate, changed = handleBlanked(state, event.Value, event.TargetDevice.DeviceID)
-			default:
-				continue
-			}
-
-			if !changed {
-				c.Debug("Ignoring no change event")
-				continue
-			}
-
-			c.Info("Updating room from event", zap.String("key", event.Key), zap.String("value", event.Value), zap.String("on", event.TargetDevice.DeviceID))
-			c.state = newstate
-
-			msg, err := JSONMessage("room", c.GetRoom())
-			if err != nil {
-				c.Warn("failed to create JSON message with new room state", zap.Error(err))
-			}
-
-			c.Out <- msg
 		}
 	}()
 
-	// send events
-	for event := range c.SendEvent {
-		mess.SendEvent(event)
-	}
+	// receive events
+	eventCh := make(chan base.EventWrapper, 1)
+	mess.SetReceiveChannel(eventCh)
 
-	// TODO close messenger when it's done!
+	go func() {
+		defer wg.Done()
+
+		for {
+			select {
+			case eventWrap := <-eventCh:
+				var event events.Event
+				if err := json.Unmarshal(eventWrap.Event, &event); err != nil {
+					c.Warn("received an invalid event", zap.Error(err))
+					continue
+				}
+
+				isCoreState := false
+
+				for _, tag := range event.EventTags {
+					if tag == "core-state" {
+						isCoreState = true
+					}
+				}
+
+				if !isCoreState {
+					continue
+				}
+
+				c.Debug("Received core state event", zap.String("key", event.Key), zap.String("value", event.Value), zap.String("on", event.TargetDevice.DeviceID))
+
+				state := c.state
+				var changed bool
+				var newstate structs.PublicRoom
+				switch event.Key {
+				case "volume":
+					newstate, changed = handleVolume(state, event.Value, event.TargetDevice.DeviceID)
+				case "muted":
+					newstate, changed = handleMuted(state, event.Value, event.TargetDevice.DeviceID)
+				case "power":
+					newstate, changed = handlePower(state, event.Value, event.TargetDevice.DeviceID)
+				case "input":
+					newstate, changed = handleInput(state, event.Value, event.TargetDevice.DeviceID)
+				case "blanked":
+					newstate, changed = handleBlanked(state, event.Value, event.TargetDevice.DeviceID)
+				default:
+					continue
+				}
+
+				if !changed {
+					c.Debug("Ignoring no change event")
+					continue
+				}
+
+				c.Info("Updating room from event", zap.String("key", event.Key), zap.String("value", event.Value), zap.String("on", event.TargetDevice.DeviceID))
+				c.state = newstate
+
+				// send an updated room to the client
+				msg, err := JSONMessage("room", c.GetRoom())
+				if err != nil {
+					c.Warn("failed to create JSON message with new room state", zap.Error(err))
+					continue
+				}
+
+				c.Out <- msg
+			case <-c.kill:
+				return
+			}
+		}
+	}()
+
+	wg.Wait()
 }
 
 func handleVolume(state structs.PublicRoom, volume, targetDevice string) (structs.PublicRoom, bool) {

@@ -20,7 +20,6 @@ type SetPowerMessage struct {
 
 // TODO make sure that the devices are powered on after setting the power
 func (sp SetPower) DoWithMessage(ctx context.Context, c *Client, msg SetPowerMessage) error {
-
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
 	if len(cg.ID) == 0 {
 		// error
