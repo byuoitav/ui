@@ -22,11 +22,15 @@ func (c *Client) handleEvents() {
 
 	mess.SubscribeToRooms(c.roomID)
 
+	// receive events
+	eventCh := make(chan base.EventWrapper, 1)
+	mess.SetReceiveChannel(eventCh)
+
 	defer func() {
 		c.Info("Closing event messenger")
-
 		mess.UnsubscribeFromRooms(c.roomID)
-		// TODO close the messenger ??? apparently you can't do that?
+		mess.Kill()
+		close(eventCh)
 	}()
 
 	wg := sync.WaitGroup{}
@@ -45,10 +49,6 @@ func (c *Client) handleEvents() {
 			}
 		}
 	}()
-
-	// receive events
-	eventCh := make(chan base.EventWrapper, 1)
-	mess.SetReceiveChannel(eventCh)
 
 	go func() {
 		defer wg.Done()
