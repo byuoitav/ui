@@ -1,0 +1,50 @@
+<div class="volume">
+    <div *ngIf="name" class="label">{{ name }}</div>
+  
+    <!-- volume slider -->
+    <mat-slider
+      #slider
+      class="slider"
+      [class.shorter]="muteType === 'mat-fab'"
+      color="primary"
+      (change)="levelChange.emit($event.value); closeThumb()"
+      [max]="100"
+      [min]="0"
+      [step]="5"
+      [thumbLabel]="true"
+      [vertical]="true"
+      [value]="level"
+    >
+    </mat-slider>
+  
+    <!-- mute button -->
+    <ng-container [ngSwitch]="muteType">
+      <div class="mute" [class.secondary-theme]="!mute" *ngSwitchDefault>
+        <button
+          mat-raised-button
+          [color]="mute ? 'warn' : 'primary'"
+          (click)="muteChange.emit(!mute)"
+          (press)="muteClick.emit(!mute)"
+          class="button"
+          [class.muted]="mute"
+        >
+          <ng-container *ngIf="!mute">Mute</ng-container>
+          <ng-container *ngIf="mute">Unmute</ng-container>
+        </button>
+      </div>
+  
+      <div class="mute" [class.secondary-theme]="!mute" *ngSwitchCase="'mat-fab'">
+        <button
+          mat-fab
+          [color]="mute ? 'warn' : 'primary'"
+          (click)="muteChange.emit(!mute)"
+          (press)="muteChange.emit(!mute)"
+          class="button"
+          [class.muted]="mute"
+        >
+          <mat-icon *ngIf="!mute">volume_up</mat-icon>
+          <mat-icon *ngIf="mute">volume_off</mat-icon>
+        </button>
+      </div>
+    </ng-container>
+  </div>

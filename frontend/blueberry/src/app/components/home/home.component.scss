@@ -1,0 +1,52 @@
+$duration: 0.4s;
+.buttons {
+  position: absolute;
+  margin-left: 3vw;
+  color: white;
+  .button {
+    margin-right: 3vw;
+    width: 8vw;
+    height: 8vw;
+    .mat-icon {
+      margin-top: -1.1vh;
+      font-size: 5vw;
+      height: 5vw;
+      width: 5vw;
+    }
+  }
+  &.top {
+    margin-top: 3vh;
+    .power {
+      background-color: var(--power-color);
+      color: var(--power-icon-color);
+    }
+    .help {
+      background-color: var(--help-color);
+      color: var(--help-icon-color);
+    }
+  }
+  &.bottom {
+    bottom: 3.9vh;
+    .dta {
+      background-color: var(--share-color);
+      color: var(--share-icon-color);
+    }
+
+    &.right {
+      margin-right: 11.5vw;
+    }
+
+    &.corner {
+      margin-right: 0vw;
+      right: 0vw;
+    }
+  }
+  &.right {
+    right: 0;
+    margin-right: -0.05vw;
+  }
+}
+
+.temp {
+  border: solid 1px green;
+}

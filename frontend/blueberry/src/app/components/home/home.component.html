@@ -1,0 +1,16 @@
+<div class="buttons top">
+    <button mat-fab class="power button"><mat-icon>power_settings_new</mat-icon></button>
+    <button mat-fab class="help button"><mat-icon>help</mat-icon></button>
+    <div *ngIf="bff.controlKey" class="control-key-button">
+        <button
+        mat-button
+        disableRipple
+        class="control-key-info"
+      >
+      {{bff.roomControlUrl}}<br />
+      Key: {{bff.controlKey}}
+      </button>
+    </div>
+</div>
+
+  <app-wheel *ngIf="room" [room]="room"></app-wheel>

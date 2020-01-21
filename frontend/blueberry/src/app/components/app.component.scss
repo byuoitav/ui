@@ -1,0 +1,80 @@
+.base {
+    position: absolute;
+    overflow: hidden;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--background-color);
+    box-shadow: var(--background-shadow);
+    .lock {
+        position: absolute;
+        min-width: 100%;
+        min-height: 100%;
+        z-index: 500;
+        opacity: 1;
+        pointer-events: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--background-color);
+        box-shadow: var(--background-shadow);
+        .text {
+            margin-top: 3%;
+            font-size: 150%;
+            color: white;
+            filter: invert(5%);
+            &.smaller {
+                transform: scale(0.75);
+            }
+            &.unlock {
+                &::after {
+                    content: var(--lock-message);
+                    color: var(--lock-message-color);    
+                }
+                margin-top: 0%;
+                margin-bottom: 10%;
+            }
+        }
+        .logo {
+            height:45vh;
+            width: 45vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            filter: invert(5%);
+            margin-bottom: 4%;
+        }
+    }
+}
+
+#screenoff {
+    position: absolute;
+    min-height: 100vh;
+    min-width: 100vw;
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 8vh;
+    background-color: var(--background-color);
+    box-shadow: var(--background-shadow);
+    color: white;
+}
+
+.mpb {
+    position: fixed;
+    margin-bottom: 10px;
+}
+
+.unlock-code {
+    position: absolute;
+    top: 80%;
+    font-size: 20px;
+    display: grid;
+    grid-template-rows: auto, auto;
+    color: white;
+    text-align: center;
+}
