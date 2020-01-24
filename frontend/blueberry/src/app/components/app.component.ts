@@ -10,10 +10,10 @@ export class AppComponent {
   public roomRef: RoomRef;
 
   constructor(public bff: BFFService) {
-
+    this.roomRef = this.bff.getRoom("825943");
   }
 
   unlock = () => {
-    this.roomRef = this.bff.getRoom("880043");
+    
   }
 }

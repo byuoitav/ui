@@ -1,97 +1,101 @@
 <div class="background">
-    <div class="circle">
-        <ul #wheel class="wheel" [class.open]="circleOpen">
-            <li class="title-slice">
-                <div></div>
-            </li>
-            <li *ngFor="let i of cg?.inputs" class="input-slice" [class.selected-input]="cg?.displays[0]?.input === i?.id" (click)="setInput(i)" (press)="setInput(i)">
-                <div class="input" [style.top]="topoffset" [style.right]="rightoffset">
-                    <i class="material-icons">{{i?.icon}}</i>
-                    <span class="name">{{i?.name}}</span>
-                </div>
-            </li>
-            <li class="thin">
-                <div class="line"></div>
-            </li>
-    
-            <li *ngFor="let i of cg?.inputs" class="thin">
-                <div class="line"></div>
-            </li>
-        </ul>
-
-        <div class="center" [class.open]="circleOpen" [class.on]="true">
-            <span class="center-item name" [class.open]="circleOpen">{{
-          cg?.name
-        }}</span>
-            <i class="center-item material-icons icon" [class.open]="circleOpen">{{ cg?.displays[0]?.outputs[0]?.icon }}</i>
-        <span
-          class="center-item picture"
-          [class.open]="circleOpen"
-          >picture on</span
-        >
-        <!-- <span
-          class="center-item picture"
-          [class.open]="circleOpen"
-          >picture off</span
-        > -->
-        <div
-          class="center-item switch"
-          [class.open]="circleOpen"
-        >
-          <ui-switch
-            reverse
-            size="medium"
-            [checked]="true"
-            defaultBgColor="#f44336"
-          ></ui-switch>
-
+  <div class="circle" [ngStyle]="{
+    'margin-top': top,
+    'margin-left': right,
+    'z-index': circleOpen ? 10 : 0,
+    transform: circleOpen ? translate : 'translate(0,0)'
+  }">
+    <ul #wheel class="wheel" [class.open]="circleOpen" >
+      <li class="title-slice">
+        <div></div>
+      </li>
+      
+      <li *ngFor="let i of cg?.inputs" class="input-slice" [class.selected-input]="i?.id === cg?.displays[0]?.input" (click)="setInput(i?.id)" (press)="setInput(i?.id)">
+        <div class="input" [style.top]="topoffset" [style.right]="rightoffset">
+          <i class="material-icons">{{i?.icon}}</i>
+          <span class="name">{{i?.name}}</span>
         </div>
-      </div>
+      </li>
+
+      <li class="thin">
+        <div class="line"></div>
+      </li>
+
+      <li *ngFor="let i of cg?.inputs" class="thin">
+        <div class="line"></div>
+      </li>
+    </ul>
+
+    <div class="center" [class.open]="circleOpen" [class.on]="true">
+      <span class="center-item name" [class.open]="circleOpen">
+        {{cg?.name}}
+      </span>
+      <i class="center-item material-icons icon" [class.open]="circleOpen">{{cg?.displays[0]?.outputs[0]?.icon}}</i>
+
+      <span
+      *ngIf="!getBlank()"
+      class="center-item picture"
+      [class.open]="circleOpen"
+      >picture on</span
+    >
+    <span
+      *ngIf="getBlank()"
+      class="center-item picture"
+      [class.open]="circleOpen"
+      >picture off</span
+    >
+    <div
+      class="center-item switch"
+      [class.open]="circleOpen"
+      (click)="$event.stopPropagation()"
+      (press)="$event.stopPropagation()"
+    >
+      <mat-slide-toggle class="switch" [disableRipple]=true [checked]="getBlank()" color="warn"></mat-slide-toggle>
     </div>
+    </div>
+  </div>
 </div>
 
 <!-- master volume slider -->
-<ng-container
-  *ngIf="
-    cg?.audioGroups?.length > 0
-  "
->
+<ng-container *ngIf="cg?.audioGroups.length > 0">
   <volume
     class="volume"
     muteType="mat-fab"
+    [level]="getVolume()"
     name="Display Volume"
-    [level]="cg?.audioGroups[0]?.audioDevices[0]?.level"
-    [mute]="cg?.audioGroups[0]?.audioDevices[0]?.muted"
+    [mute]="getMute()"
+    (levelChange)="setVolume($event)"
+    (muteChange)="setMute($event)"
   >
   </volume>
 </ng-container>
 
 <!-- one 'slice' of wheel -->
 <svg id="svg-block" width="0" height="0" style="position: absolute;">
-    <defs>
-      <clipPath clipPathUnits="objectBoundingBox" id="sector">
-        <path
-          fill="transparent"
-          stroke="#111"
-          stroke-width="1"
-          id="sector"
-          [attr.d]="arcpath"
-        ></path>
-      </clipPath>
-    </defs>
-  </svg>
-  
-  <!-- title slice -->
-  <svg id="svg-block" width="0" height="0" style="position: absolute;">
-    <defs>
-      <clipPath clipPathUnits="objectBoundingBox" id="title-sector">
-        <path
-          fill="transparent"
-          stroke="#111"
-          stroke-width="1"
-          id="sector"
-          [attr.d]="titlearcpath"
-        ></path>
-      </clipPath>
-    </defs>
-  </svg>
+  <defs>
+    <clipPath clipPathUnits="objectBoundingBox" id="sector">
+      <path
+        fill="transparent"
+        stroke="#111"
+        stroke-width="1"
+        id="sector"
+        [attr.d]="arcpath"
+      ></path>
+    </clipPath>
+  </defs>
+</svg>
+
+<!-- title slice -->
+<svg id="svg-block" width="0" height="0" style="position: absolute;">
+  <defs>
+    <clipPath clipPathUnits="objectBoundingBox" id="title-sector">
+      <path
+        fill="transparent"
+        stroke="#111"
+        stroke-width="1"
+        id="sector"
+        [attr.d]="titlearcpath"
+      ></path>
+    </clipPath>
+  </defs>
+</svg>

@@ -10,7 +10,8 @@ import {
   MatDialogModule,
   MatGridListModule,
   MatChipsModule,
-  MatProgressSpinnerModule
+  MatProgressSpinnerModule,
+  MatSlideToggleModule
 } from "@angular/material";
 import { UiSwitchModule } from "ngx-ui-switch";
 import "hammerjs";
@@ -41,6 +42,7 @@ import { VolumeComponent } from './components/volume/volume.component';
     MatGridListModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    MatSlideToggleModule,
     UiSwitchModule,
     AppRoutingModule
   ],

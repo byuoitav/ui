@@ -1,98 +1,77 @@
-import { Component, OnInit, AfterContentInit, Input as AngularInput, Output as AngularOutput, ViewChild, ElementRef, NgZone, } from '@angular/core';
+import {
+  Component,
+  Input as AngularInput,
+  Output as AngularOutput,
+  AfterContentInit,
+  ElementRef,
+  ViewChild,
+  EventEmitter
+} from "@angular/core";
+import { MatDialog } from "@angular/material";
 import { RoomRef, BFFService } from 'src/app/services/bff.service';
 import { ControlGroup, Input } from 'src/app/objects/control';
 
 @Component({
-  selector: 'app-wheel',
-  templateUrl: './wheel.component.html',
-  styleUrls: ['./wheel.component.scss', '../../colorscheme.scss']
+  selector: "app-wheel",
+  templateUrl: "./wheel.component.html",
+  styleUrls: ["./wheel.component.scss", "../../colorscheme.scss"]
 })
-export class WheelComponent implements AfterContentInit, OnInit {
+export class WheelComponent {
   private static TITLE_ANGLE = 100;
   private static TITLE_ANGLE_ROTATE: number = WheelComponent.TITLE_ANGLE / 2;
 
-  @AngularInput() blur: boolean;
-
-  @AngularInput() room: RoomRef;
-
   @AngularInput()
-  top: string;
-  @AngularInput()
-  right: string;
+  roomRef: RoomRef;
 
   cg: ControlGroup;
 
-  circleOpen = true;
+  top = "50vh";
+  right = "50vw";
+
   arcpath: string;
   titlearcpath: string;
   rightoffset: string;
   topoffset: string;
   translate: string;
+  circleOpen = true;
   thumbLabel = true;
 
   @ViewChild("wheel", {static: false}) wheel: ElementRef;
 
-  constructor(public bff: BFFService) {
-    
-  }
-  
-  ngOnChanges() {
-    console.log("this is on changes", this.room);
-    
+  constructor(
+    public bff: BFFService,
+    public dialog: MatDialog
+  ) {    
   }
 
   ngOnInit() {
-    console.log("this is on init", this.room);
-    
-  }
-
-  ngDoCheck() {
-    console.log("this is do check", this.room);
-  }
-
-  ngAfterContentInit() {
-    console.log("this is after content init", this.room);
-      if (this.bff.roomRef) {
-        this.bff.roomRef.subject().subscribe((room) => {
-          if (room) {
-            const tempCG = this.cg;
-            this.cg = room.controlGroups[room.selectedControlGroup];
-    
-            if (tempCG == undefined || (this.cg.inputs.length != tempCG.inputs.length)) {
-              setTimeout(() => {
-                this.render();
-              }, 0)
-            }
-             
+    if (this.roomRef) {
+      this.roomRef.subject().subscribe((r) => {
+        if (r) {
+          if (!this.cg) {
+            this.cg = r.controlGroups[r.selectedControlGroup];
+            setTimeout(() => {
+              this.render();
+            }, 0);
+          } else {
+            this._applyChanges(r.controlGroups[r.selectedControlGroup]);
           }
-        });
+        }
+      })
     }
-    
   }
 
-  ngAfterContentChecked() {
-    console.log("this is after content checked", this.room);
+  private _applyChanges(tempCG: ControlGroup) {
+    this.cg.displays[0].input = tempCG.displays[0].input;
+    this.cg.audioGroups[0].audioDevices[0] = tempCG.audioGroups[0].audioDevices[0];
   }
-
-  ngAfterViewInit() {
-    console.log("this is after view init", this.room);
-  }
-
-  ngAfterViewChecked() {
-    console.log("this is after view checked", this.room);
-  }
-
-  
 
   public render() {
-    console.log("rendering...")
     this.setTranslate();
 
     const numOfChildren = this.cg.inputs.length;
     const children = this.wheel.nativeElement.children;
     const angle = (360 - WheelComponent.TITLE_ANGLE) / numOfChildren;
-    // console.log("children", children.length);
-    // console.log("angle", angle);
 
     this.arcpath = this.getArc(0.5, 0.5, 0.5, 0, angle);
     this.titlearcpath = this.getArc(
@@ -106,7 +85,6 @@ export class WheelComponent implements AfterContentInit, OnInit {
     let rotate =
       "rotate(" + String(-WheelComponent.TITLE_ANGLE_ROTATE) + "deg)";
     children[0].style.transform = rotate;
-    // console.log("what number is this?", 0 + numOfChildren + 1);
     children[0 + numOfChildren + 1].style.transform = rotate; // rotate the line the corrosponds to this slice
     rotate = "rotate(" + String(WheelComponent.TITLE_ANGLE_ROTATE) + "deg)";
     children[0].firstElementChild.style.transform = rotate;
@@ -117,7 +95,6 @@ export class WheelComponent implements AfterContentInit, OnInit {
         String(angle * -i - WheelComponent.TITLE_ANGLE_ROTATE) +
         "deg)";
       children[i].style.transform = rotate;
-      // console.log("what number is this?", i + numOfChildren + 1);
       children[i + numOfChildren + 1].style.transform = rotate; // rotate the line that corrosponds to this slice
 
       rotate =
@@ -224,14 +201,35 @@ export class WheelComponent implements AfterContentInit, OnInit {
     };
   }
 
-  setInput = (input: Input) => {
-    this.room.setInput(this.cg.displays[0].id, input.id);
+  setInput = (input: string) => {
+    console.log("setting input...")
+    this.roomRef.setInput(this.cg.displays[0].id, input);
   }
 
-  isSelected = (input: Input) => {
+  getBlank(): boolean {
     if (this.cg) {
-      console.log("checking the current input", this.cg.displays[0].input)
-      return this.cg.displays[0].input === input.id
+      return this.cg.displays[0].input === 'blank';
     }
+  }
+
+  getVolume() {
+    if (this.cg) {
+      return this.cg.audioGroups[0].audioDevices[0].level;
+    }
+  }
+
+  getMute() {
+    if (this.cg) {
+      return this.cg.audioGroups[0].audioDevices[0].muted;
+    }
+  }
+
+  setVolume(level: number) {
+    this.roomRef.setVolume(this.cg.audioGroups[0].audioDevices[0].id, level);
+  }
+
+  setMute(muted: boolean) {
+    console.log("setting mute to", muted);
+    this.roomRef.setMuted(this.cg.audioGroups[0].audioDevices[0].id, muted);
   }
 }

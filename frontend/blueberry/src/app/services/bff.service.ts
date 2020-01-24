@@ -159,7 +159,7 @@ export class BFFService {
     const endpoint = protocol + "//" + window.location.host + "/ws/" + key;
     const ws = new WebSocket(endpoint);
 
-    this.roomRef = new RoomRef(room, ws, () => {
+    const roomRef = new RoomRef(room, ws, () => {
       console.log('closing room connection', room.value.id);
       // this.dialog.open(TurnOffRoomDialogComponent).afterClosed().subscribe((answer) => {
       //   if (answer !== undefined) {
@@ -209,7 +209,7 @@ export class BFFService {
       room.error(event);
     };
 
-    return this.roomRef;
+    return roomRef;
   };
 
   error = (msg: string) => {
