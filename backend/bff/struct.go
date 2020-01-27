@@ -1,7 +1,20 @@
 package bff
 
-import "encoding/json"
+import (
+	"encoding/json"
 
+	"github.com/byuoitav/lazarette/lazarette"
+)
+
+// LazState .
+type LazState struct {
+	Client          lazarette.LazaretteClient
+	Subscription    lazarette.Lazarette_SubscribeClient
+	SharingDisplays map[string][]string `json:"sharing_displays"`
+	Volume          int                 `json:"master_volume"`
+}
+
+// Room .
 type Room struct {
 	ID   ID     `json:"id"`
 	Name string `json:"name"`
@@ -10,6 +23,7 @@ type Room struct {
 	SelectedControlGroup ID                      `json:"selectedControlGroup"`
 }
 
+// ControlGroup .
 type ControlGroup struct {
 	ID   ID     `json:"id"`
 	Name string `json:"name"`

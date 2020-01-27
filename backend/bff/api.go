@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// SendAPIRequest .
 func (c *Client) SendAPIRequest(ctx context.Context, room structs.PublicRoom) error {
 	body, err := json.Marshal(room)
 	if err != nil {
