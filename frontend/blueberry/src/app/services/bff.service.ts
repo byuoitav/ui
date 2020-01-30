@@ -120,6 +120,30 @@ export class RoomRef {
 
     this._ws.send(JSON.stringify(req));
   };
+
+  raiseProjectorScreen = (screen: string) => {
+    const kv = {
+      raiseProjectorScreen: screen
+    }
+
+    this._ws.send(JSON.stringify(kv));
+  }
+
+  lowerProjectorScreen = (screen: string) => {
+    const kv = {
+      lowerProjectorScreen: screen
+    }
+
+    this._ws.send(JSON.stringify(kv));
+  }
+
+  stopProjectorScreen = (screen: string) => {
+    const kv = {
+      stopProjectorScreen: screen
+    }
+
+    this._ws.send(JSON.stringify(kv));
+  }
 }
 
 @Injectable({
@@ -147,7 +171,7 @@ export class BFFService {
     });
   }
 
-  getRoom = (key: string | number): RoomRef => {
+  getRoom = (): RoomRef => {
     const room = new BehaviorSubject<Room>(undefined);
 
     // use ws for http, wss for https
@@ -156,7 +180,7 @@ export class BFFService {
       protocol = "wss:";
     }
 
-    const endpoint = protocol + "//" + window.location.host + "/ws/" + key;
+    const endpoint = protocol + "//" + window.location.host + "/ws";
     const ws = new WebSocket(endpoint);
 
     const roomRef = new RoomRef(room, ws, () => {
@@ -181,7 +205,6 @@ export class BFFService {
       // });
     });
 
-    this.locked = false;
     this.loaded = false;
 
     // handle incoming messages from bff
@@ -209,6 +232,7 @@ export class BFFService {
       room.error(event);
     };
 
+    this.roomRef = roomRef;
     return roomRef;
   };
 

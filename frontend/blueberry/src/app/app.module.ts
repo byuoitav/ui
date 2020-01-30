@@ -11,7 +11,9 @@ import {
   MatGridListModule,
   MatChipsModule,
   MatProgressSpinnerModule,
-  MatSlideToggleModule
+  MatSlideToggleModule,
+  MatToolbarModule,
+  MatTabsModule
 } from "@angular/material";
 import { UiSwitchModule } from "ngx-ui-switch";
 import "hammerjs";
@@ -22,6 +24,8 @@ import { BFFService } from './services/bff.service';
 import { HomeComponent } from './components/home/home.component';
 import { WheelComponent } from './components/wheel/wheel.component';
 import { VolumeComponent } from './components/volume/volume.component';
+import { ProjectorComponent } from './components/projector/projector.component';
+import { AudioComponent } from './components/audio/audio.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +33,8 @@ import { VolumeComponent } from './components/volume/volume.component';
     HomeComponent,
     WheelComponent,
     VolumeComponent,
+    ProjectorComponent,
+    AudioComponent,
   ],
   imports: [
     BrowserModule,
@@ -44,7 +50,9 @@ import { VolumeComponent } from './components/volume/volume.component';
     MatProgressSpinnerModule,
     MatSlideToggleModule,
     UiSwitchModule,
-    AppRoutingModule
+    AppRoutingModule,
+    MatToolbarModule,
+    MatTabsModule
   ],
   providers: [BFFService],
   bootstrap: [AppComponent]

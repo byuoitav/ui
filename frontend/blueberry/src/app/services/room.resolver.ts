@@ -24,7 +24,7 @@ export class RoomResolver implements Resolve<RoomRef> {
     const key = route.paramMap.get("key");
     const unsubscribe = new Subject();
 
-    const roomRef = this.bff.getRoom(key);
+    const roomRef = this.bff.getRoom();
 
     return new Observable(observer => {
       roomRef

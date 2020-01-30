@@ -28,14 +28,6 @@
             &.smaller {
                 transform: scale(0.75);
             }
-            &.unlock {
-                &::after {
-                    content: var(--lock-message);
-                    color: var(--lock-message-color);    
-                }
-                margin-top: 0%;
-                margin-bottom: 10%;
-            }
         }
         .logo {
             height:45vh;
@@ -69,12 +61,48 @@
     margin-bottom: 10px;
 }
 
-.unlock-code {
-    position: absolute;
-    top: 80%;
-    font-size: 20px;
-    display: grid;
-    grid-template-rows: auto, auto;
+.bottom-half {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    min-height: 35vh;
+}
+
+.buttons-row {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-evenly;
+    width: 80%;
+    height: 18vh;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+    // flex: 0 auto;
+}
+
+.lock-screen-button {
     color: white;
-    text-align: center;
+    height: 58px;
+    width: 130px;
+    background-color: unset;
+    border: solid 1px #666666;
+    border-radius: 10px;
+    transform: scale(1.5);
+    margin-left: 18px;
+    margin-right: 18px;
+}
+
+.rotate-90 {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+.button-text {
+    font-size: 8pt;
+    margin-top: 3px;
+    margin-bottom: 5px;
 }

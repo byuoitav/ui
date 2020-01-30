@@ -1,4 +1,4 @@
-.audio {
+.hidden-page {
   position: absolute;
   height: 100vh;
   width: 100vw;
@@ -22,6 +22,7 @@ $duration: 0.4s;
   }
   &.top {
     margin-top: 3vh;
+    z-index: 500;
     .power {
       background-color: var(--power-color);
       color: var(--power-icon-color);

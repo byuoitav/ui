@@ -24,7 +24,6 @@ ul {
   &.open {
     // backdrop-filter: blur(10px);
     opacity: 1;
-    pointer-events: auto;
   }
 }
 
@@ -133,7 +132,7 @@ ul {
     }
   }
   .picture {
-    margin-top: 53%;
+    margin-top: 57%;
     opacity: 0;
     font-size: 90%;
     &.open {
@@ -232,20 +231,19 @@ ul {
   transform: scale(1.5);
 }
 
-::ng-deep .mat-slide-toggle-thumb-container {
-  padding-top:2px;
-}
-
 ::ng-deep .mat-slide-toggle .mat-slide-toggle-thumb {
   border: solid 1px white;
   background-color: white;
   width: 20px;
   height: 20px;
-  box-shadow: 0px 1px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 0px 0px 0px rgba(0, 0, 0, 0);
+  margin-top: 2px;
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.2), 0px 0px 0px 0px rgba(0, 0, 0, 0.14), 0px 0px 0px 0px rgba(0, 0, 0, 0);
 }
 
 ::ng-deep .mat-slide-toggle.mat-warn.mat-checked .mat-slide-toggle-thumb {
   border: solid 1px white;
   background-color: white;
-  box-shadow: 0px 1px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 0px 0px 0px rgba(0, 0, 0, 0);
+  width: 20px;
+  height: 20px;
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.2), 0px 0px 0px 0px rgba(0, 0, 0, 0.14), 0px 0px 0px 0px rgba(0, 0, 0, 0);
 }

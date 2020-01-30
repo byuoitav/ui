@@ -24,6 +24,8 @@ export interface ControlGroup {
   support: Support;
   level: number;
   muted: boolean;
+  screens: string[];
+  powerOn: boolean;
 
   // public getAudioDevice(cg: ControlGroup, id: string): AudioDevice {
   //     for (const g of cg.audioGroups) {

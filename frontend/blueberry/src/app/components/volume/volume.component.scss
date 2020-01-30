@@ -18,6 +18,14 @@ $slider-height: 75%;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
+
+  ::ng-deep .mat-slider-thumb,
+  ::ng-deep .mat-slider-thumb-label,
+  ::ng-deep .mat-slider-thumb-label-text,
+  ::ng-deep .mat-slider-track-fill {
+    background-color: var(--volume-color);
+    color: var(--volume-text-color);
+  }
 }
 
 .slider {
