@@ -1,0 +1,45 @@
+<div class="outputs">
+    <div>
+        <button mat-button class="output mat-elevation-z15" color="accent">
+            <span>Display Name</span>
+
+            <div class="icon">
+                <mat-icon>tv</mat-icon>
+            </div>
+
+            <span>Input Name</span>
+        </button>
+    </div>
+</div>
+
+<div class="inputs">
+  
+    <!-- to open up the mobile control qr code -->
+    <!-- <ng-container *ngIf=room control exists> -->
+        <div class="room-control-info" (click)="openMobileControlDialog()" (press)="openMobileControlDialog()">
+            <div>rooms.stg.byu.edu</div>
+            <div>Key: 111111</div>
+        </div>
+    <!-- </ng-container> -->
+    
+    <!-- blank button -->
+    <div>
+        <button mat-button class="input mat-elevation-z7" color="white">
+            <div class="icon">
+                <!-- <ng-container *ngTemplateOutlet="blankicon"></ng-container> -->
+                <span>Blank</span>
+            </div>
+        </button>
+    </div>
+</div>
+
+<div class="volume-label">Master Display Volume</div>
+<div class="volume">
+    <volume [mute] = "true"></volume>
+</div>
+
+<ng-template #blankicon>
+    <i class="material-icons">crop_landscape</i>
+</ng-template>
+
+<!-- <mat-progress-bar *ngIf="command.commandInProgress" [mode]="'indeterminate'" color="primary" class="mpb"></mat-progress-bar> -->

@@ -1,0 +1,51 @@
+<div class="container primary-background" [class.show]="_show">
+    <button mat-button
+        color="warn"
+        class="exit"
+        (click)="hide()"
+        (press)="hide()"
+    >
+        <mat-icon>keyboard_backspace</mat-icon>
+        <span>Back</span>
+    </button>
+
+    <div class="projectorscreens">
+        <!-- <ng-container *ngIf="if there are screens"> -->
+            <h1 class="header text title">Projector Control</h1>
+
+            <div class="no-scroll">
+                <div class="content">
+                    <div class="mixers">
+                        <div class="sliders">
+                            <div
+                                class="slider-container"
+                            >
+                                <span class="display">Display Name</span>
+                                <button mat-raised-button
+                                    class="button"
+                                    color="primary"
+                                >
+                                    <mat-icon class="icon">keyboard_arrow_up</mat-icon>
+                                </button>
+
+                                <button mat-raised-button
+                                    class="button"
+                                    color="primary"
+                                >
+                                    STOP
+                                </button>
+
+                                <button mat-raised-button
+                                    class="button"
+                                    color="primary"
+                                >
+                                    <mat-icon class="icon">keyboard_arrow_down</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <!-- </ng-container> -->
+    </div>
+</div>
