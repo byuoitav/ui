@@ -115,6 +115,13 @@ export class RoomRef {
   providedIn: "root"
 })
 export class BFFService {
+  locked = true;
+  loaded = false;
+  controlKey: string;
+  roomControlUrl: string;
+  
+  roomRef: RoomRef;
+  
   constructor(private router: Router, private dialog: MatDialog) {
     // do things based on route changes
     this.router.events.subscribe(event => {
@@ -129,7 +136,7 @@ export class BFFService {
     });
   }
 
-  getRoom = (key: string | number): RoomRef => {
+  getRoom = (): RoomRef => {
     const room = new BehaviorSubject<Room>(undefined);
 
     // use ws for http, wss for https
@@ -138,7 +145,9 @@ export class BFFService {
       protocol = "wss:";
     }
 
-    const endpoint = protocol + "//" + window.location.host + "/ws/" + key;
+    const endpoint = protocol + "//" + window.location.host + "/ws/";
+    // const endpoint = protocol + "//" + "ITB-1106B-CP1.byu.edu" + "/ws/";
+    
     const ws = new WebSocket(endpoint);
 
     const roomRef = new RoomRef(room, ws, () => {
@@ -189,11 +198,11 @@ export class BFFService {
     return roomRef;
   };
 
-  // error = (msg: string) => {
-  //   console.log("showing error", msg);
-  //   // const dialogs = this.dialog.openDialogs.filter(dialog => {
-  //   //   return dialog.componentInstance instanceof ErrorDialog;
-  //   // });
+  error = (msg: string) => {
+    console.log("showing error", msg);
+    // const dialogs = this.dialog.openDialogs.filter(dialog => {
+    //   return dialog.componentInstance instanceof ErrorDialog;
+    // });
 
   //   if (dialogs.length > 0) {
   //     // do something?
@@ -217,4 +226,5 @@ export class BFFService {
   //     });
   //   }
   // };
+  }
 }

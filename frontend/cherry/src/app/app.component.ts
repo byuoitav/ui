@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material';
 import { trigger, transition, animate } from "@angular/animations";
 import { Http } from "@angular/http";
 import { Output } from '../objects/status.objects';
-import { BFFService } from '../services/bff.service';
+import { BFFService, RoomRef } from '../services/bff.service';
 import { HelpDialog } from "./dialogs/help.dialog";
 import { MobileControlComponent } from "./dialogs/mobilecontrol/mobilecontrol.component";
 
@@ -31,14 +31,18 @@ export class AppComponent {
   public progressMode: string = QUERY;
   public power: boolean;
   public selectedTabIndex: number;
+  public roomRef: RoomRef
 
   constructor(
     public bff: BFFService,
     public dialog: MatDialog
     // private http: Http
   ) {
+    this.roomRef = this.bff.getRoom();
     this.loaded = false;
-    this.power = true
+    this.power = true;
+    console.log(this.bff);
+    console.log(this.roomRef);
   }
 
   public isPoweredOff(): boolean {
@@ -52,8 +56,7 @@ export class AppComponent {
   public unlock() {
     this.unlocking = true;
     this.progressMode = QUERY;
-    const room = this.bff.getRoom;
-    
+    this.bff.locked = false;
     
 
     // this.command.powerOnDefault(this.data.panel.preset).subscribe(success => {
@@ -114,6 +117,7 @@ export class AppComponent {
 
   powerStatus() {
     return this.power;
+    // return !this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].powerStatus;
   }
 
   setPower() {
