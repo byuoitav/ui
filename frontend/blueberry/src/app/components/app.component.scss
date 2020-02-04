@@ -30,8 +30,8 @@
             }
         }
         .logo {
-            height:45vh;
-            width: 45vh;
+            height:40vh;
+            width: 40vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -76,8 +76,8 @@
     justify-content: space-evenly;
     width: 80%;
     height: 18vh;
-    margin-top: 1vh;
-    margin-bottom: 1vh;
+    margin-top: 2vh;
+    margin-bottom: 2vh;
     // flex: 0 auto;
 }
 
@@ -89,8 +89,8 @@
     border: solid 1px #666666;
     border-radius: 10px;
     transform: scale(1.5);
-    margin-left: 18px;
-    margin-right: 18px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .rotate-90 {

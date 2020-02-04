@@ -22,6 +22,8 @@ export class ProjectorComponent implements OnInit {
   show = (cg: ControlGroup) => {
     this.cg = cg;
 
+    this.cg.screens = ["SCR1"];
+
     if (this.cg.screens) {
       const pages = Math.ceil(this.cg.screens.length / 4);
       this.pages = new Array(pages).fill(undefined).map((x, i) => i);

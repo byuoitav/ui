@@ -13,7 +13,8 @@ import {
   MatProgressSpinnerModule,
   MatSlideToggleModule,
   MatToolbarModule,
-  MatTabsModule
+  MatTabsModule,
+  MAT_DIALOG_DATA
 } from "@angular/material";
 import { UiSwitchModule } from "ngx-ui-switch";
 import "hammerjs";
@@ -26,6 +27,9 @@ import { WheelComponent } from './components/wheel/wheel.component';
 import { VolumeComponent } from './components/volume/volume.component';
 import { ProjectorComponent } from './components/projector/projector.component';
 import { AudioComponent } from './components/audio/audio.component';
+import { MobileComponent } from './components/mobile/mobile.component';
+
+import { NgxQRCodeModule } from 'ngx-qrcode2';
 
 @NgModule({
   declarations: [
@@ -35,6 +39,7 @@ import { AudioComponent } from './components/audio/audio.component';
     VolumeComponent,
     ProjectorComponent,
     AudioComponent,
+    MobileComponent,
   ],
   imports: [
     BrowserModule,
@@ -52,9 +57,15 @@ import { AudioComponent } from './components/audio/audio.component';
     UiSwitchModule,
     AppRoutingModule,
     MatToolbarModule,
-    MatTabsModule
+    MatTabsModule,
+    NgxQRCodeModule
   ],
-  providers: [BFFService],
+  entryComponents: [
+    MobileComponent
+  ],
+  providers: [
+    BFFService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
