@@ -14,7 +14,7 @@ export class MobileComponent implements OnInit {
   public elementType: 'url';
   public cg: ControlGroup;
 
-  constructor(public dialogRef: MatDialogRef<MobileComponent>, @Inject(MAT_DIALOG_DATA) public data: ControlGroup) {
+  constructor(public ref: MatDialogRef<MobileComponent>, @Inject(MAT_DIALOG_DATA) public data: ControlGroup) {
     this.cg = data;
     this.url = "rooms-stg.byu.edu";
     this.key = "103236";
@@ -22,10 +22,10 @@ export class MobileComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.dialogRef.disableClose = true;
+    this.ref.disableClose = true;
   }
 
   cancel = () => {
-    this.dialogRef.close();
+    this.ref.close();
   }
 }

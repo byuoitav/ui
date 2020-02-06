@@ -3,6 +3,9 @@ import { BFFService, RoomRef } from '../../services/bff.service';
 import { ControlGroup } from 'src/app/objects/control';
 import { AudioComponent } from '../audio/audio.component';
 import { ProjectorComponent } from '../projector/projector.component';
+import { MatDialog } from '@angular/material';
+import { HelpComponent } from 'src/app/dialogs/help/help.component';
+import { SharingComponent } from 'src/app/dialogs/sharing/sharing.component';
 
 
 @Component({
@@ -17,7 +20,7 @@ export class HomeComponent implements OnInit {
   @ViewChild(AudioComponent, {static: false}) public audio: AudioComponent;
   @ViewChild(ProjectorComponent, {static: false}) public screen: ProjectorComponent;
 
-  constructor(public bff: BFFService) { }
+  constructor(public bff: BFFService, public dialog: MatDialog) { }
 
   ngOnInit() {
     if (this.roomRef) {
@@ -34,5 +37,13 @@ export class HomeComponent implements OnInit {
   public turnOff() {
     console.log("turning off the room");
     this.bff.locked = true;
+  }
+
+  openHelp = () => {
+    this.dialog.open(HelpComponent, {data: this.cg})
+  }
+
+  openSharing = () => {
+    this.dialog.open(SharingComponent, {data: this.cg})
   }
 }

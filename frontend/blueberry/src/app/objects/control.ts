@@ -49,6 +49,7 @@ export interface Display {
   outputs: IconPair[];
   input: string;
   blanked: boolean;
+  shareOptions: string[];
 
   // getOutputNameList(): string[] {
   //     const toReturn: string[] = [];

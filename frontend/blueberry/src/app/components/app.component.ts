@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { BFFService, RoomRef } from '../services/bff.service';
 import { AudioComponent } from './audio/audio.component';
 import { ProjectorComponent } from './projector/projector.component';
-import { MobileComponent } from './mobile/mobile.component';
+import { MobileComponent } from '../dialogs/mobile/mobile.component';
 import { MatDialog } from '@angular/material';
 
 @Component({
@@ -15,7 +15,6 @@ export class AppComponent {
 
   @ViewChild(AudioComponent, {static: false}) public audio: AudioComponent;
   @ViewChild(ProjectorComponent, {static: false}) public screen: ProjectorComponent;
-  // @ViewChild(MobileComponent, {static: false}) public mobile: MobileComponent;
 
   constructor(public bff: BFFService, public dialog: MatDialog) {
     this.roomRef = this.bff.getRoom();
@@ -69,7 +68,6 @@ export class AppComponent {
 
   showMobileControl() {
     if (this.roomRef && this.roomRef.room) {
-      // this.mobile.show(this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup]);
       this.dialog.open(MobileComponent, {data: this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup]});
     }
   }

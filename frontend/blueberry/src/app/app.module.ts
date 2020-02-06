@@ -27,9 +27,12 @@ import { WheelComponent } from './components/wheel/wheel.component';
 import { VolumeComponent } from './components/volume/volume.component';
 import { ProjectorComponent } from './components/projector/projector.component';
 import { AudioComponent } from './components/audio/audio.component';
-import { MobileComponent } from './components/mobile/mobile.component';
+import { MobileComponent } from './dialogs/mobile/mobile.component';
 
 import { NgxQRCodeModule } from 'ngx-qrcode2';
+import { SharingComponent } from './dialogs/sharing/sharing.component';
+import { HelpComponent } from './dialogs/help/help.component';
+import { ActivityButtonComponent } from './components/activity-button/activity-button.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +43,9 @@ import { NgxQRCodeModule } from 'ngx-qrcode2';
     ProjectorComponent,
     AudioComponent,
     MobileComponent,
+    SharingComponent,
+    HelpComponent,
+    ActivityButtonComponent,
   ],
   imports: [
     BrowserModule,
@@ -61,7 +67,9 @@ import { NgxQRCodeModule } from 'ngx-qrcode2';
     NgxQRCodeModule
   ],
   entryComponents: [
-    MobileComponent
+    MobileComponent,
+    HelpComponent,
+    SharingComponent
   ],
   providers: [
     BFFService

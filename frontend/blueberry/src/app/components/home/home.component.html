@@ -3,7 +3,7 @@
 
 <div class="buttons top">
     <button mat-fab class="power button" (click)="turnOff()"><mat-icon>power_settings_new</mat-icon></button>
-    <button mat-fab class="help button"><mat-icon>help</mat-icon></button>
+    <button mat-fab class="help button" (click)="openHelp()"><mat-icon>help</mat-icon></button>
     <div *ngIf="bff.controlKey" class="control-key-button">
         <button
         mat-button
@@ -20,7 +20,7 @@
   <app-wheel [roomRef]="roomRef"></app-wheel>
 </div>
 
-<div class="buttons bottom">
+<div class="buttons bottom" (click)="openSharing()">
   <button mat-fab class="dta button">
     <mat-icon>screen_share</mat-icon>
   </button>
