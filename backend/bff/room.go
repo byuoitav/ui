@@ -1,11 +1,35 @@
 package bff
 
+func containsID(ids []ID, id ID) int {
+	for index, i := range ids {
+		if i == id {
+			return index
+		}
+	}
+	return -1
+}
+
+// GetRoom .
 func (c *Client) GetRoom() Room {
 	room := Room{
 		ID:                   ID(c.roomID),
 		Name:                 c.room.Name,
 		ControlGroups:        make(map[string]ControlGroup),
 		SelectedControlGroup: ID(c.selectedControlGroupID),
+	}
+
+	var masters []ID
+	active := make(map[ID]ID)
+	inactive := make(map[ID]ID)
+
+	for master, mins := range c.sharing {
+		masters = append(masters, master)
+		for _, a := range mins.Active {
+			active[a] = master
+		}
+		for _, i := range mins.Inactive {
+			inactive[i] = master
+		}
 	}
 
 	for _, preset := range c.uiConfig.Presets {
@@ -40,9 +64,39 @@ func (c *Client) GetRoom() Room {
 				curInput = "blank"
 			}
 
-			d := Display{
+			s := ShareInfo{
+				Options: preset.ShareableDisplays,
+			}
+
+			if m := containsID(masters, ID(name)); m >= 0 {
+				s.State = Unshare
+			} else if master, ok := active[ID(name)]; ok {
+				s.State = MinionActive
+				s.Master = master
+			} else if master, ok := inactive[ID(name)]; ok {
+				s.State = MinionInactive
+				s.Master = master
+			} else if _, ok := c.shareable[ID(name)]; ok {
+				s.State = Share
+			} else /*else if linkable?!?!*/ {
+				s.State = Nothing
+			}
+			if s.State == MinionActive {
+				curInput = string(c.sharing[s.Master].Input)
+			} else if s.State == MinionInactive {
+				cg.Inputs = append(cg.Inputs, Input{
+					ID: ID("Mirror ") + s.Master,
+					IconPair: IconPair{
+						Name: "Mirror " + string(s.Master),
+						Icon: Icon{"settings_input_hdmi"},
+					},
+					Disabled: false,
+				})
+			}
+			d := DisplayBlock{
 				ID:    ID(config.ID),
 				Input: ID(curInput),
+				Share: s,
 			}
 
 			// TODO outputs when we do sharing
@@ -52,7 +106,7 @@ func (c *Client) GetRoom() Room {
 				Icon: Icon{outputIcon},
 			})
 
-			cg.Displays = append(cg.Displays, d)
+			cg.DisplayBlocks = append(cg.DisplayBlocks, d)
 		}
 
 		// add a blank input as the first input

@@ -5,22 +5,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/byuoitav/common/structs"
-	"github.com/byuoitav/lazarette/lazarette"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"go.uber.org/zap"
 )
 
+// SetVolume .
 type SetVolume struct {
 }
 
+// SetVolumeMessage .
 type SetVolumeMessage struct {
 	AudioDeviceID string `json:"audioDevice"`
 	Level         int    `json:"level"`
 }
 
+// Do .
 func (sv SetVolume) Do(c *Client, data []byte) {
 	var msg SetVolumeMessage
 	if err := json.Unmarshal(data, &msg); err != nil {
@@ -59,7 +59,7 @@ func (sv SetVolume) Do(c *Client, data []byte) {
 	if err := c.SendAPIRequest(context.TODO(), state); err != nil {
 		c.Warn("failed to set volume", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to set volume: %s", err))
-	} else {
+	} /* else {
 		jVol, err := json.Marshal(msg.Level)
 		if err != nil {
 			c.Warn("failed to create JSON for volume", zap.Error(err))
@@ -80,5 +80,5 @@ func (sv SetVolume) Do(c *Client, data []byte) {
 		}
 
 	}
-
+	*/
 }

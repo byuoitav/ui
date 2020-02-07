@@ -21,6 +21,11 @@ import (
 	"google.golang.org/grpc"
 )
 
+func remove(l []string, index int) []string {
+	l[index] = l[len(l)-1]
+	return l[:len(l)-1]
+}
+
 // Client represents a client of the bff
 type Client struct {
 	buildingID             string
@@ -30,6 +35,9 @@ type Client struct {
 	room     structs.Room
 	state    structs.PublicRoom
 	lazState LazState
+
+	sharing   Sharing
+	shareable Shareable
 
 	uiConfig UIConfig
 
@@ -156,16 +164,8 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 		c.Info("LazState: entered")
 		defer wg.Done()
 		var err error
-		setVol := true
 		setSharing := true
-		kVol := &lazarette.Key{
-			Key: fmt.Sprintf("%v-_master_volume", roomID),
-		}
-		jVol, err := c.lazState.Client.Get(ctx, kVol)
-		if err != nil {
-			c.Info("unable to get master volume:", zap.Error(err))
-			setVol = false
-		}
+
 		kSharing := &lazarette.Key{
 			Key: fmt.Sprintf("%v-_sharing_displays", roomID),
 		}
@@ -174,21 +174,10 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 			c.Info("unable to get sharing displays:", zap.Error(err))
 			setSharing = false
 		}
-		if setVol {
-			c.Debug("LazState: got vol")
-			var vol int
-			err = json.Unmarshal(jVol.Data, &vol)
-			if err != nil {
-				c.Warn("unable to unmarshal volume: ", zap.Error(err))
-				errCh <- fmt.Errorf("unable to unmarshal volume: %v", err)
-			}
-			c.Info("LazState: unmarhalled vol")
-			c.lazState.Volume = vol
 
-		}
 		if setSharing {
 			c.Debug("LazState: got sharing")
-			sharingDisplays := make(map[string][]string)
+			var sharingDisplays Sharing
 			err = json.Unmarshal(jSharingDisplays.Data, &sharingDisplays)
 			if err != nil {
 				c.Warn("unable to unmarshal volume: ", zap.Error(err))
@@ -196,7 +185,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 			}
 			c.Info("LazState: unmarhalled sharing")
 
-			c.lazState.SharingDisplays = sharingDisplays
+			c.sharing = sharingDisplays
 
 		}
 
@@ -226,23 +215,13 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 				case kv == nil:
 					continue
 				}
-
-				if strings.Contains(kv.Key, "_master_volume") {
-					var vol int
-					err = json.Unmarshal(kv.Data, &vol)
-					if err != nil {
-						c.Warn("unable to unmarshal volume: ", zap.Error(err))
-					} else {
-						c.lazState.Volume = vol
-					}
-
-				} else if strings.Contains(kv.Key, "_sharing_displays") {
-					sharingDisplays := make(map[string][]string)
+				if strings.Contains(kv.Key, "_sharing_displays") {
+					var sharingDisplays Sharing
 					err = json.Unmarshal(kv.Data, &sharingDisplays)
 					if err != nil {
-						c.Warn("unable to unmarshal volume: ", zap.Error(err))
+						c.Warn("unable to unmarshal sharing", zap.Error(err))
 					} else {
-						c.lazState.SharingDisplays = sharingDisplays
+						c.sharing = sharingDisplays
 					}
 				}
 
@@ -263,16 +242,29 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 		c.selectedControlGroupID = controlGroupID
 	}
 
+	// Set up who can share to who
+	var s Shareable
+	for _, p := range c.uiConfig.Presets {
+		for i, d := range p.ShareableDisplays {
+			shar := remove(p.ShareableDisplays, i)
+			shareable := make([]ID, len(shar))
+			for j := range shar {
+				shareable[j] = ID(shar[j])
+			}
+			s[ID(d)] = shareable
+		}
+	}
+
 	//check if controlgroup is empty, if not turn on displays in controlgroup
 	if len(c.selectedControlGroupID) > 0 {
 		var displays []ID
-		for _, display := range room.ControlGroups[c.selectedControlGroupID].Displays {
+		for _, display := range room.ControlGroups[c.selectedControlGroupID].DisplayBlocks {
 			displays = append(displays, display.ID)
 		}
 
 		setPowerMessage := SetPowerMessage{
-			Displays: displays,
-			Status:   "on",
+			DisplayBlocks: displays,
+			Status:        "on",
 		}
 
 		// turn the control group on - this will send the room to the client

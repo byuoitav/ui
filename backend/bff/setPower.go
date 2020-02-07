@@ -14,8 +14,8 @@ type SetPower struct {
 }
 
 type SetPowerMessage struct {
-	Displays []ID   `json:"displays"`
-	Status   string `json:"status"`
+	DisplayBlocks []ID   `json:"displays"`
+	Status        string `json:"status"`
 }
 
 // TODO make sure that the devices are powered on after setting the power
@@ -26,14 +26,14 @@ func (sp SetPower) DoWithMessage(ctx context.Context, c *Client, msg SetPowerMes
 		return fmt.Errorf("len(cg.ID) is equal to zero: %s", c.selectedControlGroupID)
 	}
 
-	c.Info("Setting power", zap.String("on", fmt.Sprintf("%v", msg.Displays)), zap.String("to", msg.Status), zap.String("controlgroup", string(cg.ID)))
+	c.Info("Setting power", zap.String("on", fmt.Sprintf("%v", msg.DisplayBlocks)), zap.String("to", msg.Status), zap.String("controlgroup", string(cg.ID)))
 
 	// find the display by ID
-	var disp []Display
-	for i := range cg.Displays {
-		for j := range msg.Displays {
-			if cg.Displays[i].ID == ID(msg.Displays[j]) {
-				disp = append(disp, cg.Displays[i])
+	var disp []DisplayBlock
+	for i := range cg.DisplayBlocks {
+		for j := range msg.DisplayBlocks {
+			if cg.DisplayBlocks[i].ID == ID(msg.DisplayBlocks[j]) {
+				disp = append(disp, cg.DisplayBlocks[i])
 				break
 			}
 		}
@@ -95,11 +95,11 @@ func (sp SetPower) PowerOffAll(c *Client) error {
 	}
 
 	c.Info("Powering off all devices in the room.")
-	var disp []Display
+	var disp []DisplayBlock
 	for _, cg := range controlGroups {
 		c.Info("Powering off all devices in the room.")
 
-		for _, d := range cg.Displays {
+		for _, d := range cg.DisplayBlocks {
 			if !contains(disp, d) {
 				disp = append(disp, d)
 			}
@@ -137,7 +137,7 @@ func (sp SetPower) PowerOffAll(c *Client) error {
 	return nil
 }
 
-func contains(s []Display, e Display) bool {
+func contains(s []DisplayBlock, e DisplayBlock) bool {
 	for _, a := range s {
 		if a.ID == e.ID {
 			return true
