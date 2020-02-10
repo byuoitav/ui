@@ -46,6 +46,7 @@ func removeID(l []ID, index int) []ID {
 	return l[:len(l)-1]
 }
 
+/*
 func getShareable(presets []Preset, id ID) ([]string, error) {
 	for _, p := range presets {
 		for _, d := range p.Displays {
@@ -56,6 +57,7 @@ func getShareable(presets []Preset, id ID) ([]string, error) {
 	}
 	return nil, fmt.Errorf("display not found")
 }
+*/
 
 func updateLazSharing(ctx context.Context, c *Client) {
 	c.shareMutex.RLock()
@@ -99,12 +101,8 @@ func (ss SetSharing) On(c *Client, data []byte) {
 	for _, min := range msg.Minions {
 		for master, lists := range c.sharing {
 			if min == master { // Absorbing another master
-				for _, m := range lists.Active {
-					msg.Minions = append(msg.Minions, m)
-				}
-				for _, m := range lists.Inactive {
-					msg.Minions = append(msg.Minions, m)
-				}
+				msg.Minions = append(msg.Minions, lists.Active...)
+				msg.Minions = append(msg.Minions, lists.Inactive...)
 				delete(c.sharing, master)
 			} else if i, exists := contain(lists.Active, min); exists { //Active
 				removeID(lists.Active, i)
