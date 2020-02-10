@@ -5,8 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/byuoitav/common/structs"
+	"github.com/byuoitav/lazarette/lazarette"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"go.uber.org/zap"
 )
 
@@ -54,6 +57,25 @@ func getShareable(presets []Preset, id ID) ([]string, error) {
 	return nil, fmt.Errorf("display not found")
 }
 
+func updateLazSharing(ctx context.Context, c *Client) error {
+	c.shareMutex.RLock()
+	data, err := json.Marshal(c.sharing)
+	c.shareMutex.RUnlock()
+	if err != nil {
+		c.Warn("unable to update sharing: %v", zap.Error(err))
+		return err
+	}
+	kv := &lazarette.KeyValue{
+		Key:  fmt.Sprintf("%s-_sharing_displays", c.roomID),
+		Data: data,
+		Timestamp: &timestamp.Timestamp{
+			Seconds: time.Now().Unix(),
+		},
+	}
+	c.lazState.Client.Set(ctx, kv)
+	return nil
+}
+
 // On Legacy
 func (ss SetSharing) On(c *Client, data []byte) {
 	var msg SetSharingMessage
@@ -71,6 +93,7 @@ func (ss SetSharing) On(c *Client, data []byte) {
 
 	// Remove all minions from other (in)active lists and from sharing
 
+	c.shareMutex.Lock()
 	for _, min := range msg.Minions {
 		for master, lists := range c.sharing {
 			if min == master { // Absorbing another master
@@ -88,6 +111,7 @@ func (ss SetSharing) On(c *Client, data []byte) {
 			}
 		}
 	}
+	c.shareMutex.Unlock()
 
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
 
@@ -98,10 +122,12 @@ func (ss SetSharing) On(c *Client, data []byte) {
 		return
 	}
 
+	c.shareMutex.Lock()
 	c.sharing[msg.Master] = ShareGroups{
 		Active: msg.Minions,
 		Input:  disp.Input,
 	}
+	c.shareMutex.Unlock()
 	// Change all the shared peeps inputs
 
 	// create public room with new input info, mute all minions
@@ -135,6 +161,8 @@ func (ss SetSharing) On(c *Client, data []byte) {
 			state.Displays = append(state.Displays, display)
 		}
 	}
+
+	go updateLazSharing(context.TODO(), c)
 
 	err = c.SendAPIRequest(context.TODO(), state)
 	if err != nil {
@@ -198,12 +226,15 @@ func (ss SetSharing) Off(c *Client, data []byte) {
 		}
 	}
 
+	go updateLazSharing(context.TODO(), c)
+
 	err := c.SendAPIRequest(context.TODO(), state)
 	if err != nil {
 		c.Warn("failed to change input", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to change input: %s", err))
 	}
-
+	c.shareMutex.Lock()
 	delete(c.sharing, msg.Master)
+	c.shareMutex.Unlock()
 
 }

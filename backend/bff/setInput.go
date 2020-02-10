@@ -52,12 +52,15 @@ func (si SetInput) Do(c *Client, data []byte) {
 	c.Info("setting input", zap.String("on", msg.DisplayID), zap.String("to", msg.InputID), zap.String("controlGroup", string(cg.ID)))
 
 	var state structs.PublicRoom
+	sharingChanged := false
 
 	// Go through all sharing groups
+	c.shareMutex.Lock()
 	for master, list := range c.sharing {
+		done := false
 		// If the master is changing input
 		if master == ID(msg.DisplayID) {
-			// All active
+			// Each active gets their outputs added to the public room with the input being the input of the master
 			for _, m := range list.Active {
 				disp, err := getDisplay(cg, m)
 				if err != nil {
@@ -84,27 +87,32 @@ func (si SetInput) Do(c *Client, data []byte) {
 					state.Displays = append(state.Displays, display)
 				}
 			}
-			return
-		}
-		done := false
-		for i, a := range list.Active {
-			if a == ID(msg.DisplayID) {
-				NewActive := removeID(list.Active, i)
-				Inactive := append(list.Inactive, a)
-				input := list.Input
-				c.sharing[master] = ShareGroups{
-					Input:    input,
-					Active:   NewActive,
-					Inactive: Inactive,
+			done = true
+		} else {
+			// Otherwise go through each active member of the list
+			for i, a := range list.Active {
+				// If the active member is the changed input
+				if a == ID(msg.DisplayID) {
+					//Remove it from the active list and add it to the inactive list
+					NewActive := removeID(list.Active, i)
+					Inactive := append(list.Inactive, a)
+					input := list.Input
+					c.sharing[master] = ShareGroups{
+						Input:    input,
+						Active:   NewActive,
+						Inactive: Inactive,
+					}
+					done = true
+					break
 				}
-				done = true
-				break
 			}
 		}
 		if done {
+			sharingChanged = true
 			break
 		}
 	}
+	c.shareMutex.Unlock()
 
 	// find the display by ID
 	disp, err := getDisplay(cg, ID(msg.DisplayID))
@@ -113,6 +121,7 @@ func (si SetInput) Do(c *Client, data []byte) {
 		return
 	}
 
+	// For each of the displays outputs
 	for _, out := range disp.Outputs {
 		// TODO write a getnamefromid func
 		dSplit := strings.Split(string(out.ID), "-")
@@ -129,7 +138,7 @@ func (si SetInput) Do(c *Client, data []byte) {
 			display.Input = iSplit[2]
 			display.Blanked = BoolP(false)
 		}
-
+		// Add each display to the list of displays to change on the new state
 		state.Displays = append(state.Displays, display)
 	}
 
@@ -138,7 +147,10 @@ func (si SetInput) Do(c *Client, data []byte) {
 		// send mute request
 	}
 	*/
-
+	if sharingChanged {
+		go updateLazSharing(context.TODO(), c)
+	}
+	// Make the state changes
 	err = c.SendAPIRequest(context.TODO(), state)
 	if err != nil {
 		c.Warn("failed to change input", zap.Error(err))

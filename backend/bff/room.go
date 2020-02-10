@@ -22,6 +22,7 @@ func (c *Client) GetRoom() Room {
 	active := make(map[ID]ID)
 	inactive := make(map[ID]ID)
 
+	c.shareMutex.RLock()
 	for master, mins := range c.sharing {
 		masters = append(masters, master)
 		for _, a := range mins.Active {
@@ -31,6 +32,7 @@ func (c *Client) GetRoom() Room {
 			inactive[i] = master
 		}
 	}
+	c.shareMutex.RUnlock()
 
 	for _, preset := range c.uiConfig.Presets {
 		cg := ControlGroup{
@@ -82,7 +84,9 @@ func (c *Client) GetRoom() Room {
 				s.State = Nothing
 			}
 			if s.State == MinionActive {
+				c.shareMutex.RLock()
 				curInput = string(c.sharing[s.Master].Input)
+				c.shareMutex.RUnlock()
 			} else if s.State == MinionInactive {
 				cg.Inputs = append(cg.Inputs, Input{
 					ID: ID("Mirror ") + s.Master,

@@ -10,14 +10,17 @@ import (
 	"go.uber.org/zap"
 )
 
+// SetPower .
 type SetPower struct {
 }
 
+// SetPowerMessage .
 type SetPowerMessage struct {
 	DisplayBlocks []ID   `json:"displays"`
 	Status        string `json:"status"`
 }
 
+// DoWithMessage .
 // TODO make sure that the devices are powered on after setting the power
 func (sp SetPower) DoWithMessage(ctx context.Context, c *Client, msg SetPowerMessage) error {
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
@@ -70,6 +73,7 @@ func (sp SetPower) DoWithMessage(ctx context.Context, c *Client, msg SetPowerMes
 	return nil
 }
 
+// Do .
 func (sp SetPower) Do(c *Client, data []byte) {
 	var msg SetPowerMessage
 	err := json.Unmarshal(data, &msg)
@@ -86,6 +90,7 @@ func (sp SetPower) Do(c *Client, data []byte) {
 
 }
 
+// PowerOffAll .
 func (sp SetPower) PowerOffAll(c *Client) error {
 
 	controlGroups := c.GetRoom().ControlGroups

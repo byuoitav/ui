@@ -36,7 +36,9 @@ type Client struct {
 	state    structs.PublicRoom
 	lazState LazState
 
-	sharing   Sharing
+	shareMutex *sync.RWMutex
+	sharing    Sharing
+	// TODO get shareable
 	shareable Shareable
 
 	uiConfig UIConfig
@@ -99,6 +101,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 		SendEvent:  make(chan events.Event),
 		lazState:   lazState,
 		Logger:     log.P.Named(ws.RemoteAddr().String()),
+		shareMutex: new(sync.Mutex),
 	}
 
 	c.lazContext = lazContext
@@ -159,6 +162,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 
 		c.Debug("Successfully got ui config")
 	}()
+
 	// 4 - LazState setup
 	go func() {
 		c.Info("LazState: entered")
@@ -180,13 +184,13 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 			var sharingDisplays Sharing
 			err = json.Unmarshal(jSharingDisplays.Data, &sharingDisplays)
 			if err != nil {
-				c.Warn("unable to unmarshal volume: ", zap.Error(err))
+				c.Warn("unable to unmarshal sharing displays: ", zap.Error(err))
 				errCh <- fmt.Errorf("unable to unmarshal volume: %v", err)
 			}
 			c.Info("LazState: unmarhalled sharing")
-
+			c.shareMutex.Lock()
 			c.sharing = sharingDisplays
-
+			c.shareMutex.Unlock()
 		}
 
 		c.Debug("LazState: setup finished")
@@ -221,7 +225,9 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 					if err != nil {
 						c.Warn("unable to unmarshal sharing", zap.Error(err))
 					} else {
+						c.shareMutex.Lock()
 						c.sharing = sharingDisplays
+						c.shareMutex.Unlock()
 					}
 				}
 
@@ -254,6 +260,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 			s[ID(d)] = shareable
 		}
 	}
+	c.shareable = s
 
 	//check if controlgroup is empty, if not turn on displays in controlgroup
 	if len(c.selectedControlGroupID) > 0 {
