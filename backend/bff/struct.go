@@ -10,12 +10,13 @@ import (
 type ShareState int
 
 /*
-	Nothing - cannot share
-	Share - can share
-	Unshare - can stop sharing (is currently sharing)
-	Link - can link
-	Unlink - can unlink (is currently linked)
-	Minion - is shared to but can switch input
+	Nothing		   - cannot share
+	Share		   - can share
+	Unshare        - can stop sharing (is currently sharing)
+	Link           - can link
+	Unlink         - can unlink (is currently linked)
+	MinionActive   - is shared to and is displaying the share
+	MinionInactive - is shared to and is not displaying the share
 */
 const (
 	Nothing = iota
