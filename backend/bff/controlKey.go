@@ -56,7 +56,7 @@ func (ck GetKeyConfig) Do(c *Client, data []byte) {
 		}
 
 		if c.room.Designation != "production" {
-			k.ControlURL = "rooms-stg.byu.edu"
+			k.ControlURL = "rooms.stg.byu.edu"
 		} else {
 			k.ControlURL = "rooms.byu.edu"
 		}
