@@ -121,11 +121,11 @@ func (c *Client) handleEvents() {
 
 func handleVolume(state structs.PublicRoom, volume, targetDevice string) (structs.PublicRoom, bool) {
 	intVolume, _ := strconv.Atoi(volume)
-	deviceId := getDeviceId(targetDevice)
+	deviceID := getDeviceID(targetDevice)
 	changed := false
 
 	for i := range state.AudioDevices {
-		if state.AudioDevices[i].Name != deviceId {
+		if state.AudioDevices[i].Name != deviceID {
 			continue
 		}
 
@@ -142,11 +142,11 @@ func handleVolume(state structs.PublicRoom, volume, targetDevice string) (struct
 
 func handleMuted(state structs.PublicRoom, muted, targetDevice string) (structs.PublicRoom, bool) {
 	isMuted, _ := strconv.ParseBool(muted)
-	deviceId := getDeviceId(targetDevice)
+	deviceID := getDeviceID(targetDevice)
 	changed := false
 
 	for i := range state.AudioDevices {
-		if state.AudioDevices[i].Name != deviceId {
+		if state.AudioDevices[i].Name != deviceID {
 			continue
 		}
 
@@ -161,11 +161,11 @@ func handleMuted(state structs.PublicRoom, muted, targetDevice string) (structs.
 	return state, changed
 }
 func handlePower(state structs.PublicRoom, power, targetDevice string) (structs.PublicRoom, bool) {
-	deviceId := getDeviceId(targetDevice)
+	deviceID := getDeviceID(targetDevice)
 	changed := false
 
 	for i := range state.Displays {
-		if state.Displays[i].Name != deviceId {
+		if state.Displays[i].Name != deviceID {
 			continue
 		}
 
@@ -180,11 +180,11 @@ func handlePower(state structs.PublicRoom, power, targetDevice string) (structs.
 	return state, changed
 }
 func handleInput(state structs.PublicRoom, input, targetDevice string) (structs.PublicRoom, bool) {
-	deviceId := getDeviceId(targetDevice)
+	deviceID := getDeviceID(targetDevice)
 	changed := false
 
 	for i := range state.Displays {
-		if state.Displays[i].Name != deviceId {
+		if state.Displays[i].Name != deviceID {
 			continue
 		}
 
@@ -200,11 +200,11 @@ func handleInput(state structs.PublicRoom, input, targetDevice string) (structs.
 }
 func handleBlanked(state structs.PublicRoom, blanked, targetDevice string) (structs.PublicRoom, bool) {
 	isBlanked, _ := strconv.ParseBool(blanked)
-	deviceId := getDeviceId(targetDevice)
+	deviceID := getDeviceID(targetDevice)
 	changed := false
 
 	for i := range state.Displays {
-		if state.Displays[i].Name != deviceId {
+		if state.Displays[i].Name != deviceID {
 			continue
 		}
 
@@ -219,7 +219,7 @@ func handleBlanked(state structs.PublicRoom, blanked, targetDevice string) (stru
 	return state, changed
 }
 
-func getDeviceId(targetDevice string) string {
+func getDeviceID(targetDevice string) string {
 	splitDevice := strings.Split(targetDevice, "-")
 	return splitDevice[2]
 }
