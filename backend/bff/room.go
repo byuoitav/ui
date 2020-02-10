@@ -45,6 +45,8 @@ func (c *Client) GetRoom() Room {
 			},
 		}
 
+		power := true
+
 		for _, name := range preset.Displays {
 			config := GetDeviceConfigByName(c.room.Devices, name)
 			state := GetDisplayStateByName(c.state.Displays, name)
@@ -56,6 +58,11 @@ func (c *Client) GetRoom() Room {
 				}
 
 				outputIcon = IOconfig.Icon
+			}
+
+			//TODO power works????
+			if state.Power != "on" {
+				power = false
 			}
 
 			// figure out what the current input for this display is
@@ -111,6 +118,12 @@ func (c *Client) GetRoom() Room {
 			})
 
 			cg.DisplayBlocks = append(cg.DisplayBlocks, d)
+		}
+
+		if power {
+			cg.Power = "on"
+		} else {
+			cg.Power = "standby"
 		}
 
 		// add a blank input as the first input

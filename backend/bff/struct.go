@@ -60,6 +60,8 @@ type Room struct {
 type ControlGroup struct {
 	ID   ID     `json:"id"`
 	Name string `json:"name"`
+	//TODO am right?
+	Power string `json:"power"`
 
 	DisplayBlocks []DisplayBlock `json:"displayBlocks"`
 	Inputs        []Input        `json:"inputs"`
