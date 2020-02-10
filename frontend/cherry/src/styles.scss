@@ -1,0 +1,17 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~material-design-icons/iconfont/material-icons.css";
+//@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:600');
+@import 'app/cherry.theme.scss';
+
+html {
+    overflow: hidden;
+    user-select: none;
+
+   font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+/*
+.mat-button {
+    font-family: 'Source Sans Pro', sans-serif !important;
+}
+*/

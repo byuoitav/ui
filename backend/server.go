@@ -55,7 +55,8 @@ func main() {
 	e := echo.New()
 
 	// register new clients
-	e.GET("ws/:key", handlers.NewClient)
+	e.GET("/ws", handlers.NewClient)
+	e.GET("/ws/:key", handlers.NewClient)
 
 	// handle load balancer status check
 	e.GET("/status", func(c echo.Context) error {

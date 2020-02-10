@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/byuoitav/ui/bff"
 	"github.com/byuoitav/ui/log"
@@ -24,8 +25,6 @@ var (
 )
 
 func NewClient(c echo.Context) error {
-	// TODO check if it's coming from localhost and accept that, figure out which preset it's supposed to be
-
 	// open the websocket
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
@@ -43,38 +42,62 @@ func NewClient(c echo.Context) error {
 		return err
 	}
 
-	url := fmt.Sprintf("%s/%s/getPreset", os.Getenv("CODE_SERVICE_URL"), c.Param("key"))
-
-	req, err := http.NewRequestWithContext(c.Request().Context(), "GET", url, nil)
-	if err != nil {
-		return closeWithReason(fmt.Sprintf("unable to build request to check room code: %s", err))
-	}
-
-	log.P.Info("Getting room/preset from control key", zap.String("key", c.Param("key")))
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return closeWithReason(fmt.Sprintf("unable to make request to check room code: %s", err))
-	}
-	defer resp.Body.Close()
-
-	switch resp.StatusCode {
-	case http.StatusNotFound:
-		return closeWithReason("invalid room control key")
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return closeWithReason(fmt.Sprintf("unable to read response from code service: %s", err))
-	}
-
 	preset := struct {
 		RoomID     string `json:"RoomID"`
 		PresetName string `json:"PresetName"`
 	}{}
 
-	if err = json.Unmarshal(body, &preset); err != nil {
-		return closeWithReason(fmt.Sprintf("unable to parse response from code service: %s. response: %s", err, body))
+	if strings.HasPrefix(c.Request().Host, "localhost") || strings.HasPrefix(c.Request().RemoteAddr, "127.0.0.1") {
+		// if it is coming from localhost then don't worry about a key
+		hostname := os.Getenv("SYSTEM_ID")
+		if len(hostname) < 1 {
+			return closeWithReason(fmt.Sprintf("unable to get hostname: %s", err))
+		}
+
+		hostnameArray := strings.Split(hostname, "-")
+		preset.RoomID = fmt.Sprintf("%s-%s", hostnameArray[0], hostnameArray[1])
+
+		uiConfig, err := bff.GetUIConfig(c.Request().Context(), http.DefaultClient, preset.RoomID)
+		if err != nil {
+			return closeWithReason(fmt.Sprintf("unable to get ui config: %s", err))
+		}
+
+		for _, p := range uiConfig.Panels {
+			if p.Hostname == hostname {
+				preset.PresetName = p.Preset
+				break
+			}
+		}
+	} else {
+		// if not localhost then use the code service to get the info
+		url := fmt.Sprintf("%s/%s/getPreset", os.Getenv("CODE_SERVICE_URL"), c.Param("key"))
+
+		req, err := http.NewRequestWithContext(c.Request().Context(), "GET", url, nil)
+		if err != nil {
+			return closeWithReason(fmt.Sprintf("unable to build request to check room code: %s", err))
+		}
+
+		log.P.Info("Getting room/preset from control key", zap.String("key", c.Param("key")))
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return closeWithReason(fmt.Sprintf("unable to make request to check room code: %s", err))
+		}
+		defer resp.Body.Close()
+
+		switch resp.StatusCode {
+		case http.StatusNotFound:
+			return closeWithReason("invalid room control key")
+		}
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return closeWithReason(fmt.Sprintf("unable to read response from code service: %s", err))
+		}
+
+		if err = json.Unmarshal(body, &preset); err != nil {
+			return closeWithReason(fmt.Sprintf("unable to parse response from code service: %s. response: %s", err, body))
+		}
 	}
 
 	client, err := bff.RegisterClient(c.Request().Context(), ws, preset.RoomID, preset.PresetName)

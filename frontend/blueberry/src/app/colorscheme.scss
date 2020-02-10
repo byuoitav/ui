@@ -1,0 +1,66 @@
+.basediv {
+    background-color: var(--background-color);
+    box-shadow: var(--background-shadow);
+
+    .lock {
+        background-color: var(--background-color);
+        box-shadow: var(--background-shadow);
+    }
+}
+
+#screenoff {
+    background-color: var(--background-color);
+    box-shadow: var(--background-shadow);
+    color: white;
+}
+
+.circle {
+    .wheel {
+        border: .2vh solid var(--wheel-outline-color);
+
+        li {
+            text-shadow: 0 0 1.2vh black;
+        }
+
+        .input-slice {
+             background-color: var(--input-color);
+             box-shadow: inset 0 0 30vh 1vh rgba(0,0,0,.3); 
+
+             .input {
+                color: var(--input-text-color); 
+             }
+        }
+
+        .title-slice {
+            background-color: var(--wheel-title-color);
+        }
+
+        .selected-input {
+            background-color: var(--selected-input-color);
+
+             .input {
+                color: var(--selected-input-text-color); 
+             }
+        }
+    }
+
+    .center {
+        background-color: var(--center-off-color);
+        border: .5vh solid var(--wheel-outline-color);
+        color: var(--center-text-color);
+
+        box-shadow: inset 0 0 15vh 3vh rgba(0,0,0,.3);
+
+        .name {
+            color: var(--wheel-title-text-color);
+        }
+
+        &.on {
+            background-color: var(--center-on-color);
+        }
+
+        .icon {
+            color: var(text-color);
+        }
+    }
+}
