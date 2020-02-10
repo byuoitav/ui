@@ -57,13 +57,13 @@ func getShareable(presets []Preset, id ID) ([]string, error) {
 	return nil, fmt.Errorf("display not found")
 }
 
-func updateLazSharing(ctx context.Context, c *Client) error {
+func updateLazSharing(ctx context.Context, c *Client) {
 	c.shareMutex.RLock()
 	data, err := json.Marshal(c.sharing)
 	c.shareMutex.RUnlock()
 	if err != nil {
-		c.Warn("unable to update sharing: %v", zap.Error(err))
-		return err
+		c.Warn("unable to marshal sharing: %v", zap.Error(err))
+		return
 	}
 	kv := &lazarette.KeyValue{
 		Key:  fmt.Sprintf("%s-_sharing_displays", c.roomID),
@@ -72,8 +72,10 @@ func updateLazSharing(ctx context.Context, c *Client) error {
 			Seconds: time.Now().Unix(),
 		},
 	}
-	c.lazState.Client.Set(ctx, kv)
-	return nil
+	_, err = c.lazState.Client.Set(ctx, kv)
+	if err != nil {
+		c.Warn("unable to set sharing to the client: %v", zap.Error(err))
+	}
 }
 
 // On Legacy

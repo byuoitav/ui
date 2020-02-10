@@ -249,7 +249,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 	}
 
 	// Set up who can share to who
-	var s Shareable
+	s := make(map[ID][]ID)
 	for _, p := range c.uiConfig.Presets {
 		for i, d := range p.ShareableDisplays {
 			shar := remove(p.ShareableDisplays, i)
