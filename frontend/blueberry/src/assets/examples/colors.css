@@ -1,0 +1,58 @@
+:root {
+    /* general background shadow */
+    --background-color: #042149;
+
+    /* box-shadow around the background (leave empty if you don't want it!) */
+    --background-shadow: inset 0 0 30vh 7vh rgba(0,0,0,0.5);
+
+    /* wheel outline color (borders and lines inbetween inputs) */
+    --wheel-outline-color: rgba(255,255,240,.95);
+
+    /* title background color (the top of the wheel, where the name goes) */
+    --wheel-title-color: #39719b;
+    --wheel-title-text-color: white;
+
+    /* input slices of the wheel */
+    --input-color: #002b4b; 
+    --input-text-color: white;
+    --selected-input-color: #007ad4;
+    --selected-input-text-color: white;
+
+    /* center of wheel color when it's displays are powered on/off (off is almost never visible) */
+    --center-on-color: #7cb342;
+    --center-off-color: #d32f2f;
+    --center-text-color: white;
+
+    /* picture on/off colors of the slider */
+    --picture-on-color: rgb(100, 189, 99);
+    --picture-off-color: rgb(244, 67, 54);
+
+    /* color of volume slider and mute button when volume is muted/not muted */
+    --volume-color: #1e88e5;
+    --volume-muted-color: #c62828;
+
+    /* color of text inside bubble the appears when volume is slided, as well as the color of the mute icon */
+    --volume-text-color: white;
+
+    /* color of the power (off) button */
+    --power-color: #931208;
+    --power-icon-color: white;
+
+    /* color of the help button */
+    --help-color: #2c496f;
+    --help-icon-color: white;
+
+    /* share button color */
+    --share-color: #2c496f;
+    --share-icon-color: white;
+
+    /* share modal window options */
+    --share-display-color: #3f51b5;
+    --share-display-text-color: white;
+    --share-display-badge-color: #7cb342;
+    --share-display-badge-icon-color: white;
+
+    /* control message on lock screen */
+    --lock-message: "Touch anywhere to start";
+    --lock-message-color: white;
+}
