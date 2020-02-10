@@ -101,7 +101,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 		SendEvent:  make(chan events.Event),
 		lazState:   lazState,
 		Logger:     log.P.Named(ws.RemoteAddr().String()),
-		shareMutex: new(sync.Mutex),
+		shareMutex: new(sync.RWMutex),
 	}
 
 	c.lazContext = lazContext
