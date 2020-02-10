@@ -68,7 +68,7 @@ export class AppComponent {
 
   showMobileControl() {
     if (this.roomRef && this.roomRef.room) {
-      this.dialog.open(MobileComponent, {data: this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup]});
+      this.dialog.open(MobileComponent, {data: this.roomRef});
     }
   }
 }

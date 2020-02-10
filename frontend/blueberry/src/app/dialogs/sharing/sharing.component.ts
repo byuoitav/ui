@@ -13,7 +13,7 @@ export class SharingComponent implements OnInit {
     public ref: MatDialogRef<SharingComponent>,
     @Inject(MAT_DIALOG_DATA) public cg: ControlGroup
     ) {
-      this.cg.displays[0].shareOptions = ["Station 1", "Station 2", "Station 3"];
+      this.cg.displayBlocks[0].shareOptions = ["Station 1", "Station 2", "Station 3"];
     }
 
   ngOnInit() {
@@ -22,7 +22,7 @@ export class SharingComponent implements OnInit {
   getSelectedInput() {
     if (this.cg) {
       const x = this.cg.inputs.find((i) => {
-        return i.id === this.cg.displays[0].input;
+        return i.id === this.cg.displayBlocks[0].input;
       });
       return x.name;
     } else {

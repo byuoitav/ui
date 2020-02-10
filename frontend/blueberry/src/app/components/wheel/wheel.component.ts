@@ -62,7 +62,7 @@ export class WheelComponent {
   }
 
   private _applyChanges(tempCG: ControlGroup) {
-    this.cg.displays[0].input = tempCG.displays[0].input;
+    this.cg.displayBlocks[0].input = tempCG.displayBlocks[0].input;
     this.cg.audioGroups[0].audioDevices[0] = tempCG.audioGroups[0].audioDevices[0];
   }
 
@@ -203,12 +203,12 @@ export class WheelComponent {
 
   setInput = (input: string) => {
     console.log("setting input...")
-    this.roomRef.setInput(this.cg.displays[0].id, input);
+    this.roomRef.setInput(this.cg.displayBlocks[0].id, input);
   }
 
   getBlank(): boolean {
     if (this.cg) {
-      return this.cg.displays[0].input === 'blank';
+      return this.cg.displayBlocks[0].input === 'blank';
     }
   }
 

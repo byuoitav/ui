@@ -1,12 +1,12 @@
 <h1 mat-dialog-title class="text title">Room Control</h1>
 
 <div mat-dialog-content class="text room-info">
-  {{url}}<br/>
-  Key: {{key}}
+  {{bff.roomControlUrl}}<br/>
+  Key: {{bff.controlKey}}
 </div>
 
 <div class="items secondary-theme">
-    <ngx-qrcode [qrc-element-type]="elementType" [qrc-value]="qrcode">
+    <ngx-qrcode [qrc-element-type]="elementType" [qrc-value]="getQRCode()">
     </ngx-qrcode>
 </div>
 
