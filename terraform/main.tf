@@ -21,6 +21,20 @@ provider "kubernetes" {
   host = data.aws_ssm_parameter.eks_cluster_endpoint.value
 }
 
+// dev vars
+variable "dev_db_username" {}
+variable "dev_db_password" {}
+variable "dev_db_address" {}
+variable "dev_code_service_url" {}
+variable "dev_hub_address" {}
+
+// prd vars
+variable "prd_db_username" {}
+variable "prd_db_password" {}
+variable "prd_db_address" {}
+variable "prd_code_service_url" {}
+variable "prd_hub_address" {}
+
 module "deployment" {
   source = "github.com/byuoitav/terraform//modules/kubernetes-deployment"
 
@@ -33,14 +47,15 @@ module "deployment" {
 
   // optional
   image_pull_secret = "github-docker-registry"
-  public_url        = "rooms.dev.av.byu.edu"
+  public_url        = "rooms-dev.av.byu.edu"
   container_env = {
-    "DB_USERNAME"      = var.db_username
-    "DB_PASSWORD"      = var.db_password
-    "DB_ADDRESS"       = var.db_address
-    "CODE_SERVICE_URL" = var.code_service_url
-    "HUB_ADDRESS"      = var.hub_address
+    "DB_USERNAME"      = var.dev_db_username
+    "DB_PASSWORD"      = var.dev_db_password
+    "DB_ADDRESS"       = var.dev_db_address
+    "CODE_SERVICE_URL" = var.dev_code_service_url
+    "HUB_ADDRESS"      = var.dev_hub_address
   }
 }
 
+// TODO prod
 // TODO add the other route53 entry
