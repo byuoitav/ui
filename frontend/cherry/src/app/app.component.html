@@ -2,6 +2,7 @@
 <lock-screen-audio #audio class="audio"></lock-screen-audio>
 
 <div class="base mat-app-background">
+  <management [enabled]="showManagement()"></management>
   <div *ngIf="powerStatus(); else home" class="lock">
       <!-- <div class="lock"> -->
 
@@ -42,8 +43,8 @@
         <!-- Audio Control -->
         <button mat-stroked-button
           class="lock-screen-button audio-button"
-          (click)="audio.show()"
-          (press)="audio.show()"
+          (click)="audio.show(roomRef)"
+          (press)="audio.show(roomRef)"
         >
           <mat-icon class="rotate-90">tune</mat-icon>
           <div class="button-text">Audio Control</div>
@@ -76,10 +77,10 @@
 
     <mat-tab-group backgroundColor="primary" color="accent">
       <mat-tab label="Display">
-        <display></display>
+        <display [roomRef]="roomRef"></display>
       </mat-tab>
       <mat-tab label="Audio">
-        <audiocontrol></audiocontrol>
+        <audiocontrol [roomRef]="roomRef"></audiocontrol>
       </mat-tab>
       <mat-tab label="Screen Control">
         <screencontrol></screencontrol>

@@ -28,45 +28,19 @@ $buffer-size: 3vw;
     margin: auto;
     height: $devices-height;
     margin-top: 2%;
-    // padding-right: $buffer-size;
-    // padding-left: $buffer-size;
     .device {
         @extend %align-vert;
         height: 100%;
         width: (($devices-width - (2 * $button-width)) / 4);
-        // margin-left: $buffer-size;
-        // margin-right: $buffer-size;
         &.display {
             width: (($devices-width - $master-width - (2 * $button-width)) / 3.35);
         }
     }
     &.displays {
-        max-width: $devices-width - $master-width - (2 * $button-width);
         padding-right: 2vw;
     }
     &.less {
         justify-content: space-evenly;
-    }
-}
-
-.master {
-    float: right;
-    margin-right: 3%;
-    margin-top: 1%;
-    height: $devices-height + 3vh;
-    .device {
-        @extend %align-vert;
-        height: 100%;
-        width: (($devices-width - (2 * $button-width)) / 5);
-    }
-    &::before {
-        position: absolute;
-        background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .7) 20%, rgba(0, 0, 0, .7) 80%, rgba(0, 0, 0, 0));
-        width: .1%;
-        height: 70%;
-        right: $master-width + 4.5vw;
-        top: 18%;
-        content: '';
     }
 }
 

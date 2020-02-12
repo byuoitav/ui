@@ -3,220 +3,59 @@
     #tabs
     color="accent"
     class="mat-tab-label-darker">
-    <mat-tab label="Displays">
-        <!-- master slider -->
-        <div class="master">
-            <div class="device">
-                <span class="volume-label">Master Display Volume</span>
-                <volume
-                    class="volume"
-                    [mute]=true>
-                </volume>
-                <!-- <volume
-                    class="volume"
-                    [level]=
-                    [mute]=
-                    (levelChange)=
-                    (muteChange)=>
-                </volume> -->
-            </div>
-        </div>
+    <!-- <ng-container *ngIf="cg?.audioGroups?.length > 0"> -->
+        <mat-tab *ngFor="let i of cg?.audioGroups" [label]="i.name">
+        <!-- <mat-tab label="Displays"> -->
 
-        <!-- If there aren't enough to make 2 pages -->
-        <div class="devices less">
-            <div class="device display">
-                <span class="volume-label">Display Name</span>
-                <!-- <i class="material-icons">Icon</i> -->
-                <!-- <volume
-                    class="volume display"
-                    [level]=
-                    [mute]=
-                    (levelChange)=
-                    (muteChange)=>
-                </volume> -->
-            </div>
-        </div>
-
-        <!-- If there are enough to make multiple pages -->
-        <div class="devices displays">
-            <div
-                class="button left display"
-            >
-                <mat-icon style="transform: scale(3)">keyboard_arrow_left</mat-icon>
-            </div>
-            <div class="mixers displays">
-                <div class="sliders">
-                    <div
-                        class="device display"
-                    >
-                        <span>Display Name</span>
-                        <!-- <i class="material-icons">Icon</i> -->
-                        <!-- <volume
-                            class="volume display"
-                            [level]=
-                            [mute]=
-                            (levelChange)=
-                            (muteChange)=>
-                        </volume> -->
-                    </div>
-                    <div
-                        class="slider-container"
-                    >
-                        <div class="volume display"></div>
-                    </div>
-                    <div
-                        class="slider-container"
-                    >
-                        <div class="volume display"></div>
-                    </div>
-                    <div
-                        class="slider-container"
-                    >
-                        <div class="volume display"></div>
-                    </div>
-                    <div
-                        class="slider-container"
-                    >
-                        <div class="volume display"></div>
-                    </div>
-                </div>
-                <div
-                    class="page-indicator"
-                >
-                    <span
-                        class="dot"
-                    ></span>
-                </div>
-            </div>
-
-            <div
-                class="button right"
-            >
-                <mat-icon style="transform: scale(3)">keyboard_arrow_right</mat-icon>
-            </div>
-        </div>
-    </mat-tab>
-
-    <!-- <ng-container *ngIf="if there are audio devices"> -->
-        <mat-tab label="Microphones">
             <!-- If there aren't enough to make 2 pages -->
-            <div class="devices less">
-                <div
-                    class="device slider-container"
-                >
-                    <span>Display Name</span>
-                    <!-- <i class="material-icons">Icon</i> -->
-                    <!-- <volume
+            <div class="devices less" *ngIf="i?.audioDevices.length <= 3">
+                <div class="device slider-container" *ngFor="let a of i?.audioDevices">
+                    <span class="volume-label">{{ a.name }}</span>
+                    <i class="material-icons">{{ a.icon }}</i>
+                    <volume
                         class="volume display"
-                        [level]=
-                        [mute]=
-                        (levelChange)=
-                        (muteChange)=>
-                    </volume> -->
-                </div>
-            </div>
-
-            <!-- If there are enough for multiple pages -->
-            <div class="devices">
-                <div class="button left">
-                    <mat-icon style="transform: scale(3)">keyboard_arrow_left</mat-icon>
-                </div>
-                <div clas="mixers">
-                    <div class="sliders">
-                        <div
-                            class="device slider-container"
-                        >
-                            <span>Display Name</span>
-                            <!-- <i class="material-icons">Icon</i> -->
-                            <!-- <volume
-                                class="volume display"
-                                [level]=
-                                [mute]=
-                                (levelChange)=
-                                (muteChange)=>
-                            </volume> -->
-                        </div>
-                        <div class="slider-container">
-                            <div class="volume"></div>
-                        </div>
-                        <div class="slider-container">
-                            <div class="volume"></div>
-                        </div>
-                        <div class="slider-container">
-                            <div class="volume"></div>
-                        </div>
-                    </div>
-                    <div
-                        class="page-indicator"
+                        [mute]="true"
                     >
-                        <span
-                            class="dot"
-                        ></span>
-                    </div>
-                </div>
-
-                <div
-                    class="button right"
-                >
-                    <mat-icon style="transform: scale(3)">keyboard_arrow_right</mat-icon>
-                </div>
-            </div>
-        </mat-tab>
-    <!-- </ng-container> -->
-
-    <!-- <ng-container *ngIf="there are other audio types"> -->
-        <!-- do an ngfor to get the labels in there -->
-        <mat-tab label="others">
-            <!-- If there aren't enough to make 2 pages -->
-            <div class="devices less">
-                <div
-                    class="device slider-container"
-                >
-                    <span>Display Name</span>
-                    <!-- <i class="material-icons">Icon</i> -->
-                    <!-- <volume
-                        class="volume display"
-                        [level]=
-                        [mute]=
-                        (levelChange)=
-                        (muteChange)=>
-                    </volume> -->
+                    </volume>
                 </div>
             </div>
 
-            <!-- If there are enough for multiple pages -->
-            <div class="devices">
+            <!-- If there are enough to make multiple pages -->
+            <div class="devices displays" *ngIf="i?.audioDevices.length > 3">
                 <div
-                    class="button left"
+                    class="button left display"
                 >
                     <mat-icon style="transform: scale(3)">keyboard_arrow_left</mat-icon>
                 </div>
                 <div class="mixers">
                     <div class="sliders">
-                        <div
-                            class="device slider-container"
-                        >
-                            <span>Display Name</span>
-                            <!-- <i class="material-icons">Icon</i> -->
-                            <!-- <volume
+                        <div class="device slider-container" *ngFor="let a of i?.audioDevices">
+                            <span>{{ a.name }}</span>
+                            <i class="material-icons">{{ a.icon }}</i>
+                            <volume
                                 class="volume display"
-                                [level]=
-                                [mute]=
-                                (levelChange)=
-                                (muteChange)=>
-                            </volume> -->
+                                [mute]="true">
+                            </volume>
                         </div>
-                        <div class="slider-container">
-                            <div class="volume"></div>
+                        <div
+                            class="slider-container"
+                        >
+                            <div class="volume display"></div>
                         </div>
-                        <div class="slider-container">
-                            <div class="volume"></div>
+                        <div
+                            class="slider-container"
+                        >
+                            <div class="volume display"></div>
                         </div>
-                        <div class="slider-container">
-                            <div class="volume"></div>
+                        <div
+                            class="slider-container"
+                        >
+                            <div class="volume display"></div>
                         </div>
-                        <div class="slider-container">
-                            <div class="volume"></div>
+                        <div
+                            class="slider-container"
+                        >
+                            <div class="volume display"></div>
                         </div>
                     </div>
                     <div
@@ -227,7 +66,6 @@
                         ></span>
                     </div>
                 </div>
-                
                 <div
                     class="button right"
                 >

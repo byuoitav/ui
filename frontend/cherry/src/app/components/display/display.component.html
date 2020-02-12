@@ -1,10 +1,13 @@
 <div class="outputs">
-    <div>
-        <button mat-button class="output mat-elevation-z15" color="accent">
-            <span>Display Name</span>
+    <div *ngFor="let d of cg?.displays">
+        <button mat-button class="output mat-elevation-z15"
+            [color]="selectedOutput == d ? 'accent' : ''"
+            [class.mat-raised-button]="selectedOutput == d"
+        >
+            <span>{{ d?.outputs[0]?.name }}</span>
 
             <div class="icon">
-                <mat-icon>tv</mat-icon>
+                <mat-icon>{{ d?.outputs[0]?.icon }}</mat-icon>
             </div>
 
             <span>Input Name</span>
@@ -23,11 +26,18 @@
     <!-- </ng-container> -->
     
     <!-- blank button -->
-    <div>
-        <button mat-button class="input mat-elevation-z7" color="white">
+    <div *ngFor="let i of cg?.inputs">
+        <button mat-button class="input mat-elevation-z7"
+            [color]="selectedInput == i ? 'accent' : ''"
+            [class.mat-raised-button]="selectedInput == i"
+            (click)="changeInput(selectedOutput?.id, i)"
+            (press)="changeInput(selectedOutput?.id, i)"
+        >
             <div class="icon">
-                <!-- <ng-container *ngTemplateOutlet="blankicon"></ng-container> -->
-                <span>Blank</span>
+                <mat-icon>{{ i?.icon }}</mat-icon>
+            </div>
+            <div class="icon">
+                <span>{{ i?.name }}</span>
             </div>
         </button>
     </div>
@@ -35,7 +45,8 @@
 
 <div class="volume-label">Master Display Volume</div>
 <div class="volume">
-    <volume [mute] = "true"></volume>
+    <volume [mute] = "true"
+    (levelChange)="roomRef.setVolume(selectedOutput?.id, $event)"></volume>
 </div>
 
 <ng-template #blankicon>

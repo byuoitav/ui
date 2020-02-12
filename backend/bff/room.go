@@ -60,23 +60,28 @@ func (c *Client) GetRoom() Room {
 				outputIcon = IOconfig.Icon
 			}
 
-			//TODO power works????
+			// If any displays has its power off then the room is not entirely on
 			if state.Power != "on" {
 				power = false
 			}
 
 			// figure out what the current input for this display is
-			// we are assuming that input is roomid - input name
+			// we are assuming that input is roomID - input name
 			// unless it's blanked, then the "input" is blank
 			curInput := c.roomID + "-" + state.Input
+			if state.Input == "" {
+				curInput = c.roomID + "-" + preset.Inputs[0]
+			}
+			blanked := false
 			if state.Blanked != nil && *state.Blanked {
-				curInput = "blank"
+				blanked = true
 			}
 
 			s := ShareInfo{
 				Options: preset.ShareableDisplays,
 			}
 
+			// Set the different possible share states of a room
 			if m := containsID(masters, ID(name)); m >= 0 {
 				s.State = Unshare
 			} else if master, ok := active[ID(name)]; ok {
@@ -105,9 +110,10 @@ func (c *Client) GetRoom() Room {
 				})
 			}
 			d := DisplayBlock{
-				ID:    ID(config.ID),
-				Input: ID(curInput),
-				Share: s,
+				ID:      ID(config.ID),
+				Blanked: blanked,
+				Input:   ID(curInput),
+				Share:   s,
 			}
 
 			// TODO outputs when we do sharing
