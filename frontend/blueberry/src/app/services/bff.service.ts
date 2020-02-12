@@ -7,7 +7,7 @@ import { MatDialog } from "@angular/material";
 import {
   Room,
   ControlGroup,
-  Display,
+  DisplayBlock,
   Input,
   AudioDevice,
   AudioGroup,
@@ -85,7 +85,8 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  setPower = (displays: Display[], power: string) => {
+
+  setPower = (displays: DisplayBlock[], power: string) => {
     const kv = {
       setPower: {
         display: [],
@@ -144,6 +145,16 @@ export class RoomRef {
 
     this._ws.send(JSON.stringify(kv));
   }
+
+  getControlKey = (cgID: string) => {
+    const kv = {
+      getControlKey: {
+        controlGroupID: cgID
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv));
+  }
 }
 
 @Injectable({
@@ -185,24 +196,6 @@ export class BFFService {
 
     const roomRef = new RoomRef(room, ws, () => {
       console.log('closing room connection', room.value.id);
-      // this.dialog.open(TurnOffRoomDialogComponent).afterClosed().subscribe((answer) => {
-      //   if (answer !== undefined) {
-      //     if (answer === 'yes') {
-      //       roomRef.turnOff();
-      //     }
-
-      //     if (answer === 'yes' || answer === 'no') {
-      //       // close the websocket
-      //       ws.close();
-
-      //       // say that we are done with sending rooms
-      //       room.complete();
-
-      //       // route back to login page since we are gonna need a new code
-      //       this.router.navigate(["/login"], { replaceUrl: true });
-      //     }
-      //   }
-      // });
     });
 
     this.loaded = false;
@@ -218,6 +211,13 @@ export class BFFService {
             room.next(data[k]);
             this.loaded = true;
 
+            break;
+
+          case "mobileControl":
+            console.log("mobile control info", data[k]);
+            this.controlKey = data[k].controlKey;
+            this.roomControlUrl = data[k].controlURL;
+            console.log(this.roomControlUrl, this.controlKey);
             break;
           default:
             console.warn(
