@@ -56,11 +56,11 @@ module "deployment" {
   image_pull_secret = "github-docker-registry"
   public_url        = "rooms-dev.av.byu.edu"
   container_env = {
-    "DB_ADDRESS"       = data.aws_ssm_parameter.dev_couch_address
-    "DB_USERNAME"      = data.aws_ssm_parameter.dev_couch_username
-    "DB_PASSWORD"      = data.aws_ssm_parameter.dev_couch_password
-    "CODE_SERVICE_URL" = data.aws_ssm_parameter.dev_code_service_address
-    "HUB_ADDRESS"      = data.aws_ssm_parameter.dev_hub_address
+    "DB_ADDRESS"       = data.aws_ssm_parameter.dev_couch_address.value
+    "DB_USERNAME"      = data.aws_ssm_parameter.dev_couch_username.value
+    "DB_PASSWORD"      = data.aws_ssm_parameter.dev_couch_password.value
+    "CODE_SERVICE_URL" = data.aws_ssm_parameter.dev_code_service_address.value
+    "HUB_ADDRESS"      = data.aws_ssm_parameter.dev_hub_address.value
   }
   container_args = [
     "--port", "8080",  // run on port 8080
