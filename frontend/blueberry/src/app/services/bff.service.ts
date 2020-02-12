@@ -85,7 +85,6 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-
   setPower = (displays: DisplayBlock[], power: string) => {
     const kv = {
       setPower: {
@@ -212,7 +211,6 @@ export class BFFService {
             this.loaded = true;
 
             break;
-
           case "mobileControl":
             console.log("mobile control info", data[k]);
             this.controlKey = data[k].controlKey;

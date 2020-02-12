@@ -62,7 +62,6 @@ export class WheelComponent {
   }
 
   private _applyChanges(tempCG: ControlGroup) {
-
     this.cg.displayBlocks[0].input = tempCG.displayBlocks[0].input;
     this.cg.audioGroups[0].audioDevices[0] = tempCG.audioGroups[0].audioDevices[0];
   }

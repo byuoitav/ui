@@ -17,7 +17,6 @@ export function isRoom(o: Object): o is Room {
 export interface ControlGroup {
   id: string;
   name: string;
-
   displayBlocks: DisplayBlock[];
   inputs: Input[];
   audioGroups: AudioGroup[];
@@ -44,7 +43,6 @@ export interface Support {
   helpMessage: string;
   helpEnabled: boolean;
 }
-
 
 export interface DisplayBlock {
   id: string;

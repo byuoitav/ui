@@ -27,7 +27,6 @@ import { WheelComponent } from './components/wheel/wheel.component';
 import { VolumeComponent } from './components/volume/volume.component';
 import { ProjectorComponent } from './components/projector/projector.component';
 import { AudioComponent } from './components/audio/audio.component';
-
 import { MobileComponent } from './dialogs/mobile/mobile.component';
 
 import { NgxQRCodeModule } from 'ngx-qrcode2';
