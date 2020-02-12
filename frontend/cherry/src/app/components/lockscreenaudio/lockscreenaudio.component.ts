@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input as AngularInput } from '@angular/core';
+import { RoomRef } from '../../../services/bff.service';
+import { ControlGroup } from '../../../objects/control';
 
 @Component({
   selector: 'lock-screen-audio',
@@ -6,6 +8,9 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./lockscreenaudio.component.scss']
 })
 export class LockScreenAudioComponent implements OnInit {
+  @AngularInput()
+  roomRef: RoomRef;
+  cg: ControlGroup;
   public _show: boolean;
   constructor() { }
 
@@ -13,12 +18,23 @@ export class LockScreenAudioComponent implements OnInit {
     this._show = false;
   }
 
-  show = () => {
+  show(roomRef: RoomRef) {
     this._show = true;
+    this.roomRef = roomRef;
+    this.roomRef.subject().subscribe((r) => {
+      if (r) {
+        if (!this.cg) {
+          this.cg = r.controlGroups[r.selectedControlGroup];
+        }
+      }
+    })
   }
 
-  hide = () => {
+  hide() {
     this._show = false;
   }
 
+  isShowing() {
+    return this._show;
+  }
 }
