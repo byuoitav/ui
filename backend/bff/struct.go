@@ -84,6 +84,8 @@ type Support struct {
 type DisplayBlock struct {
 	ID ID `json:"id"`
 
+	Blanked bool `json:"blanked"`
+
 	Outputs []IconPair `json:"outputs"`
 	Input   ID         `json:"input"`
 	Share   ShareInfo  `json:"share"`

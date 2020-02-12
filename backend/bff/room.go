@@ -72,8 +72,9 @@ func (c *Client) GetRoom() Room {
 			if state.Input == "" {
 				curInput = c.roomID + "-" + preset.Inputs[0]
 			}
+			blanked := false
 			if state.Blanked != nil && *state.Blanked {
-				curInput = "blank"
+				blanked = true
 			}
 
 			s := ShareInfo{
@@ -109,9 +110,10 @@ func (c *Client) GetRoom() Room {
 				})
 			}
 			d := DisplayBlock{
-				ID:    ID(config.ID),
-				Input: ID(curInput),
-				Share: s,
+				ID:      ID(config.ID),
+				Blanked: blanked,
+				Input:   ID(curInput),
+				Share:   s,
 			}
 
 			// TODO outputs when we do sharing
