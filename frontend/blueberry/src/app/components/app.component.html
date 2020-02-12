@@ -2,7 +2,7 @@
 <app-projector #screen class="hidden-page"></app-projector>
 <div class="base">
   <div *ngIf="bff.locked" class="lock">
-    <ng-container *ngIf="powerIsOff(); else poweringOn">
+    <!-- <ng-container *ngIf="powerIsOff(); else poweringOn"> -->
       <object type="image/svg+xml" data="../../assets/examples/logo.svg" class="logo"></object>
       <div class="bottom-half">
         <div class="buttons-row">
@@ -23,13 +23,13 @@
           </button>
         </div>
       </div>
-    </ng-container>
-    <ng-template #poweringOn>
-      <div class="logo">
-          <mat-spinner color="primary"></mat-spinner>
-      </div>
-      <span class="text smaller">powering on, please wait...</span>
-  </ng-template>
+    <!-- </ng-container> -->
+    <!-- <ng-template #poweringOn> -->
+      <!-- <div class="logo"> -->
+          <!-- <mat-spinner color="primary"></mat-spinner> -->
+      <!-- </div> -->
+      <!-- <span class="text smaller">powering on, please wait...</span> -->
+  <!-- </ng-template> -->
   </div>
   <app-home *ngIf="!bff.locked" [roomRef]="roomRef"></app-home>
 </div>

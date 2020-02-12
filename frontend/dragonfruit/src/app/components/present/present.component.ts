@@ -1,6 +1,6 @@
 import { Component, OnInit, Input as AngularInput } from '@angular/core';
-import { ControlGroup } from 'src/app/objects/control';
 import { BFFService } from 'src/app/services/bff.service';
+import { ControlGroup } from '../../../../../objects/control';
 
 @Component({
   selector: 'app-present',

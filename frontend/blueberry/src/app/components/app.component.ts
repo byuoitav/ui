@@ -22,11 +22,17 @@ export class AppComponent {
 
   unlock = () => {
     this.bff.locked = false;
+    this.roomRef.setPower(this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].displayBlocks, "on");
   }
 
   powerIsOff = ():boolean => {
     if (this.roomRef && this.roomRef.room) {
-      return !this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].powerStatus;
+      if (this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].power == "standby") {
+        return true;
+      } else {
+        // this.unlock()
+        return false;
+      }
     }
   }
 

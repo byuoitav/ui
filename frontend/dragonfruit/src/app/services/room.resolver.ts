@@ -9,7 +9,7 @@ import { Observable, of, EMPTY, Subject, BehaviorSubject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
 import { BFFService, RoomRef } from "./bff.service";
-import { Room, isRoom } from "../objects/control";
+import { Room, isRoom } from "../../../../objects/control";
 
 @Injectable({
   providedIn: "root"
@@ -33,9 +33,14 @@ export class RoomResolver implements Resolve<RoomRef> {
         .subscribe(
           val => {
             if (isRoom(val)) {
-              observer.next(roomRef);
-              observer.complete();
-              unsubscribe.complete();
+              console.log("meet val", val);
+              if (val.controlGroups[val.selectedControlGroup].power == "on") {
+                observer.next(roomRef);
+                observer.complete();
+                unsubscribe.complete();
+              } else {
+                roomRef.setPower(val.controlGroups[val.selectedControlGroup].displayBlocks, "on")
+              }
             }
           },
           err => {

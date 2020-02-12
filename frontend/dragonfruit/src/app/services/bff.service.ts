@@ -7,12 +7,12 @@ import { MatDialog } from "@angular/material";
 import {
   Room,
   ControlGroup,
-  Display,
+  DisplayBlock,
   Input,
   AudioDevice,
   AudioGroup,
   PresentGroup
-} from "../objects/control";
+} from "../../../../objects/control";
 import { ErrorDialog } from "../dialogs/error/error.dialog";
 import { TurnOffRoomDialogComponent } from "../dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component";
 
@@ -85,16 +85,16 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  setPower = (displays: Display[], power: string) => {
+  setPower = (displays: DisplayBlock[], power: string) => {
     const kv = {
       setPower: {
-        display: [],
+        displays: [],
         status: power
       }
     };
 
     for (const disp of displays) {
-      kv.setPower.display.push(disp.id);
+      kv.setPower.displays.push(disp.id);
     }
 
     this.loading = true;

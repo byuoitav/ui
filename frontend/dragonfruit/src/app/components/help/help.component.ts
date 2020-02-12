@@ -3,15 +3,14 @@ import { MatDialog } from "@angular/material";
 
 import { RoomRef } from "../../services/bff.service";
 import { HelpInfoComponent } from "./help-info/help-info.component";
-import { IControlTab } from "../control-tab/icontrol-tab";
-import { ControlGroup } from "src/app/objects/control";
+import { ControlGroup } from '../../../../../objects/control';
 
 @Component({
   selector: "app-help",
   templateUrl: "./help.component.html",
   styleUrls: ["./help.component.scss"]
 })
-export class HelpComponent implements OnInit, IControlTab {
+export class HelpComponent implements OnInit {
   helpHasBeenSent = false;
   @Input() cg: ControlGroup;
   @Input() private _roomRef: RoomRef;

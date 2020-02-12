@@ -88,13 +88,13 @@ export class RoomRef {
   setPower = (displays: DisplayBlock[], power: string) => {
     const kv = {
       setPower: {
-        display: [],
+        displays: [],
         status: power
       }
     };
 
     for (const disp of displays) {
-      kv.setPower.display.push(disp.id);
+      kv.setPower.displays.push(disp.id);
     }
 
     this.loading = true;

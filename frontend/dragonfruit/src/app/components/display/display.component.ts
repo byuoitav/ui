@@ -3,16 +3,16 @@ import { Component, OnInit, Input as AngularInput } from "@angular/core";
 import { RoomRef } from "src/app/services/bff.service";
 import {
   ControlGroup,
-  Display,
+  DisplayBlock,
   Input,
   IconPair
-} from "src/app/objects/control";
-import { IControlTab } from "../control-tab/icontrol-tab";
+} from "../../../../../objects/control";
+// import { IControlTab } from "../control-tab/icontrol-tab";
 
 class Page {
   pageOption: string;
   weight: number;
-  displays: Display[];
+  displays: DisplayBlock[];
 
   constructor() {
     this.displays = [];
@@ -26,7 +26,7 @@ class Page {
   templateUrl: "./display.component.html",
   styleUrls: ["./display.component.scss"]
 })
-export class DisplayComponent implements OnInit, IControlTab {
+export class DisplayComponent implements OnInit {
   @AngularInput() cg: ControlGroup;
   @AngularInput() private _roomRef: RoomRef;
 
