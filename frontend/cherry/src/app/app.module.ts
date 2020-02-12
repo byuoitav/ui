@@ -19,6 +19,7 @@ import "hammerjs";
 import { HelpDialog } from './dialogs/help.dialog';
 import { LockScreenAudioComponent } from './components/lockscreenaudio/lockscreenaudio.component';
 import { LockScreenScreenControlComponent } from './components/lockscreenscreencontrol/lockscreenscreencontrol.component';
+import { ManagementComponent } from './components/management/management.component';
 
 
 @NgModule({
@@ -31,7 +32,8 @@ import { LockScreenScreenControlComponent } from './components/lockscreenscreenc
     MobileControlComponent,
     HelpDialog,
     LockScreenAudioComponent,
-    LockScreenScreenControlComponent
+    LockScreenScreenControlComponent,
+    ManagementComponent
   ],
   imports: [
     BrowserModule,

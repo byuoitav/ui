@@ -37,7 +37,10 @@ type Preset struct {
 		SetPower      SetPower     `json:"setPower,omitempty"`
 		HelpRequest   HelpRequest  `json:"helpRequest,omitempty"`
 		GetControlKey GetKeyConfig `json:"getControlKey,omitempty"`
+<<<<<<< HEAD
+=======
 		SetSharing  SetSharing  `json:"setSharing,omitempty"`
+>>>>>>> lazarette
 	} `json:"-"`
 }
 

@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from "@angular/core";
+import { Component, ViewEncapsulation, OnInit, ViewChild } from "@angular/core";
 import { MatDialog } from '@angular/material';
 import { trigger, transition, animate } from "@angular/animations";
 import { Http } from "@angular/http";
@@ -6,6 +6,9 @@ import { Output } from '../objects/status.objects';
 import { BFFService, RoomRef } from '../services/bff.service';
 import { HelpDialog } from "./dialogs/help.dialog";
 import { MobileControlComponent } from "./dialogs/mobilecontrol/mobilecontrol.component";
+import { ControlGroup } from "../objects/control";
+import { LockScreenAudioComponent } from "./components/lockscreenaudio/lockscreenaudio.component";
+import { LockScreenScreenControlComponent } from "./components/lockscreenscreencontrol/lockscreenscreencontrol.component";
 
 
 const HIDDEN = "hidden";
@@ -25,84 +28,42 @@ const BUFFER = "buffer";
     ])
   ]
 })
-export class AppComponent {
-  public loaded: boolean;
-  public unlocking = false;
-  public progressMode: string = QUERY;
+export class AppComponent implements OnInit {
   public power: boolean;
-  public selectedTabIndex: number;
-  public roomRef: RoomRef
+  public roomRef: RoomRef;
+  public cg: ControlGroup;
+
+  @ViewChild(LockScreenAudioComponent)
+  public lockAudio: LockScreenAudioComponent;
+
+  @ViewChild(LockScreenScreenControlComponent)
+  public screen: LockScreenScreenControlComponent;
 
   constructor(
     public bff: BFFService,
     public dialog: MatDialog
-    // private http: Http
   ) {
     this.roomRef = this.bff.getRoom();
-    this.loaded = false;
     this.power = true;
     console.log(this.bff);
     console.log(this.roomRef);
   }
 
-  public isPoweredOff(): boolean {
-    if (!this.loaded) {
-      return true;
+  ngOnInit() {
+    if (this.roomRef) {
+      this.roomRef.subject().subscribe((r) => {
+        if (r) {
+          if (!this.cg) {
+            this.cg = r.controlGroups[r.selectedControlGroup];
+          }
+        }
+      })
     }
-    // return Output.isPoweredOn(this.data.panel.preset.displays);
-    return false;
-  }
-
-  public unlock() {
-    this.unlocking = true;
-    this.progressMode = QUERY;
-    this.bff.locked = false;
-    
-
-    // this.command.powerOnDefault(this.data.panel.preset).subscribe(success => {
-    //   if (!success) {
-    //     this.reset();
-    //     console.warn("failed to turn on");
-    //   } else {
-    //     // switch direction of loading bar
-    //     this.progressMode = LOADING;
-
-    //     this.reset();
-    //   }
-    // });
-  }
-
-  public powerOff() {
-    this.progressMode = QUERY;
-
-    // this.command.powerOff(this.data.panel.preset).subscribe(success => {
-    //   if (!success) {
-    //     console.warn("failed to turn off");
-    //   } else {
-    //     this.reset();
-    //   }
-    // });
-  }
-
-  private reset() {
-    // select displays tab
-    this.selectedTabIndex = 0;
-
-    // // reset mix levels to 100
-    // this.data.panel.preset.audioDevices.forEach(a => (a.mixlevel = 100));
-
-    // // reset masterVolume level
-    // this.data.panel.preset.masterVolume = 30;
-
-    // // reset masterMute
-    // this.data.panel.preset.masterMute = false;
-
-    // stop showing progress bar
-    this.unlocking = false;
   }
 
   public openHelpDialog() {
     const dialogRef = this.dialog.open(HelpDialog, {
+      // data: {roomRefr: this.roomRef},
       width: "70vw",
       disableClose: true
     });
@@ -115,12 +76,30 @@ export class AppComponent {
     });
   }
 
-  powerStatus() {
+  public powerStatus() {
     return this.power;
-    // return !this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].powerStatus;
+    this.roomRef.setPower(this.cg.displays, "standby");
   }
 
-  setPower() {
-    this.power = !this.power;
+  public setPower() {
+    if (this.power == false) {
+      //probably have to do a check to see if all the displays should turn off
+      this.roomRef.turnOff();
+      this.power = !this.power
+    } else {
+      this.roomRef.setPower(this.cg.displays, "on");
+      this.power = !this.power;
+    }
+  }
+
+  public showManagement() {
+    if (this.screen.isShowing() || this.lockAudio.isShowing()) {
+      return false;
+    }
+
+    if (this.power == false) {
+      return false;
+    }
+    return true;
   }
 }

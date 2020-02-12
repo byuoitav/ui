@@ -13,11 +13,15 @@ export class LockScreenScreenControlComponent implements OnInit {
     this._show = false;
   }
 
-  show = () => {
+  show() {
     this._show = true;
   }
 
-  hide = () => {
+  hide() {
     this._show = false;
+  }
+
+  isShowing() {
+    return this._show;
   }
 }
