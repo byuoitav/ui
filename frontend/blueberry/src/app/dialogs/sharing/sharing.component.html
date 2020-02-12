@@ -1,0 +1,11 @@
+<div class="text">Select stations to share {{getSelectedInput()}} with</div>
+<div class="row secondary-theme">
+    <button mat-raised-button color="primary" *ngFor="let g of cg?.displayBlocks[0]?.shareOptions" class="share-button">{{g}}</button>
+</div>
+
+<div mat-dialog-actions class="items secondary-theme">
+    <button mat-raised-button color="warn" (click)="cancel()" press="cancel()">
+      Cancel
+    </button>
+    <button mat-raised-button color="primary">Share</button>
+  </div>

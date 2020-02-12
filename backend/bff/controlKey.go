@@ -17,6 +17,10 @@ type GetKeyMessage struct {
 
 type KeyResponse struct {
 	ControlKey string `json:"controlKey"`
+<<<<<<< HEAD
+=======
+	ControlURL string `json:"controlURL"`
+>>>>>>> lazarette
 }
 
 func (ck GetKeyConfig) Do(c *Client, data []byte) {
@@ -54,7 +58,17 @@ func (ck GetKeyConfig) Do(c *Client, data []byte) {
 			return
 		}
 
+<<<<<<< HEAD
 		j, err := JSONMessage("controlKey", k.ControlKey)
+=======
+		if c.room.Designation != "production" {
+			k.ControlURL = "rooms.stg.byu.edu"
+		} else {
+			k.ControlURL = "rooms.byu.edu"
+		}
+
+		j, err := JSONMessage("mobileControl", k)
+>>>>>>> lazarette
 		if err != nil {
 			c.Out <- ErrorMessage(fmt.Errorf("failed to format control key: %s", err))
 			return

@@ -1,5 +1,15 @@
 package bff
 
+func containsID(ids []ID, id ID) int {
+	for index, i := range ids {
+		if i == id {
+			return index
+		}
+	}
+	return -1
+}
+
+// GetRoom .
 func (c *Client) GetRoom() Room {
 	room := Room{
 		ID:                   ID(c.roomID),
@@ -7,6 +17,22 @@ func (c *Client) GetRoom() Room {
 		ControlGroups:        make(map[string]ControlGroup),
 		SelectedControlGroup: ID(c.selectedControlGroupID),
 	}
+
+	var masters []ID
+	active := make(map[ID]ID)
+	inactive := make(map[ID]ID)
+
+	c.shareMutex.RLock()
+	for master, mins := range c.sharing {
+		masters = append(masters, master)
+		for _, a := range mins.Active {
+			active[a] = master
+		}
+		for _, i := range mins.Inactive {
+			inactive[i] = master
+		}
+	}
+	c.shareMutex.RUnlock()
 
 	for _, preset := range c.uiConfig.Presets {
 		cg := ControlGroup{
@@ -18,6 +44,8 @@ func (c *Client) GetRoom() Room {
 				HelpEnabled:   true,
 			},
 		}
+
+		power := true
 
 		for _, name := range preset.Displays {
 			config := GetDeviceConfigByName(c.room.Devices, name)
@@ -32,17 +60,60 @@ func (c *Client) GetRoom() Room {
 				outputIcon = IOconfig.Icon
 			}
 
-			// figure out what the current input for this display is
-			// we are assuming that input is roomid - input name
-			// unless it's blanked, then the "input" is blank
-			curInput := c.roomID + "-" + state.Input
-			if state.Blanked != nil && *state.Blanked {
-				curInput = "blank"
+			// If any displays has its power off then the room is not entirely on
+			if state.Power != "on" {
+				power = false
 			}
 
-			d := Display{
-				ID:    ID(config.ID),
-				Input: ID(curInput),
+			// figure out what the current input for this display is
+			// we are assuming that input is roomID - input name
+			// unless it's blanked, then the "input" is blank
+			curInput := c.roomID + "-" + state.Input
+			if state.Input == "" {
+				curInput = c.roomID + "-" + preset.Inputs[0]
+			}
+			blanked := false
+			if state.Blanked != nil && *state.Blanked {
+				blanked = true
+			}
+
+			s := ShareInfo{
+				Options: preset.ShareableDisplays,
+			}
+
+			// Set the different possible share states of a room
+			if m := containsID(masters, ID(name)); m >= 0 {
+				s.State = Unshare
+			} else if master, ok := active[ID(name)]; ok {
+				s.State = MinionActive
+				s.Master = master
+			} else if master, ok := inactive[ID(name)]; ok {
+				s.State = MinionInactive
+				s.Master = master
+			} else if _, ok := c.shareable[ID(name)]; ok {
+				s.State = Share
+			} else /*else if linkable?!?!*/ {
+				s.State = Nothing
+			}
+			if s.State == MinionActive {
+				c.shareMutex.RLock()
+				curInput = string(c.sharing[s.Master].Input)
+				c.shareMutex.RUnlock()
+			} else if s.State == MinionInactive {
+				cg.Inputs = append(cg.Inputs, Input{
+					ID: ID("Mirror ") + s.Master,
+					IconPair: IconPair{
+						Name: "Mirror " + string(s.Master),
+						Icon: Icon{"settings_input_hdmi"},
+					},
+					Disabled: false,
+				})
+			}
+			d := DisplayBlock{
+				ID:      ID(config.ID),
+				Blanked: blanked,
+				Input:   ID(curInput),
+				Share:   s,
 			}
 
 			// TODO outputs when we do sharing
@@ -52,7 +123,13 @@ func (c *Client) GetRoom() Room {
 				Icon: Icon{outputIcon},
 			})
 
-			cg.Displays = append(cg.Displays, d)
+			cg.DisplayBlocks = append(cg.DisplayBlocks, d)
+		}
+
+		if power {
+			cg.Power = "on"
+		} else {
+			cg.Power = "standby"
 		}
 
 		// add a blank input as the first input
