@@ -21,19 +21,26 @@ provider "kubernetes" {
   host = data.aws_ssm_parameter.eks_cluster_endpoint.value
 }
 
-// dev vars
-variable "dev_db_username" {}
-variable "dev_db_password" {}
-variable "dev_db_address" {}
-variable "dev_code_service_url" {}
-variable "dev_hub_address" {}
+// pull all env vars out of ssm
+data "aws_ssm_parameter" "dev_couch_address" {
+  name = "/env/dev-couch-address"
+}
 
-// prd vars
-variable "prd_db_username" {}
-variable "prd_db_password" {}
-variable "prd_db_address" {}
-variable "prd_code_service_url" {}
-variable "prd_hub_address" {}
+data "aws_ssm_parameter" "dev_couch_username" {
+  name = "/env/dev-couch-username"
+}
+
+data "aws_ssm_parameter" "dev_couch_password" {
+  name = "/env/dev-couch-password"
+}
+
+data "aws_ssm_parameter" "dev_hub_address" {
+  name = "/env/dev-hub-address"
+}
+
+data "aws_ssm_parameter" "dev_code_service_address" {
+  name = "/env/dev-code-service-address"
+}
 
 module "deployment" {
   source = "github.com/byuoitav/terraform//modules/kubernetes-deployment"
@@ -49,12 +56,16 @@ module "deployment" {
   image_pull_secret = "github-docker-registry"
   public_url        = "rooms-dev.av.byu.edu"
   container_env = {
-    "DB_USERNAME"      = var.dev_db_username
-    "DB_PASSWORD"      = var.dev_db_password
-    "DB_ADDRESS"       = var.dev_db_address
-    "CODE_SERVICE_URL" = var.dev_code_service_url
-    "HUB_ADDRESS"      = var.dev_hub_address
+    "DB_ADDRESS"       = data.aws_ssm_parameter.dev_couch_address
+    "DB_USERNAME"      = data.aws_ssm_parameter.dev_couch_username
+    "DB_PASSWORD"      = data.aws_ssm_parameter.dev_couch_password
+    "CODE_SERVICE_URL" = data.aws_ssm_parameter.dev_code_service_address
+    "HUB_ADDRESS"      = data.aws_ssm_parameter.dev_hub_address
   }
+  container_args = [
+    "--port", "8080",  // run on port 8080
+    "--log-level", "2" // set log level to info
+  ]
 }
 
 // TODO prod
