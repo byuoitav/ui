@@ -54,7 +54,7 @@ module "deployment" {
 
   // optional
   image_pull_secret = "github-docker-registry"
-  public_url        = "rooms-dev.av.byu.edu"
+  public_urls       = ["rooms-dev.av.byu.edu", "roomcontrol-dev.av.byu.edu"]
   container_env = {
     "DB_ADDRESS"       = data.aws_ssm_parameter.dev_couch_address.value
     "DB_USERNAME"      = data.aws_ssm_parameter.dev_couch_username.value
