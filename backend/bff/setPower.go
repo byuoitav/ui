@@ -16,8 +16,7 @@ type SetPower struct {
 
 // SetPowerMessage .
 type SetPowerMessage struct {
-	DisplayBlocks []ID   `json:"displays"`
-	Status        string `json:"status"`
+	Status string `json:"status"`
 }
 
 // DoWithMessage .
@@ -29,27 +28,10 @@ func (sp SetPower) DoWithMessage(ctx context.Context, c *Client, msg SetPowerMes
 		return fmt.Errorf("len(cg.ID) is equal to zero: %s", c.selectedControlGroupID)
 	}
 
-	c.Info("Setting power", zap.String("on", fmt.Sprintf("%v", msg.DisplayBlocks)), zap.String("to", msg.Status), zap.String("controlgroup", string(cg.ID)))
-
-	// find the display by ID
-	var disp []DisplayBlock
-	for i := range cg.DisplayBlocks {
-		for j := range msg.DisplayBlocks {
-			if cg.DisplayBlocks[i].ID == ID(msg.DisplayBlocks[j]) {
-				disp = append(disp, cg.DisplayBlocks[i])
-				break
-			}
-		}
-	}
-
-	if len(disp) <= 0 {
-		// error
-		fmt.Printf("no!!!\n")
-		return fmt.Errorf("the display(s) are less than or equal to zero")
-	}
+	c.Info("Setting power", zap.String("to", msg.Status), zap.String("controlgroup", string(cg.ID)))
 
 	var state structs.PublicRoom
-	for _, display := range disp {
+	for _, display := range cg.DisplayBlocks {
 		for _, out := range display.Outputs {
 			// TODO write a getnamefromid func
 			dSplit := strings.Split(string(out.ID), "-")
@@ -64,7 +46,7 @@ func (sp SetPower) DoWithMessage(ctx context.Context, c *Client, msg SetPowerMes
 		}
 	}
 
-	err := c.SendAPIRequest(ctx, state)
+	err := c.SendAPIRequest(context.Background(), state)
 	if err != nil {
 		c.Warn("failed to set power", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to set power: %s", err))
