@@ -6,7 +6,7 @@ import { Output } from '../objects/status.objects';
 import { BFFService, RoomRef } from '../services/bff.service';
 import { HelpDialog } from "./dialogs/help.dialog";
 import { MobileControlComponent } from "./dialogs/mobilecontrol/mobilecontrol.component";
-import { ControlGroup } from "../objects/control";
+import { ControlGroup } from "../../../objects/control";
 import { LockScreenAudioComponent } from "./components/lockscreenaudio/lockscreenaudio.component";
 import { LockScreenScreenControlComponent } from "./components/lockscreenscreencontrol/lockscreenscreencontrol.component";
 
@@ -33,10 +33,10 @@ export class AppComponent implements OnInit {
   public roomRef: RoomRef;
   public cg: ControlGroup;
 
-  @ViewChild(LockScreenAudioComponent)
+  @ViewChild(LockScreenAudioComponent, {static: true})
   public lockAudio: LockScreenAudioComponent;
 
-  @ViewChild(LockScreenScreenControlComponent)
+  @ViewChild(LockScreenScreenControlComponent, {static: true})
   public screen: LockScreenScreenControlComponent;
 
   constructor(
@@ -44,7 +44,7 @@ export class AppComponent implements OnInit {
     public dialog: MatDialog
   ) {
     this.roomRef = this.bff.getRoom();
-    this.power = true;
+    this.power = false;
     console.log(this.bff);
     console.log(this.roomRef);
   }
@@ -53,9 +53,7 @@ export class AppComponent implements OnInit {
     if (this.roomRef) {
       this.roomRef.subject().subscribe((r) => {
         if (r) {
-          if (!this.cg) {
-            this.cg = r.controlGroups[r.selectedControlGroup];
-          }
+          this.cg = r.controlGroups[r.selectedControlGroup];
         }
       })
     }
@@ -63,7 +61,7 @@ export class AppComponent implements OnInit {
 
   public openHelpDialog() {
     const dialogRef = this.dialog.open(HelpDialog, {
-      // data: {roomRefr: this.roomRef},
+      data: this.roomRef,
       width: "70vw",
       disableClose: true
     });
@@ -76,28 +74,36 @@ export class AppComponent implements OnInit {
     });
   }
 
-  public powerStatus() {
-    return this.power;
-    this.roomRef.setPower(this.cg.displays, "standby");
+  public isPowerOn() {
+    if (this.cg) {
+      // console.log(this.cg.power);
+      // console.log(this.cg);
+      if (this.cg.power == "on") {
+        return true;
+      }
+    }
+    return false;
   }
 
   public setPower() {
-    if (this.power == false) {
+
+    if (this.cg.power == "on") {
       //probably have to do a check to see if all the displays should turn off
-      this.roomRef.turnOff();
-      this.power = !this.power
+      this.roomRef.turnOff(this.cg.displayBlocks);
     } else {
-      this.roomRef.setPower(this.cg.displays, "on");
-      this.power = !this.power;
+      this.roomRef.setPower(this.cg.displayBlocks, "on");
     }
   }
 
   public showManagement() {
+    // if (this.roomRef) {
+    //   console.log(this.roomRef.getControlKey(this.cg.id));
+    // }
     if (this.screen.isShowing() || this.lockAudio.isShowing()) {
       return false;
     }
 
-    if (this.power == false) {
+    if (this.cg.power == "on") {
       return false;
     }
     return true;

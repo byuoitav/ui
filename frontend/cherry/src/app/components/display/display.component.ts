@@ -1,8 +1,8 @@
 import { Component, OnInit, Input as AngularInput, Output } from '@angular/core';
 import { MobileControlComponent } from "../../dialogs/mobilecontrol/mobilecontrol.component";
 import { MatDialog } from "@angular/material";
-import { RoomRef } from '../../../services/bff.service';
-import { ControlGroup, Display, Input } from '../../../objects/control';
+import { RoomRef, BFFService } from '../../../services/bff.service';
+import { ControlGroup, DisplayBlock, Input, Room } from '../../../../../objects/control';
 
 
 
@@ -14,33 +14,39 @@ import { ControlGroup, Display, Input } from '../../../objects/control';
 export class DisplayComponent implements OnInit {
 
   @AngularInput()
-  roomRef: RoomRef;
+  roomRef: RoomRef
   cg: ControlGroup;
-  selectedOutput: Display;
+  selectedOutput: DisplayBlock;
   selectedInput: Input;
   constructor(
     private dialog: MatDialog
   ) { }
 
   ngOnInit() {
-    if (this.roomRef) {
-      this.roomRef.subject().subscribe((r) => {
-        if (r) {
-          if (!this.cg) {
-            this.cg = r.controlGroups[r.selectedControlGroup];
-            if (this.cg.displays.length > 0) {
-              this.selectedOutput = this.cg.displays[0];
+    this.roomRef.subject().subscribe((r) => {
+      if (r) {
+        this.cg = r.controlGroups[r.selectedControlGroup];
+        if (this.cg.displayBlocks.length > 0) {
+          this.selectedOutput = this.cg.displayBlocks[0];
+          // Danny says I don't have to worry about the blanked stuff and change input will eventually do that
+          // if (this.selectedOutput.blanked == true) {
+          //   this.selectedInput = this.cg.inputs[0];
+          // } else {
+            for ( let input of this.cg.inputs) {
+              if (this.selectedOutput.input == input.id) {
+                this.selectedInput = input;
+                break;
+              }
             }
-          }
+          // }
         }
-      })
-    }
+      }
+    })
   }
 
   public changeInput(display: string, input: Input) {
+    document.getElementById("input" + input.id).classList.toggle("feedback");
     this.roomRef.setInput(display, input.id);
-    this.selectedInput = input;
-    this.roomRef.setVolume(this.selectedOutput.id, 10)
   }
 
   public openMobileControlDialog() {

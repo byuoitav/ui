@@ -9,7 +9,7 @@ import { Observable, of, EMPTY, Subject, BehaviorSubject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
 import { BFFService, RoomRef } from "./bff.service";
-import { Room, isRoom } from "../objects/control";
+import { Room, isRoom } from "../../../objects/control";
 
 @Injectable({
   providedIn: "root"

@@ -7,12 +7,12 @@ import { MatDialog } from "@angular/material";
 import {
   Room,
   ControlGroup,
-  Display,
+  DisplayBlock,
   Input,
   AudioDevice,
   AudioGroup,
   PresentGroup
-} from "../objects/control";
+} from "../../../objects/control";
 // import { ErrorDialog } from "../dialogs/error/error.dialog";
 // import { TurnOffRoomDialogComponent } from '../dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component';
 
@@ -21,6 +21,7 @@ export class RoomRef {
   private _ws: WebSocket;
   private _logout: () => void;
   loading: boolean;
+  commandInProgress: boolean;
 
   get room() {
     if (this._room) {
@@ -57,7 +58,8 @@ export class RoomRef {
       }
     };
 
-    this.loading = true;
+    // this.loading = true;
+    this.commandInProgress = true;
     this._ws.send(JSON.stringify(kv));
   };
 
@@ -69,7 +71,8 @@ export class RoomRef {
       }
     };
 
-    this.loading = true;
+    // this.loading = true;
+    this.commandInProgress = true;
     this._ws.send(JSON.stringify(kv));
   };
 
@@ -81,11 +84,12 @@ export class RoomRef {
       }
     };
 
-    this.loading = true;
+    // this.loading = true;
+    this.commandInProgress = true;
     this._ws.send(JSON.stringify(kv));
   };
 
-  setPower = (displays: Display[], power: string) => {
+  setPower = (displays: DisplayBlock[], power: string) => {
     const kv = {
       setPower: {
         displays: [],
@@ -101,10 +105,17 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  turnOff = () => {
+  turnOff = (displays: DisplayBlock[]) => {
     const kv = {
-      turnOffRoom: {}
+      setPower: {
+        displays: [],
+        status: "standby"
+      }
     };
+
+    for (const disp of displays) {
+      kv.setPower.displays.push(disp.id);
+    }
 
     this.loading = true;
     this._ws.send(JSON.stringify(kv));
@@ -120,6 +131,40 @@ export class RoomRef {
 
     this._ws.send(JSON.stringify(req));
   };
+
+  raiseProjectorScreen = (screen: string) => {
+    const kv = {
+      raiseProjectorScreen: screen
+    }
+
+    this._ws.send(JSON.stringify(kv));
+  }
+
+  lowerProjectorScreen = (screen: string) => {
+    const kv = {
+      lowerProjectorScreen: screen
+    }
+
+    this._ws.send(JSON.stringify(kv));
+  }
+
+  stopProjectorScreen = (screen: string) => {
+    const kv = {
+      stopProjectorScreen: screen
+    }
+
+    this._ws.send(JSON.stringify(kv));
+  }
+
+  getControlKey = (cgID: string) => {
+    const kv = {
+      getControlKey: {
+        controlGroupID: cgID
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv));
+  }
 }
 
 @Injectable({
@@ -190,6 +235,7 @@ export class BFFService {
             console.log("new room", data[k]);
             room.next(data[k]);
             roomRef.loading = false;
+            roomRef.commandInProgress = false;
 
             break;
           default:
