@@ -37,6 +37,7 @@ export class HomeComponent implements OnInit {
   public turnOff() {
     console.log("turning off the room");
     this.bff.locked = true;
+    this.roomRef.setPower(this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].displayBlocks, "standby");
   }
 
   openHelp = () => {

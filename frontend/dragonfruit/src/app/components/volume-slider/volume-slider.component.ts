@@ -6,7 +6,7 @@ import {
   ViewEncapsulation
 } from "@angular/core";
 import { MatSlider } from "@angular/material";
-import { AudioDevice } from "src/app/objects/control";
+import { AudioDevice } from "../../../../../objects/control";
 
 export type SliderAction = (attribute: any, data?: any) => Promise<boolean>;
 

@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
-import { ControlGroup } from "src/app/objects/control";
+import { ControlGroup } from '../../../../../../objects/control';
 
 @Component({
   selector: "app-help-info",

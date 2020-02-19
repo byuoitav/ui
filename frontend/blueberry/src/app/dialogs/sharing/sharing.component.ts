@@ -8,7 +8,6 @@ import { ControlGroup, Room } from 'src/app/objects/control';
   styleUrls: ['./sharing.component.scss']
 })
 export class SharingComponent implements OnInit {
-  // cg: ControlGroup
   constructor(
     public ref: MatDialogRef<SharingComponent>,
     @Inject(MAT_DIALOG_DATA) public cg: ControlGroup

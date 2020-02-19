@@ -88,13 +88,13 @@ export class RoomRef {
   setPower = (displays: Display[], power: string) => {
     const kv = {
       setPower: {
-        display: [],
+        displays: [],
         status: power
       }
     };
 
     for (const disp of displays) {
-      kv.setPower.display.push(disp.id);
+      kv.setPower.displays.push(disp.id);
     }
 
     this.loading = true;
@@ -108,6 +108,17 @@ export class RoomRef {
 
     this.loading = true;
     this._ws.send(JSON.stringify(kv));
+  };
+
+  requestHelp = (msg: string) => {
+    console.log("requesting help:", msg);
+    const req = {
+      helpRequest: {
+        msg: msg
+      }
+    };
+
+    this._ws.send(JSON.stringify(req));
   };
 }
 
@@ -145,8 +156,7 @@ export class BFFService {
       protocol = "wss:";
     }
 
-    const endpoint = protocol + "//" + window.location.host + "/ws/";
-    // const endpoint = protocol + "//" + "ITB-1106B-CP1.byu.edu" + "/ws/";
+    const endpoint = protocol + "//" + window.location.host + "/ws";
     
     const ws = new WebSocket(endpoint);
 

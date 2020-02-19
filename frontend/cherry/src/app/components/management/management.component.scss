@@ -1,0 +1,35 @@
+%location {
+    position: absolute;
+}
+
+.top {
+    @extend %location;
+    top: 0;
+}
+
+.bottom {
+    @extend %location;
+    bottom: 0;
+}
+
+.left {
+    @extend %location;
+    left: 0;
+}
+
+.right {
+    @extend %location;
+    right: 0;
+}
+
+.button {
+    min-height: 100px;
+    min-width: 100px;
+    z-index: 5000;
+
+    pointer-events: all;    
+}
+
+::ng-deep .mat-button-focus-overlay {
+    opacity: 0 !important;
+}

@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, ViewEncapsulation, Input } from '@angular/core';
 import { ButtonAction } from '../square-button/square-button.component';
-import { IconPair } from 'src/app/objects/control';
+import { IconPair } from '../../../../../objects/control';
 
 class WideButtonBase {
   constructor(public _elementRef: ElementRef) {}

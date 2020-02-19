@@ -2,6 +2,7 @@ import { Component, Inject } from "@angular/core";
 import { HELP_TAB } from "../../objects/control";
 import { Button } from "protractor";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
+import { RoomRef } from "../../services/bff.service";
 
 @Component({
     selector: "help",
@@ -26,7 +27,9 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
             </button>
             <button mat-raised-button
                 *ngIf="!isAfterHours()"
-                color="primary">
+                color="primary"
+                (click)="requestHelp()"
+                (press)="requestHelp()">
                 Request Help
             </button>
         </div>
@@ -50,12 +53,16 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
 export class HelpDialog {
     constructor(
         public dialogRef: MatDialogRef<HelpDialog>,
-        @Inject(MAT_DIALOG_DATA)
+        // @Inject(MAT_DIALOG_DATA) public data: RoomRef,
         public dialog: MatDialog,
-    ) {}
+    ) { }
 
     public cancel() {
         this.dialogRef.close();
+    }
+
+    public requestHelp() {
+      
     }
 
     public isAfterHours(): boolean {
