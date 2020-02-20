@@ -1,8 +1,9 @@
 import { Component, Inject } from "@angular/core";
-import { HELP_TAB } from "../../objects/control";
+import { HELP_TAB } from "../../../../objects/control";
 import { Button } from "protractor";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
 import { RoomRef } from "../../services/bff.service";
+import { ConfirmHelpDialog } from './confirmhelp.dialog'
 
 @Component({
     selector: "help",
@@ -53,7 +54,7 @@ import { RoomRef } from "../../services/bff.service";
 export class HelpDialog {
     constructor(
         public dialogRef: MatDialogRef<HelpDialog>,
-        // @Inject(MAT_DIALOG_DATA) public data: RoomRef,
+        @Inject(MAT_DIALOG_DATA) public roomRef: RoomRef,
         public dialog: MatDialog,
     ) { }
 
@@ -62,7 +63,11 @@ export class HelpDialog {
     }
 
     public requestHelp() {
-      
+      this.roomRef.requestHelp(location.hostname + "needs help");
+      const dialogRef = this.dialog.open(ConfirmHelpDialog, {
+        width: "70vw",
+        disableClose: true
+      });
     }
 
     public isAfterHours(): boolean {

@@ -19,8 +19,9 @@ type SetSharing struct {
 
 // SetSharingMessage .
 type SetSharingMessage struct {
-	Master  ID   `json:"master"`
-	Minions []ID `json:"minions"`
+	Status  string `json:"status"`
+	Master  ID     `json:"master"`
+	Minions []ID   `json:"minions"`
 }
 
 func contain(l []ID, id ID) (int, bool) {
@@ -80,14 +81,22 @@ func updateLazSharing(ctx context.Context, c *Client) {
 	}
 }
 
-// On Legacy
-func (ss SetSharing) On(c *Client, data []byte) {
+// Do sets the sharing state
+func (ss SetSharing) Do(c *Client, data []byte) {
 	var msg SetSharingMessage
 	if err := json.Unmarshal(data, &msg); err != nil {
 		c.Out <- ErrorMessage(fmt.Errorf("invalid value for setSharing: %s", err))
 		return
 	}
+	if msg.Status == "on" {
+		ss.On(c, msg)
+	} else {
+		ss.Off(c, msg)
+	}
+}
 
+// On Legacy
+func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
 	// Validate that everything can actually be shared to
 
 	if !subArray(c.shareable[msg.Master], msg.Minions) {
@@ -172,18 +181,15 @@ func (ss SetSharing) On(c *Client, data []byte) {
 }
 
 // Off Legacy
-func (ss SetSharing) Off(c *Client, data []byte) {
-	var msg SetSharingMessage
-	if err := json.Unmarshal(data, &msg); err != nil {
-		c.Out <- ErrorMessage(fmt.Errorf("invalid value for setSharing: %s", err))
-		return
-	}
+func (ss SetSharing) Off(c *Client, msg SetSharingMessage) {
+
+	//TODO remove inactive minions from their list
 
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
 
 	var state structs.PublicRoom
-
-	for _, m := range msg.Minions {
+	minions := c.sharing[msg.Master]
+	for _, m := range minions.Active {
 		// find the display by ID
 		disp, err := getDisplay(cg, m)
 		if err != nil {

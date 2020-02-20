@@ -95,6 +95,7 @@ $buttonXOffset: .55rem;
 .help {
     @extend %button;
     @extend %top-button;
+    width: 11vw;
     right: $buttonXOffset;
 }
 

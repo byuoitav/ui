@@ -24,7 +24,10 @@
                         <i class="material-icons">{{ a.icon }}</i>
                         <volume
                             class="volume display"
-                            [mute]="true"
+                            [mute]="a?.muted"
+                            [level]="a?.level"
+                            (levelChange)="roomRef.setVolume(a?.id, $event)"
+                            (muteChange)="roomRef.setMuted(a?.id, $event)"
                         >
                         </volume>
                     </div>
@@ -44,7 +47,10 @@
                                 <i class="material-icons">{{ a.icon }}</i>
                                 <volume
                                     class="volume display"
-                                    [mute]="true"
+                                    [mute]="a?.muted"
+                                    [level]="a?.level"
+                                    (levelChange)="roomRef.setVolume(a?.id, $event)"
+                                    (muteChange)="roomRef.setMuted(a?.id, $event)"
                                 >
                                 </volume>
                             </div>

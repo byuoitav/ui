@@ -39,6 +39,7 @@ $inputs-height: 40vh;
 @mixin io-icon($iconsize) {
     @extend %align-vert;
     .material-icons {
+        // size: $iconsize;
         font-size: $iconsize;
     }
 }
@@ -75,9 +76,18 @@ $inputs-height: 40vh;
         margin-right: $max-width / 200;
         width: $max-width / 9;
         margin-bottom: $inputs-height / 23;
+        overflow: hidden;
         .icon {
+            position: relative;
             padding-top: 1.3vh;
+            z-index: 5000;
+            // width: 10vw;
+            // background: #263238;
             @include io-icon(200%);
+        }
+        &.selected {
+            background-color: #0091ea;
+            z-index: 50000;
         }
     }
 }
@@ -111,3 +121,49 @@ $inputs-height: 40vh;
     width: $max-width;
     padding-top: 10px;
 }
+
+//BUTTON BORDER ANIMATION
+@keyframes rotate {
+    100% {
+        transform: rotate(1turn);
+    }
+}
+
+.feedback {
+    // animation: pulse 0.7s;
+    // @extend %io-button;
+    position: relative;
+    overflow: hidden;
+    &::before {
+        content: '';
+        position: absolute;
+        z-index: -2;
+        left: -50%;
+        top: -50%;
+        width: 200%;
+        height: 200%;
+        background-repeat: no-repeat;
+        background-size: 50% 50%, 50% 50%;
+        background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+        background-image: linear-gradient(#263238, #263238), linear-gradient(#377af5, #377af5), linear-gradient(#263238, #263238), linear-gradient(#377af5, #377af5);
+        animation: rotate 4s linear infinite;
+    }
+    &::after {
+        content: '';
+        position: absolute;
+        z-index: 10;
+        left: 2px;
+        top: 2px;
+        width: calc(100% - 4px);
+        height: calc(100% - 4px);
+        background: #263238;
+    }
+}
+
+// .yourmom {
+//     position: relative;
+//     height: 10vw;
+//     width: 10vw;
+//     border: solid 1px green;
+//     overflow: hidden;
+// }

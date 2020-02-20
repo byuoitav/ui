@@ -49,10 +49,8 @@ func (c *Client) HandleMessage(msg Message) {
 			c.CurrentPreset().Actions.HelpRequest.Do(c, v)
 		case "getControlKey":
 			c.CurrentPreset().Actions.GetControlKey.Do(c, v)
-		case "setSharingOn":
-			c.CurrentPreset().Actions.SetSharing.On(c, v)
-		case "setSharingOff":
-			c.CurrentPreset().Actions.SetSharing.Off(c, v)
+		case "setSharing":
+			c.CurrentPreset().Actions.SetSharing.Do(c, v)
 		default:
 			// c.Warn("received message with unknown key", zap.String("key", k), zap.ByteString("val", v))
 			fmt.Printf("v: %s", v)

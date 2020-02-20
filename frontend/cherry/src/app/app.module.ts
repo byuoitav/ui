@@ -17,6 +17,7 @@ import { ScreenControlComponent } from './components/screencontrol/screencontrol
 import { MobileControlComponent } from './dialogs/mobilecontrol/mobilecontrol.component';
 import "hammerjs";
 import { HelpDialog } from './dialogs/help.dialog';
+import { ConfirmHelpDialog } from './dialogs/confirmhelp.dialog'
 import { LockScreenAudioComponent } from './components/lockscreenaudio/lockscreenaudio.component';
 import { LockScreenScreenControlComponent } from './components/lockscreenscreencontrol/lockscreenscreencontrol.component';
 import { ManagementComponent } from './components/management/management.component';
@@ -33,7 +34,8 @@ import { ManagementComponent } from './components/management/management.componen
     HelpDialog,
     LockScreenAudioComponent,
     LockScreenScreenControlComponent,
-    ManagementComponent
+    ManagementComponent,
+    ConfirmHelpDialog
   ],
   imports: [
     BrowserModule,
@@ -52,7 +54,7 @@ import { ManagementComponent } from './components/management/management.componen
   providers: [
     BFFService
   ],
-  entryComponents: [MobileControlComponent, HelpDialog],
+  entryComponents: [MobileControlComponent, HelpDialog, ConfirmHelpDialog],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

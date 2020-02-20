@@ -19,7 +19,7 @@ export class VolumeComponent implements OnInit {
   @AngularOutput()
   muteChange: EventEmitter<boolean> = new EventEmitter();
 
-  @ViewChild("slider")
+  @ViewChild("slider", {static: true})
   slider: MatSlider;
   constructor() { }
 
