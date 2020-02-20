@@ -1,0 +1,63 @@
+<div class="outputs">
+    <div *ngFor="let d of cg?.displayBlocks">
+        <button mat-button class="output mat-elevation-z15"
+            [color]="selectedOutput == d ? 'accent' : ''"
+            [class.mat-raised-button]="selectedOutput == d"
+            (click)="selectedOutput = d"
+            (press)="selectedOutput = d"
+        >
+            <span>{{ d?.outputs[0]?.name }}</span>
+
+            <div class="icon">
+                <i class="material-icons">{{ selectedInput.icon }}</i>
+            </div>
+
+            <span>{{ selectedInput.name }}</span>
+        </button>
+    </div>
+</div>
+
+<div class="inputs">
+  
+    <!-- to open up the mobile control qr code -->
+    <!-- <ng-container *ngIf=room control exists> -->
+        <div class="room-control-info" (click)="openMobileControlDialog()" (press)="openMobileControlDialog()">
+            <div>rooms.stg.byu.edu</div>
+            <div>Key: 111111</div>
+            <!-- <div>{{ bff.roomControlUrl }}</div>
+            <div>Key: {{ bff.controlKey }}</div> -->
+        </div>
+    <!-- </ng-container> -->
+    
+    <div *ngFor="let i of cg?.inputs" class="yourmom"
+    >
+        <button mat-button class="input mat-elevation-z7"
+            [class.selected]="selectedInput == i"
+            [id]="'input' + i.id"
+            [class.mat-raised-button]="selectedInput == i"
+            (click)="changeInput(selectedOutput?.id, i)"
+            (press)="changeInput(selectedOutput?.id, i)"
+            (drag)="changeInput(selectedOutput?.id, i)"
+        >
+            <div class="icon">
+                <i class="material-icons">{{ i?.icon }}</i>
+                <span>{{ i?.name }}</span>
+            </div>
+        </button>
+    </div>
+</div>
+
+<div class="volume-label">Master Display Volume</div>
+<div class="volume">
+    <volume
+        [mute] = "cg?.audioGroups[0]?.audioDevices[0]?.muted"
+        [level] = "cg?.audioGroups[0]?.audioDevices[0]?.level"
+        (muteChange)="roomRef.setMuted(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"
+        (levelChange)="roomRef.setVolume(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"></volume>
+</div>
+
+<ng-template #blankicon>
+    <i class="material-icons">crop_landscape</i>
+</ng-template>
+
+<!-- <mat-progress-bar *ngIf="command.commandInProgress" [mode]="'indeterminate'" color="primary" class="mpb"></mat-progress-bar> -->

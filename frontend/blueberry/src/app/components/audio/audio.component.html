@@ -1,0 +1,234 @@
+<div class="container primary-background" [class.show]="_show">
+    <mat-toolbar color="primary" class="top-bar">
+        <button
+        color="warn"
+        class="exit"
+        (click)="hide()"
+        (press)="hide()"
+        mat-button
+      >
+        <mat-icon>keyboard_backspace</mat-icon>
+        <span>Back</span>
+      </button>
+      <h1 class="header text title">Audio Control</h1>
+      <!-- <button mat-fab class="help-button"><mat-icon>help</mat-icon></button> -->
+      <span class="fill-space"></span>
+    </mat-toolbar>
+    
+    <ng-container *ngIf="cg?.audioGroups?.length > 1">
+        <mat-tab-group class="full">
+            <mat-tab *ngFor="let ag of cg?.audioGroups; let j = index" [label]="ag?.name">
+                <div class="audiodevices">
+                    <ng-container *ngIf="ag?.audioDevices?.length <= 4">
+                        <div class="no-scroll">
+                            <div class="content">
+                                <div class="mixers">
+                                    <div class="sliders single-page">
+                                        <div *ngFor="let a of ag?.audioDevices; let i = index" [id]="ag?.id + i" class="slider-container">
+                                            <volume class="slider" [level]="a?.level" [mute]="a?.muted" [name]="a?.name" (levelChange)="bff.roomRef.setVolume(a?.id, $event)" (muteChange)="bff.roomRef.setMuted(a?.id, $event)"></volume>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="master slider-container" *ngIf="j == 0">
+                                <volume class="slider" [level]="ag?.level" [mute]="ag?.audioDevices[0]?.muted" [name]="'Master Volume'" (levelChange)="bff.roomRef.setVolume(ag?.audioDevices[0]?.id, $event)" (muteChange)="bff.roomRef.setMuted(ag?.audioDevices[0]?.id, $event)"></volume>
+                            </div>
+                        </div>
+                    </ng-container>
+        
+                    <ng-container *ngIf="ag?.audioDevices?.length > 4">
+                      <div class="no-scroll">
+                        <div class="content">
+                          <button
+                            color="accent"
+                            class="button left"
+                            [class.hidden]="!canPageLeft(ag)"
+                            (click)="pageLeft(ag)"
+                            mat-button
+                          >
+                            <mat-icon style="transform: scale(3)">keyboard_arrow_left</mat-icon>
+                          </button>
+                
+                          <div class="mixers">
+                            <div class="sliders">
+                              <div
+                                *ngFor="let a of ag?.audioDevices; let i = index"
+                                [id]="ag?.id + i"
+                                class="slider-container"
+                              >
+                                <volume
+                                  class="slider"
+                                  [level]="a?.volume"
+                                  [mute]="a?.muted"
+                                  [name]="a?.name"
+                                  (levelChange)="bff.roomRef.setVolume(a?.id, $event)"
+                                  (muteChange)="bff.roomRef.setMuted(a?.id, $event)"
+                                >
+                                </volume>
+                              </div>
+                
+                              <!-- fake sliders -->
+                              <div
+                                [id]="ag?.id + ag?.audioDevices?.length"
+                                class="slider-container"
+                              ></div>
+                              <div
+                                [id]="ag?.id + (ag?.audioDevices?.length + 1)"
+                                class="slider-container"
+                              ></div>
+                              <div
+                                [id]="ag?.id + (ag?.audioDevices?.length + 2)"
+                                class="slider-container"
+                              ></div>
+                            </div>
+                
+                            <div class="page-indicator fake">
+                              <span
+                                *ngFor="let i of pages.get(ag?.id)"
+                                class="dot"
+                                [class.selected]="i === curPageNumbers.get(ag?.id)"
+                              ></span>
+                            </div>
+                          </div>
+                
+                          <button
+                            color="accent"
+                            class="button right"
+                            [class.hidden]="!canPageRight(ag)"
+                            (click)="pageRight(ag)"
+                            mat-button
+                          >
+                            <mat-icon style="transform: scale(3)"
+                              >keyboard_arrow_right</mat-icon
+                            >
+                          </button>
+                
+                          <div class="master slider-container" *ngIf="j == 0">
+                            <volume 
+                              class="slider" 
+                              [level]="cg?.audioGroups[0]?.audioDevices[0]?.level" 
+                              [mute]="cg?.audioGroups[0]?.audioDevices[0]?.muted" 
+                              [name]="'Master Volume'"
+                              (levelChange)="bff.roomRef.setVolume(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"
+                              (muteChange)="bff.roomRef.setMuted(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"></volume>
+                          </div>
+                        </div>
+                  
+                      </div>
+                            
+                      </ng-container>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </ng-container>
+
+    <ng-container *ngIf="cg?.audioGroups?.length == 1">
+        <div class="audiodevices">
+            <ng-container *ngIf="cg?.audioGroups[0]?.audioDevices?.length <= 4">
+                <div class="no-scroll">
+                    <div class="content">
+                        <div class="mixers">
+                            <div class="sliders single-page">
+                                <div *ngFor="let a of cg?.audioGroups[0]?.audioDevices; let i = index" [id]="cg?.audioGroups[0]?.id + i" class="slider-container">
+                                    <volume 
+                                      class="slider" 
+                                      [level]="a?.level" 
+                                      [mute]="a?.muted" 
+                                      [name]="a?.name"
+                                      (levelChange)="bff.roomRef.setVolume(a?.id, $event)"
+                                      (muteChange)="bff.roomRef.setMuted(a?.id, $event)"></volume>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="master slider-container no-tabs">
+                        <volume 
+                          class="slider" 
+                          [level]="cg?.audioGroups[0]?.audioDevices[0]?.level" 
+                          [mute]="cg?.audioGroups[0]?.audioDevices[0]?.muted" 
+                          [name]="'Master Volume'"
+                          (levelChange)="bff.roomRef.setVolume(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"
+                          (muteChange)="bff.roomRef.setMuted(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"></volume>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="cg?.audioGroups[0]?.audioDevices?.length > 4">
+                <div class="content">
+                  <button
+                    color="accent"
+                    class="button left"
+                    [class.hidden]="!canPageLeft(cg?.audioGroups[0])"
+                    (click)="pageLeft(cg?.audioGroups[0])"
+                    mat-button
+                  >
+                    <mat-icon style="transform: scale(3)">keyboard_arrow_left</mat-icon>
+                  </button>
+        
+                  <div class="mixers">
+                    <div class="sliders">
+                      <div
+                        *ngFor="let a of cg?.audioGroups[0]?.audioDevices; let i = index"
+                        [id]="cg?.audioGroups[0]?.id + i"
+                        class="slider-container"
+                      >
+                        <volume
+                          class="slider"
+                          [level]="a?.volume"
+                          [mute]="a?.muted"
+                          [name]="a?.name"
+                          (levelChange)="bff.roomRef.setVolume(a?.id, $event)"
+                          (muteChange)="bff.roomRef.setMuted(a?.id, $event)"
+                        >
+                        </volume>
+                      </div>
+        
+                      <div
+                        [id]="cg?.audioGroups[0]?.id + cg?.audioGroups[0]?.audioDevices?.length"
+                        class="slider-container"
+                      ></div>
+                      <div
+                        [id]="cg?.audioGroups[0]?.id + (cg?.audioGroups[0]?.audioDevices?.length + 1)"
+                        class="slider-container"
+                      ></div>
+                      <div
+                        [id]="cg?.audioGroups[0]?.id + (cg?.audioGroups[0]?.audioDevices?.length + 2)"
+                        class="slider-container"
+                      ></div>
+                    </div>
+        
+                    <div class="page-indicator fake">
+                      <span
+                        *ngFor="let i of pages.get(cg?.audioGroups[0]?.id)"
+                        class="dot"
+                        [class.selected]="i === curPageNumbers.get(cg?.audioGroups[0]?.id)"
+                      ></span>
+                    </div>
+                  </div>
+        
+                  <button
+                    color="accent"
+                    class="button right"
+                    [class.hidden]="!canPageRight(cg?.audioGroups[0])"
+                    (click)="pageRight(cg?.audioGroups[0])"
+                    mat-button
+                  >
+                    <mat-icon style="transform: scale(3)"
+                      >keyboard_arrow_right</mat-icon
+                    >
+                  </button>
+        
+                  <div class="master slider-container">
+                    <volume 
+                      class="slider" 
+                      [level]="cg?.audioGroups[0]?.audioDevices[0]?.level" 
+                      [mute]="cg?.audioGroups[0]?.audioDevices[0]?.muted" 
+                      [name]="'Master Volume'"
+                      (levelChange)="bff.roomRef.setVolume(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"
+                      (muteChange)="bff.roomRef.setMuted(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"></volume>
+                  </div>
+                </div>
+              </ng-container>
+        </div>
+    </ng-container>
+  </div>

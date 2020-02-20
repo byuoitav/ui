@@ -1,0 +1,106 @@
+<lock-screen-screen-control #screen class="audio"></lock-screen-screen-control>
+<lock-screen-audio #audio class="audio"></lock-screen-audio>
+
+<div class="base mat-app-background">
+  <management [enabled]="showManagement()"></management>
+  <ng-container *ngIf="!roomRef?.loading; else loading">
+    <div *ngIf="!isPowerOn(); else home" class="lock">
+
+        <object type="image/svg+xml" data="./assets/byu_medallion_white.svg" class="logo">
+        </object>
+        
+        <div class="text">
+          <button mat-stroked-button
+            class="lock-screen-button start-button"
+            (click)="setPower()"
+            (press)="setPower()"
+          >
+            Start
+          </button>
+        </div>
+        
+        <div class="optional-buttons">
+          <!-- Screen Control -->
+          <ng-container *ngIf="cg?.screens?.length > 0">
+            <button mat-stroked-button
+              class="lock-screen-button screen-button"
+              (click)="screen.show()"
+              (press)="screen.show()"
+            >
+              <mat-icon class="screen-control-icon">unfold_more</mat-icon>
+              <div class="button-text">Screen Control</div>
+            </button>
+          </ng-container>
+
+        
+          <!-- Mobile Control -->
+          <button mat-stroked-button
+            class="lock-screen-button mobile-control"
+            (click)="openMobileControlDialog()"
+            (press)="openMobileControlDialog()"
+          >
+            <mat-icon class="screen-control-icon">phone_iphone</mat-icon>
+            <div class="button-text">Key: </div>
+          </button>
+          
+          <!-- Audio Control -->
+          <ng-container *ngIf="cg?.audioGroups?.length > 1 || cg?.audioGroups[0]?.name != 'Display Volume Mixing'">
+            <button mat-stroked-button
+              class="lock-screen-button audio-button"
+              (click)="audio.show(roomRef)"
+              (press)="audio.show(roomRef)"
+            >
+              <mat-icon class="rotate-90">tune</mat-icon>
+              <div class="button-text">Audio Control</div>
+            </button>
+          </ng-container>
+        </div>
+    </div>
+  </ng-container>
+
+
+  <!-- GO THROUGH THIS ONCE WE PULL INFO FROM THE BACKEND TO ADJUST FOR NO DISPLAYS -->
+  <ng-template #home>
+    <button mat-raised-button
+      class="power"
+      color="warn"
+      (click)="setPower()"
+      (press)="setPower()"
+    >
+      Power Off
+    </button>
+
+    <div class="secondary-theme">
+      <button mat-raised-button
+        class="help"
+        color="accent"
+        (click)="openHelpDialog()"
+        (press)="openHelpDialog()"
+      >
+        Help
+      </button>
+    </div>
+
+    <mat-tab-group backgroundColor="primary" color="accent">
+      <mat-tab label="Display">
+        <display [roomRef]="roomRef"></display>
+      </mat-tab>
+      <mat-tab *ngIf="cg.audioGroups.length > 1 || cg.audioGroups[0].name != 'Display Volume Mixing'" label="Audio">
+        <audiocontrol [roomRef]="roomRef"></audiocontrol>
+      </mat-tab>
+      <mat-tab *ngIf="cg?.screens?.length > 0" label="Screen Control">
+        <screencontrol></screencontrol>
+      </mat-tab>
+    </mat-tab-group>
+
+  </ng-template>
+
+  <ng-template #loading>
+    <management></management>
+
+    <div class="loading">
+      <mat-spinner color="accent"></mat-spinner>
+      <span style="font-family: Roboto, 'Helvetica Neue', sans-serif;">loading, please wait</span>
+    </div>
+  </ng-template>
+</div>

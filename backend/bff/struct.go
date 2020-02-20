@@ -1,7 +1,54 @@
 package bff
 
-import "encoding/json"
+import (
+	"encoding/json"
 
+	"github.com/byuoitav/lazarette/lazarette"
+)
+
+// ShareState is one of 6 possible share states
+type ShareState int
+
+/*
+	Nothing		   - cannot share
+	Share		   - can share
+	Unshare        - can stop sharing (is currently sharing)
+	Link           - can link
+	Unlink         - can unlink (is currently linked)
+	MinionActive   - is shared to and is displaying the share
+	MinionInactive - is shared to and is not displaying the share
+*/
+const (
+	Nothing = iota
+	Share
+	Unshare
+	Link
+	Unlink
+	MinionActive
+	MinionInactive
+)
+
+// LazState .
+type LazState struct {
+	Client       lazarette.LazaretteClient
+	Subscription lazarette.Lazarette_SubscribeClient
+}
+
+// Shareable .
+type Shareable map[ID][]ID
+
+// Sharing .
+type Sharing map[ID]ShareGroups
+
+// ShareGroups .
+type ShareGroups struct {
+	Input    ID   `json:"input"`
+	Active   []ID `json:"active"`
+	Inactive []ID `json:"inactive"`
+	Linked   []ID `json:"linked"`
+}
+
+// Room .
 type Room struct {
 	ID   ID     `json:"id"`
 	Name string `json:"name"`
@@ -10,11 +57,14 @@ type Room struct {
 	SelectedControlGroup ID                      `json:"selectedControlGroup"`
 }
 
+// ControlGroup .
 type ControlGroup struct {
 	ID   ID     `json:"id"`
 	Name string `json:"name"`
+	//TODO am right?
+	Power string `json:"power"`
 
-	Displays      []Display      `json:"displays"`
+	DisplayBlocks []DisplayBlock `json:"displayBlocks"`
 	Inputs        []Input        `json:"inputs"`
 	AudioGroups   []AudioGroup   `json:"audioGroups"`
 	PresentGroups []PresentGroup `json:"presentGroups"`
@@ -22,6 +72,7 @@ type ControlGroup struct {
 	Support Support `json:"support"`
 }
 
+// Support .
 type Support struct {
 	HelpRequested bool `json:"helpRequested"`
 
@@ -29,13 +80,25 @@ type Support struct {
 	HelpEnabled bool   `json:"helpEnabled"`
 }
 
-type Display struct {
+// DisplayBlock .
+type DisplayBlock struct {
 	ID ID `json:"id"`
+
+	Blanked bool `json:"blanked"`
 
 	Outputs []IconPair `json:"outputs"`
 	Input   ID         `json:"input"`
+	Share   ShareInfo  `json:"share"`
 }
 
+// ShareInfo .
+type ShareInfo struct {
+	Options []string   `json:"shareOptions"`
+	State   ShareState `json:"shareState"`
+	Master  ID         `json:"shareMaster"`
+}
+
+// Input .
 type Input struct {
 	ID ID `json:"id"`
 	IconPair
@@ -44,6 +107,7 @@ type Input struct {
 	Disabled  bool    `json:"disabled"`
 }
 
+// AudioGroup .
 type AudioGroup struct {
 	ID   ID     `json:"id"`
 	Name string `json:"name"`
@@ -52,6 +116,7 @@ type AudioGroup struct {
 	Muted        bool          `json:"muted"`
 }
 
+// AudioDevice .
 type AudioDevice struct {
 	ID ID `json:"id"`
 	IconPair
@@ -60,6 +125,7 @@ type AudioDevice struct {
 	Muted bool `json:"muted"`
 }
 
+// PresentGroup .
 type PresentGroup struct {
 	ID   ID     `json:"id"`
 	Name string `json:"name"`
@@ -67,29 +133,35 @@ type PresentGroup struct {
 	Items []PresentItem `json:"items"`
 }
 
+// PresentItem .
 type PresentItem struct {
 	ID   ID     `json:"id"`
 	Name string `json:"name"`
 }
 
+// Icon .
 type Icon struct {
 	Icon string `json:"icon"`
 }
 
+// IconPair .
 type IconPair struct {
 	ID   ID     `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 	Icon
 }
 
+// ID .
 type ID string
 
-type HttpRequest struct {
+// HTTPRequest .
+type HTTPRequest struct {
 	Method string          `json:"method"`
 	URL    string          `json:"url"`
 	Body   json.RawMessage `json:"body"`
 }
 
+// BoolP .
 func BoolP(b bool) *bool {
 	return &b
 }

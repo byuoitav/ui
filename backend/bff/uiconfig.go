@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 )
 
+// UIConfig - a representation of a ui config
 type UIConfig struct {
 	ID                  string               `json:"_id,omitempty"`
 	Panels              []Panel              `json:"panels"`
@@ -21,7 +22,6 @@ type Preset struct {
 	Name                    string              `json:"name"`
 	Icon                    string              `json:"icon"`
 	Displays                []string            `json:"displays"`
-	ShareablePresets        []string            `json:"shareablePresets"`
 	ShareableDisplays       []string            `json:"shareableDisplays"`
 	AudioDevices            []string            `json:"audioDevices"`
 	Inputs                  []string            `json:"inputs"`
@@ -31,11 +31,13 @@ type Preset struct {
 
 	ActionsConfig json.RawMessage `json:"actions,omitempty"`
 	Actions       struct {
-		SetInput    SetInput    `json:"setInput,omitempty"`
-		SetVolume   SetVolume   `json:"setVolume,omitempty"`
-		SetMuted    SetMuted    `json:"setMuted,omitempty"`
-		SetPower    SetPower    `json:"setPower,omitempty"`
-		HelpRequest HelpRequest `json:"helpRequest,omitempty"`
+		SetInput      SetInput     `json:"setInput,omitempty"`
+		SetVolume     SetVolume    `json:"setVolume,omitempty"`
+		SetMuted      SetMuted     `json:"setMuted,omitempty"`
+		SetPower      SetPower     `json:"setPower,omitempty"`
+		HelpRequest   HelpRequest  `json:"helpRequest,omitempty"`
+		GetControlKey GetKeyConfig `json:"getControlKey,omitempty"`
+		SetSharing    SetSharing   `json:"setSharing,omitempty"`
 	} `json:"-"`
 }
 
@@ -71,6 +73,7 @@ type PseudoInput struct {
 	} `json:"config"`
 }
 
+// UnmarshalJSON .
 func (u *UIConfig) UnmarshalJSON(b []byte) error {
 	type Alias UIConfig
 	config := &struct {

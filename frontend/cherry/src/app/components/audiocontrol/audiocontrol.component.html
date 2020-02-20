@@ -1,0 +1,93 @@
+<mat-progress-bar color="primary"></mat-progress-bar>
+<mat-tab-group
+    #tabs
+    color="accent"
+    class="mat-tab-label-darker">
+    <ng-container *ngIf="cg?.audioGroups?.length == 1 && cg?.audioGroups[0]?.name == 'Display Volume Mixing'">
+        Nothing to see here!
+    </ng-container>
+    <ng-container *ngIf="cg?.audioGroups?.length > 1 || cg?.audioGroups[0].name != 'Display Volume Mixing'">
+        <ng-container *ngFor="let i of cg?.audioGroups">
+            <mat-tab *ngIf="i.name != 'Display Volume Mixing'" [label]="i.name">
+            <!-- <mat-tab label="Displays"> -->
+
+                <!-- If there aren't enough to make 2 pages -->
+                <div class="devices less" *ngIf="i?.audioDevices.length <= 3">
+                    <div class="device slider-container" *ngFor="let a of i?.audioDevices">
+                        <span class="volume-label">{{ a.name }}</span>
+                        <i class="material-icons">{{ a.icon }}</i>
+                        <volume
+                            class="volume display"
+                            [mute]="a?.muted"
+                            [level]="a?.level"
+                            (levelChange)="roomRef.setVolume(a?.id, $event)"
+                            (muteChange)="roomRef.setMuted(a?.id, $event)"
+                        >
+                        </volume>
+                    </div>
+                </div>
+
+                <!-- If there are enough to make multiple pages -->
+                <div class="devices displays" *ngIf="i?.audioDevices.length > 3">
+                    <div
+                        class="button left display"
+                    >
+                        <mat-icon style="transform: scale(3)">keyboard_arrow_left</mat-icon>
+                    </div>
+                    <div class="mixers">
+                        <div class="sliders">
+                            <div class="device slider-container" *ngFor="let a of i?.audioDevices">
+                                <span>{{ a.name }}</span>
+                                <i class="material-icons">{{ a.icon }}</i>
+                                <volume
+                                    class="volume display"
+                                    [mute]="a?.muted"
+                                    [level]="a?.level"
+                                    (levelChange)="roomRef.setVolume(a?.id, $event)"
+                                    (muteChange)="roomRef.setMuted(a?.id, $event)">
+                                </volume>
+                            </div>
+                            <div
+                                class="slider-container"
+                            >
+                                <div class="volume display"></div>
+                            </div>
+                            <div
+                                class="slider-container"
+                            >
+                                <div class="volume display"></div>
+                            </div>
+                            <div
+                                class="slider-container"
+                            >
+                                <div class="volume display"></div>
+                            </div>
+                            <div
+                                class="slider-container"
+                            >
+                                <div class="volume display"></div>
+                            </div>
+                        </div>
+                        <div
+                            class="page-indicator"
+                        >
+                            <span
+                                class="dot"
+                            ></span>
+                        </div>
+                    </div>
+                    <div
+                        class="button right"
+                    >
+                        <mat-icon style="transform: scale(3)">keyboard_arrow_right</mat-icon>
+                    </div>
+                </div>
+            </mat-tab>
+        </ng-container>
+    </ng-container>
+</mat-tab-group>
+<!-- <mat-progress-bar
+    *ngIf="command in progress"
+    [mode]="'indeterminate'"
+    color="primary"
+></mat-progress-bar> -->

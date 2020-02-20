@@ -10,14 +10,16 @@ import (
 	"go.uber.org/zap"
 )
 
+// SetPower .
 type SetPower struct {
 }
 
+// SetPowerMessage .
 type SetPowerMessage struct {
-	Displays []ID   `json:"displays"`
-	Status   string `json:"status"`
+	Status string `json:"status"`
 }
 
+// DoWithMessage .
 // TODO make sure that the devices are powered on after setting the power
 func (sp SetPower) DoWithMessage(ctx context.Context, c *Client, msg SetPowerMessage) error {
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
@@ -26,27 +28,10 @@ func (sp SetPower) DoWithMessage(ctx context.Context, c *Client, msg SetPowerMes
 		return fmt.Errorf("len(cg.ID) is equal to zero: %s", c.selectedControlGroupID)
 	}
 
-	c.Info("Setting power", zap.String("on", fmt.Sprintf("%v", msg.Displays)), zap.String("to", msg.Status), zap.String("controlgroup", string(cg.ID)))
-
-	// find the display by ID
-	var disp []Display
-	for i := range cg.Displays {
-		for j := range msg.Displays {
-			if cg.Displays[i].ID == ID(msg.Displays[j]) {
-				disp = append(disp, cg.Displays[i])
-				break
-			}
-		}
-	}
-
-	if len(disp) <= 0 {
-		// error
-		fmt.Printf("no!!!\n")
-		return fmt.Errorf("the display(s) are less than or equal to zero")
-	}
+	c.Info("Setting power", zap.String("to", msg.Status), zap.String("controlgroup", string(cg.ID)))
 
 	var state structs.PublicRoom
-	for _, display := range disp {
+	for _, display := range cg.DisplayBlocks {
 		for _, out := range display.Outputs {
 			// TODO write a getnamefromid func
 			dSplit := strings.Split(string(out.ID), "-")
@@ -61,7 +46,7 @@ func (sp SetPower) DoWithMessage(ctx context.Context, c *Client, msg SetPowerMes
 		}
 	}
 
-	err := c.SendAPIRequest(ctx, state)
+	err := c.SendAPIRequest(context.Background(), state)
 	if err != nil {
 		c.Warn("failed to set power", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to set power: %s", err))
@@ -70,6 +55,7 @@ func (sp SetPower) DoWithMessage(ctx context.Context, c *Client, msg SetPowerMes
 	return nil
 }
 
+// Do .
 func (sp SetPower) Do(c *Client, data []byte) {
 	var msg SetPowerMessage
 	err := json.Unmarshal(data, &msg)
@@ -86,6 +72,7 @@ func (sp SetPower) Do(c *Client, data []byte) {
 
 }
 
+// PowerOffAll .
 func (sp SetPower) PowerOffAll(c *Client) error {
 
 	controlGroups := c.GetRoom().ControlGroups
@@ -95,11 +82,11 @@ func (sp SetPower) PowerOffAll(c *Client) error {
 	}
 
 	c.Info("Powering off all devices in the room.")
-	var disp []Display
+	var disp []DisplayBlock
 	for _, cg := range controlGroups {
 		c.Info("Powering off all devices in the room.")
 
-		for _, d := range cg.Displays {
+		for _, d := range cg.DisplayBlocks {
 			if !contains(disp, d) {
 				disp = append(disp, d)
 			}
@@ -137,7 +124,7 @@ func (sp SetPower) PowerOffAll(c *Client) error {
 	return nil
 }
 
-func contains(s []Display, e Display) bool {
+func contains(s []DisplayBlock, e DisplayBlock) bool {
 	for _, a := range s {
 		if a.ID == e.ID {
 			return true

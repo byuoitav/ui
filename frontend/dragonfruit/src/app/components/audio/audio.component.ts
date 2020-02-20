@@ -6,15 +6,14 @@ import {
   AudioDevice,
   AudioGroup,
   Input
-} from "src/app/objects/control";
-import { IControlTab } from '../control-tab/icontrol-tab';
+} from "../../../../../objects/control";
 
 @Component({
   selector: "app-audio",
   templateUrl: "./audio.component.html",
   styleUrls: ["./audio.component.scss"]
 })
-export class AudioComponent implements OnInit, IControlTab {
+export class AudioComponent implements OnInit {
   @AngularInput() cg: ControlGroup;
   @AngularInput() private _roomRef: RoomRef;
 
