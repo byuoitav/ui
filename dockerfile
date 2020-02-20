@@ -5,7 +5,7 @@ ARG NAME
 
 COPY ${NAME} /ui
 COPY dragonfruit /dragonfruit
-COPY blueberry /blueberry
+# COPY blueberry /blueberry
 COPY cherry /cherry
 
 ENTRYPOINT ["/ui"]

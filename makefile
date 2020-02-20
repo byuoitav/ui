@@ -34,8 +34,8 @@ deps:
 	@echo Downloading frontend dependencies for dragonfruit...
 	@cd frontend/dragonfruit && npm install
 
-	@echo Downloading frontend dependencies for blueberry...
-	@cd frontend/blueberry && npm install
+	# @echo Downloading frontend dependencies for blueberry...
+	# @cd frontend/blueberry && npm install
 
 	@echo Downloading frontend dependencies for cherry...
 	@cd frontend/cherry && npm install
@@ -51,8 +51,8 @@ build: deps
 	@echo Building dragonfruit...
 	@cd frontend/dragonfruit && npm run-script build && mv ./dist/dragonfruit ../../dist/ && rmdir ./dist
 
-	@echo Building blueberry...
-	@cd frontend/blueberry && npm run-script build && mv ./dist/blueberry ../../dist/ && rmdir ./dist
+	# @echo Building blueberry...
+	# @cd frontend/blueberry && npm run-script build && mv ./dist/blueberry ../../dist/ && rmdir ./dist
 
 	@echo Building cherry...
 	@cd frontend/cherry && npm run-script build && mv ./dist/cherry ../../dist/ && rmdir ./dist
@@ -79,6 +79,6 @@ deploy: docker
 clean:
 	@cd backend && go clean
 	@cd frontend/dragonfruit && rm -rf dist node_modules
-	@cd frontend/blueberry && rm -rf dist node_modules
+	# @cd frontend/blueberry && rm -rf dist node_modules
 	@cd frontend/cherry && rm -rf dist node_modules
 	@rm -rf dist/

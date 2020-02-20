@@ -77,9 +77,23 @@ func main() {
 		return c.String(http.StatusOK, fmt.Sprintf("Set log level to %v", level))
 	})
 
-	// serve ui
+	// serve uis
 	e.Group("/", middleware.StaticWithConfig(middleware.StaticConfig{
 		Root:   "dragonfruit",
+		Index:  "index.html",
+		HTML5:  true,
+		Browse: true,
+	}))
+
+	e.Group("/blueberry", middleware.StaticWithConfig(middleware.StaticConfig{
+		Root:   "blueberry",
+		Index:  "index.html",
+		HTML5:  true,
+		Browse: true,
+	}))
+
+	e.Group("/cherry", middleware.StaticWithConfig(middleware.StaticConfig{
+		Root:   "cherry",
 		Index:  "index.html",
 		HTML5:  true,
 		Browse: true,
