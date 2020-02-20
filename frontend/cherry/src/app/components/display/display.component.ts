@@ -32,12 +32,13 @@ export class DisplayComponent implements OnInit {
           // if (this.selectedOutput.blanked == true) {
           //   this.selectedInput = this.cg.inputs[0];
           // } else {
-            for ( let input of this.cg.inputs) {
-              if (this.selectedOutput.input == input.id) {
-                this.selectedInput = input;
-                break;
-              }
-            }
+          this.selectedInput = this.cg.inputs.find((i) => i.id === this.selectedOutput.input)
+            // for ( let input of this.cg.inputs) {
+            //   if (this.selectedOutput.input == input.id) {
+            //     this.selectedInput = input;
+            //     break;
+            //   }
+            // }
           // }
         }
       }
@@ -53,6 +54,10 @@ export class DisplayComponent implements OnInit {
     const dialogRef = this.dialog.open(MobileControlComponent, {
       width: "70vw"
     });
+  }
+
+  public getInputForOutput(d: DisplayBlock) {
+    this.selectedInput = this.cg.inputs.find((i) => i.id === d.input)
   }
 
 }
