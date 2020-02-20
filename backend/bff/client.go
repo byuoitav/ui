@@ -48,8 +48,8 @@ type Client struct {
 	// events put in this channel get sent to the hub
 	SendEvent chan events.Event
 
-	lazContext context.Context
-	lazCancel  context.CancelFunc
+	// lazContext context.Context
+	// lazCancel context.CancelFunc
 
 	*zap.Logger
 }
@@ -288,7 +288,7 @@ func (c *Client) Close() {
 	c.close.Do(func() {
 		c.Info("Closing client. Bye!")
 
-		c.lazCancel()
+		// c.lazCancel()
 		// close the kill chan to clean up all resources
 		close(c.kill)
 
