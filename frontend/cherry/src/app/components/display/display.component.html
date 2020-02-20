@@ -37,7 +37,6 @@
             [class.mat-raised-button]="selectedInput == i"
             (click)="changeInput(selectedOutput?.id, i)"
             (press)="changeInput(selectedOutput?.id, i)"
-            (drag)="changeInput(selectedOutput?.id, i)"
         >
             <div class="icon">
                 <i class="material-icons">{{ i?.icon }}</i>
