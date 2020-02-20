@@ -270,8 +270,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 		}
 
 		setPowerMessage := SetPowerMessage{
-			DisplayBlocks: displays,
-			Status:        "on",
+			Status: "on",
 		}
 
 		// turn the control group on - this will send the room to the client
