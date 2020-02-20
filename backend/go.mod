@@ -25,6 +25,7 @@ require (
 	gobot.io/x/gobot v1.14.0 // indirect
 	golang.org/x/crypto v0.0.0-20200115085410-6d4e4cb37c7d // indirect
 	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa // indirect
+	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	golang.org/x/sys v0.0.0-20200113162924-86b910548bc1 // indirect
 	golang.org/x/tools v0.0.0-20200115192306-3ded1b734dda // indirect
 	google.golang.org/grpc v1.26.0
