@@ -2,29 +2,20 @@ package bff
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/byuoitav/common/structs"
 	"github.com/byuoitav/common/v2/events"
-	"github.com/byuoitav/lazarette/lazarette"
 	"github.com/byuoitav/ui/log"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
 )
-
-func remove(l []string, index int) []string {
-	l[index] = l[len(l)-1]
-	return l[:len(l)-1]
-}
 
 // Client represents a client of the bff
 type Client struct {
@@ -57,8 +48,8 @@ type Client struct {
 	// events put in this channel get sent to the hub
 	SendEvent chan events.Event
 
-	lazContext context.Context
-	lazCancel  context.CancelFunc
+	// lazContext context.Context
+	// lazCancel context.CancelFunc
 
 	*zap.Logger
 }
@@ -71,24 +62,24 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 	if len(split) != 2 {
 		return nil, fmt.Errorf("invalid roomID %q - must match format BLDG-ROOM", roomID)
 	}
-	lazAddr := os.Getenv("LAZARETTE_ADDR")
-	if len(lazAddr) == 0 {
-		return nil, fmt.Errorf("LAZARETTE_ADDR not set")
-	}
+	//lazAddr := os.Getenv("LAZARETTE_ADDR")
+	//if len(lazAddr) == 0 {
+	//	return nil, fmt.Errorf("LAZARETTE_ADDR not set")
+	//}
 
-	lazContext, lazCancel := context.WithCancel(ctx)
+	//lazContext, lazCancel := context.WithCancel(ctx)
 
-	conn, err := grpc.DialContext(lazContext, lazAddr, grpc.WithInsecure(), grpc.WithBlock())
-	if err != nil {
-		lazCancel()
-		return nil, fmt.Errorf("unable to connect with grpc to lazarette %v", err)
-	}
+	//conn, err := grpc.DialContext(lazContext, lazAddr, grpc.WithInsecure(), grpc.WithBlock())
+	//if err != nil {
+	//	lazCancel()
+	//	return nil, fmt.Errorf("unable to connect with grpc to lazarette %v", err)
+	//}
 
-	remote := lazarette.NewLazaretteClient(conn)
+	//remote := lazarette.NewLazaretteClient(conn)
 
-	lazState := LazState{
-		Client: remote,
-	}
+	//lazState := LazState{
+	//	Client: remote,
+	//}
 
 	// build our client
 	c := &Client{
@@ -99,148 +90,134 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 		httpClient: &http.Client{},
 		Out:        make(chan Message, 1),
 		SendEvent:  make(chan events.Event),
-		lazState:   lazState,
+		//lazState:   lazState,
 		Logger:     log.P.Named(ws.RemoteAddr().String()),
 		shareMutex: new(sync.RWMutex),
 	}
 
-	c.lazContext = lazContext
-	c.lazCancel = lazCancel
+	//c.lazContext = lazContext
+	//c.lazCancel = lazCancel
 
 	// setup shoudn't take longer than 10 seconds
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	errCh := make(chan error, 3)
-	doneCh := make(chan struct{})
+	// create the errgroup for all these setup functions
+	g, ctx := errgroup.WithContext(ctx)
 
-	wg := sync.WaitGroup{}
-	wg.Add(4)
-
-	go func() {
-		defer close(doneCh)
-		wg.Wait()
-	}()
-	// 1
-	go func() {
+	// get the room state
+	g.Go(func() error {
 		var err error
-		defer wg.Done()
-
 		c.state, err = GetRoomState(ctx, c.httpClient, c.roomID)
 		if err != nil {
 			c.Warn("unable to get room state", zap.Error(err))
-			errCh <- fmt.Errorf("unable to get ui config: %v", err)
+			return fmt.Errorf("unable to get ui config: %v", err)
 		}
 
 		c.Debug("Successfully got room state")
-	}()
+		return nil
+	})
 
-	// 2
-	go func() {
+	g.Go(func() error {
 		var err error
-		defer wg.Done()
 
 		c.room, err = GetRoomConfig(ctx, c.httpClient, c.roomID)
 		if err != nil {
 			c.Warn("unable to get room config", zap.Error(err))
-			errCh <- fmt.Errorf("unable to get room config: %v", err)
+			return fmt.Errorf("unable to get room config: %v", err)
 		}
 
 		c.Debug("Successfully got room config")
-	}()
+		return nil
+	})
 
-	// 3
-	go func() {
+	g.Go(func() error {
 		var err error
-		defer wg.Done()
 
 		c.uiConfig, err = GetUIConfig(ctx, c.httpClient, c.roomID)
 		if err != nil {
 			c.Warn("unable to get ui config", zap.Error(err))
-			errCh <- fmt.Errorf("unable to get ui config: %v", err)
+			return fmt.Errorf("unable to get ui config: %v", err)
 		}
 
 		c.Debug("Successfully got ui config")
-	}()
+		return nil
+	})
 
 	// 4 - LazState setup
-	go func() {
-		c.Info("LazState: entered")
-		defer wg.Done()
-		var err error
-		setSharing := true
+	//go func() {
+	//	c.Info("LazState: entered")
+	//	defer wg.Done()
+	//	var err error
+	//	setSharing := true
 
-		kSharing := &lazarette.Key{
-			Key: fmt.Sprintf("%v-_sharing_displays", roomID),
-		}
-		jSharingDisplays, err := c.lazState.Client.Get(ctx, kSharing)
-		if err != nil {
-			c.Info("unable to get sharing displays:", zap.Error(err))
-			setSharing = false
-		}
+	//	kSharing := &lazarette.Key{
+	//		Key: fmt.Sprintf("%v-_sharing_displays", roomID),
+	//	}
+	//	jSharingDisplays, err := c.lazState.Client.Get(ctx, kSharing)
+	//	if err != nil {
+	//		c.Info("unable to get sharing displays:", zap.Error(err))
+	//		setSharing = false
+	//	}
 
-		if setSharing {
-			c.Debug("LazState: got sharing")
-			var sharingDisplays Sharing
-			err = json.Unmarshal(jSharingDisplays.Data, &sharingDisplays)
-			if err != nil {
-				c.Warn("unable to unmarshal sharing displays: ", zap.Error(err))
-				errCh <- fmt.Errorf("unable to unmarshal volume: %v", err)
-			}
-			c.Info("LazState: unmarhalled sharing")
-			c.shareMutex.Lock()
-			c.sharing = sharingDisplays
-			c.shareMutex.Unlock()
-		}
+	//	if setSharing {
+	//		c.Debug("LazState: got sharing")
+	//		var sharingDisplays Sharing
+	//		err = json.Unmarshal(jSharingDisplays.Data, &sharingDisplays)
+	//		if err != nil {
+	//			c.Warn("unable to unmarshal sharing displays: ", zap.Error(err))
+	//			errCh <- fmt.Errorf("unable to unmarshal volume: %v", err)
+	//		}
+	//		c.Info("LazState: unmarhalled sharing")
+	//		c.shareMutex.Lock()
+	//		c.sharing = sharingDisplays
+	//		c.shareMutex.Unlock()
+	//	}
 
-		c.Debug("LazState: setup finished")
+	//	c.Debug("LazState: setup finished")
 
-	}()
-	go func() {
-		c.lazState.Subscription, err = c.lazState.Client.Subscribe(c.lazContext, &lazarette.Key{Key: roomID})
-		if err != nil {
-			c.Warn("unable to subscribe to lazarette", zap.Error(err))
-			return
-		}
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-c.kill:
-				return
-			default:
-				kv, err := c.lazState.Subscription.Recv()
-				switch {
-				case err == io.EOF:
-					return
-				case err != nil:
-					c.Warn("something went wrong receiving change from remote", zap.Error(err))
-					continue
-				case kv == nil:
-					continue
-				}
-				if strings.Contains(kv.Key, "_sharing_displays") {
-					var sharingDisplays Sharing
-					err = json.Unmarshal(kv.Data, &sharingDisplays)
-					if err != nil {
-						c.Warn("unable to unmarshal sharing", zap.Error(err))
-					} else {
-						c.shareMutex.Lock()
-						c.sharing = sharingDisplays
-						c.shareMutex.Unlock()
-					}
-				}
+	//}()
+	//go func() {
+	//	c.lazState.Subscription, err = c.lazState.Client.Subscribe(c.lazContext, &lazarette.Key{Key: roomID})
+	//	if err != nil {
+	//		c.Warn("unable to subscribe to lazarette", zap.Error(err))
+	//		return
+	//	}
+	//	for {
+	//		select {
+	//		case <-ctx.Done():
+	//			return
+	//		case <-c.kill:
+	//			return
+	//		default:
+	//			kv, err := c.lazState.Subscription.Recv()
+	//			switch {
+	//			case err == io.EOF:
+	//				return
+	//			case err != nil:
+	//				c.Warn("something went wrong receiving change from remote", zap.Error(err))
+	//				continue
+	//			case kv == nil:
+	//				continue
+	//			}
+	//			if strings.Contains(kv.Key, "_sharing_displays") {
+	//				var sharingDisplays Sharing
+	//				err = json.Unmarshal(kv.Data, &sharingDisplays)
+	//				if err != nil {
+	//					c.Warn("unable to unmarshal sharing", zap.Error(err))
+	//				} else {
+	//					c.shareMutex.Lock()
+	//					c.sharing = sharingDisplays
+	//					c.shareMutex.Unlock()
+	//				}
+	//			}
 
-			}
-		}
-	}()
+	//		}
+	//	}
+	//}()
 
-	select {
-	case err := <-errCh:
-		return nil, fmt.Errorf("unable to get room information: %v", err)
-	case <-ctx.Done():
-		return nil, fmt.Errorf("unable to get room information: all requests timed out")
-	case <-doneCh:
+	if err := g.Wait(); err != nil {
+		return nil, fmt.Errorf("unable to get room information: %w", err)
 	}
 
 	room := c.GetRoom()
@@ -296,6 +273,11 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 	return c, nil
 }
 
+func remove(l []string, index int) []string {
+	l[index] = l[len(l)-1]
+	return l[:len(l)-1]
+}
+
 // Wait waits until a client is dead
 func (c *Client) Wait() {
 	<-c.kill
@@ -306,7 +288,7 @@ func (c *Client) Close() {
 	c.close.Do(func() {
 		c.Info("Closing client. Bye!")
 
-		c.lazCancel()
+		// c.lazCancel()
 		// close the kill chan to clean up all resources
 		close(c.kill)
 
