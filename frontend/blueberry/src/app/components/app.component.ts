@@ -4,6 +4,7 @@ import { AudioComponent } from './audio/audio.component';
 import { ProjectorComponent } from './projector/projector.component';
 import { MobileComponent } from '../dialogs/mobile/mobile.component';
 import { MatDialog } from '@angular/material';
+import { ControlGroup } from '../objects/control';
 
 @Component({
   selector: 'app-root',
@@ -12,12 +13,18 @@ import { MatDialog } from '@angular/material';
 })
 export class AppComponent {
   public roomRef: RoomRef;
+  public cg: ControlGroup;
 
   @ViewChild(AudioComponent, {static: false}) public audio: AudioComponent;
   @ViewChild(ProjectorComponent, {static: false}) public screen: ProjectorComponent;
 
   constructor(public bff: BFFService, public dialog: MatDialog) {
     this.roomRef = this.bff.getRoom();
+    this.roomRef.subject().subscribe((r) => {
+      if (r) {
+        this.cg = r.controlGroups[r.selectedControlGroup];
+      }
+    })
   }
 
   unlock = () => {

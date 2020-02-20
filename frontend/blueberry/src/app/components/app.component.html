@@ -1,8 +1,7 @@
 <app-audio #audio class="hidden-page"></app-audio>
 <app-projector #screen class="hidden-page"></app-projector>
 <div class="base">
-  <div *ngIf="bff.locked" class="lock">
-    <!-- <ng-container *ngIf="powerIsOff(); else poweringOn"> -->
+  <div *ngIf="cg?.power === 'standby'" class="lock">
       <object type="image/svg+xml" data="../../assets/examples/logo.svg" class="logo"></object>
       <div class="bottom-half">
         <div class="buttons-row">
@@ -23,68 +22,6 @@
           </button>
         </div>
       </div>
-    <!-- </ng-container> -->
-    <!-- <ng-template #poweringOn> -->
-      <!-- <div class="logo"> -->
-          <!-- <mat-spinner color="primary"></mat-spinner> -->
-      <!-- </div> -->
-      <!-- <span class="text smaller">powering on, please wait...</span> -->
-  <!-- </ng-template> -->
   </div>
-  <app-home *ngIf="!bff.locked" [roomRef]="roomRef"></app-home>
+  <app-home *ngIf="cg?.power === 'on'" [roomRef]="roomRef"></app-home>
 </div>
-<!-- <div *ngIf="bff.screenoff" id="screenoff" (click)="bff.screenoff = false">
-  press anywhere to start
-</div> -->
-
-<!-- <div class="bottom-half">
-  <div class="unlock-button">
-    <button
-        mat-stroked
-        class="lock-screen-button start-button"
-        (click)="unlock();"
-        (press)="unlock();"
-    >
-    Start
-    </button>
-
-    </div>
-    <div  class="optional-buttons">
-      <ng-container *ngIf="hasScreens()">
-          <button
-              mat-stroked
-              class="lock-screen-button"
-              (click)="showScreenControl()"
-              (press)="showScreenControl()"
-          >
-          <mat-icon>unfold_more</mat-icon>
-          <div class="button-text">Screen Control</div>
-          </button>
-      </ng-container>
-      
-      <ng-container *ngIf="controlKey">
-          <button
-              mat-stroked
-              class="lock-screen-button"
-              (click)="showMobileControl()"
-              (press)="showMobileControl()"
-          >
-          <mat-icon>phone_iphone</mat-icon>
-          <div class="button-text">Key: {{data.controlKey}}</div>
-          </button>
-      </ng-container>
-
-
-      <ng-container *ngIf="hasAudioGroups() && !audio.isShowing()">
-          <button
-              mat-stroked
-              class="lock-screen-button"
-              (click)="showAudioControl()"
-              (press)="showAudioControl()"
-          >
-          <mat-icon class="rotate-90">tune</mat-icon>
-          <div class="button-text">Audio Control</div>
-          </button>
-      </ng-container>
-  </div>
-</div> -->
