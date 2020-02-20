@@ -13,7 +13,7 @@ import { Component } from "@angular/core";
           <div mat-dialog-actions class="items secondary-theme">
               <button mat-raised-button
                   color="warn"
-                  (click)="cancel(); command.buttonPress('Okay')">Cancel
+                  (click)="cancel();">Cancel
                   </button>
           </div>
       `,
