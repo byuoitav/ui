@@ -10,6 +10,7 @@ import (
 
 	"github.com/byuoitav/common/structs"
 	"github.com/byuoitav/common/v2/events"
+	"github.com/byuoitav/lazarette/lazarette"
 	"github.com/byuoitav/ui/log"
 	"golang.org/x/sync/errgroup"
 
@@ -28,8 +29,9 @@ type Client struct {
 	uiConfig UIConfig
 	lazs     LazaretteState
 
-	shareMutex sync.RWMutex
-	sharing    Sharing
+	lazaretteState chan *lazarette.KeyValue
+	shareMutex     sync.RWMutex
+	sharing        Sharing
 	// TODO get shareable
 	shareable Shareable
 
