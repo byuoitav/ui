@@ -85,6 +85,7 @@ func main() {
 		Browse: true,
 	}))
 
+	// TODO add an if check on these ui's, only serve them if on a pi
 	e.Group("/blueberry", middleware.StaticWithConfig(middleware.StaticConfig{
 		Root:   "blueberry",
 		Index:  "index.html",
