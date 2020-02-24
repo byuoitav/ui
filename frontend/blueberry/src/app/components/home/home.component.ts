@@ -41,7 +41,11 @@ export class HomeComponent implements OnInit {
   }
 
   openHelp = () => {
-    this.dialog.open(HelpComponent, {data: this.cg})
+    this.dialog.open(HelpComponent, {data: this.cg}).afterClosed().subscribe((helpMe) => {
+      if (helpMe) {
+        this.roomRef.requestHelp("");
+      }
+    });
   }
 
   openSharing = () => {

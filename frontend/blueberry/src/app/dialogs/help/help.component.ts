@@ -18,6 +18,10 @@ export class HelpComponent implements OnInit {
   }
 
   cancel() {
-    this.ref.close();
+    this.ref.close(false);
+  }
+
+  sendForHelp() {
+    this.ref.close(true);
   }
 }

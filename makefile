@@ -34,29 +34,35 @@ deps:
 	@echo Downloading frontend dependencies for dragonfruit...
 	@cd frontend/dragonfruit && npm install
 
-	# @echo Downloading frontend dependencies for blueberry...
-	# @cd frontend/blueberry && npm install
+	@echo Downloading frontend dependencies for blueberry...
+	@cd frontend/blueberry && npm install
 
 	@echo Downloading frontend dependencies for cherry...
 	@cd frontend/cherry && npm install
 
 build: deps
 	@mkdir -p dist
+	@echo
 	@echo Building backend for linux-amd64...
 	@cd backend && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o ../dist/${NAME}-linux-amd64 ${PKG}
 
+	@echo
 	@echo Building backend for linux-arm...
 	@cd backend && env CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -v -o ../dist/${NAME}-linux-arm ${PKG}
 
+	@echo
 	@echo Building dragonfruit...
 	@cd frontend/dragonfruit && npm run-script build && mv ./dist/dragonfruit ../../dist/ && rmdir ./dist
 
-	# @echo Building blueberry...
-	# @cd frontend/blueberry && npm run-script build && mv ./dist/blueberry ../../dist/ && rmdir ./dist
+	@echo
+	@echo Building blueberry...
+	@cd frontend/blueberry && npm run-script build && mv ./dist/blueberry ../../dist/ && rmdir ./dist
 
+	@echo
 	@echo Building cherry...
 	@cd frontend/cherry && npm run-script build && mv ./dist/cherry ../../dist/ && rmdir ./dist
 
+	@echo
 	@echo Build output is located in ./dist/.
 
 docker: clean build
@@ -79,6 +85,6 @@ deploy: docker
 clean:
 	@cd backend && go clean
 	@cd frontend/dragonfruit && rm -rf dist node_modules
-	# @cd frontend/blueberry && rm -rf dist node_modules
+	@cd frontend/blueberry && rm -rf dist node_modules
 	@cd frontend/cherry && rm -rf dist node_modules
 	@rm -rf dist/
