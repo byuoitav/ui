@@ -25,19 +25,18 @@ type Client struct {
 
 	room     structs.Room
 	state    structs.PublicRoom
-	lazState LazState
+	uiConfig UIConfig
+	lazs     LazaretteState
 
-	shareMutex *sync.RWMutex
+	shareMutex sync.RWMutex
 	sharing    Sharing
 	// TODO get shareable
 	shareable Shareable
 
-	uiConfig UIConfig
-
 	// if this channel is closed, then all goroutines
 	// spawned by the client should exit
-	kill  chan struct{}
-	close sync.Once
+	kill      chan struct{}
+	closeOnce sync.Once
 
 	ws         *websocket.Conn
 	httpClient *http.Client
@@ -47,9 +46,6 @@ type Client struct {
 
 	// events put in this channel get sent to the hub
 	SendEvent chan events.Event
-
-	// lazContext context.Context
-	// lazCancel context.CancelFunc
 
 	*zap.Logger
 }
@@ -62,24 +58,6 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 	if len(split) != 2 {
 		return nil, fmt.Errorf("invalid roomID %q - must match format BLDG-ROOM", roomID)
 	}
-	//lazAddr := os.Getenv("LAZARETTE_ADDR")
-	//if len(lazAddr) == 0 {
-	//	return nil, fmt.Errorf("LAZARETTE_ADDR not set")
-	//}
-
-	//lazContext, lazCancel := context.WithCancel(ctx)
-
-	//conn, err := grpc.DialContext(lazContext, lazAddr, grpc.WithInsecure(), grpc.WithBlock())
-	//if err != nil {
-	//	lazCancel()
-	//	return nil, fmt.Errorf("unable to connect with grpc to lazarette %v", err)
-	//}
-
-	//remote := lazarette.NewLazaretteClient(conn)
-
-	//lazState := LazState{
-	//	Client: remote,
-	//}
 
 	// build our client
 	c := &Client{
@@ -90,13 +68,12 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 		httpClient: &http.Client{},
 		Out:        make(chan Message, 1),
 		SendEvent:  make(chan events.Event),
-		//lazState:   lazState,
 		Logger:     log.P.Named(ws.RemoteAddr().String()),
-		shareMutex: new(sync.RWMutex),
+		// shareMutex: sync.RWMutex{},
+		lazs: LazaretteState{
+			Map: &sync.Map{},
+		},
 	}
-
-	//c.lazContext = lazContext
-	//c.lazCancel = lazCancel
 
 	// setup shoudn't take longer than 10 seconds
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
@@ -110,39 +87,57 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 		var err error
 		c.state, err = GetRoomState(ctx, c.httpClient, c.roomID)
 		if err != nil {
-			c.Warn("unable to get room state", zap.Error(err))
-			return fmt.Errorf("unable to get ui config: %v", err)
+			return fmt.Errorf("unable to get ui config: %w", err)
 		}
 
 		c.Debug("Successfully got room state")
 		return nil
 	})
 
+	// get the room config
 	g.Go(func() error {
 		var err error
 
 		c.room, err = GetRoomConfig(ctx, c.httpClient, c.roomID)
 		if err != nil {
-			c.Warn("unable to get room config", zap.Error(err))
-			return fmt.Errorf("unable to get room config: %v", err)
+			return fmt.Errorf("unable to get room config: %w", err)
 		}
 
 		c.Debug("Successfully got room config")
 		return nil
 	})
 
+	// get the ui config
 	g.Go(func() error {
 		var err error
 
 		c.uiConfig, err = GetUIConfig(ctx, c.httpClient, c.roomID)
 		if err != nil {
-			c.Warn("unable to get ui config", zap.Error(err))
-			return fmt.Errorf("unable to get ui config: %v", err)
+			return fmt.Errorf("unable to get ui config: %w", err)
 		}
 
 		c.Debug("Successfully got ui config")
 		return nil
 	})
+
+	// connect to lazarette
+	//g.Go(func() error {
+	//	var err error
+
+	//	laz, err := ConnectToLazarette(ctx)
+	//	if err != nil {
+	//		return fmt.Errorf("unable to connect to lazarette: %w", err)
+	//	}
+
+	//	// create the subscription
+	//	sub, err := laz.Subscribe(ctx, &lazarette.Key{Key: roomID})
+	//	if err != nil {
+	//		return fmt.Errorf("unable to subscribe to lazarette: %w", err)
+	//	}
+
+	//	go c.syncLazaretteState(sub)
+	//	return nil
+	//})
 
 	// 4 - LazState setup
 	//go func() {
@@ -177,47 +172,9 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 	//	c.Debug("LazState: setup finished")
 
 	//}()
-	//go func() {
-	//	c.lazState.Subscription, err = c.lazState.Client.Subscribe(c.lazContext, &lazarette.Key{Key: roomID})
-	//	if err != nil {
-	//		c.Warn("unable to subscribe to lazarette", zap.Error(err))
-	//		return
-	//	}
-	//	for {
-	//		select {
-	//		case <-ctx.Done():
-	//			return
-	//		case <-c.kill:
-	//			return
-	//		default:
-	//			kv, err := c.lazState.Subscription.Recv()
-	//			switch {
-	//			case err == io.EOF:
-	//				return
-	//			case err != nil:
-	//				c.Warn("something went wrong receiving change from remote", zap.Error(err))
-	//				continue
-	//			case kv == nil:
-	//				continue
-	//			}
-	//			if strings.Contains(kv.Key, "_sharing_displays") {
-	//				var sharingDisplays Sharing
-	//				err = json.Unmarshal(kv.Data, &sharingDisplays)
-	//				if err != nil {
-	//					c.Warn("unable to unmarshal sharing", zap.Error(err))
-	//				} else {
-	//					c.shareMutex.Lock()
-	//					c.sharing = sharingDisplays
-	//					c.shareMutex.Unlock()
-	//				}
-	//			}
-
-	//		}
-	//	}
-	//}()
 
 	if err := g.Wait(); err != nil {
-		return nil, fmt.Errorf("unable to get room information: %w", err)
+		return nil, fmt.Errorf("unable to get setup client: %w", err)
 	}
 
 	room := c.GetRoom()
@@ -225,19 +182,20 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 		c.selectedControlGroupID = controlGroupID
 	}
 
+	// TODO this should happen in get room
 	// Set up who can share to who
-	s := make(map[ID][]ID)
-	for _, p := range c.uiConfig.Presets {
-		for i, d := range p.ShareableDisplays {
-			shar := remove(p.ShareableDisplays, i)
-			shareable := make([]ID, len(shar))
-			for j := range shar {
-				shareable[j] = ID(shar[j])
-			}
-			s[ID(d)] = shareable
-		}
-	}
-	c.shareable = s
+	//s := make(map[ID][]ID)
+	//for _, p := range c.uiConfig.Presets {
+	//	for i, d := range p.ShareableDisplays {
+	//		shar := remove(p.ShareableDisplays, i)
+	//		shareable := make([]ID, len(shar))
+	//		for j := range shar {
+	//			shareable[j] = ID(shar[j])
+	//		}
+	//		s[ID(d)] = shareable
+	//	}
+	//}
+	//c.shareable = s
 
 	//check if controlgroup is empty, if not turn on displays in controlgroup
 	if len(c.selectedControlGroupID) > 0 {
@@ -285,10 +243,9 @@ func (c *Client) Wait() {
 
 // Close closes the client
 func (c *Client) Close() {
-	c.close.Do(func() {
+	c.closeOnce.Do(func() {
 		c.Info("Closing client. Bye!")
 
-		// c.lazCancel()
 		// close the kill chan to clean up all resources
 		close(c.kill)
 

@@ -5,11 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/byuoitav/common/structs"
-	"github.com/byuoitav/lazarette/lazarette"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"go.uber.org/zap"
 )
 
@@ -61,24 +58,24 @@ func getShareable(presets []Preset, id ID) ([]string, error) {
 */
 
 func updateLazSharing(ctx context.Context, c *Client) {
-	c.shareMutex.RLock()
-	data, err := json.Marshal(c.sharing)
-	c.shareMutex.RUnlock()
-	if err != nil {
-		c.Warn("unable to marshal sharing: %v", zap.Error(err))
-		return
-	}
-	kv := &lazarette.KeyValue{
-		Key:  fmt.Sprintf("%s-_sharing_displays", c.roomID),
-		Data: data,
-		Timestamp: &timestamp.Timestamp{
-			Seconds: time.Now().Unix(),
-		},
-	}
-	_, err = c.lazState.Client.Set(ctx, kv)
-	if err != nil {
-		c.Warn("unable to set sharing to the client: %v", zap.Error(err))
-	}
+	//c.shareMutex.RLock()
+	//data, err := json.Marshal(c.sharing)
+	//c.shareMutex.RUnlock()
+	//if err != nil {
+	//	c.Warn("unable to marshal sharing: %v", zap.Error(err))
+	//	return
+	//}
+	//kv := &lazarette.KeyValue{
+	//	Key:  fmt.Sprintf("%s-_sharing_displays", c.roomID),
+	//	Data: data,
+	//	Timestamp: &timestamp.Timestamp{
+	//		Seconds: time.Now().Unix(),
+	//	},
+	//}
+	//_, err = c.lazState.Client.Set(ctx, kv)
+	//if err != nil {
+	//	c.Warn("unable to set sharing to the client: %v", zap.Error(err))
+	//}
 }
 
 // Do sets the sharing state
