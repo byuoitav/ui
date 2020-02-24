@@ -4,7 +4,7 @@ import { AudioComponent } from './audio/audio.component';
 import { ProjectorComponent } from './projector/projector.component';
 import { MobileComponent } from '../dialogs/mobile/mobile.component';
 import { MatDialog } from '@angular/material';
-import { ControlGroup } from '../objects/control';
+import { ControlGroup } from '../../../../objects/control';
 
 @Component({
   selector: 'app-root',
