@@ -28,23 +28,12 @@ type SetInputMessage struct {
 	Input   ID `json:"input"`
 }
 
-// GetDisplay .
-func getDisplayGroup(cg ControlGroup, id ID) DisplayGroup {
-	var disp DisplayGroup
-	for i := range cg.DisplayGroups {
-		if cg.DisplayGroups[i].ID == id {
-			return cg.DisplayGroups[i]
-		}
-	}
-
-	return disp
-}
-
 // Do .
 func (si SetInput) Do(c *Client, data []byte) {
 	var msg SetInputMessage
 	err := json.Unmarshal(data, &msg)
 	if err != nil {
+		c.Warn("invalid value for setInput", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("invalid value for setInput: %s", err))
 		return
 	}
@@ -56,7 +45,6 @@ func (si SetInput) Do(c *Client, data []byte) {
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
 	c.Info("setting input", zap.String("on", string(msg.Display)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
 
-	var state structs.PublicRoom
 	// sharingChanged := false
 
 	// Go through all sharing groups
@@ -120,14 +108,15 @@ func (si SetInput) Do(c *Client, data []byte) {
 	//c.shareMutex.Unlock()
 
 	// find the display group by ID
-	group := getDisplayGroup(cg, msg.Display)
-	if len(group.ID) == 0 {
-		// TODO send the error to the frontend
-		c.Error("display group not found", zap.String("id", string(msg.Display)))
+	group, err := GetDisplayGroupByID(cg.DisplayGroups, msg.Display)
+	if err != nil {
+		c.Warn("failed to change input", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("failed to change input: %s", err))
 		return
 	}
 
 	// build the state object
+	var state structs.PublicRoom
 	for _, disp := range group.Displays {
 		display := structs.Display{
 			PublicDevice: structs.PublicDevice{

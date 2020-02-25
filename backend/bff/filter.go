@@ -57,3 +57,13 @@ func GetAudioDeviceByID(audioGroups []AudioGroup, id ID) (AudioDevice, error) {
 
 	return AudioDevice{}, fmt.Errorf("audioDevice %q not found", id)
 }
+
+func GetDisplayGroupByID(groups []DisplayGroup, id ID) (DisplayGroup, error) {
+	for i := range groups {
+		if groups[i].ID == id {
+			return groups[i], nil
+		}
+	}
+
+	return DisplayGroup{}, fmt.Errorf("displayGroup %q not found", id)
+}
