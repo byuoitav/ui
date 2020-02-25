@@ -1,4 +1,4 @@
-import { Component, OnInit, Input as AngularInput, Output } from '@angular/core';
+import { Component, OnInit, Input as AngularInput, Output, ɵConsole } from '@angular/core';
 import { MobileControlComponent } from "../../dialogs/mobilecontrol/mobilecontrol.component";
 import { MatDialog } from "@angular/material";
 import { RoomRef, BFFService } from '../../../services/bff.service';
@@ -38,10 +38,10 @@ export class DisplayComponent implements OnInit {
           if (this.selectedOutput == undefined) {
             this.selectedOutput = 0;
           }
-          if (this.cg[this.selectedOutput].blanked == true) {
+          if (this.cg.displayGroups[this.selectedOutput].blanked == true) {
             this.selectedInput = this.blanked;
           } else {
-            this.selectedInput = this.cg.inputs.find((i) => i.id === this.cg[this.selectedOutput].input)
+            this.selectedInput = this.cg.inputs.find((i) => i.id === this.cg.displayGroups[this.selectedOutput].input)
           }
         }
       }
@@ -73,5 +73,15 @@ export class DisplayComponent implements OnInit {
     } else {
       this.roomRef.setBlanked(d.id, true);
     }
+  }
+
+  public getInputIcon(d: DisplayGroup) {
+    const input = this.cg.inputs.find((i) => i.id === d.input)
+    return input.icon;
+  }
+
+  public getInputName(d: DisplayGroup) {
+    const input = this.cg.inputs.find((i) => i.id === d.input)
+    return input.name;
   }
 }

@@ -65,7 +65,7 @@ export class RoomRef {
   setBlanked = (displayID: string, blanked: boolean) => {
     const kv = {
       setBlanked: {
-        display: displayID,
+        displayGroup: displayID,
         blanked: blanked
       }
     };

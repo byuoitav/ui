@@ -6,13 +6,13 @@
             (click)="selectedOutput = i; getInputForOutput(d)"
             (press)="selectedOutput = i; getInputForOutput(d)"
         >
-            <span>{{ d?.outputs[0]?.name }}</span>
+            <span>{{ d?.displays[0]?.name }}</span>
 
             <div class="icon">
-                <i class="material-icons">{{ selectedInput.icon }}</i>
+                <i class="material-icons">{{ getInputIcon(d) }}</i>
             </div>
 
-            <span>{{ selectedInput.name }}</span>
+            <span>{{ getInputName(d) }}</span>
         </button>
     </div>
 </div>
@@ -62,8 +62,8 @@
 <div class="volume-label">Master Display Volume</div>
 <div class="volume">
     <volume
-        [mute] = "cg?.audioGroups[0]?.audioDevices[0]?.muted"
-        [level] = "cg?.audioGroups[0]?.audioDevices[0]?.level"
+        [mute] = "cg?.mediaAudio?.muted"
+        [level] = "cg?.mediaAudio?.level"
         (muteChange)="roomRef.setMuted($event)"
         (levelChange)="roomRef.setVolume($event)"></volume>
 </div>
