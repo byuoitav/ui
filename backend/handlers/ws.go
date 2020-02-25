@@ -34,8 +34,11 @@ func NewClient(c echo.Context) error {
 	defer ws.Close()
 
 	closeWithReason := func(msg string) error {
-		err := ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(4000, msg))
-		if err != nil {
+		// max control frame size is 125 bytes (https://tools.ietf.org/html/rfc6455#section-5.5)
+		cmsg := websocket.FormatCloseMessage(4000, msg)
+		cmsg = cmsg[:125]
+
+		if err := ws.WriteMessage(websocket.CloseMessage, cmsg); err != nil {
 			log.P.Warn("unable to write close message", zap.Error(err))
 		}
 
