@@ -32,7 +32,7 @@ func (sm SetMuted) Do(c *Client, data []byte) {
 
 	// get the current control group
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
-	c.Info("setting muted", zap.String("on", string(msg.AudioDevice)), zap.Bool("to", msg.Muted), zap.String("controlGroup", string(cg.ID)))
+	c.Info("Setting muted", zap.String("on", string(msg.AudioDevice)), zap.Bool("to", msg.Muted), zap.String("controlGroup", string(cg.ID)))
 
 	// build request to send av api
 	// if audioDevice isn't set, then they want to change the media mute
@@ -68,4 +68,6 @@ func (sm SetMuted) Do(c *Client, data []byte) {
 		c.Warn("failed to set muted", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to set muted: %w", err))
 	}
+
+	c.Info("Finished setting muted", zap.String("on", string(msg.AudioDevice)), zap.Bool("to", msg.Muted), zap.String("controlGroup", string(cg.ID)))
 }

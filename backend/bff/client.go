@@ -167,31 +167,13 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 	//}
 	//c.shareable = s
 
-	//check if controlgroup is empty, if not turn on displays in controlgroup
-	if len(c.selectedControlGroupID) > 0 {
-		var displays []ID
-		for _, display := range room.ControlGroups[c.selectedControlGroupID].DisplayBlocks {
-			displays = append(displays, display.ID)
-		}
-
-		setPowerMessage := SetPowerMessage{
-			Status: "on",
-		}
-
-		// turn the control group on - this will send the room to the client
-		err := c.CurrentPreset().Actions.SetPower.DoWithMessage(ctx, c, setPowerMessage)
-		if err != nil {
-			return nil, fmt.Errorf("unable to power on the following displays %s: %s", displays, err)
-		}
-	} else {
-		// write the inital room info
-		msg, err := JSONMessage("room", c.GetRoom())
-		if err != nil {
-			return nil, fmt.Errorf("unable to marshal room: %s", err)
-		}
-
-		c.Out <- msg
+	// send the inital room info
+	msg, err := JSONMessage("room", c.GetRoom())
+	if err != nil {
+		return nil, fmt.Errorf("unable to marshal room: %s", err)
 	}
+
+	c.Out <- msg
 
 	c.Info("Got all initial information, sent room to client. Starting ws/event goroutines")
 

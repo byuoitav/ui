@@ -43,14 +43,14 @@ func (c *Client) HandleMessage(msg Message) {
 			c.CurrentPreset().Actions.SetVolume.Do(c, v)
 		case "setPower":
 			c.CurrentPreset().Actions.SetPower.Do(c, v)
-		case "turnOffRoom":
-			_ = c.CurrentPreset().Actions.SetPower.PowerOffAll(c)
+		//case "turnOffRoom":
+		//	_ = c.CurrentPreset().Actions.SetPower.PowerOffAll(c)
 		case "helpRequest":
 			c.CurrentPreset().Actions.HelpRequest.Do(c, v)
-		case "getControlKey":
-			c.CurrentPreset().Actions.GetControlKey.Do(c, v)
-		case "setSharing":
-			c.CurrentPreset().Actions.SetSharing.Do(c, v)
+		//case "getControlKey":
+		//	c.CurrentPreset().Actions.GetControlKey.Do(c, v)
+		//case "setSharing":
+		//	c.CurrentPreset().Actions.SetSharing.Do(c, v)
 		default:
 			// c.Warn("received message with unknown key", zap.String("key", k), zap.ByteString("val", v))
 			fmt.Printf("v: %s", v)

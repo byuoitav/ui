@@ -31,8 +31,8 @@ const (
 //// Shareable .
 //type Shareable map[ID][]ID
 //
-//// Sharing .
-//type Sharing map[ID]ShareGroups
+// Sharing .
+// type Sharing map[ID]ShareGroups
 
 // ShareGroups .
 //type ShareGroups struct {

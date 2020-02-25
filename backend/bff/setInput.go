@@ -43,7 +43,7 @@ func (si SetInput) Do(c *Client, data []byte) {
 	defer cancel()
 
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
-	c.Info("setting input", zap.String("on", string(msg.Display)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
+	c.Info("Setting input", zap.String("on", string(msg.Display)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
 
 	// sharingChanged := false
 
@@ -139,4 +139,6 @@ func (si SetInput) Do(c *Client, data []byte) {
 		c.Warn("failed to change input", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to change input: %s", err))
 	}
+
+	c.Info("Finished setting input", zap.String("on", string(msg.Display)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
 }

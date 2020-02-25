@@ -2,7 +2,6 @@ package bff
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -36,7 +35,7 @@ func (c *Client) syncLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 		select {
 		case <-c.kill:
 			return
-		case kv := <-c.lazUpdates:
+		// case kv := <-c.lazUpdates:
 		default:
 			kv, err := sub.Recv()
 			switch {
@@ -53,13 +52,13 @@ func (c *Client) syncLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 
 			// stick the value into our map
 			switch key {
-			case "-sharingDisplays":
-				var sharingDisplays Sharing
-				if err := json.Unmarshal(kv.GetData(), &sharingDisplays); err != nil {
-					// TODO
-				}
+			//case "-sharingDisplays":
+			//	var sharingDisplays Sharing
+			//	if err := json.Unmarshal(kv.GetData(), &sharingDisplays); err != nil {
+			//		// TODO
+			//	}
 
-				c.lazs.Store(key, sharingDisplays)
+			//	c.lazs.Store(key, sharingDisplays)
 			default:
 			}
 
