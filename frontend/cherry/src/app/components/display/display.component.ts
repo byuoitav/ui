@@ -74,5 +74,4 @@ export class DisplayComponent implements OnInit {
       this.roomRef.setBlanked(d.id, true);
     }
   }
-
 }
