@@ -26,6 +26,7 @@ export interface ControlGroup {
   muted: boolean;
   screens: string[];
   poweredOn: boolean;
+  mediaAudio: MediaAudio;
 
   // public getAudioDevice(cg: ControlGroup, id: string): AudioDevice {
   //     for (const g of cg.audioGroups) {
@@ -36,6 +37,11 @@ export interface ControlGroup {
   //         }
   //     }
   // }
+}
+
+export interface MediaAudio {
+  level: number;
+  muted: boolean;
 }
 
 export interface Support {
