@@ -14,7 +14,7 @@ type SetPower struct {
 }
 
 type SetPowerMessage struct {
-	Status bool `json:"status"`
+	PoweredOn bool `json:"poweredOn"`
 }
 
 // Do .
@@ -33,7 +33,7 @@ func (sp SetPower) Do(c *Client, data []byte) {
 
 	// convert power status to the string the av-api wants
 	status := "standby"
-	if msg.Status {
+	if msg.PoweredOn {
 		status = "on"
 	}
 
