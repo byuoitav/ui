@@ -10,7 +10,7 @@
         <div></div>
       </li>
       
-      <li *ngFor="let i of cg?.inputs" class="input-slice" [class.selected-input]="i?.id === cg?.displayBlocks[0]?.input" (click)="setInput(i?.id)" (press)="setInput(i?.id)">
+      <li *ngFor="let i of cg?.inputs" class="input-slice" [class.selected-input]="i?.id === cg?.displayGroups[0]?.input" (click)="setInput(i?.id)" (press)="setInput(i?.id)">
         <div class="input" [style.top]="topoffset" [style.right]="rightoffset">
           <i class="material-icons">{{i?.icon}}</i>
           <span class="name">{{i?.name}}</span>
@@ -30,16 +30,16 @@
       <span class="center-item name" [class.open]="circleOpen">
         {{cg?.name}}
       </span>
-      <i class="center-item material-icons icon" [class.open]="circleOpen">{{cg?.displayBlocks[0]?.outputs[0]?.icon}}</i>
+      <i class="center-item material-icons icon" [class.open]="circleOpen">{{cg?.displayGroups[0]?.displays[0]?.icon}}</i>
 
       <span
-      *ngIf="!getBlank()"
+      *ngIf="!cg?.displayGroups[0]?.blanked"
       class="center-item picture"
       [class.open]="circleOpen"
       >picture on</span
     >
     <span
-      *ngIf="getBlank()"
+      *ngIf="cg?.displayGroups[0]?.blanked"
       class="center-item picture"
       [class.open]="circleOpen"
       >picture off</span
@@ -50,25 +50,23 @@
       (click)="$event.stopPropagation()"
       (press)="$event.stopPropagation()"
     >
-      <mat-slide-toggle class="switch" [disableRipple]=true [checked]="getBlank()" color="warn"></mat-slide-toggle>
+      <mat-slide-toggle class="switch" (click)="switchBlanked()" (press)="switchBlanked()" [disableRipple]=true [checked]="cg?.displayGroups[0]?.blanked" color="warn"></mat-slide-toggle>
     </div>
     </div>
   </div>
 </div>
 
-<!-- master volume slider -->
-<ng-container *ngIf="cg?.audioGroups.length > 0">
-  <volume
-    class="volume"
-    muteType="mat-fab"
-    [level]="getVolume()"
-    name="Display Volume"
-    [mute]="getMute()"
-    (levelChange)="setVolume($event)"
-    (muteChange)="setMute($event)"
-  >
-  </volume>
-</ng-container>
+<!-- media audio -->
+<volume
+  class="volume"
+  muteType="mat-fab"
+  [level]="cg?.mediaAudio?.level"
+  name="Display Volume"
+  [mute]="cg?.mediaAudio?.muted"
+  (levelChange)="setVolume($event)"
+  (muteChange)="setMute($event)"
+>
+</volume>
 
 <!-- one 'slice' of wheel -->
 <svg id="svg-block" width="0" height="0" style="position: absolute;">

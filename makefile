@@ -31,8 +31,8 @@ deps:
 	@echo Downloading backend dependencies...
 	@cd backend && go mod download
 
-	@echo Downloading frontend dependencies for dragonfruit...
-	@cd frontend/dragonfruit && npm install
+	#@echo Downloading frontend dependencies for dragonfruit...
+	#@cd frontend/dragonfruit && npm install
 
 	@echo Downloading frontend dependencies for blueberry...
 	@cd frontend/blueberry && npm install
@@ -50,9 +50,9 @@ build: deps
 	@echo Building backend for linux-arm...
 	@cd backend && env CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -v -o ../dist/${NAME}-linux-arm ${PKG}
 
-	@echo
-	@echo Building dragonfruit...
-	@cd frontend/dragonfruit && npm run-script build && mv ./dist/dragonfruit ../../dist/ && rmdir ./dist
+	#@echo
+	#@echo Building dragonfruit...
+	#@cd frontend/dragonfruit && npm run-script build && mv ./dist/dragonfruit ../../dist/ && rmdir ./dist
 
 	@echo
 	@echo Building blueberry...
@@ -84,7 +84,7 @@ deploy: docker
 
 clean:
 	@cd backend && go clean
-	@cd frontend/dragonfruit && rm -rf dist node_modules
+	#@cd frontend/dragonfruit && rm -rf dist node_modules
 	@cd frontend/blueberry && rm -rf dist node_modules
 	@cd frontend/cherry && rm -rf dist node_modules
 	@rm -rf dist/

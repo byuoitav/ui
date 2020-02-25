@@ -1,7 +1,7 @@
 <app-audio #audio class="hidden-page"></app-audio>
 <app-projector #screen class="hidden-page"></app-projector>
 <div class="base">
-  <div *ngIf="cg?.power === 'standby'" class="lock">
+  <div *ngIf="!cg?.poweredOn" class="lock">
       <object type="image/svg+xml" data="../../assets/examples/logo.svg" class="logo"></object>
       <div class="bottom-half">
         <div class="buttons-row">
@@ -23,5 +23,6 @@
         </div>
       </div>
   </div>
-  <app-home *ngIf="cg?.power === 'on'" [roomRef]="roomRef"></app-home>
+
+  <app-home *ngIf="cg?.poweredOn" [roomRef]="roomRef"></app-home>
 </div>

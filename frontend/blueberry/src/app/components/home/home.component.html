@@ -32,7 +32,7 @@
 </div>
 
 <div class="buttons bottom right">
-  <button mat-fab class="independentAudio button" (click)="audio.show(cg)" (press)="audio.show(cg)">
+  <button *ngIf="cg?.audioGroups" mat-fab class="independentAudio button" (click)="audio.show(cg)" (press)="audio.show(cg)">
     <mat-icon class="rotate-90">tune</mat-icon>
   </button>
 </div>

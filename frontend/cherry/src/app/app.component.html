@@ -12,8 +12,8 @@
         <div class="text">
           <button mat-stroked-button
             class="lock-screen-button start-button"
-            (click)="setPower()"
-            (press)="setPower()"
+            (click)="togglePower()"
+            (press)="togglePower()"
           >
             Start
           </button>
@@ -44,15 +44,17 @@
           </button>
           
           <!-- Audio Control -->
-          <ng-container *ngIf="cg?.audioGroups?.length > 1 || cg?.audioGroups[0]?.name != 'Display Volume Mixing'">
-            <button mat-stroked-button
-              class="lock-screen-button audio-button"
-              (click)="audio.show(roomRef)"
-              (press)="audio.show(roomRef)"
-            >
-              <mat-icon class="rotate-90">tune</mat-icon>
-              <div class="button-text">Audio Control</div>
-            </button>
+          <ng-container *ngIf="cg?.audioGroups != null">
+            <ng-container *ngIf="cg?.audioGroups?.length > 1 || cg?.audioGroups[0]?.name != 'Display Volume Mixing'">
+              <button mat-stroked-button
+                class="lock-screen-button audio-button"
+                (click)="audio.show(roomRef)"
+                (press)="audio.show(roomRef)"
+              >
+                <mat-icon class="rotate-90">tune</mat-icon>
+                <div class="button-text">Audio Control</div>
+              </button>
+            </ng-container>
           </ng-container>
         </div>
     </div>
@@ -64,8 +66,8 @@
     <button mat-raised-button
       class="power"
       color="warn"
-      (click)="setPower()"
-      (press)="setPower()"
+      (click)="togglePower()"
+      (press)="togglePower()"
     >
       Power Off
     </button>
@@ -85,9 +87,11 @@
       <mat-tab label="Display">
         <display [roomRef]="roomRef"></display>
       </mat-tab>
-      <mat-tab *ngIf="cg.audioGroups.length > 1 || cg.audioGroups[0].name != 'Display Volume Mixing'" label="Audio">
-        <audiocontrol [roomRef]="roomRef"></audiocontrol>
-      </mat-tab>
+      <ng-container *ngIf="cg?.audioGroups != null">
+          <mat-tab *ngIf="cg?.audioGroups.length > 1 || cg?.audioGroups[0].name != 'Display Volume Mixing'" label="Audio">
+              <audiocontrol [roomRef]="roomRef"></audiocontrol>
+            </mat-tab>
+      </ng-container>
       <mat-tab *ngIf="cg?.screens?.length > 0" label="Screen Control">
         <screencontrol></screencontrol>
       </mat-tab>
