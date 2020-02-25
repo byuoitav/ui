@@ -7,7 +7,7 @@ import { MatDialog } from "@angular/material";
 import {
   Room,
   ControlGroup,
-  DisplayBlock,
+  DisplayGroup,
   Input,
   AudioDevice,
   AudioGroup,
@@ -58,12 +58,23 @@ export class RoomRef {
       }
     };
 
-    // this.loading = true;
     this.commandInProgress = true;
     this._ws.send(JSON.stringify(kv));
   };
 
-  setVolume = (audioDeviceID: string, level: number) => {
+  setBlanked = (displayID: string, blanked: boolean) => {
+    const kv = {
+      setBlanked: {
+        display: displayID,
+        blanked: blanked
+      }
+    };
+
+    this.commandInProgress = true;
+    this._ws.send(JSON.stringify(kv));
+  }
+
+  setVolume = (level: number, audioDeviceID?: string) => {
     const kv = {
       setVolume: {
         audioDevice: audioDeviceID,
@@ -71,12 +82,11 @@ export class RoomRef {
       }
     };
 
-    // this.loading = true;
     this.commandInProgress = true;
     this._ws.send(JSON.stringify(kv));
   };
 
-  setMuted = (audioDeviceID: string, muted: boolean) => {
+  setMuted = (muted: boolean, audioDeviceID?: string) => {
     const kv = {
       setMuted: {
         audioDevice: audioDeviceID,
@@ -84,12 +94,11 @@ export class RoomRef {
       }
     };
 
-    // this.loading = true;
     this.commandInProgress = true;
     this._ws.send(JSON.stringify(kv));
   };
 
-  setPower = (displays: DisplayBlock[], power: string) => {
+  setPower = (displays: DisplayGroup[], power: boolean) => {
     const kv = {
       setPower: {
         displays: [],
@@ -105,11 +114,11 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  turnOff = (displays: DisplayBlock[]) => {
+  turnOff = (displays: DisplayGroup[]) => {
     const kv = {
       setPower: {
         displays: [],
-        status: "standby"
+        status: false
       }
     };
 

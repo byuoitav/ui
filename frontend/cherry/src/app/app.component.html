@@ -12,8 +12,8 @@
         <div class="text">
           <button mat-stroked-button
             class="lock-screen-button start-button"
-            (click)="setPower()"
-            (press)="setPower()"
+            (click)="togglePower()"
+            (press)="togglePower()"
           >
             Start
           </button>
@@ -64,8 +64,8 @@
     <button mat-raised-button
       class="power"
       color="warn"
-      (click)="setPower()"
-      (press)="setPower()"
+      (click)="togglePower()"
+      (press)="togglePower()"
     >
       Power Off
     </button>

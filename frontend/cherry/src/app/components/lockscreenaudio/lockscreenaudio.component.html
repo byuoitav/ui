@@ -26,8 +26,8 @@
                             class="volume display"
                             [mute]="a?.muted"
                             [level]="a?.level"
-                            (levelChange)="roomRef.setVolume(a?.id, $event)"
-                            (muteChange)="roomRef.setMuted(a?.id, $event)"
+                            (levelChange)="roomRef.setVolume($event, a?.id)"
+                            (muteChange)="roomRef.setMuted($event, a?.id)"
                         >
                         </volume>
                     </div>
@@ -49,8 +49,8 @@
                                     class="volume display"
                                     [mute]="a?.muted"
                                     [level]="a?.level"
-                                    (levelChange)="roomRef.setVolume(a?.id, $event)"
-                                    (muteChange)="roomRef.setMuted(a?.id, $event)"
+                                    (levelChange)="roomRef.setVolume($event, a?.id)"
+                                    (muteChange)="roomRef.setMuted($event, a?.id)"
                                 >
                                 </volume>
                             </div>

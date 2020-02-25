@@ -2,7 +2,7 @@ import { Component, OnInit, Input as AngularInput, Output } from '@angular/core'
 import { MobileControlComponent } from "../../dialogs/mobilecontrol/mobilecontrol.component";
 import { MatDialog } from "@angular/material";
 import { RoomRef, BFFService } from '../../../services/bff.service';
-import { ControlGroup, DisplayBlock, Input, Room } from '../../../../../objects/control';
+import { ControlGroup, DisplayGroup, Input, Room } from '../../../../../objects/control';
 
 
 
@@ -16,30 +16,33 @@ export class DisplayComponent implements OnInit {
   @AngularInput()
   roomRef: RoomRef
   cg: ControlGroup;
-  selectedOutput: DisplayBlock;
+  selectedOutput: number;
   selectedInput: Input;
+  blanked: Input;
   constructor(
     private dialog: MatDialog
   ) { }
 
   ngOnInit() {
+    this.blanked = {
+      id: "blank",
+      icon: "crop_landscape",
+      name: "Blank",
+      subInputs: null,
+      disabled: false
+    }
     this.roomRef.subject().subscribe((r) => {
       if (r) {
         this.cg = r.controlGroups[r.selectedControlGroup];
-        if (this.cg.displayBlocks.length > 0) {
-          this.selectedOutput = this.cg.displayBlocks[0];
-          // Danny says I don't have to worry about the blanked stuff and change input will eventually do that
-          // if (this.selectedOutput.blanked == true) {
-          //   this.selectedInput = this.cg.inputs[0];
-          // } else {
-          this.selectedInput = this.cg.inputs.find((i) => i.id === this.selectedOutput.input)
-            // for ( let input of this.cg.inputs) {
-            //   if (this.selectedOutput.input == input.id) {
-            //     this.selectedInput = input;
-            //     break;
-            //   }
-            // }
-          // }
+        if (this.cg.displayGroups.length > 0) {
+          if (this.selectedOutput == undefined) {
+            this.selectedOutput = 0;
+          }
+          if (this.cg[this.selectedOutput].blanked == true) {
+            this.selectedInput = this.blanked;
+          } else {
+            this.selectedInput = this.cg.inputs.find((i) => i.id === this.cg[this.selectedOutput].input)
+          }
         }
       }
     })
@@ -56,8 +59,19 @@ export class DisplayComponent implements OnInit {
     });
   }
 
-  public getInputForOutput(d: DisplayBlock) {
-    this.selectedInput = this.cg.inputs.find((i) => i.id === d.input)
+  public getInputForOutput(d: DisplayGroup) {
+    if (d.blanked == true) {
+      this.selectedInput = this.blanked;
+    } else {
+      this.selectedInput = this.cg.inputs.find((i) => i.id === d.input)
+    }
   }
 
+  public toggleBlank(d: DisplayGroup) {
+    if (d.blanked == true) {
+      this.roomRef.setBlanked(d.id, false);
+    } else {
+      this.roomRef.setBlanked(d.id, true);
+    }
+  }
 }
