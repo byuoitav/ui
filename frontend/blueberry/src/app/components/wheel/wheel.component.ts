@@ -62,9 +62,8 @@ export class WheelComponent {
   }
 
   private _applyChanges(tempCG: ControlGroup) {
-
-    this.cg.displayBlocks[0].input = tempCG.displayBlocks[0].input;
-    this.cg.audioGroups[0].audioDevices[0] = tempCG.audioGroups[0].audioDevices[0];
+    this.cg.displayGroups[0].input = tempCG.displayGroups[0].input;
+    // this.cg.audioGroups[0].audioDevices[0] = tempCG.audioGroups[0].audioDevices[0];
   }
 
   public render() {
@@ -203,34 +202,19 @@ export class WheelComponent {
   }
 
   setInput = (input: string) => {
-    console.log("setting input...")
-    this.roomRef.setInput(this.cg.displayBlocks[0].id, input);
-  }
-
-  getBlank(): boolean {
-    if (this.cg) {
-      return this.cg.displayBlocks[0].input === 'blank';
-    }
-  }
-
-  getVolume() {
-    if (this.cg) {
-      return this.cg.audioGroups[0].audioDevices[0].level;
-    }
-  }
-
-  getMute() {
-    if (this.cg) {
-      return this.cg.audioGroups[0].audioDevices[0].muted;
-    }
+    console.log("setting input...", this.cg.displayGroups[0].id)
+    this.roomRef.setInput(this.cg.displayGroups[0].id, input);
   }
 
   setVolume(level: number) {
-    this.roomRef.setVolume(this.cg.audioGroups[0].audioDevices[0].id, level);
+    this.roomRef.setVolume(level);
   }
 
   setMute(muted: boolean) {
-    console.log("setting mute to", muted);
-    this.roomRef.setMuted(this.cg.audioGroups[0].audioDevices[0].id, muted);
+    this.roomRef.setMuted(muted);
+  }
+
+  switchBlanked() {
+    this.roomRef.setBlanked(this.cg.displayGroups[0].id, !this.cg.displayGroups[0].blanked);
   }
 }

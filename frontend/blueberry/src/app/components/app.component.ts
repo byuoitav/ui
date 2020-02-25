@@ -29,7 +29,7 @@ export class AppComponent {
 
   unlock = () => {
     this.bff.locked = false;
-    this.roomRef.setPower(this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].displayBlocks, "on");
+    this.roomRef.setPower(true);
   }
 
   powerIsOff = ():boolean => {
