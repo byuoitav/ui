@@ -1,5 +1,7 @@
 package bff
 
+import "strings"
+
 // ShareState is one of 7 possible share states
 type ShareState int
 
@@ -101,7 +103,6 @@ type Input struct {
 	IconPair
 
 	SubInputs []Input `json:"subInputs"`
-	Disabled  bool    `json:"disabled"`
 }
 
 // AudioGroup .
@@ -145,6 +146,15 @@ type IconPair struct {
 
 // ID .
 type ID string
+
+func (i ID) GetName() string {
+	split := strings.Split(string(i), "-")
+	if len(split) != 3 {
+		return string(i)
+	}
+
+	return split[2]
+}
 
 // BoolP .
 func BoolP(b bool) *bool {

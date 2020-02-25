@@ -137,38 +137,28 @@ func (c *Client) GetRoom() Room {
 
 		cg.PoweredOn = poweredOn
 
-		// add a blank input as the first input if we aren't on blueberry
-		//cg.Inputs = append(cg.Inputs, Input{
-		//	ID: ID("blank"),
-		//	IconPair: IconPair{
-		//		Name: "Blank",
-		//		Icon: Icon{"crop_landscape"},
-		//	},
-		//	Disabled: false,
-		//})
-
+		// create the list of inputs available in this control group
+		// TODO subinputs
 		for _, name := range preset.Inputs {
 			config := GetDeviceConfigByName(c.room.Devices, name)
-			inputIcon := "settings_input_hdmi"
+			icon := "settings_input_hdmi" // default icon
 
+			// figure out which icon to use
 			for _, IOconfig := range c.uiConfig.InputConfiguration {
 				if config.Name != IOconfig.Name {
 					continue
 				}
 
-				inputIcon = IOconfig.Icon
+				icon = IOconfig.Icon
 			}
 
 			i := Input{
 				ID: ID(config.ID),
 				IconPair: IconPair{
 					Name: config.DisplayName,
-					Icon: Icon{inputIcon},
+					Icon: icon,
 				},
-				Disabled: false, // TODO look at the current displays reachable inputs to determine
 			}
-
-			// TODO subinputs
 
 			cg.Inputs = append(cg.Inputs, i)
 		}
@@ -208,20 +198,20 @@ func (c *Client) GetRoom() Room {
 					state := GetAudioDeviceStateByName(c.state.AudioDevices, name)
 
 					// figure out which icon to use - default to 'mic'
-					audioIcon := "mic"
+					icon := "mic"
 					for _, IOconfig := range c.uiConfig.OutputConfiguration {
 						if config.Name != IOconfig.Name {
 							continue
 						}
 
-						audioIcon = IOconfig.Icon
+						icon = IOconfig.Icon
 					}
 
 					dev := AudioDevice{
 						ID: ID(config.ID),
 						IconPair: IconPair{
 							Name: config.DisplayName,
-							Icon: Icon{audioIcon},
+							Icon: icon,
 						},
 					}
 
@@ -253,12 +243,22 @@ func (c *Client) GetRoom() Room {
 			for _, name := range preset.IndependentAudioDevices {
 				config := GetDeviceConfigByName(c.room.Devices, name)
 				state := GetAudioDeviceStateByName(c.state.AudioDevices, name)
+				icon := "mic"
+
+				// figure out which icon to use
+				for _, IOconfig := range c.uiConfig.OutputConfiguration {
+					if config.Name != IOconfig.Name {
+						continue
+					}
+
+					icon = IOconfig.Icon
+				}
 
 				dev := AudioDevice{
 					ID: ID(config.ID),
 					IconPair: IconPair{
 						Name: config.DisplayName,
-						Icon: Icon{"mic"}, // TODO get mic icon from outputconfig
+						Icon: icon,
 					},
 				}
 
