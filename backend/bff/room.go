@@ -1,5 +1,7 @@
 package bff
 
+import "fmt"
+
 func containsID(ids []ID, id ID) int {
 	for index, i := range ids {
 		if i == id {
@@ -18,40 +20,46 @@ func (c *Client) GetRoom() Room {
 		SelectedControlGroup: ID(c.selectedControlGroupID),
 	}
 
-	var masters []ID
-	active := make(map[ID]ID)
-	inactive := make(map[ID]ID)
+	//var masters []ID
+	//active := make(map[ID]ID)
+	//inactive := make(map[ID]ID)
 
-	c.shareMutex.RLock()
-	for master, mins := range c.sharing {
-		masters = append(masters, master)
-		for _, a := range mins.Active {
-			active[a] = master
-		}
-		for _, i := range mins.Inactive {
-			inactive[i] = master
-		}
-	}
-	c.shareMutex.RUnlock()
+	//c.shareMutex.RLock()
+	//for master, mins := range c.sharing {
+	//	masters = append(masters, master)
+	//	for _, a := range mins.Active {
+	//		active[a] = master
+	//	}
+	//	for _, i := range mins.Inactive {
+	//		inactive[i] = master
+	//	}
+	//}
+	//c.shareMutex.RUnlock()
 
+	// create all of the presets for this room
 	for _, preset := range c.uiConfig.Presets {
 		cg := ControlGroup{
 			ID:   ID(preset.Name),
 			Name: preset.Name,
 			Support: Support{
-				HelpRequested: false, // This info also needs to be saved...
+				HelpRequested: false, // TODO this info should be pulled from lazarette
 				HelpMessage:   "Request Help",
 				HelpEnabled:   true,
 			},
 		}
 
-		power := true
+		// poweredOn should be true if all of the displays are powered on
+		poweredOn := true
 
+		// create a displaygroup for each of the preset's displays
+		// right now, each display in the room gets its own group
+		// so for now, a display group will only have 1 display in it
 		for _, name := range preset.Displays {
 			config := GetDeviceConfigByName(c.room.Devices, name)
 			state := GetDisplayStateByName(c.state.Displays, name)
-			outputIcon := "tv"
+			outputIcon := "tv" // default icon
 
+			// find this icons display
 			for _, IOconfig := range c.uiConfig.OutputConfiguration {
 				if config.Name != IOconfig.Name {
 					continue
@@ -62,85 +70,82 @@ func (c *Client) GetRoom() Room {
 
 			// If any displays has its power off then the room is not entirely on
 			if state.Power != "on" {
-				power = false
+				poweredOn = false
 			}
 
 			// figure out what the current input for this display is
-			// we are assuming that input is roomID - input name
-			// unless it's blanked, then the "input" is blank
-			curInput := c.roomID + "-" + state.Input
-			if state.Input == "" {
-				curInput = c.roomID + "-" + preset.Inputs[0]
+			// we are assuming that input is 'roomID-inputname'
+			// if the input isn't set, then we default to the first input
+			curInput := fmt.Sprintf("%s-%s", c.roomID, state.Input)
+			if len(state.Input) == 0 && len(preset.Inputs) > 0 {
+				curInput = fmt.Sprintf("%s-%s", c.roomID, preset.Inputs[0])
 			}
+
 			blanked := false
 			if state.Blanked != nil && *state.Blanked {
 				blanked = true
 			}
 
-			s := ShareInfo{
-				Options: preset.ShareableDisplays,
-			}
+			//s := ShareInfo{
+			//	Options: preset.ShareableDisplays,
+			//}
 
-			// Set the different possible share states of a room
-			if m := containsID(masters, ID(name)); m >= 0 {
-				s.State = Unshare
-			} else if master, ok := active[ID(name)]; ok {
-				s.State = MinionActive
-				s.Master = master
-			} else if master, ok := inactive[ID(name)]; ok {
-				s.State = MinionInactive
-				s.Master = master
-			} else if _, ok := c.shareable[ID(name)]; ok {
-				s.State = Share
-			} else /*else if linkable?!?!*/ {
-				s.State = Nothing
-			}
-			if s.State == MinionActive {
-				c.shareMutex.RLock()
-				curInput = string(c.sharing[s.Master].Input)
-				c.shareMutex.RUnlock()
-			} else if s.State == MinionInactive {
-				cg.Inputs = append(cg.Inputs, Input{
-					ID: ID("Mirror ") + s.Master,
-					IconPair: IconPair{
-						Name: "Mirror " + string(s.Master),
-						Icon: Icon{"settings_input_hdmi"},
-					},
-					Disabled: false,
-				})
-			}
-			d := DisplayBlock{
+			//// Set the different possible share states of a room
+			//if m := containsID(masters, ID(name)); m >= 0 {
+			//	s.State = Unshare
+			//} else if master, ok := active[ID(name)]; ok {
+			//	s.State = MinionActive
+			//	s.Master = master
+			//} else if master, ok := inactive[ID(name)]; ok {
+			//	s.State = MinionInactive
+			//	s.Master = master
+			//} else if _, ok := c.shareable[ID(name)]; ok {
+			//	s.State = Share
+			//} else /*else if linkable?!?!*/ {
+			//	s.State = Nothing
+			//}
+			//if s.State == MinionActive {
+			//	c.shareMutex.RLock()
+			//	curInput = string(c.sharing[s.Master].Input)
+			//	c.shareMutex.RUnlock()
+			//} else if s.State == MinionInactive {
+			//	cg.Inputs = append(cg.Inputs, Input{
+			//		ID: ID("Mirror ") + s.Master,
+			//		IconPair: IconPair{
+			//			Name: "Mirror " + string(s.Master),
+			//			Icon: Icon{"settings_input_hdmi"},
+			//		},
+			//		Disabled: false,
+			//	})
+			//}
+
+			group := DisplayGroup{
 				ID:      ID(config.ID),
 				Blanked: blanked,
 				Input:   ID(curInput),
-				Share:   s,
+				// Share:   s,
 			}
 
-			// TODO outputs when we do sharing
-			d.Outputs = append(d.Outputs, IconPair{
+			group.Displays = append(group.Displays, IconPair{
 				ID:   ID(config.ID),
 				Name: config.DisplayName,
-				Icon: Icon{outputIcon},
+				Icon: outputIcon,
 			})
 
-			cg.DisplayBlocks = append(cg.DisplayBlocks, d)
+			cg.DisplayGroups = append(cg.DisplayGroups, group)
 		}
 
-		if power {
-			cg.Power = "on"
-		} else {
-			cg.Power = "standby"
-		}
+		cg.PoweredOn = poweredOn
 
 		// add a blank input as the first input if we aren't on blueberry
-		cg.Inputs = append(cg.Inputs, Input{
-			ID: ID("blank"),
-			IconPair: IconPair{
-				Name: "Blank",
-				Icon: Icon{"crop_landscape"},
-			},
-			Disabled: false,
-		})
+		//cg.Inputs = append(cg.Inputs, Input{
+		//	ID: ID("blank"),
+		//	IconPair: IconPair{
+		//		Name: "Blank",
+		//		Icon: Icon{"crop_landscape"},
+		//	},
+		//	Disabled: false,
+		//})
 
 		for _, name := range preset.Inputs {
 			config := GetDeviceConfigByName(c.room.Devices, name)

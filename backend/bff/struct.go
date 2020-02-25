@@ -54,15 +54,14 @@ type ControlGroup struct {
 	ID   ID     `json:"id"`
 	Name string `json:"name"`
 
-	//TODO switch power to be a boolean?
-	Power string `json:"power"`
+	PoweredOn bool `json:"poweredOn"`
 
 	MediaAudio struct {
 		Level int  `json:"level"`
 		Muted bool `json:"muted"`
 	} `json:"mediaAudio"`
 
-	DisplayBlocks []DisplayBlock `json:"displayBlocks"`
+	DisplayGroups []DisplayGroup `json:"displayGroups"`
 	Inputs        []Input        `json:"inputs"`
 	AudioGroups   []AudioGroup   `json:"audioGroups"`
 	PresentGroups []PresentGroup `json:"presentGroups"`
@@ -78,23 +77,23 @@ type Support struct {
 	HelpEnabled bool   `json:"helpEnabled"`
 }
 
-// DisplayBlock .
-type DisplayBlock struct {
+// DisplayGroup .
+type DisplayGroup struct {
 	ID ID `json:"id"`
 
-	Blanked bool `json:"blanked"`
+	Displays []IconPair `json:"displays"`
+	Blanked  bool       `json:"blanked"`
+	Input    ID         `json:"input"`
 
-	Outputs []IconPair `json:"outputs"`
-	Input   ID         `json:"input"`
-	Share   ShareInfo  `json:"share"`
+	// Share ShareInfo `json:"share"`
 }
 
 // ShareInfo .
-type ShareInfo struct {
-	State   ShareState `json:"state"`
-	Master  ID         `json:"master"`
-	Options []string   `json:"options"`
-}
+//type ShareInfo struct {
+//	State   ShareState `json:"state"`
+//	Master  ID         `json:"master"`
+//	Options []string   `json:"options"`
+//}
 
 // Input .
 type Input struct {
@@ -137,16 +136,11 @@ type PresentItem struct {
 	Name string `json:"name"`
 }
 
-// Icon .
-type Icon struct {
-	Icon string `json:"icon"`
-}
-
 // IconPair .
 type IconPair struct {
 	ID   ID     `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
-	Icon
+	Icon string `json:"icon"`
 }
 
 // ID .
