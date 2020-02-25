@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	"sync"
 
 	"github.com/byuoitav/lazarette/lazarette"
@@ -48,10 +47,10 @@ func (c *Client) syncLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 			}
 
 			// strip off beginning roomID so that we only have the actual key
-			key := strings.TrimPrefix(kv.GetKey(), c.roomID)
+			// key := strings.TrimPrefix(kv.GetKey(), c.roomID)
 
 			// stick the value into our map
-			switch key {
+			// switch key {
 			//case "-sharingDisplays":
 			//	var sharingDisplays Sharing
 			//	if err := json.Unmarshal(kv.GetData(), &sharingDisplays); err != nil {
@@ -59,8 +58,8 @@ func (c *Client) syncLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 			//	}
 
 			//	c.lazs.Store(key, sharingDisplays)
-			default:
-			}
+			// default:
+			// }
 
 			// TODO get a new room and send it?
 		}

@@ -183,10 +183,10 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 	return c, nil
 }
 
-func remove(l []string, index int) []string {
-	l[index] = l[len(l)-1]
-	return l[:len(l)-1]
-}
+//func remove(l []string, index int) []string {
+//	l[index] = l[len(l)-1]
+//	return l[:len(l)-1]
+//}
 
 // Wait waits until a client is dead
 func (c *Client) Wait() {

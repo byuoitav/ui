@@ -2,15 +2,15 @@ package bff
 
 import "fmt"
 
-func containsID(ids []ID, id ID) int {
-	for index, i := range ids {
-		if i == id {
-			return index
-		}
-	}
-
-	return -1
-}
+//func containsID(ids []ID, id ID) int {
+//	for index, i := range ids {
+//		if i == id {
+//			return index
+//		}
+//	}
+//
+//	return -1
+//}
 
 // GetRoom .
 func (c *Client) GetRoom() Room {
