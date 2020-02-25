@@ -89,9 +89,9 @@ export class AppComponent implements OnInit {
 
     if (this.cg.poweredOn == true) {
       //probably have to do a check to see if all the displays should turn off
-      this.roomRef.turnOff(this.cg.displayGroups);
+      this.roomRef.setPower(false);
     } else {
-      this.roomRef.setPower(this.cg.displayGroups, true);
+      this.roomRef.setPower(true);
     }
   }
 

@@ -38,7 +38,7 @@ func (sv SetVolume) Do(c *Client, data []byte) {
 	// if audioDevice isn't set, then they want to change the media level
 	// if it is, just change the given audio device
 	var state structs.PublicRoom
-	if len(msg.AudioDevice) > 0 {
+	if len(msg.AudioDevice) == 0 {
 		// to change media volume, we set the volume on _all_ of the matching presets' audioDevices
 		preset, err := c.GetPresetByName(string(cg.ID))
 		if err != nil {

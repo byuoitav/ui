@@ -53,7 +53,7 @@ export class RoomRef {
   setInput = (displayID: string, inputID: string) => {
     const kv = {
       setInput: {
-        display: displayID,
+        displayGroup: displayID,
         input: inputID
       }
     };
@@ -98,33 +98,12 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  setPower = (displays: DisplayGroup[], power: boolean) => {
+  setPower = (power: boolean) => {
     const kv = {
       setPower: {
-        displays: [],
-        status: power
+        poweredOn: power
       }
     };
-
-    for (const disp of displays) {
-      kv.setPower.displays.push(disp.id);
-    }
-
-    this.loading = true;
-    this._ws.send(JSON.stringify(kv));
-  };
-
-  turnOff = (displays: DisplayGroup[]) => {
-    const kv = {
-      setPower: {
-        displays: [],
-        status: false
-      }
-    };
-
-    for (const disp of displays) {
-      kv.setPower.displays.push(disp.id);
-    }
 
     this.loading = true;
     this._ws.send(JSON.stringify(kv));

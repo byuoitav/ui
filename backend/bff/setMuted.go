@@ -38,7 +38,7 @@ func (sm SetMuted) Do(c *Client, data []byte) {
 	// if audioDevice isn't set, then they want to change the media mute
 	// if it is, just change then given audio device
 	var state structs.PublicRoom
-	if len(msg.AudioDevice) > 0 {
+	if len(msg.AudioDevice) == 0 {
 		// to change media mute, we set the mute on _all_ of the matching presets' audioDevices
 		preset, err := c.GetPresetByName(string(cg.ID))
 		if err != nil {
