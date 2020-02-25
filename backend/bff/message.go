@@ -43,6 +43,8 @@ func (c *Client) HandleMessage(msg Message) {
 			c.CurrentPreset().Actions.SetVolume.Do(c, v)
 		case "setPower":
 			c.CurrentPreset().Actions.SetPower.Do(c, v)
+		case "setBlanked":
+			c.CurrentPreset().Actions.SetBlanked.Do(c, v)
 		//case "turnOffRoom":
 		//	_ = c.CurrentPreset().Actions.SetPower.PowerOffAll(c)
 		case "helpRequest":

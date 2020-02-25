@@ -24,8 +24,8 @@ type SetInput struct {
 
 // SetInputMessage .
 type SetInputMessage struct {
-	Display ID `json:"display"`
-	Input   ID `json:"input"`
+	DisplayGroup ID `json:"displayGroup"`
+	Input        ID `json:"input"`
 }
 
 // Do .
@@ -43,7 +43,7 @@ func (si SetInput) Do(c *Client, data []byte) {
 	defer cancel()
 
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
-	c.Info("Setting input", zap.String("on", string(msg.Display)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
+	c.Info("Setting input", zap.String("on", string(msg.DisplayGroup)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
 
 	// sharingChanged := false
 
@@ -108,7 +108,7 @@ func (si SetInput) Do(c *Client, data []byte) {
 	//c.shareMutex.Unlock()
 
 	// find the display group by ID
-	group, err := GetDisplayGroupByID(cg.DisplayGroups, msg.Display)
+	group, err := GetDisplayGroupByID(cg.DisplayGroups, msg.DisplayGroup)
 	if err != nil {
 		c.Warn("failed to change input", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to change input: %s", err))
@@ -140,5 +140,5 @@ func (si SetInput) Do(c *Client, data []byte) {
 		c.Out <- ErrorMessage(fmt.Errorf("failed to change input: %s", err))
 	}
 
-	c.Info("Finished setting input", zap.String("on", string(msg.Display)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
+	c.Info("Finished setting input", zap.String("on", string(msg.DisplayGroup)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
 }

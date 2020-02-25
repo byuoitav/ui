@@ -34,6 +34,7 @@ type Preset struct {
 		SetInput    SetInput    `json:"setInput,omitempty"`
 		SetVolume   SetVolume   `json:"setVolume,omitempty"`
 		SetMuted    SetMuted    `json:"setMuted,omitempty"`
+		SetBlanked  SetBlanked  `json:"setBlanked,omitempty"`
 		SetPower    SetPower    `json:"setPower,omitempty"`
 		HelpRequest HelpRequest `json:"helpRequest,omitempty"`
 		// GetControlKey GetKeyConfig `json:"getControlKey,omitempty"`

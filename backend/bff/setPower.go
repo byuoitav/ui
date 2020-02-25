@@ -22,6 +22,7 @@ func (sp SetPower) Do(c *Client, data []byte) {
 	var msg SetPowerMessage
 	err := json.Unmarshal(data, &msg)
 	if err != nil {
+		c.Warn("invalid value for setPower", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("invalid value for setPower: %s", err))
 		return
 	}
@@ -37,7 +38,7 @@ func (sp SetPower) Do(c *Client, data []byte) {
 	}
 
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
-	c.Info("Setting power", zap.String("to", status), zap.String("controlgroup", string(cg.ID)))
+	c.Info("Setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
 
 	// go through all of the display groups and turn on all of their displays
 	var state structs.PublicRoom
@@ -57,7 +58,7 @@ func (sp SetPower) Do(c *Client, data []byte) {
 		c.Out <- ErrorMessage(fmt.Errorf("failed to set power: %s", err))
 	}
 
-	c.Info("Finished setting power", zap.String("to", status), zap.String("controlgroup", string(cg.ID)))
+	c.Info("Finished setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
 }
 
 // PowerOffAll .
