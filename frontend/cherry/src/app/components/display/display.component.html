@@ -1,10 +1,10 @@
 <div class="outputs">
-    <div *ngFor="let d of cg?.displayBlocks">
+    <div *ngFor="let d of cg?.displayGroups; index as i">
         <button mat-button class="output mat-elevation-z15"
-            [color]="selectedOutput == d ? 'accent' : ''"
-            [class.mat-raised-button]="selectedOutput == d"
-            (click)="selectedOutput = d"
-            (press)="selectedOutput = d"
+            [color]="cg?.displayGroups[selectedOutput] == d ? 'accent' : ''"
+            [class.mat-raised-button]="cg?.displayGroups[selectedOutput] == d"
+            (click)="selectedOutput = i; getInputForOutput(d)"
+            (press)="selectedOutput = i; getInputForOutput(d)"
         >
             <span>{{ d?.outputs[0]?.name }}</span>
 
@@ -29,20 +29,33 @@
         </div>
     <!-- </ng-container> -->
     
-    <div *ngFor="let i of cg?.inputs" class="yourmom"
-    >
+    <div class="yourmom">
         <button mat-button class="input mat-elevation-z7"
-            [class.selected]="selectedInput == i"
-            [id]="'input' + i.id"
-            [class.mat-raised-button]="selectedInput == i"
-            (click)="changeInput(selectedOutput?.id, i)"
-            (press)="changeInput(selectedOutput?.id, i)"
+            [class.selected]="selectedInput == blanked"
+            [id]="'input' + blanked.id"
+            [class.mat-raised-button]="selectedInput == blanked"
+            (click)="toggleBlank(cg?.displayGroups[selectedOutput])"
+            (press)="toggleBlank(cg?.displayGroups[selectedOutput])"
         >
             <div class="icon">
-                <i class="material-icons">{{ i?.icon }}</i>
-                <span>{{ i?.name }}</span>
+                <i class="material-icons">{{ blanked?.icon }}</i>
+                <span>{{ blanked?.name }}</span>
             </div>
         </button>
+        <ng-container *ngFor="let i of cg?.inputs">
+            <button mat-button class="input mat-elevation-z7"
+                [class.selected]="selectedInput == i"
+                [id]="'input' + i.id"
+                [class.mat-raised-button]="selectedInput == i"
+                (click)="changeInput(cg?.displayGroups[selectedOutput]?.id, i)"
+                (press)="changeInput(cg?.displayGroups[selectedOutput]?.id, i)"
+            >
+                <div class="icon">
+                    <i class="material-icons">{{ i?.icon }}</i>
+                    <span>{{ i?.name }}</span>
+                </div>
+            </button>
+        </ng-container>
     </div>
 </div>
 
@@ -51,8 +64,8 @@
     <volume
         [mute] = "cg?.audioGroups[0]?.audioDevices[0]?.muted"
         [level] = "cg?.audioGroups[0]?.audioDevices[0]?.level"
-        (muteChange)="roomRef.setMuted(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"
-        (levelChange)="roomRef.setVolume(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"></volume>
+        (muteChange)="roomRef.setMuted($event)"
+        (levelChange)="roomRef.setVolume($event)"></volume>
 </div>
 
 <ng-template #blankicon>
