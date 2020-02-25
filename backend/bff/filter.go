@@ -67,3 +67,13 @@ func GetDisplayGroupByID(groups []DisplayGroup, id ID) (DisplayGroup, error) {
 
 	return DisplayGroup{}, fmt.Errorf("displayGroup %q not found", id)
 }
+
+func (c *Client) GetPresetByName(name string) (Preset, error) {
+	for i := range c.uiConfig.Presets {
+		if name == c.uiConfig.Presets[i].Name {
+			return c.uiConfig.Presets[i], nil
+		}
+	}
+
+	return Preset{}, fmt.Errorf("preset %q not found", name)
+}

@@ -8,6 +8,7 @@ func containsID(ids []ID, id ID) int {
 			return index
 		}
 	}
+
 	return -1
 }
 

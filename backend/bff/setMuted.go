@@ -35,16 +35,37 @@ func (sm SetMuted) Do(c *Client, data []byte) {
 	c.Info("setting muted", zap.String("on", string(msg.AudioDevice)), zap.Bool("to", msg.Muted), zap.String("controlGroup", string(cg.ID)))
 
 	// build request to send av api
+	// if audioDevice isn't set, then they want to change the media mute
+	// if it is, just change then given audio device
 	var state structs.PublicRoom
-	state.AudioDevices = append(state.AudioDevices, structs.AudioDevice{
-		PublicDevice: structs.PublicDevice{
-			Name: msg.AudioDevice.GetName(),
-		},
-		Muted: &msg.Muted,
-	})
+	if len(msg.AudioDevice) > 0 {
+		// to change media mute, we set the mute on _all_ of the matching presets' audioDevices
+		preset, err := c.GetPresetByName(string(cg.ID))
+		if err != nil {
+			c.Warn("failed to set muted on media audio", zap.Error(err))
+			c.Out <- ErrorMessage(fmt.Errorf("failed to set muted on media audio: %w", err))
+		}
+
+		// add each device to the av api request
+		for _, dev := range preset.AudioDevices {
+			state.AudioDevices = append(state.AudioDevices, structs.AudioDevice{
+				PublicDevice: structs.PublicDevice{
+					Name: dev,
+				},
+				Muted: &msg.Muted,
+			})
+		}
+	} else {
+		state.AudioDevices = append(state.AudioDevices, structs.AudioDevice{
+			PublicDevice: structs.PublicDevice{
+				Name: msg.AudioDevice.GetName(),
+			},
+			Muted: &msg.Muted,
+		})
+	}
 
 	if err := c.SendAPIRequest(ctx, state); err != nil {
 		c.Warn("failed to set muted", zap.Error(err))
-		c.Out <- ErrorMessage(fmt.Errorf("failed to set muted: %s", err))
+		c.Out <- ErrorMessage(fmt.Errorf("failed to set muted: %w", err))
 	}
 }
