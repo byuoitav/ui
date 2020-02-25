@@ -10,6 +10,13 @@ import (
 	"go.uber.org/zap"
 )
 
+// HTTPRequest .
+type HTTPRequest struct {
+	Method string          `json:"method"`
+	URL    string          `json:"url"`
+	Body   json.RawMessage `json:"body"`
+}
+
 // SetInput .
 type SetInput struct {
 	OnSameInput HTTPRequest `json:"onSameInput"`

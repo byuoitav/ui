@@ -36,7 +36,7 @@ func (c *Client) syncLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 		select {
 		case <-c.kill:
 			return
-		// case kv := <-c.lazaretteState:
+		case kv := <-c.lazUpdates:
 		default:
 			kv, err := sub.Recv()
 			switch {

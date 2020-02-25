@@ -27,13 +27,14 @@ type Client struct {
 	room     structs.Room
 	state    structs.PublicRoom
 	uiConfig UIConfig
-	lazs     LazaretteState
 
-	lazaretteState chan *lazarette.KeyValue
-	shareMutex     sync.RWMutex
-	sharing        Sharing
-	// TODO get shareable
-	shareable Shareable
+	lazs       LazaretteState
+	lazUpdates chan lazarette.KeyValue
+
+	//shareMutex sync.RWMutex
+	//sharing    Sharing
+	//// TODO get shareable
+	//shareable Shareable
 
 	// if this channel is closed, then all goroutines
 	// spawned by the client should exit
@@ -72,6 +73,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 		SendEvent:  make(chan events.Event),
 		Logger:     log.P.Named(ws.RemoteAddr().String()),
 		// shareMutex: sync.RWMutex{},
+		lazUpdates: make(chan lazarette.KeyValue),
 		lazs: LazaretteState{
 			Map: &sync.Map{},
 		},
@@ -123,57 +125,23 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 	})
 
 	// connect to lazarette
-	//g.Go(func() error {
-	//	var err error
+	g.Go(func() error {
+		var err error
 
-	//	laz, err := ConnectToLazarette(ctx)
-	//	if err != nil {
-	//		return fmt.Errorf("unable to connect to lazarette: %w", err)
-	//	}
+		laz, err := ConnectToLazarette(ctx)
+		if err != nil {
+			return fmt.Errorf("unable to connect to lazarette: %w", err)
+		}
 
-	//	// create the subscription
-	//	sub, err := laz.Subscribe(ctx, &lazarette.Key{Key: roomID})
-	//	if err != nil {
-	//		return fmt.Errorf("unable to subscribe to lazarette: %w", err)
-	//	}
+		// create the subscription
+		sub, err := laz.Subscribe(ctx, &lazarette.Key{Key: roomID})
+		if err != nil {
+			return fmt.Errorf("unable to subscribe to lazarette: %w", err)
+		}
 
-	//	go c.syncLazaretteState(sub)
-	//	return nil
-	//})
-
-	// 4 - LazState setup
-	//go func() {
-	//	c.Info("LazState: entered")
-	//	defer wg.Done()
-	//	var err error
-	//	setSharing := true
-
-	//	kSharing := &lazarette.Key{
-	//		Key: fmt.Sprintf("%v-_sharing_displays", roomID),
-	//	}
-	//	jSharingDisplays, err := c.lazState.Client.Get(ctx, kSharing)
-	//	if err != nil {
-	//		c.Info("unable to get sharing displays:", zap.Error(err))
-	//		setSharing = false
-	//	}
-
-	//	if setSharing {
-	//		c.Debug("LazState: got sharing")
-	//		var sharingDisplays Sharing
-	//		err = json.Unmarshal(jSharingDisplays.Data, &sharingDisplays)
-	//		if err != nil {
-	//			c.Warn("unable to unmarshal sharing displays: ", zap.Error(err))
-	//			errCh <- fmt.Errorf("unable to unmarshal volume: %v", err)
-	//		}
-	//		c.Info("LazState: unmarhalled sharing")
-	//		c.shareMutex.Lock()
-	//		c.sharing = sharingDisplays
-	//		c.shareMutex.Unlock()
-	//	}
-
-	//	c.Debug("LazState: setup finished")
-
-	//}()
+		go c.syncLazaretteState(sub)
+		return nil
+	})
 
 	if err := g.Wait(); err != nil {
 		return nil, fmt.Errorf("unable to get setup client: %w", err)

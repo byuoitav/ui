@@ -1,52 +1,44 @@
 package bff
 
-import (
-	"encoding/json"
-
-	"github.com/byuoitav/lazarette/lazarette"
-)
-
-// ShareState is one of 6 possible share states
+// ShareState is one of 7 possible share states
 type ShareState int
 
-/*
-	Nothing		   - cannot share
-	Share		   - can share
-	Unshare        - can stop sharing (is currently sharing)
-	Link           - can link
-	Unlink         - can unlink (is currently linked)
-	MinionActive   - is shared to and is displaying the share
-	MinionInactive - is shared to and is not displaying the share
-*/
 const (
-	Nothing = iota
+	// Nothing means that you can't share at all
+	Nothing ShareState = iota + 1
+
+	// Share means that you can share right now
 	Share
+
+	// Unshare means that you are currently sharing, and that you could unshare
 	Unshare
+
+	// Link means that you can link
 	Link
+
+	// Unlink means that you currently are linked, and you could unlink
 	Unlink
+
+	// MinionActive means that you are being shared to and are participating in that share
 	MinionActive
+
+	// MinionInactive means that you are being shared to but you are NOT participating in that share
 	MinionInactive
 )
 
-// LazState .
-type LazState struct {
-	Client       lazarette.LazaretteClient
-	Subscription lazarette.Lazarette_SubscribeClient
-}
-
-// Shareable .
-type Shareable map[ID][]ID
-
-// Sharing .
-type Sharing map[ID]ShareGroups
+//// Shareable .
+//type Shareable map[ID][]ID
+//
+//// Sharing .
+//type Sharing map[ID]ShareGroups
 
 // ShareGroups .
-type ShareGroups struct {
-	Input    ID   `json:"input"`
-	Active   []ID `json:"active"`
-	Inactive []ID `json:"inactive"`
-	Linked   []ID `json:"linked"`
-}
+//type ShareGroups struct {
+//	Input    ID   `json:"input"`
+//	Active   []ID `json:"active"`
+//	Inactive []ID `json:"inactive"`
+//	Linked   []ID `json:"linked"`
+//}
 
 // Room .
 type Room struct {
@@ -61,8 +53,14 @@ type Room struct {
 type ControlGroup struct {
 	ID   ID     `json:"id"`
 	Name string `json:"name"`
-	//TODO am right?
+
+	//TODO switch power to be a boolean?
 	Power string `json:"power"`
+
+	MediaAudio struct {
+		Level int  `json:"level"`
+		Muted bool `json:"muted"`
+	} `json:"mediaAudio"`
 
 	DisplayBlocks []DisplayBlock `json:"displayBlocks"`
 	Inputs        []Input        `json:"inputs"`
@@ -93,9 +91,9 @@ type DisplayBlock struct {
 
 // ShareInfo .
 type ShareInfo struct {
-	Options []string   `json:"shareOptions"`
-	State   ShareState `json:"shareState"`
-	Master  ID         `json:"shareMaster"`
+	State   ShareState `json:"state"`
+	Master  ID         `json:"master"`
+	Options []string   `json:"options"`
 }
 
 // Input .
@@ -153,13 +151,6 @@ type IconPair struct {
 
 // ID .
 type ID string
-
-// HTTPRequest .
-type HTTPRequest struct {
-	Method string          `json:"method"`
-	URL    string          `json:"url"`
-	Body   json.RawMessage `json:"body"`
-}
 
 // BoolP .
 func BoolP(b bool) *bool {
