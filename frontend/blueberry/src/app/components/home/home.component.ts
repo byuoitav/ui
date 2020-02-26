@@ -7,7 +7,6 @@ import { MatDialog } from '@angular/material';
 import { HelpComponent } from 'src/app/dialogs/help/help.component';
 import { SharingComponent } from 'src/app/dialogs/sharing/sharing.component';
 
-
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -37,11 +36,15 @@ export class HomeComponent implements OnInit {
   public turnOff() {
     console.log("turning off the room");
     this.bff.locked = true;
-    this.roomRef.setPower(this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].displayBlocks, "standby");
+    this.roomRef.setPower(false);
   }
 
   openHelp = () => {
-    this.dialog.open(HelpComponent, {data: this.cg})
+    this.dialog.open(HelpComponent, {data: this.cg}).afterClosed().subscribe((helpMe) => {
+      if (helpMe) {
+        this.roomRef.requestHelp("");
+      }
+    });
   }
 
   openSharing = () => {

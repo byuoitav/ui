@@ -100,7 +100,7 @@ func GetUIConfig(ctx context.Context, client *http.Client, roomID string) (UICon
 
 	req.Header.Add("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return config, err
 	}
@@ -114,6 +114,10 @@ func GetUIConfig(ctx context.Context, client *http.Client, roomID string) (UICon
 	err = json.Unmarshal(b, &config)
 	if err != nil {
 		return config, fmt.Errorf("failed to parse response: %s. response: %s", err, b)
+	}
+
+	if len(config.ID) == 0 {
+		return config, fmt.Errorf("unable to get %s: %s", endpoint, b)
 	}
 
 	return config, nil

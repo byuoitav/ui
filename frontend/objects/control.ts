@@ -17,7 +17,7 @@ export function isRoom(o: Object): o is Room {
 export interface ControlGroup {
   id: string;
   name: string;
-  displayBlocks: DisplayBlock[];
+  displayGroups: DisplayGroup[];
   inputs: Input[];
   audioGroups: AudioGroup[];
   presentGroups: PresentGroup[];
@@ -25,7 +25,8 @@ export interface ControlGroup {
   level: number;
   muted: boolean;
   screens: string[];
-  power: string;
+  poweredOn: boolean;
+  mediaAudio: MediaAudio;
 
   // public getAudioDevice(cg: ControlGroup, id: string): AudioDevice {
   //     for (const g of cg.audioGroups) {
@@ -38,13 +39,18 @@ export interface ControlGroup {
   // }
 }
 
+export interface MediaAudio {
+  level: number;
+  muted: boolean;
+}
+
 export interface Support {
   helpRequested: boolean;
   helpMessage: string;
   helpEnabled: boolean;
 }
 
-export interface DisplayBlock {
+export interface DisplayGroup {
   id: string;
   outputs: IconPair[];
   input: string;

@@ -69,4 +69,3 @@ module "deployment" {
 }
 
 // TODO prod
-// TODO add the other route53 entry

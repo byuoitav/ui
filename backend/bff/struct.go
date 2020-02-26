@@ -1,52 +1,46 @@
 package bff
 
-import (
-	"encoding/json"
+import "strings"
 
-	"github.com/byuoitav/lazarette/lazarette"
-)
-
-// ShareState is one of 6 possible share states
+// ShareState is one of 7 possible share states
 type ShareState int
 
-/*
-	Nothing		   - cannot share
-	Share		   - can share
-	Unshare        - can stop sharing (is currently sharing)
-	Link           - can link
-	Unlink         - can unlink (is currently linked)
-	MinionActive   - is shared to and is displaying the share
-	MinionInactive - is shared to and is not displaying the share
-*/
 const (
-	Nothing = iota
+	// Nothing means that you can't share at all
+	Nothing ShareState = iota + 1
+
+	// Share means that you can share right now
 	Share
+
+	// Unshare means that you are currently sharing, and that you could unshare
 	Unshare
+
+	// Link means that you can link
 	Link
+
+	// Unlink means that you currently are linked, and you could unlink
 	Unlink
+
+	// MinionActive means that you are being shared to and are participating in that share
 	MinionActive
+
+	// MinionInactive means that you are being shared to but you are NOT participating in that share
 	MinionInactive
 )
 
-// LazState .
-type LazState struct {
-	Client       lazarette.LazaretteClient
-	Subscription lazarette.Lazarette_SubscribeClient
-}
-
-// Shareable .
-type Shareable map[ID][]ID
-
+//// Shareable .
+//type Shareable map[ID][]ID
+//
 // Sharing .
-type Sharing map[ID]ShareGroups
+// type Sharing map[ID]ShareGroups
 
 // ShareGroups .
-type ShareGroups struct {
-	Input    ID   `json:"input"`
-	Active   []ID `json:"active"`
-	Inactive []ID `json:"inactive"`
-	Linked   []ID `json:"linked"`
-}
+//type ShareGroups struct {
+//	Input    ID   `json:"input"`
+//	Active   []ID `json:"active"`
+//	Inactive []ID `json:"inactive"`
+//	Linked   []ID `json:"linked"`
+//}
 
 // Room .
 type Room struct {
@@ -61,10 +55,15 @@ type Room struct {
 type ControlGroup struct {
 	ID   ID     `json:"id"`
 	Name string `json:"name"`
-	//TODO am right?
-	Power string `json:"power"`
 
-	DisplayBlocks []DisplayBlock `json:"displayBlocks"`
+	PoweredOn bool `json:"poweredOn"`
+
+	MediaAudio struct {
+		Level int  `json:"level"`
+		Muted bool `json:"muted"`
+	} `json:"mediaAudio"`
+
+	DisplayGroups []DisplayGroup `json:"displayGroups"`
 	Inputs        []Input        `json:"inputs"`
 	AudioGroups   []AudioGroup   `json:"audioGroups"`
 	PresentGroups []PresentGroup `json:"presentGroups"`
@@ -80,23 +79,23 @@ type Support struct {
 	HelpEnabled bool   `json:"helpEnabled"`
 }
 
-// DisplayBlock .
-type DisplayBlock struct {
+// DisplayGroup .
+type DisplayGroup struct {
 	ID ID `json:"id"`
 
-	Blanked bool `json:"blanked"`
+	Displays []IconPair `json:"displays"`
+	Blanked  bool       `json:"blanked"`
+	Input    ID         `json:"input"`
 
-	Outputs []IconPair `json:"outputs"`
-	Input   ID         `json:"input"`
-	Share   ShareInfo  `json:"share"`
+	// Share ShareInfo `json:"share"`
 }
 
 // ShareInfo .
-type ShareInfo struct {
-	Options []string   `json:"shareOptions"`
-	State   ShareState `json:"shareState"`
-	Master  ID         `json:"shareMaster"`
-}
+//type ShareInfo struct {
+//	State   ShareState `json:"state"`
+//	Master  ID         `json:"master"`
+//	Options []string   `json:"options"`
+//}
 
 // Input .
 type Input struct {
@@ -104,7 +103,6 @@ type Input struct {
 	IconPair
 
 	SubInputs []Input `json:"subInputs"`
-	Disabled  bool    `json:"disabled"`
 }
 
 // AudioGroup .
@@ -139,26 +137,23 @@ type PresentItem struct {
 	Name string `json:"name"`
 }
 
-// Icon .
-type Icon struct {
-	Icon string `json:"icon"`
-}
-
 // IconPair .
 type IconPair struct {
 	ID   ID     `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
-	Icon
+	Icon string `json:"icon"`
 }
 
 // ID .
 type ID string
 
-// HTTPRequest .
-type HTTPRequest struct {
-	Method string          `json:"method"`
-	URL    string          `json:"url"`
-	Body   json.RawMessage `json:"body"`
+func (i ID) GetName() string {
+	split := strings.Split(string(i), "-")
+	if len(split) != 3 {
+		return string(i)
+	}
+
+	return split[2]
 }
 
 // BoolP .

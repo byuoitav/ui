@@ -25,13 +25,13 @@
                                 <div class="mixers">
                                     <div class="sliders single-page">
                                         <div *ngFor="let a of ag?.audioDevices; let i = index" [id]="ag?.id + i" class="slider-container">
-                                            <volume class="slider" [level]="a?.level" [mute]="a?.muted" [name]="a?.name" (levelChange)="bff.roomRef.setVolume(a?.id, $event)" (muteChange)="bff.roomRef.setMuted(a?.id, $event)"></volume>
+                                            <volume class="slider" [level]="a?.level" [mute]="a?.muted" [name]="a?.name" (levelChange)="bff.roomRef.setVolume($event, a?.id)" (muteChange)="bff.roomRef.setMuted($event, a?.id)"></volume>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="master slider-container" *ngIf="j == 0">
-                                <volume class="slider" [level]="ag?.level" [mute]="ag?.audioDevices[0]?.muted" [name]="'Master Volume'" (levelChange)="bff.roomRef.setVolume(ag?.audioDevices[0]?.id, $event)" (muteChange)="bff.roomRef.setMuted(ag?.audioDevices[0]?.id, $event)"></volume>
+                                <volume class="slider" [level]="ag?.level" [mute]="ag?.audioDevices[0]?.muted" [name]="'Master Volume'" (levelChange)="bff.roomRef.setVolume($event)" (muteChange)="bff.roomRef.setMuted($event)"></volume>
                             </div>
                         </div>
                     </ng-container>
@@ -109,8 +109,8 @@
                               [level]="cg?.audioGroups[0]?.audioDevices[0]?.level" 
                               [mute]="cg?.audioGroups[0]?.audioDevices[0]?.muted" 
                               [name]="'Master Volume'"
-                              (levelChange)="bff.roomRef.setVolume(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"
-                              (muteChange)="bff.roomRef.setMuted(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"></volume>
+                              (levelChange)="bff.roomRef.setVolume($event)"
+                              (muteChange)="bff.roomRef.setMuted($event)"></volume>
                           </div>
                         </div>
                   
@@ -135,8 +135,8 @@
                                       [level]="a?.level" 
                                       [mute]="a?.muted" 
                                       [name]="a?.name"
-                                      (levelChange)="bff.roomRef.setVolume(a?.id, $event)"
-                                      (muteChange)="bff.roomRef.setMuted(a?.id, $event)"></volume>
+                                      (levelChange)="bff.roomRef.setVolume($event, a?.id)"
+                                      (muteChange)="bff.roomRef.setMuted($event, a?.id)"></volume>
                                 </div>
                             </div>
                         </div>
@@ -147,8 +147,8 @@
                           [level]="cg?.audioGroups[0]?.audioDevices[0]?.level" 
                           [mute]="cg?.audioGroups[0]?.audioDevices[0]?.muted" 
                           [name]="'Master Volume'"
-                          (levelChange)="bff.roomRef.setVolume(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"
-                          (muteChange)="bff.roomRef.setMuted(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"></volume>
+                          (levelChange)="bff.roomRef.setVolume($event)"
+                          (muteChange)="bff.roomRef.setMuted($event)"></volume>
                     </div>
                 </div>
             </ng-container>
@@ -177,8 +177,8 @@
                           [level]="a?.volume"
                           [mute]="a?.muted"
                           [name]="a?.name"
-                          (levelChange)="bff.roomRef.setVolume(a?.id, $event)"
-                          (muteChange)="bff.roomRef.setMuted(a?.id, $event)"
+                          (levelChange)="bff.roomRef.setVolume($event, a?.id)"
+                          (muteChange)="bff.roomRef.setMuted($event, a?.id)"
                         >
                         </volume>
                       </div>
@@ -224,8 +224,8 @@
                       [level]="cg?.audioGroups[0]?.audioDevices[0]?.level" 
                       [mute]="cg?.audioGroups[0]?.audioDevices[0]?.muted" 
                       [name]="'Master Volume'"
-                      (levelChange)="bff.roomRef.setVolume(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"
-                      (muteChange)="bff.roomRef.setMuted(cg?.audioGroups[0]?.audioDevices[0]?.id, $event)"></volume>
+                      (levelChange)="bff.roomRef.setVolume($event)"
+                      (muteChange)="bff.roomRef.setMuted($event)"></volume>
                   </div>
                 </div>
               </ng-container>
