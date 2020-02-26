@@ -12,7 +12,7 @@ import (
 	"github.com/byuoitav/common/structs"
 )
 
-func GetRoomConfig(ctx context.Context, client *http.Client, roomID string) (structs.Room, error) {
+func GetRoomConfig(ctx context.Context, client *http.Client, avApiAddr, roomID string) (structs.Room, error) {
 	var config structs.Room
 
 	split := strings.Split(roomID, "-")
@@ -20,8 +20,7 @@ func GetRoomConfig(ctx context.Context, client *http.Client, roomID string) (str
 		return config, fmt.Errorf("invalid roomID %q, must be in the format BLDG-ROOM", roomID)
 	}
 
-	// TODO use the one in aws
-	url := fmt.Sprintf("http://itb-1006-cp1.byu.edu:8000/buildings/%s/rooms/%s/configuration", split[0], split[1])
+	url := fmt.Sprintf("http://%s/buildings/%s/rooms/%s/configuration", avApiAddr, split[0], split[1])
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return config, err
@@ -46,7 +45,7 @@ func GetRoomConfig(ctx context.Context, client *http.Client, roomID string) (str
 	return config, nil
 }
 
-func GetRoomState(ctx context.Context, client *http.Client, roomID string) (structs.PublicRoom, error) {
+func GetRoomState(ctx context.Context, client *http.Client, avApiAddr, roomID string) (structs.PublicRoom, error) {
 	var state structs.PublicRoom
 
 	split := strings.Split(roomID, "-")
@@ -54,8 +53,7 @@ func GetRoomState(ctx context.Context, client *http.Client, roomID string) (stru
 		return state, fmt.Errorf("invalid roomID %q, must be in the format BLDG-ROOM", roomID)
 	}
 
-	// TODO use the one in aws
-	url := fmt.Sprintf("http://itb-1006-cp1.byu.edu:8000/buildings/%s/rooms/%s", split[0], split[1])
+	url := fmt.Sprintf("http://%s/buildings/%s/rooms/%s", avApiAddr, split[0], split[1])
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return state, err
