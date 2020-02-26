@@ -99,7 +99,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		var err error
 		c.state, err = GetRoomState(ctx, c.httpClient, c.config.AvApiAddr, c.roomID)
 		if err != nil {
-			return fmt.Errorf("unable to get ui config: %w", err)
+			return fmt.Errorf("unable to get room state: %w", err)
 		}
 
 		c.Debug("Successfully got room state")
