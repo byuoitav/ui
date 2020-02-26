@@ -23,9 +23,11 @@ import (
 func main() {
 	var port int
 	var logLevel int
+	var avApiAddr string
 
 	pflag.IntVarP(&port, "port", "p", 8080, "port to run the server on")
 	pflag.IntVarP(&logLevel, "log-level", "l", 2, "level of logging wanted. 1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=PANIC")
+	pflag.StringVarP(&avApiAddr, "av-api", "a", "localhost:8000", "address of the av-control-api to use")
 	pflag.Parse()
 
 	setLog := func(level int) error {
@@ -61,11 +63,15 @@ func main() {
 	e := echo.New()
 
 	// register new clients
-	e.GET("/ws", handlers.NewClient)
-	e.GET("/ws/:key", handlers.NewClient)
+	e.GET("/ws", handlers.NewClientHandler(handlers.NewClientConfig{
+		AvApiAddr: avApiAddr,
+	}))
+	e.GET("/ws/:key", handlers.NewClientHandler(handlers.NewClientConfig{
+		AvApiAddr: avApiAddr,
+	}))
 
 	// handle load balancer status check
-	e.GET("/status", func(c echo.Context) error {
+	e.GET("/healthz", func(c echo.Context) error {
 		return c.String(http.StatusOK, "healthy")
 	})
 
