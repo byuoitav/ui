@@ -1,0 +1,23 @@
+<div class="volume">
+    <!-- volume slider -->
+    <mat-slider #slider
+     class="slider"
+     (change)="levelChange.emit($event.value); closeThumb()"
+     [max]="100"
+     [min]="0"
+     [step]="5" 
+     [vertical]="true" 
+     [thumbLabel]="true" 
+     [value]="level">
+    </mat-slider>
+
+    <!-- mute button -->
+    <div [class.secondary-theme]="!mute">
+        <button mat-raised-button [color]="mute ? 'warn' : 'primary'" class="button" [class.muted]="mute"
+            (click)="toggleMute()"
+            (press)="toggleMute()">
+            <ng-container *ngIf="!mute">Mute</ng-container>
+            <ng-container *ngIf="mute">Unmute</ng-container>
+        </button>
+    </div>
+</div>

@@ -1,0 +1,99 @@
+<div class="background">
+  <div class="circle" [ngStyle]="{
+    'margin-top': top,
+    'margin-left': right,
+    'z-index': circleOpen ? 10 : 0,
+    transform: circleOpen ? translate : 'translate(0,0)'
+  }">
+    <ul #wheel class="wheel" [class.open]="circleOpen" >
+      <li class="title-slice">
+        <div></div>
+      </li>
+      
+      <li *ngFor="let i of cg?.inputs" class="input-slice" [class.selected-input]="i?.id === cg?.displayGroups[0]?.input" (click)="setInput(i?.id)" (press)="setInput(i?.id)">
+        <div class="input" [style.top]="topoffset" [style.right]="rightoffset">
+          <i class="material-icons">{{i?.icon}}</i>
+          <span class="name">{{i?.name}}</span>
+        </div>
+      </li>
+
+      <li class="thin">
+        <div class="line"></div>
+      </li>
+
+      <li *ngFor="let i of cg?.inputs" class="thin">
+        <div class="line"></div>
+      </li>
+    </ul>
+
+    <div class="center" [class.open]="circleOpen" [class.on]="true">
+      <span class="center-item name" [class.open]="circleOpen">
+        {{cg?.name}}
+      </span>
+      <i class="center-item material-icons icon" [class.open]="circleOpen">{{cg?.displayGroups[0]?.displays[0]?.icon}}</i>
+
+      <span
+      *ngIf="!cg?.displayGroups[0]?.blanked"
+      class="center-item picture"
+      [class.open]="circleOpen"
+      >picture on</span
+    >
+    <span
+      *ngIf="cg?.displayGroups[0]?.blanked"
+      class="center-item picture"
+      [class.open]="circleOpen"
+      >picture off</span
+    >
+    <div
+      class="center-item switch"
+      [class.open]="circleOpen"
+      (click)="$event.stopPropagation()"
+      (press)="$event.stopPropagation()"
+    >
+      <mat-slide-toggle class="switch" (click)="switchBlanked()" (press)="switchBlanked()" [disableRipple]=true [checked]="cg?.displayGroups[0]?.blanked" color="warn"></mat-slide-toggle>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- media audio -->
+<volume
+  class="volume"
+  muteType="mat-fab"
+  [level]="cg?.mediaAudio?.level"
+  name="Display Volume"
+  [mute]="cg?.mediaAudio?.muted"
+  (levelChange)="setVolume($event)"
+  (muteChange)="setMute($event)"
+>
+</volume>
+
+<!-- one 'slice' of wheel -->
+<svg id="svg-block" width="0" height="0" style="position: absolute;">
+  <defs>
+    <clipPath clipPathUnits="objectBoundingBox" id="sector">
+      <path
+        fill="transparent"
+        stroke="#111"
+        stroke-width="1"
+        id="sector"
+        [attr.d]="arcpath"
+      ></path>
+    </clipPath>
+  </defs>
+</svg>
+
+<!-- title slice -->
+<svg id="svg-block" width="0" height="0" style="position: absolute;">
+  <defs>
+    <clipPath clipPathUnits="objectBoundingBox" id="title-sector">
+      <path
+        fill="transparent"
+        stroke="#111"
+        stroke-width="1"
+        id="sector"
+        [attr.d]="titlearcpath"
+      ></path>
+    </clipPath>
+  </defs>
+</svg>

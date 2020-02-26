@@ -10,7 +10,7 @@ import {
   AUDIO_TAB,
   PRESENT_TAB,
   HELP_TAB
-} from "src/app/objects/control";
+} from "../../../../../objects/control";
 
 @Component({
   selector: "app-room-control",

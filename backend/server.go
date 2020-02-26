@@ -1,17 +1,23 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
+	"time"
 
+	"github.com/byuoitav/ui/bff"
 	"github.com/byuoitav/ui/handlers"
 	"github.com/byuoitav/ui/log"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
+	"golang.org/x/sync/singleflight"
 )
 
 func main() {
@@ -55,7 +61,8 @@ func main() {
 	e := echo.New()
 
 	// register new clients
-	e.GET("ws/:key", handlers.NewClient)
+	e.GET("/ws", handlers.NewClient)
+	e.GET("/ws/:key", handlers.NewClient)
 
 	// handle load balancer status check
 	e.GET("/status", func(c echo.Context) error {
@@ -76,17 +83,87 @@ func main() {
 		return c.String(http.StatusOK, fmt.Sprintf("Set log level to %v", level))
 	})
 
-	// serve ui
-	e.Group("/", middleware.StaticWithConfig(middleware.StaticConfig{
-		Root:   "dragonfruit",
-		Index:  "index.html",
-		HTML5:  true,
-		Browse: true,
-	}))
+	// group to get ui config
+	single := singleflight.Group{}
+
+	// serve the correct ui for this room
+	e.Group("/", func(next echo.HandlerFunc) echo.HandlerFunc {
+		root := "dragonfruit"
+		id := os.Getenv("SYSTEM_ID")
+		idsp := strings.Split(id, "-")
+
+		if len(idsp) == 3 {
+			roomID := fmt.Sprintf("%v-%v", idsp[0], idsp[1])
+
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			// cherry/blueberry will return slowish because this gets called every time.
+			// i dont think that really matters to much, but just a thought. singleflight should mitigate some of that
+			iconfig, err, _ := single.Do(roomID, func() (interface{}, error) {
+				config, err := bff.GetUIConfig(ctx, http.DefaultClient, roomID)
+				if err != nil {
+					return nil, err
+				}
+
+				return config, nil
+			})
+			if err != nil {
+				return errHandler(http.StatusInternalServerError, err)
+			}
+
+			config, ok := iconfig.(bff.UIConfig)
+			if !ok {
+				return errHandler(http.StatusInternalServerError, fmt.Errorf("unexpected response from getting UI config: got %T", iconfig))
+			}
+
+			// find my config
+			for _, panel := range config.Panels {
+				if strings.EqualFold(panel.Hostname, id) {
+					switch {
+					case strings.Contains(panel.UIPath, "blueberry"):
+						root = "blueberry"
+					case strings.Contains(panel.UIPath, "cherry"):
+						root = "cherry"
+					}
+				}
+			}
+		}
+
+		return middleware.StaticWithConfig(middleware.StaticConfig{
+			Root:   root,
+			Index:  "index.html",
+			HTML5:  true,
+			Browse: true,
+		})(next)
+	})
 
 	addr := fmt.Sprintf(":%d", port)
 	err := e.Start(addr)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.P.Fatal("failed to start server", zap.Error(err))
+	}
+}
+
+func errHandler(code int, err error) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.HTML(code, fmt.Sprintf(`
+			<!DOCTYPE html>
+			<html>
+				<head>
+					<script>
+						function refresh() {
+							setTimeout(() => {window.location.reload()}, 10000)
+						}
+					</script>
+				</head>
+				<body onload="refresh()">
+					<h1>%s</h1>
+					<span>%s</span>
+					<br /> <br /> <br />
+					<span>This page will refresh in 10 seconds.</span>
+				</body>
+			</html>
+		`, http.StatusText(code), err))
 	}
 }

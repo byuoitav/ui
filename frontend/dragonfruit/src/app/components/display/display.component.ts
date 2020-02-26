@@ -3,16 +3,16 @@ import { Component, OnInit, Input as AngularInput } from "@angular/core";
 import { RoomRef } from "src/app/services/bff.service";
 import {
   ControlGroup,
-  Display,
+  DisplayBlock,
   Input,
   IconPair
-} from "src/app/objects/control";
-import { IControlTab } from "../control-tab/icontrol-tab";
+} from "../../../../../objects/control";
+// import { IControlTab } from "../control-tab/icontrol-tab";
 
 class Page {
   pageOption: string;
   weight: number;
-  displays: Display[];
+  displays: DisplayBlock[];
 
   constructor() {
     this.displays = [];
@@ -26,14 +26,14 @@ class Page {
   templateUrl: "./display.component.html",
   styleUrls: ["./display.component.scss"]
 })
-export class DisplayComponent implements OnInit, IControlTab {
+export class DisplayComponent implements OnInit {
   @AngularInput() cg: ControlGroup;
   @AngularInput() private _roomRef: RoomRef;
 
   selectedDisplayIdx: number = 0;
   get selectedDisplay() {
-    if (this.cg && this.cg.displays && this.cg.displays.length > 0) {
-      return this.cg.displays[this.selectedDisplayIdx];
+    if (this.cg && this.cg.displayBlocks && this.cg.displayBlocks.length > 0) {
+      return this.cg.displayBlocks[this.selectedDisplayIdx];
     }
 
     return undefined;
@@ -57,7 +57,7 @@ export class DisplayComponent implements OnInit, IControlTab {
   }
 
   generatePages = () => {
-    if (this.cg === undefined || this.cg.displays === undefined) {
+    if (this.cg === undefined || this.cg.displayBlocks === undefined) {
       console.error("uninitialized control group");
       return;
     }
@@ -70,22 +70,22 @@ export class DisplayComponent implements OnInit, IControlTab {
     let p = new Page();
     p.displays = [];
 
-    while (displayIndex < this.cg.displays.length) {
+    while (displayIndex < this.cg.displayBlocks.length) {
       if (
         p.weight > 0 &&
-        p.weight + this.cg.displays[displayIndex].outputs.length >= 5
+        p.weight + this.cg.displayBlocks[displayIndex].outputs.length >= 5
       ) {
         this.displayPages.push(p);
         p = new Page();
       }
 
       // set the length of the outputs to the weight of the page
-      p.weight += this.cg.displays[displayIndex].outputs.length;
-      p.displays.push(this.cg.displays[displayIndex]);
+      p.weight += this.cg.displayBlocks[displayIndex].outputs.length;
+      p.displays.push(this.cg.displayBlocks[displayIndex]);
       if (p.weight > 4) {
         p.pageOption = "4";
       } else {
-        p.pageOption += "" + this.cg.displays[displayIndex].outputs.length;
+        p.pageOption += "" + this.cg.displayBlocks[displayIndex].outputs.length;
       }
 
       // check to see if the weight is less than the max
@@ -94,7 +94,7 @@ export class DisplayComponent implements OnInit, IControlTab {
         this.displayPages.push(p);
         p = new Page();
       } else {
-        if (displayIndex === this.cg.displays.length - 1) {
+        if (displayIndex === this.cg.displayBlocks.length - 1) {
           this.displayPages.push(p);
         }
       }

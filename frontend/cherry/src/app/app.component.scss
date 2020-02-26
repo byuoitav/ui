@@ -1,0 +1,162 @@
+// center the tab labels
+.mat-tab-labels {
+    justify-content: center;
+}
+
+// make sure no sliders show up
+.mat-tab-body-content {
+    overflow: hidden !important;
+}
+
+$buttonXOffset: .55rem;
+.mat-tab-group {
+    height: 100%;
+}
+
+.mat-slider {
+    .mat-slider-thumb {
+        // default size of thumb
+        $size: 30px;
+        width: $size;
+        height: $size;
+        right: $size / -2;
+        bottom: $size / -2;
+    }
+    &.cdk-focused {
+        .mat-slider-thumb-label {
+            // how much thumb grows on click
+            transform: rotate(-45deg) scale(2) translate(-7.5px, -7.5px) !important;
+        }
+    }
+}
+
+.base {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.lock {
+    z-index: 1000;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    // * {
+    //     pointer-events: none;
+    // }
+    .progress {
+        position: absolute;
+        top: 0;
+        width: 100%;
+    }
+    .logo {
+        top: 7%;
+        position: relative;
+        height: 60vh;
+        width: 60vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .text {
+        z-index: 1000;
+        margin-top: 3%;
+        margin-bottom: 10%;
+        font-size: 150%;
+        &.smaller {
+            transform: scale(.75);
+        }
+    }
+}
+
+%button {
+    z-index: 1000;
+    position: absolute !important;
+}
+
+%top-button {
+    top: .35rem;
+}
+
+.power {
+    @extend %button;
+    @extend %top-button;
+    left: $buttonXOffset;
+}
+
+.help {
+    @extend %button;
+    @extend %top-button;
+    width: 11vw;
+    right: $buttonXOffset;
+}
+
+.loading {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.optional-buttons {
+    width: 100%;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.lock-screen-button {
+    color: white;
+    border-color: #666666 !important; 
+    text-align: center;
+    font-size: 12pt;
+    border-radius: 10px !important;
+    min-height: 83px;
+    width: 180px;
+    margin-left: 30px !important;
+    margin-right: 30px !important;
+    
+    &.mobile-control {
+        padding-top: 10px;
+        font-size: 11pt;
+    }
+    &.start-button {
+        top: 55%;
+        font-size: 26pt;
+    }
+    &.screen-button {
+        padding-top: 10px;
+    }
+    &.audio-button {
+        padding-top: 10px;
+    }
+}
+
+.rotate-90 {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg) scale(1.4);
+}
+
+.screen-control-icon {
+    transform: scale(1.4);
+}
+
+.audio {
+    z-index: 10000;
+    height: 100%;
+    width: 100%;
+  }

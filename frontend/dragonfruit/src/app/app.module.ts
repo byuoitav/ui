@@ -36,8 +36,6 @@ import { PresentComponent } from "./components/present/present.component";
 import { HelpComponent } from "./components/help/help.component";
 import { HelpInfoComponent } from "./components/help/help-info/help-info.component";
 import { WideButtonComponent } from "./components/wide-button/wide-button.component";
-import { ControlTabComponent } from "./components/control-tab/control-tab.component";
-import { ControlTabDirective } from "./components/control-tab/control-tab.directive";
 import { ErrorDialog } from "./dialogs/error/error.dialog";
 import { DisplayComponent } from './components/display/display.component';
 
@@ -57,8 +55,6 @@ import { DisplayComponent } from './components/display/display.component';
     HelpComponent,
     HelpInfoComponent,
     WideButtonComponent,
-    ControlTabComponent,
-    ControlTabDirective,
     ErrorDialog,
     DisplayComponent
   ],

@@ -1,0 +1,21 @@
+
+.text {
+    text-align: center;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    font-size: 1.3em;
+    margin-top: 3vh;
+    margin-bottom: 3vh;
+  
+    &.title {
+      font-size: 1.7em;
+      margin-top: unset;
+      margin-bottom: 7vh;
+    }
+  }
+  
+  .items {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }

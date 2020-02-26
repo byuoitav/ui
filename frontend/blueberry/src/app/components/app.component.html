@@ -1,0 +1,28 @@
+<app-audio #audio class="hidden-page"></app-audio>
+<app-projector #screen class="hidden-page"></app-projector>
+<div class="base">
+  <div *ngIf="!cg?.poweredOn" class="lock">
+      <object type="image/svg+xml" data="../../assets/examples/logo.svg" class="logo"></object>
+      <div class="bottom-half">
+        <div class="buttons-row">
+          <button mat-stroked class="lock-screen-button" style="font-size: 18pt;" (click)="unlock()" (press)="unlock()">Start</button>
+        </div>
+        <div class="buttons-row" *ngIf="hasScreens() || haveControlKey() || hasAudioGroups()">
+          <button mat-stroked class="lock-screen-button" *ngIf="hasScreens()" (click)="showScreenControl()" (press)="showScreenControl()">
+            <div class="button-text">Screen Control</div>
+            <mat-icon>unfold_more</mat-icon>
+          </button>
+          <button mat-stroked class="lock-screen-button" *ngIf="haveControlKey()" (click)="showMobileControl()" (press)="showMobileControl()">
+            <div class="button-text">Mobile Control</div>
+            <mat-icon>phone_iphone</mat-icon>
+          </button>
+          <button mat-stroked class="lock-screen-button" *ngIf="hasAudioGroups()" (click)="showAudioControl()" (press)="showAudioControl()">
+            <div class="button-text">Audio Control</div>
+            <mat-icon class="rotate-90">tune</mat-icon>
+          </button>
+        </div>
+      </div>
+  </div>
+
+  <app-home *ngIf="cg?.poweredOn" [roomRef]="roomRef"></app-home>
+</div>

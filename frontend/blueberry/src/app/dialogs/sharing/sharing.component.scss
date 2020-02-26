@@ -1,0 +1,31 @@
+.text {
+    text-align: center;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    font-size: 1.3em;
+  
+    &.title {
+      font-size: 1.7em;
+    }
+}
+
+.row {
+    display: flex;
+    flex-flow: row wrap;
+    width: 70vw;
+    max-width: 70vw;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-top: 4vh;
+    margin-bottom: 4vh;
+    // padding: 10px;
+}
+.share-button {
+    min-width: 15vw;
+}
+
+.items {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }

@@ -1,0 +1,41 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~material-design-icons/iconfont/material-icons.css";
+// @import '~@angular/material/prebuilt-themes/indigo-pink.css';
+@import "./app/theme.scss";
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:600");
+
+html {
+  overflow: hidden;
+  user-select: none;
+
+  font-family: "Source Sans Pro", sans-serif;
+  letter-spacing: 0.1px;
+}
+
+// TODO add a background fill to the mic sliders
+::ng-deep .volume,
+.mic {
+  ::ng-deep .mat-slider-track-background {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  ::ng-deep .mat-slider-track-fill {
+    background-color: rgba(0, 122, 212, 1);
+  }
+
+  ::ng-deep .mat-slider-thumb, .mat-slider-thumb-label {
+    background-color: rgba(0, 122, 212, 1);
+  }
+}
+
+::ng-deep .volume.muted,
+.mic.muted {
+  .mat-slider-track-fill {
+    background-color: #c62828;
+  }
+
+  .mat-slider-thumb,
+  .mat-slider-thumb-label {
+    background-color: #c62828;
+  }
+}
