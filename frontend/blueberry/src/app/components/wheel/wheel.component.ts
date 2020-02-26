@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material";
 import { RoomRef, BFFService } from 'src/app/services/bff.service';
-import { ControlGroup, Input } from 'src/app/objects/control';
+import { ControlGroup, Input } from '../../../../../objects/control';
 
 @Component({
   selector: "app-wheel",
@@ -63,6 +63,8 @@ export class WheelComponent {
 
   private _applyChanges(tempCG: ControlGroup) {
     this.cg.displayGroups[0].input = tempCG.displayGroups[0].input;
+    this.cg.displayGroups[0].blanked = tempCG.displayGroups[0].blanked;
+    this.cg.mediaAudio = tempCG.mediaAudio; 
     // this.cg.audioGroups[0].audioDevices[0] = tempCG.audioGroups[0].audioDevices[0];
   }
 

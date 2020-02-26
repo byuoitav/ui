@@ -12,7 +12,7 @@ import {
   AudioDevice,
   AudioGroup,
   PresentGroup
-} from "../objects/control";
+} from "../../../../objects/control";
 // import { ErrorDialog } from "../dialogs/error/error.dialog";
 // import { TurnOffRoomDialogComponent } from "../dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component";
 
@@ -92,6 +92,8 @@ export class RoomRef {
         blanked: blanked
       }
     };
+
+    console.log("blanking", kv);
 
     this.loading = true;
     this._ws.send(JSON.stringify(kv));

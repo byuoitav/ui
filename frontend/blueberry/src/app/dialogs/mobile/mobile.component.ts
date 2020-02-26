@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { ControlGroup } from 'src/app/objects/control';
+import { ControlGroup } from '../../../../../objects/control';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { RoomRef, BFFService } from 'src/app/services/bff.service';
 
