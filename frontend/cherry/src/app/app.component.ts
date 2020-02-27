@@ -2,7 +2,6 @@ import { Component, ViewEncapsulation, OnInit, ViewChild } from "@angular/core";
 import { MatDialog } from '@angular/material';
 import { trigger, transition, animate } from "@angular/animations";
 import { Http } from "@angular/http";
-import { Output } from '../objects/status.objects';
 import { BFFService, RoomRef } from '../services/bff.service';
 import { HelpDialog } from "./dialogs/help.dialog";
 import { MobileControlComponent } from "./dialogs/mobilecontrol/mobilecontrol.component";
