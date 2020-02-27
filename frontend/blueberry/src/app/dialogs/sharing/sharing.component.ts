@@ -12,7 +12,7 @@ export class SharingComponent implements OnInit {
     public ref: MatDialogRef<SharingComponent>,
     @Inject(MAT_DIALOG_DATA) public cg: ControlGroup
     ) {
-      this.cg.displayGroups[0].shareOptions = ["Station 1", "Station 2", "Station 3"];
+      // this.cg.displayGroups[0].shareOptions = ["Station 1", "Station 2", "Station 3"];
     }
 
   ngOnInit() {
