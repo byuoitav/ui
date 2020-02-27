@@ -22,6 +22,9 @@ const (
 
 	// time allowed to send a message to the client
 	writeWait = 10 * time.Second
+
+	// duration after getting an intial room message to wait for more
+	roomAggDuration = 300 * time.Millisecond
 )
 
 // readPump receives messages from the frontend and passes them to
@@ -71,18 +74,67 @@ func (c *Client) readPump() {
 }
 
 func (c *Client) writePump() {
-	ticker := time.NewTicker(pingPeriod)
+	ping := time.NewTicker(pingPeriod)
 
 	defer c.Close()
-	defer ticker.Stop()
+	defer ping.Stop()
+
+	// aggregate room messages over <duration> before sending them
+	rooms := make(chan json.RawMessage)
+	defer close(rooms)
+
+	aggedRooms := msgAggregator(rooms, roomAggDuration)
 
 	for {
 		select {
+		case <-c.kill:
+			return
+		case <-ping.C:
+			_ = c.ws.SetWriteDeadline(time.Now().Add(writeWait))
+
+			if err := c.ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+				return
+			}
+		case room, _ := <-aggedRooms:
+			// send this room
+			msg, err := JSONMessage("room", room.Message)
+			if err != nil {
+				c.Warn("unable to create room message to send to client", zap.Error(err))
+				continue
+			}
+
+			// marshal the message
+			data, err := json.Marshal(msg)
+			if err != nil {
+				c.Warn("unable to marshal room message to send to client", zap.Error(err))
+				continue
+			}
+
+			c.Debug("Sending aggregated room to client", zap.Int("aggregated", room.Aggregated), zap.ByteString("message", data))
+
+			// set our write deadline
+			_ = c.ws.SetWriteDeadline(time.Now().Add(writeWait))
+
+			if err := c.ws.WriteMessage(websocket.TextMessage, data); err != nil {
+				c.Error("unable to write room to client", zap.Error(err))
+				return
+			}
 		case msg, ok := <-c.Out:
 			if !ok {
 				// my channel got closed, must be time to stop
 				_ = c.ws.WriteMessage(websocket.CloseMessage, []byte{})
 				return
+			}
+
+			if _, ok := msg["room"]; ok {
+				// send my room
+				rooms <- msg["room"]
+
+				// delete it from this message
+				delete(msg, "room")
+				if len(msg) == 0 {
+					continue
+				}
 			}
 
 			// marshal the message
@@ -106,14 +158,52 @@ func (c *Client) writePump() {
 				c.Error("unable to write message to client", zap.Error(err))
 				return // bye
 			}
-		case <-ticker.C:
-			_ = c.ws.SetWriteDeadline(time.Now().Add(writeWait))
-
-			if err := c.ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
-				return
-			}
-		case <-c.kill:
-			return
 		}
 	}
+}
+
+type aggregatedMessage struct {
+	Message    json.RawMessage
+	Aggregated int
+}
+
+func msgAggregator(updates chan json.RawMessage, over time.Duration) chan aggregatedMessage {
+	out := make(chan aggregatedMessage)
+
+	go func() {
+		defer close(out)
+
+		done := time.Time{}
+		final := aggregatedMessage{}
+
+		for {
+			select {
+			case update, ok := <-updates:
+				if !ok {
+					// kill the aggregator
+					return
+				}
+
+				final.Message = update
+				final.Aggregated++
+
+				if done.IsZero() {
+					done = time.Now().Add(over)
+				}
+			default:
+				if done.IsZero() || time.Now().Before(done) {
+					time.Sleep(over / 10)
+					continue
+				}
+
+				out <- final
+
+				// reset things
+				final = aggregatedMessage{}
+				done = time.Time{}
+			}
+		}
+	}()
+
+	return out
 }
