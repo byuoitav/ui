@@ -21,7 +21,10 @@ import (
 type ClientConfig struct {
 	RoomID         string
 	ControlGroupID string
-	AvApiAddr      string
+
+	AvApiAddr         string
+	CodeServiceAddr   string
+	RemoteControlAddr string
 }
 
 // Client represents a client of the bff
@@ -38,7 +41,10 @@ type Client struct {
 	lazs       LazaretteState
 	lazUpdates chan lazarette.KeyValue
 
-	//shareMutex sync.RWMutex
+	// controlKeys is periodically updated
+	controlKeysMu sync.RWMutex
+	controlKeys   map[string]string
+
 	//sharing    Sharing
 	//// TODO get shareable
 	//shareable Shareable
@@ -80,11 +86,11 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		Out:        make(chan Message, 1),
 		SendEvent:  make(chan events.Event),
 		Logger:     log.P.Named(ws.RemoteAddr().String()),
-		// shareMutex: sync.RWMutex{},
 		lazUpdates: make(chan lazarette.KeyValue),
 		lazs: LazaretteState{
 			Map: &sync.Map{},
 		},
+		controlKeys: make(map[string]string),
 	}
 
 	// setup shoudn't take longer than 10 seconds
@@ -185,9 +191,12 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 
 	c.Info("Got all initial information, sent room to client. Starting ws/event goroutines")
 
+	// start data update routines
+	go c.updateControlKey()
 	go c.handleEvents()
 	go c.readPump()
 	go c.writePump()
+
 	return c, nil
 }
 

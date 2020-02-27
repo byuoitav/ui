@@ -3,6 +3,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40/go.mod h1:8rLXio+WjiTceGBHIoTvn60HIbs7Hm7bcHjyrSqYB9c=
 github.com/byuoitav/central-event-system v0.0.0-20200115195636-0c9fbced1b99 h1:nIZ9EHlj1hmz3hV1A+Yq0x0ec3cpPRKESVhT4n+LiRw=
 github.com/byuoitav/central-event-system v0.0.0-20200115195636-0c9fbced1b99/go.mod h1:+KCvx75wISCCkCrgIWRdlJxRXlA2yxQvR4HHgU/TdpU=
+github.com/byuoitav/code-service v0.0.0-20191203231433-4edc6a23a9bd h1:hpPIF+PTM0NeOcsXtcp9Gc5MnrZuHbOpawCLvyP3lhw=
+github.com/byuoitav/code-service v0.0.0-20191203231433-4edc6a23a9bd/go.mod h1:0Kd6CIHR4SwsBIcaQn6RY1AH+qCdWwxCdgWrRLsw7S8=
 github.com/byuoitav/common v0.0.0-20191210190714-e9b411b3cc0d h1:F3/vBL2hw+zjCm78sWss6eCozj5IopBzN2bIHvKj2hw=
 github.com/byuoitav/common v0.0.0-20191210190714-e9b411b3cc0d/go.mod h1:YTDTFEmez7HU3oyCIWjU3RfQ/P6v24LEzH5YUebph7I=
 github.com/byuoitav/device-monitoring v0.0.0-20191205213852-0975cca54d58/go.mod h1:n9PY4PhVKyrO15/M9rPsHSQFo/62Zsanvp0ZT6D2fbg=

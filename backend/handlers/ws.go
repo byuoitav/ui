@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -25,7 +24,9 @@ var (
 )
 
 type NewClientConfig struct {
-	AvApiAddr string
+	AvApiAddr         string
+	CodeServiceAddr   string
+	RemoteControlAddr string
 }
 
 func NewClientHandler(config NewClientConfig) echo.HandlerFunc {
@@ -53,7 +54,9 @@ func NewClientHandler(config NewClientConfig) echo.HandlerFunc {
 		}
 
 		bffconfig := bff.ClientConfig{
-			AvApiAddr: config.AvApiAddr,
+			AvApiAddr:         config.AvApiAddr,
+			CodeServiceAddr:   config.CodeServiceAddr,
+			RemoteControlAddr: config.RemoteControlAddr,
 		}
 
 		// if it is coming from localhost then don't worry about a key
@@ -77,42 +80,18 @@ func NewClientHandler(config NewClientConfig) echo.HandlerFunc {
 			}
 		} else {
 			// if not localhost then use the code service to get the info
-			url := fmt.Sprintf("%s/%s/getPreset", os.Getenv("CODE_SERVICE_URL"), c.Param("key"))
-
-			req, err := http.NewRequestWithContext(c.Request().Context(), "GET", url, nil)
-			if err != nil {
-				return closeWithReason(fmt.Sprintf("unable to build request to check room code: %s", err))
-			}
-
 			log.P.Info("Getting room/preset from control key", zap.String("key", c.Param("key")))
 
-			resp, err := http.DefaultClient.Do(req)
-			if err != nil {
-				return closeWithReason(fmt.Sprintf("unable to make request to check room code: %s", err))
-			}
-			defer resp.Body.Close()
-
-			switch resp.StatusCode {
-			case http.StatusNotFound:
-				return closeWithReason("invalid room control key")
+			room, cgID, err := bff.GetRoomAndControlGroup(c.Request().Context(), config.CodeServiceAddr, c.Param("key"))
+			switch {
+			case errors.Is(err, bff.ErrInvalidControlKey):
+				return closeWithReason("Invalid control key")
+			case err != nil:
+				return closeWithReason(fmt.Sprintf("unable to get room/control group: %s", err))
 			}
 
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				return closeWithReason(fmt.Sprintf("unable to read response from code service: %s", err))
-			}
-
-			preset := struct {
-				RoomID string `json:"RoomID"`
-				Name   string `json:"PresetName"`
-			}{}
-
-			if err = json.Unmarshal(body, &preset); err != nil {
-				return closeWithReason(fmt.Sprintf("unable to parse response from code service: %s. response: %s", err, body))
-			}
-
-			bffconfig.RoomID = preset.RoomID
-			bffconfig.ControlGroupID = preset.Name
+			bffconfig.RoomID = room
+			bffconfig.ControlGroupID = cgID
 		}
 
 		client, err := bff.RegisterClient(c.Request().Context(), ws, bffconfig)
@@ -126,7 +105,6 @@ func NewClientHandler(config NewClientConfig) echo.HandlerFunc {
 		// if this function exits, the websocket connection is closed
 		// so we need to wait for the client to be finished
 		client.Wait()
-
 		return nil
 	}
 }

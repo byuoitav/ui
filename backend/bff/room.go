@@ -14,6 +14,9 @@ import "fmt"
 
 // GetRoom .
 func (c *Client) GetRoom() Room {
+	c.controlKeysMu.RLock()
+	defer c.controlKeysMu.RUnlock()
+
 	room := Room{
 		ID:                   ID(c.roomID),
 		Name:                 c.room.Name,
@@ -48,6 +51,9 @@ func (c *Client) GetRoom() Room {
 				HelpEnabled:   true,
 			},
 		}
+
+		cg.ControlInfo.Key = c.controlKeys[preset.Name]
+		cg.ControlInfo.URL = c.config.RemoteControlAddr
 
 		// poweredOn should be true if all of the displays are powered on
 		poweredOn := true
