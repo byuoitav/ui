@@ -93,8 +93,6 @@ export class RoomRef {
       }
     };
 
-    console.log("blanking", kv);
-
     this.loading = true;
     this._ws.send(JSON.stringify(kv));
   }

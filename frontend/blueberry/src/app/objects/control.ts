@@ -17,19 +17,29 @@ export function isRoom(o: Object): o is Room {
 export interface ControlGroup {
   id: string;
   name: string;
+<<<<<<< HEAD:frontend/objects/control.ts
   controlInfo: ControlInfo;
+=======
+
   poweredOn: boolean;
   mediaAudio: MediaAudio;
 
+>>>>>>> master:frontend/blueberry/src/app/objects/control.ts
   displayGroups: DisplayGroup[];
   inputs: Input[];
   audioGroups: AudioGroup[];
   presentGroups: PresentGroup[];
 
   support: Support;
+<<<<<<< HEAD:frontend/objects/control.ts
   level: number;
   muted: boolean;
   screens: string[];
+  poweredOn: boolean;
+  mediaAudio: MediaAudio;
+=======
+  screens: string[];
+>>>>>>> master:frontend/blueberry/src/app/objects/control.ts
 
   // public getAudioDevice(cg: ControlGroup, id: string): AudioDevice {
   //     for (const g of cg.audioGroups) {
@@ -57,6 +67,15 @@ export interface Support {
   helpMessage: string;
   helpEnabled: boolean;
 }
+
+<<<<<<< HEAD:frontend/objects/control.ts
+=======
+export interface MediaAudio {
+  level: number;
+  muted: boolean;
+}
+
+>>>>>>> master:frontend/blueberry/src/app/objects/control.ts
 export interface DisplayGroup {
   id: string;
   displays: IconPair[];

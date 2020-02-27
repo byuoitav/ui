@@ -29,7 +29,7 @@ export class DisplayComponent implements OnInit {
       icon: "crop_landscape",
       name: "Blank",
       subInputs: null,
-      disabled: false
+      // disabled: false
     }
     this.roomRef.subject().subscribe((r) => {
       if (r) {

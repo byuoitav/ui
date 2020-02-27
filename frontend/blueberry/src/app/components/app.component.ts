@@ -44,7 +44,6 @@ export class AppComponent {
   }
 
   hasScreens() {
-    // return true;
     if (this.roomRef && this.roomRef.room) {
       if (this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].screens) {
         return this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].screens.length > 0;
