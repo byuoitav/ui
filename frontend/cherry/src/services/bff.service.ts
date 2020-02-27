@@ -144,7 +144,7 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   }
 
-  getControlKey = (cgID: string) => {
+  getControlInfo = (cgID: string) => {
     const kv = {
       getControlKey: {
         controlGroupID: cgID

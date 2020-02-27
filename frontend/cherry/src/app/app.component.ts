@@ -54,6 +54,12 @@ export class AppComponent implements OnInit {
       this.roomRef.subject().subscribe((r) => {
         if (r) {
           this.cg = r.controlGroups[r.selectedControlGroup];
+          // if (this.cg.poweredOn == true) {
+          //   this.roomRef.loading = false;
+          // }
+          // else {
+          //   this.roomRef.loading = false;
+          // }
         }
       })
     }
@@ -74,17 +80,6 @@ export class AppComponent implements OnInit {
     });
   }
 
-  public isPowerOn() {
-    if (this.cg) {
-      // console.log(this.cg.power);
-      // console.log(this.cg);
-      if (this.cg.poweredOn == true) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   public togglePower() {
 
     if (this.cg.poweredOn == true) {
@@ -96,9 +91,6 @@ export class AppComponent implements OnInit {
   }
 
   public showManagement() {
-    // if (this.roomRef) {
-    //   console.log(this.roomRef.getControlKey(this.cg.id));
-    // }
     if (this.screen.isShowing() || this.lockAudio.isShowing()) {
       return false;
     }
