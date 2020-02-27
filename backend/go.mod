@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/byuoitav/central-event-system v0.0.0-20200115195636-0c9fbced1b99
+	github.com/byuoitav/code-service v0.0.0-20191203231433-4edc6a23a9bd
 	github.com/byuoitav/common v0.0.0-20191210190714-e9b411b3cc0d
 	github.com/byuoitav/device-monitoring v0.0.0-20191205213852-0975cca54d58
 	github.com/byuoitav/lazarette v0.0.0-20200115175020-b5a36153e129

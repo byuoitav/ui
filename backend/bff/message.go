@@ -6,8 +6,6 @@ import (
 	"strconv"
 )
 
-// TODO all messages should take a ctx
-
 type Message map[string]json.RawMessage
 
 func ErrorMessage(err error) Message {
@@ -49,8 +47,6 @@ func (c *Client) HandleMessage(msg Message) {
 		//	_ = c.CurrentPreset().Actions.SetPower.PowerOffAll(c)
 		case "helpRequest":
 			c.CurrentPreset().Actions.HelpRequest.Do(c, v)
-		//case "getControlKey":
-		//	c.CurrentPreset().Actions.GetControlKey.Do(c, v)
 		//case "setSharing":
 		//	c.CurrentPreset().Actions.SetSharing.Do(c, v)
 		default:
