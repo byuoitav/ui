@@ -205,8 +205,6 @@ export class BFFService {
         switch (k) {
           case "room":
             console.log("new room", data[k]);
-            this.controlKey = data[k].controlKey;
-            this.roomControlUrl = data[k].controlURL;
             room.next(data[k]);
             this.loaded = true;
 
