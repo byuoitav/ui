@@ -95,7 +95,7 @@ func (c *Client) writePump() {
 			if err := c.ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 				return
 			}
-		case room, _ := <-aggedRooms:
+		case room := <-aggedRooms:
 			// send this room
 			msg, err := JSONMessage("room", room.Message)
 			if err != nil {
