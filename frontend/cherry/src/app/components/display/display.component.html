@@ -22,10 +22,8 @@
     <!-- to open up the mobile control qr code -->
     <!-- <ng-container *ngIf=room control exists> -->
         <div class="room-control-info" (click)="openMobileControlDialog()" (press)="openMobileControlDialog()">
-            <div>rooms.stg.byu.edu</div>
-            <div>Key: 111111</div>
-            <!-- <div>{{ bff.roomControlUrl }}</div>
-            <div>Key: {{ bff.controlKey }}</div> -->
+            <div>{{ cg?.controlInfo?.url }}</div>
+            <div>Key: {{ cg?.controlInfo?.key }}</div>
         </div>
     <!-- </ng-container> -->
     

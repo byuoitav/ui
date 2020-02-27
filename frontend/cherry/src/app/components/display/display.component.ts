@@ -29,7 +29,7 @@ export class DisplayComponent implements OnInit {
       icon: "crop_landscape",
       name: "Blank",
       subInputs: null,
-      disabled: false
+      // disabled: false
     }
     this.roomRef.subject().subscribe((r) => {
       if (r) {
@@ -54,8 +54,13 @@ export class DisplayComponent implements OnInit {
   }
 
   public openMobileControlDialog() {
+    console.log(this.cg.controlInfo.url);
     const dialogRef = this.dialog.open(MobileControlComponent, {
-      width: "70vw"
+      width: "70vw",
+      data: {
+        url: this.cg.controlInfo.url,
+        key: this.cg.controlInfo.key
+      }
     });
   }
 
@@ -64,6 +69,9 @@ export class DisplayComponent implements OnInit {
       this.selectedInput = this.blanked;
     } else {
       this.selectedInput = this.cg.inputs.find((i) => i.id === d.input)
+      if (this.selectedInput == undefined) {
+        this.selectedInput = this.blanked;
+      }
     }
   }
 
@@ -76,12 +84,26 @@ export class DisplayComponent implements OnInit {
   }
 
   public getInputIcon(d: DisplayGroup) {
-    const input = this.cg.inputs.find((i) => i.id === d.input)
-    return input.icon;
+    if (d.blanked == true) {
+      return this.blanked.icon;
+    } else {
+      const input = this.cg.inputs.find((i) => i.id === d.input);
+      if (input == undefined) {
+        return "crop_landscape";
+      }
+      return input.icon;
+    }
   }
 
   public getInputName(d: DisplayGroup) {
-    const input = this.cg.inputs.find((i) => i.id === d.input)
-    return input.name;
+    if (d.blanked == true) {
+      return this.blanked.name;
+    } else {
+      const input = this.cg.inputs.find((i) => i.id === d.input);
+      if (input == undefined) {
+        return "unknown";
+      }
+      return input.name;
+    }
   }
 }

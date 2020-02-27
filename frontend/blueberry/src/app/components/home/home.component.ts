@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { BFFService, RoomRef } from '../../services/bff.service';
-import { ControlGroup } from 'src/app/objects/control';
+import { ControlGroup } from '../../../../../objects/control';
 import { AudioComponent } from '../audio/audio.component';
 import { ProjectorComponent } from '../projector/projector.component';
 import { MatDialog } from '@angular/material';
@@ -49,5 +49,17 @@ export class HomeComponent implements OnInit {
 
   openSharing = () => {
     this.dialog.open(SharingComponent, {data: this.cg})
+  }
+
+  canShare = () => {
+    if (this.cg) {
+      return this.cg.displayGroups[0].shareOptions && this.cg.displayGroups[0].shareOptions.length > 0;
+    }
+  }
+
+  hasScreens = () => {
+    if (this.cg) {
+      return this.cg.screens && this.cg.screens.length > 0
+    }
   }
 }

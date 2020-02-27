@@ -44,7 +44,6 @@ export class AppComponent {
   }
 
   hasScreens() {
-    return true;
     if (this.roomRef && this.roomRef.room) {
       if (this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].screens) {
         return this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].screens.length > 0;
@@ -55,11 +54,13 @@ export class AppComponent {
 
   haveControlKey() {
     // TODO: do this thing
-    return true;
+    if (this.bff.controlKey) {
+      return true;
+    }
   }
 
   hasAudioGroups() {
-    return true;
+    // return true;
     if (this.roomRef && this.roomRef.room) {
       if (this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].audioGroups) {
         return this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].audioGroups.length > 1;

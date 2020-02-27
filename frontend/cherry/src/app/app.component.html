@@ -4,7 +4,7 @@
 <div class="base mat-app-background">
   <management [enabled]="showManagement()"></management>
   <ng-container *ngIf="!roomRef?.loading; else loading">
-    <div *ngIf="!isPowerOn(); else home" class="lock">
+    <div *ngIf="!cg?.poweredOn; else home" class="lock">
 
         <object type="image/svg+xml" data="./assets/byu_medallion_white.svg" class="logo">
         </object>
@@ -40,7 +40,7 @@
             (press)="openMobileControlDialog()"
           >
             <mat-icon class="screen-control-icon">phone_iphone</mat-icon>
-            <div class="button-text">Key: </div>
+            <div class="button-text">Key: {{ cg?.controlInfo?.key }}</div>
           </button>
           
           <!-- Audio Control -->
@@ -84,11 +84,13 @@
     </div>
 
     <mat-tab-group backgroundColor="primary" color="accent">
-      <mat-tab label="Display">
-        <display [roomRef]="roomRef"></display>
-      </mat-tab>
+      <ng-container *ngIf="cg?.displayGroups.length > 0">
+        <mat-tab label="Display">
+          <display [roomRef]="roomRef"></display>
+        </mat-tab>
+      </ng-container>
       <ng-container *ngIf="cg?.audioGroups != null">
-          <mat-tab *ngIf="cg?.audioGroups.length > 1 || cg?.audioGroups[0].name != 'Display Volume Mixing'" label="Audio">
+          <mat-tab *ngIf="cg?.audioGroups.length > 0" label="Audio">
               <audiocontrol [roomRef]="roomRef"></audiocontrol>
             </mat-tab>
       </ng-container>

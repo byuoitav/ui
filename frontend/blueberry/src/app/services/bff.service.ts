@@ -12,7 +12,7 @@ import {
   AudioDevice,
   AudioGroup,
   PresentGroup
-} from "../objects/control";
+} from "../../../../objects/control";
 // import { ErrorDialog } from "../dialogs/error/error.dialog";
 // import { TurnOffRoomDialogComponent } from "../dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component";
 
@@ -212,8 +212,7 @@ export class BFFService {
 
           case "mobileControl":
             console.log("mobile control info", data[k]);
-            this.controlKey = data[k].controlKey;
-            this.roomControlUrl = data[k].controlURL;
+            
             console.log(this.roomControlUrl, this.controlKey);
             break;
           default:

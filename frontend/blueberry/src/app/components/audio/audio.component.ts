@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BFFService } from 'src/app/services/bff.service';
-import { ControlGroup, AudioGroup } from 'src/app/objects/control';
+import { ControlGroup, AudioGroup } from '../../../../../objects/control';
 
 @Component({
   selector: 'app-audio',
