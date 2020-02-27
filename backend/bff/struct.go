@@ -58,25 +58,29 @@ type ControlGroup struct {
 
 	PoweredOn bool `json:"poweredOn"`
 
+	DisplayGroups []DisplayGroup `json:"displayGroups,omitempty"`
+	Inputs        []Input        `json:"inputs"`
+	AudioGroups   []AudioGroup   `json:"audioGroups,omitempty"`
+	PresentGroups []PresentGroup `json:"presentGroups,omitempty"`
+
 	MediaAudio struct {
 		Level int  `json:"level"`
 		Muted bool `json:"muted"`
 	} `json:"mediaAudio"`
 
-	DisplayGroups []DisplayGroup `json:"displayGroups"`
-	Inputs        []Input        `json:"inputs"`
-	AudioGroups   []AudioGroup   `json:"audioGroups"`
-	PresentGroups []PresentGroup `json:"presentGroups"`
+	ControlInfo struct {
+		Key string `json:"key,omitempty"`
+		URL string `json:"url,omitempty"`
+	} `json:"controlInfo,omitempty"`
 
 	Support Support `json:"support"`
 }
 
 // Support .
 type Support struct {
-	HelpRequested bool `json:"helpRequested"`
-
-	HelpMessage string `json:"helpMessage"`
-	HelpEnabled bool   `json:"helpEnabled"`
+	HelpRequested bool   `json:"helpRequested"`
+	HelpMessage   string `json:"helpMessage"`
+	HelpEnabled   bool   `json:"helpEnabled"`
 }
 
 // DisplayGroup .
@@ -102,7 +106,7 @@ type Input struct {
 	ID ID `json:"id"`
 	IconPair
 
-	SubInputs []Input `json:"subInputs"`
+	SubInputs []Input `json:"subInputs,omitempty"`
 }
 
 // AudioGroup .

@@ -21,11 +21,20 @@ import (
 )
 
 func main() {
-	var port int
-	var logLevel int
+	var (
+		port     int
+		logLevel int
+
+		avApiAddr         string
+		codeServiceAddr   string
+		remoteControlAddr string
+	)
 
 	pflag.IntVarP(&port, "port", "p", 8080, "port to run the server on")
 	pflag.IntVarP(&logLevel, "log-level", "l", 2, "level of logging wanted. 1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=PANIC")
+	pflag.StringVarP(&avApiAddr, "av-api", "a", "localhost:8000", "address of the av-control-api to use")
+	pflag.StringVarP(&codeServiceAddr, "code-service", "c", "control-keys.avs.byu.edu", "address of the code service to use")
+	pflag.StringVarP(&remoteControlAddr, "remote-control", "r", "rooms.av.byu.edu", "address of the remote control to show")
 	pflag.Parse()
 
 	setLog := func(level int) error {
@@ -60,12 +69,18 @@ func main() {
 	// build echo server
 	e := echo.New()
 
+	wsHandler := handlers.NewClientHandler(handlers.NewClientConfig{
+		AvApiAddr:         avApiAddr,
+		CodeServiceAddr:   codeServiceAddr,
+		RemoteControlAddr: remoteControlAddr,
+	})
+
 	// register new clients
-	e.GET("/ws", handlers.NewClient)
-	e.GET("/ws/:key", handlers.NewClient)
+	e.GET("/ws", wsHandler)
+	e.GET("/ws/:key", wsHandler)
 
 	// handle load balancer status check
-	e.GET("/status", func(c echo.Context) error {
+	e.GET("/healthz", func(c echo.Context) error {
 		return c.String(http.StatusOK, "healthy")
 	})
 
@@ -139,6 +154,8 @@ func main() {
 	})
 
 	addr := fmt.Sprintf(":%d", port)
+	log.P.Info("Starting server", zap.String("addr", addr))
+
 	err := e.Start(addr)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.P.Fatal("failed to start server", zap.Error(err))

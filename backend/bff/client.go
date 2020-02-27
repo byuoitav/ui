@@ -18,8 +18,18 @@ import (
 	"go.uber.org/zap"
 )
 
+type ClientConfig struct {
+	RoomID         string
+	ControlGroupID string
+
+	AvApiAddr         string
+	CodeServiceAddr   string
+	RemoteControlAddr string
+}
+
 // Client represents a client of the bff
 type Client struct {
+	config                 ClientConfig
 	buildingID             string
 	roomID                 string
 	selectedControlGroupID string
@@ -31,7 +41,10 @@ type Client struct {
 	lazs       LazaretteState
 	lazUpdates chan lazarette.KeyValue
 
-	//shareMutex sync.RWMutex
+	// controlKeys is periodically updated
+	controlKeysMu sync.RWMutex
+	controlKeys   map[string]string
+
 	//sharing    Sharing
 	//// TODO get shareable
 	//shareable Shareable
@@ -54,29 +67,30 @@ type Client struct {
 }
 
 // RegisterClient registers a new client
-func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGroupID string) (*Client, error) {
-	log.P.Info("Registering client", zap.String("roomID", roomID), zap.String("controlGroupID", controlGroupID), zap.String("name", ws.RemoteAddr().String()))
+func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig) (*Client, error) {
+	log.P.Info("Registering client", zap.String("roomID", config.RoomID), zap.String("controlGroupID", config.ControlGroupID), zap.String("name", ws.RemoteAddr().String()))
 
-	split := strings.Split(roomID, "-")
+	split := strings.Split(config.RoomID, "-")
 	if len(split) != 2 {
-		return nil, fmt.Errorf("invalid roomID %q - must match format BLDG-ROOM", roomID)
+		return nil, fmt.Errorf("invalid roomID %q - must match format BLDG-ROOM", config.RoomID)
 	}
 
 	// build our client
 	c := &Client{
+		config:     config,
 		buildingID: split[0],
-		roomID:     roomID,
+		roomID:     config.RoomID,
 		kill:       make(chan struct{}),
 		ws:         ws,
 		httpClient: &http.Client{},
 		Out:        make(chan Message, 1),
 		SendEvent:  make(chan events.Event),
 		Logger:     log.P.Named(ws.RemoteAddr().String()),
-		// shareMutex: sync.RWMutex{},
 		lazUpdates: make(chan lazarette.KeyValue),
 		lazs: LazaretteState{
 			Map: &sync.Map{},
 		},
+		controlKeys: make(map[string]string),
 	}
 
 	// setup shoudn't take longer than 10 seconds
@@ -89,9 +103,9 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 	// get the room state
 	g.Go(func() error {
 		var err error
-		c.state, err = GetRoomState(ctx, c.httpClient, c.roomID)
+		c.state, err = GetRoomState(ctx, c.httpClient, c.config.AvApiAddr, c.roomID)
 		if err != nil {
-			return fmt.Errorf("unable to get ui config: %w", err)
+			return fmt.Errorf("unable to get room state: %w", err)
 		}
 
 		c.Debug("Successfully got room state")
@@ -102,7 +116,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 	g.Go(func() error {
 		var err error
 
-		c.room, err = GetRoomConfig(ctx, c.httpClient, c.roomID)
+		c.room, err = GetRoomConfig(ctx, c.httpClient, c.config.AvApiAddr, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get room config: %w", err)
 		}
@@ -134,7 +148,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 		}
 
 		// create the subscription
-		sub, err := laz.Subscribe(ctx, &lazarette.Key{Key: roomID})
+		sub, err := laz.Subscribe(ctx, &lazarette.Key{Key: c.roomID})
 		if err != nil {
 			return fmt.Errorf("unable to subscribe to lazarette: %w", err)
 		}
@@ -148,8 +162,8 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 	}
 
 	room := c.GetRoom()
-	if _, ok := room.ControlGroups[controlGroupID]; ok {
-		c.selectedControlGroupID = controlGroupID
+	if _, ok := room.ControlGroups[config.ControlGroupID]; ok {
+		c.selectedControlGroupID = config.ControlGroupID
 	}
 
 	// TODO this should happen in get room
@@ -177,9 +191,12 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, roomID, controlGrou
 
 	c.Info("Got all initial information, sent room to client. Starting ws/event goroutines")
 
+	// start data update routines
+	go c.updateControlKey()
 	go c.handleEvents()
 	go c.readPump()
 	go c.writePump()
+
 	return c, nil
 }
 
