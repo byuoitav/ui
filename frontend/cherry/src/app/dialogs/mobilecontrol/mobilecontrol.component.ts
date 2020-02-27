@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog, MatDialogRef } from "@angular/material";
+import { Component, OnInit, Inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
 
 
 @Component({
@@ -8,14 +8,20 @@ import { MatDialog, MatDialogRef } from "@angular/material";
   styleUrls: ['./mobilecontrol.component.scss']
 })
 export class MobileControlComponent implements OnInit {
-  public value: string;
+  url: string;
+  key: string;
+  public qrCode: string;
   public elementType: 'url';
 
 
   constructor(
-    public ref: MatDialogRef<MobileControlComponent>
+    public ref: MatDialogRef<MobileControlComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: {
+      url: string;
+      key: string;
+    }
   ) {
-    this.value = "rooms.stg.byu.edu/key/111111"
+    this.qrCode = this.data.url + "/key/" + this.data.key;
    }
 
   ngOnInit() {
