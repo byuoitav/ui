@@ -233,3 +233,8 @@ func (c *Client) CurrentPreset() Preset {
 
 	return Preset{}
 }
+
+func (c *Client) Refresh() {
+	c.Info("Sending refresh message")
+	c.Out <- StringMessage("refresh", "")
+}
