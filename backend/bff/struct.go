@@ -6,8 +6,8 @@ import "strings"
 type ShareState int
 
 const (
-	// Nothing means that you can't share at all
-	Nothing ShareState = iota + 1
+	// CantShare means that you can't share at all
+	CantShare ShareState = iota
 
 	// Share means that you can share right now
 	Share
@@ -15,32 +15,12 @@ const (
 	// Unshare means that you are currently sharing, and that you could unshare
 	Unshare
 
-	// Link means that you can link
-	Link
-
-	// Unlink means that you currently are linked, and you could unlink
-	Unlink
-
 	// MinionActive means that you are being shared to and are participating in that share
 	MinionActive
 
 	// MinionInactive means that you are being shared to but you are NOT participating in that share
 	MinionInactive
 )
-
-//// Shareable .
-//type Shareable map[ID][]ID
-//
-// Sharing .
-// type Sharing map[ID]ShareGroups
-
-// ShareGroups .
-//type ShareGroups struct {
-//	Input    ID   `json:"input"`
-//	Active   []ID `json:"active"`
-//	Inactive []ID `json:"inactive"`
-//	Linked   []ID `json:"linked"`
-//}
 
 // Room .
 type Room struct {
@@ -91,15 +71,13 @@ type DisplayGroup struct {
 	Blanked  bool       `json:"blanked"`
 	Input    ID         `json:"input"`
 
-	// Share ShareInfo `json:"share"`
+	ShareInfo ShareInfo `json:"shareInfo,omitempty"`
 }
 
-// ShareInfo .
-//type ShareInfo struct {
-//	State   ShareState `json:"state"`
-//	Master  ID         `json:"master"`
-//	Options []string   `json:"options"`
-//}
+type ShareInfo struct {
+	State   ShareState `json:"state"`
+	Options []string   `json:"options,omitempty"`
+}
 
 // Input .
 type Input struct {

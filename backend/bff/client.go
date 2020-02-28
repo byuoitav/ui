@@ -45,10 +45,6 @@ type Client struct {
 	controlKeysMu sync.RWMutex
 	controlKeys   map[string]string
 
-	//sharing    Sharing
-	//// TODO get shareable
-	//shareable Shareable
-
 	// if this channel is closed, then all goroutines
 	// spawned by the client should exit
 	kill      chan struct{}

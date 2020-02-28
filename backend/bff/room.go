@@ -2,16 +2,6 @@ package bff
 
 import "fmt"
 
-//func containsID(ids []ID, id ID) int {
-//	for index, i := range ids {
-//		if i == id {
-//			return index
-//		}
-//	}
-//
-//	return -1
-//}
-
 // GetRoom .
 func (c *Client) GetRoom() Room {
 	c.controlKeysMu.RLock()
@@ -23,22 +13,6 @@ func (c *Client) GetRoom() Room {
 		ControlGroups:        make(map[string]ControlGroup),
 		SelectedControlGroup: ID(c.selectedControlGroupID),
 	}
-
-	//var masters []ID
-	//active := make(map[ID]ID)
-	//inactive := make(map[ID]ID)
-
-	//c.shareMutex.RLock()
-	//for master, mins := range c.sharing {
-	//	masters = append(masters, master)
-	//	for _, a := range mins.Active {
-	//		active[a] = master
-	//	}
-	//	for _, i := range mins.Inactive {
-	//		inactive[i] = master
-	//	}
-	//}
-	//c.shareMutex.RUnlock()
 
 	// create all of the presets for this room
 	for _, preset := range c.uiConfig.Presets {
@@ -93,44 +67,22 @@ func (c *Client) GetRoom() Room {
 				blanked = true
 			}
 
-			//s := ShareInfo{
-			//	Options: preset.ShareableDisplays,
-			//}
-
-			//// Set the different possible share states of a room
-			//if m := containsID(masters, ID(name)); m >= 0 {
-			//	s.State = Unshare
-			//} else if master, ok := active[ID(name)]; ok {
-			//	s.State = MinionActive
-			//	s.Master = master
-			//} else if master, ok := inactive[ID(name)]; ok {
-			//	s.State = MinionInactive
-			//	s.Master = master
-			//} else if _, ok := c.shareable[ID(name)]; ok {
-			//	s.State = Share
-			//} else /*else if linkable?!?!*/ {
-			//	s.State = Nothing
-			//}
-			//if s.State == MinionActive {
-			//	c.shareMutex.RLock()
-			//	curInput = string(c.sharing[s.Master].Input)
-			//	c.shareMutex.RUnlock()
-			//} else if s.State == MinionInactive {
-			//	cg.Inputs = append(cg.Inputs, Input{
-			//		ID: ID("Mirror ") + s.Master,
-			//		IconPair: IconPair{
-			//			Name: "Mirror " + string(s.Master),
-			//			Icon: Icon{"settings_input_hdmi"},
-			//		},
-			//		Disabled: false,
-			//	})
-			//}
-
 			group := DisplayGroup{
 				ID:      ID(config.ID),
 				Blanked: blanked,
 				Input:   ID(curInput),
-				// Share:   s,
+				ShareInfo: ShareInfo{
+					State: CantShare,
+				},
+			}
+
+			if ishareMap, ok := c.lazs.Load(lazSharingDisplays); ok {
+				if shareMap, ok := ishareMap.(ShareDataMap); ok {
+					if data, ok := shareMap[group.ID]; ok {
+						group.ShareInfo.State = data.State
+						group.ShareInfo.Options = preset.ShareableDisplays
+					}
+				}
 			}
 
 			group.Displays = append(group.Displays, IconPair{

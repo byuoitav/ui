@@ -2,17 +2,34 @@ package bff
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/byuoitav/lazarette/lazarette"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
+)
+
+const (
+	lazSharingDisplays = "-sharingDisplays"
 )
 
 type LazaretteState struct {
 	*sync.Map
+}
+
+type ShareDataMap map[ID]ShareData
+
+type ShareData struct {
+	State    ShareState
+	Active   []ID
+	Inactive []ID
+	Master   ID
 }
 
 func ConnectToLazarette(ctx context.Context) (lazarette.LazaretteClient, error) {
@@ -29,12 +46,20 @@ func ConnectToLazarette(ctx context.Context) (lazarette.LazaretteClient, error) 
 	return lazarette.NewLazaretteClient(conn), nil
 }
 
-func (c *Client) syncLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
+func (c *Client) syncLazaretteState(laz lazarette.LazaretteClient, sub lazarette.Lazarette_SubscribeClient) {
 	for {
 		select {
 		case <-c.kill:
 			return
-		// case kv := <-c.lazUpdates:
+		case kv := <-c.lazUpdates:
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+			_, err := laz.Set(ctx, &kv)
+			if err != nil {
+				c.Warn("unable to set updated key to lazarette", zap.String("key", kv.GetKey()), zap.Error(err))
+			}
+
+			cancel()
 		default:
 			kv, err := sub.Recv()
 			switch {
@@ -47,19 +72,20 @@ func (c *Client) syncLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 			}
 
 			// strip off beginning roomID so that we only have the actual key
-			// key := strings.TrimPrefix(kv.GetKey(), c.roomID)
+			key := strings.TrimPrefix(kv.GetKey(), c.roomID)
 
 			// stick the value into our map
-			// switch key {
-			//case "-sharingDisplays":
-			//	var sharingDisplays Sharing
-			//	if err := json.Unmarshal(kv.GetData(), &sharingDisplays); err != nil {
-			//		// TODO
-			//	}
+			switch key {
+			case lazSharingDisplays:
+				var data ShareDataMap
+				if err := json.Unmarshal(kv.GetData(), &data); err != nil {
+					c.Warn("unable to parse share data from lazarette", zap.Error(err))
+					continue
+				}
 
-			//	c.lazs.Store(key, sharingDisplays)
-			// default:
-			// }
+				c.lazs.Store(lazSharingDisplays, data)
+			default:
+			}
 
 			// TODO get a new room and send it?
 		}
