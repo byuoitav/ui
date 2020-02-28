@@ -45,68 +45,6 @@ func (si SetInput) Do(c *Client, data []byte) {
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
 	c.Info("Setting input", zap.String("on", string(msg.DisplayGroup)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
 
-	// sharingChanged := false
-
-	// Go through all sharing groups
-	//c.shareMutex.Lock()
-	//for master, list := range c.sharing {
-	//	done := false
-	//	// If the master is changing input
-	//	if master == ID(msg.DisplayID) {
-	//		// Each active gets their outputs added to the public room with the input being the input of the master
-	//		for _, m := range list.Active {
-	//			disp, err := getDisplay(cg, m)
-	//			if err != nil {
-	//				fmt.Printf("no!!!\n")
-	//				return
-	//			}
-	//			for _, out := range disp.Outputs {
-	//				// TODO write a getnamefromid func
-	//				dSplit := strings.Split(string(out.ID), "-")
-	//				display := structs.Display{
-	//					PublicDevice: structs.PublicDevice{
-	//						Name: dSplit[2],
-	//					},
-	//				}
-
-	//				if msg.InputID == "blank" {
-	//					display.Blanked = BoolP(true)
-	//				} else {
-	//					iSplit := strings.Split(string(msg.InputID), "-")
-	//					display.Input = iSplit[2]
-	//					display.Blanked = BoolP(false)
-	//				}
-
-	//				state.Displays = append(state.Displays, display)
-	//			}
-	//		}
-	//		done = true
-	//	} else {
-	//		// Otherwise go through each active member of the list
-	//		for i, a := range list.Active {
-	//			// If the active member is the changed input
-	//			if a == ID(msg.DisplayID) {
-	//				//Remove it from the active list and add it to the inactive list
-	//				NewActive := removeID(list.Active, i)
-	//				Inactive := append(list.Inactive, a)
-	//				input := list.Input
-	//				c.sharing[master] = ShareGroups{
-	//					Input:    input,
-	//					Active:   NewActive,
-	//					Inactive: Inactive,
-	//				}
-	//				done = true
-	//				break
-	//			}
-	//		}
-	//	}
-	//	if done {
-	//		sharingChanged = true
-	//		break
-	//	}
-	//}
-	//c.shareMutex.Unlock()
-
 	// find the display group by ID
 	group, err := GetDisplayGroupByID(cg.DisplayGroups, msg.DisplayGroup)
 	if err != nil {
@@ -117,11 +55,54 @@ func (si SetInput) Do(c *Client, data []byte) {
 
 	// build the state object
 	var state structs.PublicRoom
+
+	inputName := msg.Input.GetName()
+
+	// figure out share stuff
+	if shareMap := c.getShareMap(); shareMap != nil {
+		if data, ok := shareMap[msg.DisplayGroup]; ok {
+			switch data.State {
+			case MinionActive:
+				return
+			case Unshare:
+				for _, active := range data.Active {
+					minionGroup, err := GetDisplayGroupByID(cg.DisplayGroups, active)
+					if err != nil {
+						// TODO
+					}
+
+					for _, disp := range minionGroup.Displays {
+						state.Displays = append(state.Displays, structs.Display{
+							PublicDevice: structs.PublicDevice{
+								Name:  disp.ID.GetName(),
+								Input: msg.Input.GetName(),
+							},
+							Blanked: BoolP(false),
+						})
+					}
+				}
+			case MinionInactive:
+				swap := data.Master == msg.Input
+				if swap {
+					// we are switching into the active list
+					masterGroup, err := GetDisplayGroupByID(cg.DisplayGroups, data.Master)
+					if err != nil {
+						// TODO
+					}
+
+					inputName = masterGroup.Input.GetName()
+
+					// TODO update lazarette state
+				}
+			}
+		}
+	}
+
 	for _, disp := range group.Displays {
 		display := structs.Display{
 			PublicDevice: structs.PublicDevice{
 				Name:  disp.ID.GetName(),
-				Input: msg.Input.GetName(),
+				Input: inputName,
 			},
 			Blanked: BoolP(false),
 		}
@@ -129,10 +110,6 @@ func (si SetInput) Do(c *Client, data []byte) {
 		// Add each display to the list of displays to change on the new state
 		state.Displays = append(state.Displays, display)
 	}
-
-	//if sharingChanged {
-	//	go updateLazSharing(context.TODO(), c)
-	//}
 
 	// make the state changes
 	if err := c.SendAPIRequest(ctx, state); err != nil {
@@ -142,3 +119,5 @@ func (si SetInput) Do(c *Client, data []byte) {
 
 	c.Info("Finished setting input", zap.String("on", string(msg.DisplayGroup)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
 }
+
+func removeID()

@@ -32,6 +32,16 @@ type ShareData struct {
 	Master   ID
 }
 
+func (c *Client) getShareMap() ShareDataMap {
+	if ishareMap, ok := c.lazs.Load(lazSharingDisplays); ok {
+		if shareMap, ok := ishareMap.(ShareDataMap); ok {
+			return shareMap
+		}
+	}
+
+	return nil
+}
+
 func ConnectToLazarette(ctx context.Context) (lazarette.LazaretteClient, error) {
 	lazAddr := os.Getenv("LAZARETTE_ADDR")
 	if len(lazAddr) == 0 {

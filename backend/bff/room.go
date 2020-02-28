@@ -76,12 +76,10 @@ func (c *Client) GetRoom() Room {
 				},
 			}
 
-			if ishareMap, ok := c.lazs.Load(lazSharingDisplays); ok {
-				if shareMap, ok := ishareMap.(ShareDataMap); ok {
-					if data, ok := shareMap[group.ID]; ok {
-						group.ShareInfo.State = data.State
-						group.ShareInfo.Options = preset.ShareableDisplays
-					}
+			if shareMap := c.getShareMap(); shareMap != nil {
+				if data, ok := shareMap[group.ID]; ok {
+					group.ShareInfo.State = data.State
+					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
 				}
 			}
 
@@ -244,4 +242,13 @@ func (c *Client) GetRoom() Room {
 	}
 
 	return room
+}
+
+func convertNamesToIDStrings(roomID string, names []string) []string {
+	var ids []string
+	for i := range names {
+		ids = append(ids, fmt.Sprintf("%s-%s", roomID, names[i]))
+	}
+
+	return ids
 }
