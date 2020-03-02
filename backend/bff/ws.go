@@ -59,6 +59,8 @@ func (c *Client) readPump() {
 				return
 			}
 
+			c.stats.WebSocket.MessagesRecieved++
+
 			// parse message
 			var m Message
 			if err := json.Unmarshal(msg, &m); err != nil {
@@ -111,6 +113,7 @@ func (c *Client) writePump() {
 			}
 
 			c.Debug("Sending debounced room to client", zap.Int("debounces", room.Debounces), zap.ByteString("message", data))
+			c.stats.WebSocket.MessagesSent++
 
 			// set our write deadline
 			_ = c.ws.SetWriteDeadline(time.Now().Add(writeWait))
@@ -147,8 +150,10 @@ func (c *Client) writePump() {
 			// log that we are sending a message
 			if _, ok := msg["error"]; ok {
 				c.Warn("sending error to client", zap.ByteString("message", data))
+				c.stats.WebSocket.ErrorsSent++
 			} else {
 				c.Debug("Sending message to client", zap.ByteString("message", data))
+				c.stats.WebSocket.MessagesSent++
 			}
 
 			// set our write deadline

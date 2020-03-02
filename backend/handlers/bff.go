@@ -130,6 +130,8 @@ func (b *BFF) NewClient(c echo.Context) error {
 }
 
 func (b *BFF) RefreshClients(c echo.Context) error {
+	b.init.Do(b.setup)
+
 	count := 0
 
 	b.clientsMu.Lock()
@@ -141,4 +143,19 @@ func (b *BFF) RefreshClients(c echo.Context) error {
 	}
 
 	return c.String(http.StatusOK, fmt.Sprintf("Successfully refreshed %d clients.", count))
+}
+
+func (b *BFF) Stats(c echo.Context) error {
+	b.init.Do(b.setup)
+
+	var stats []bff.ClientStats
+
+	b.clientsMu.Lock()
+	defer b.clientsMu.Unlock()
+
+	for _, v := range b.clients {
+		stats = append(stats, v.Stats())
+	}
+
+	return c.JSON(http.StatusOK, bff.AggregateStats(stats))
 }

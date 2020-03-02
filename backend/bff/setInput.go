@@ -119,5 +119,3 @@ func (si SetInput) Do(c *Client, data []byte) {
 
 	c.Info("Finished setting input", zap.String("on", string(msg.DisplayGroup)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
 }
-
-func removeID()

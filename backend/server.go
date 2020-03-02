@@ -87,6 +87,10 @@ func main() {
 		return c.String(http.StatusOK, "healthy")
 	})
 
+	// prometheus stats check
+	// e.GET("/statsz", echo.WrapHandler(promhttp.Handler()))
+	e.GET("/statsz", bffhandlers.Stats)
+
 	// set the log level
 	e.GET("/log/:level", func(c echo.Context) error {
 		level, err := strconv.Atoi(c.Param("level"))

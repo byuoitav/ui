@@ -29,7 +29,9 @@ type ClientConfig struct {
 
 // Client represents a client of the bff
 type Client struct {
-	config                 ClientConfig
+	config ClientConfig
+	stats  ClientStats
+
 	buildingID             string
 	roomID                 string
 	selectedControlGroupID string
@@ -88,6 +90,11 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		},
 		controlKeys: make(map[string]string),
 	}
+
+	// init stats
+	c.stats.AvControlApi.ResponseCodes = make(map[int]uint)
+	now := time.Now()
+	c.stats.CreatedAt = &now
 
 	// setup shoudn't take longer than 10 seconds
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
@@ -149,7 +156,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 			return fmt.Errorf("unable to subscribe to lazarette: %w", err)
 		}
 
-		go c.syncLazaretteState(sub)
+		go c.syncLazaretteState(laz, sub)
 		return nil
 	})
 
