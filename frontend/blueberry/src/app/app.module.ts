@@ -34,6 +34,7 @@ import { NgxQRCodeModule } from 'ngx-qrcode2';
 import { SharingComponent } from './dialogs/sharing/sharing.component';
 import { HelpComponent } from './dialogs/help/help.component';
 import { ActivityButtonComponent } from './components/activity-button/activity-button.component';
+import { ManagementComponent } from './components/management/management.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { ActivityButtonComponent } from './components/activity-button/activity-b
     SharingComponent,
     HelpComponent,
     ActivityButtonComponent,
+    ManagementComponent,
   ],
   imports: [
     BrowserModule,

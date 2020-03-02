@@ -1,6 +1,7 @@
 <app-audio #audio class="hidden-page"></app-audio>
 <app-projector #screen class="hidden-page"></app-projector>
 <div class="base">
+  <management [enabled]="showManagement()"></management>
   <div *ngIf="!cg?.poweredOn" class="lock">
     <ng-container *ngIf="bff.locked; else poweringOn">
       <img src="../../assets/examples/logo.svg" class="logo">

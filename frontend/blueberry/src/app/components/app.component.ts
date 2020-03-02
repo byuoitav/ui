@@ -85,4 +85,28 @@ export class AppComponent {
       this.dialog.open(MobileComponent, {data: this.roomRef});
     }
   }
+
+  showManagement = (): boolean => {
+    if (this.dialog.openDialogs.length > 0) {
+      return false;
+    }
+
+    if (this.audio && this.audio.isShowing()) {
+      return false;
+    }
+
+    if (this.screen && this.screen.isShowing()) {
+      return false;
+    }
+
+    if (this.powerIsOff()) {
+      return true;
+    }
+
+    if (this.bff.locked) {
+      return true;
+    }
+
+    return false;
+  };
 }
