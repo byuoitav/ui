@@ -45,10 +45,6 @@ type Client struct {
 	controlKeysMu sync.RWMutex
 	controlKeys   map[string]string
 
-	//sharing    Sharing
-	//// TODO get shareable
-	//shareable Shareable
-
 	// if this channel is closed, then all goroutines
 	// spawned by the client should exit
 	kill      chan struct{}
@@ -153,7 +149,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 			return fmt.Errorf("unable to subscribe to lazarette: %w", err)
 		}
 
-		go c.syncLazaretteState(sub)
+		go c.syncLazaretteState(laz, sub)
 		return nil
 	})
 
@@ -232,4 +228,9 @@ func (c *Client) CurrentPreset() Preset {
 	}
 
 	return Preset{}
+}
+
+func (c *Client) Refresh() {
+	c.Info("Sending refresh message")
+	c.Out <- StringMessage("refresh", "")
 }

@@ -24,7 +24,7 @@ const (
 	writeWait = 10 * time.Second
 
 	// duration after getting an intial room message to wait for more
-	roomAggDuration = 300 * time.Millisecond
+	roomDebounceDuration = 400 * time.Millisecond
 )
 
 // readPump receives messages from the frontend and passes them to
@@ -79,11 +79,11 @@ func (c *Client) writePump() {
 	defer c.Close()
 	defer ping.Stop()
 
-	// aggregate room messages over <duration> before sending them
+	// debounce room messages over <duration> before sending them
 	rooms := make(chan json.RawMessage)
 	defer close(rooms)
 
-	aggedRooms := msgAggregator(rooms, roomAggDuration)
+	debouncedRooms := msgDebouncer(rooms, roomDebounceDuration)
 
 	for {
 		select {
@@ -95,7 +95,7 @@ func (c *Client) writePump() {
 			if err := c.ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 				return
 			}
-		case room := <-aggedRooms:
+		case room := <-debouncedRooms:
 			// send this room
 			msg, err := JSONMessage("room", room.Message)
 			if err != nil {
@@ -110,7 +110,7 @@ func (c *Client) writePump() {
 				continue
 			}
 
-			c.Debug("Sending aggregated room to client", zap.Int("aggregated", room.Aggregated), zap.ByteString("message", data))
+			c.Debug("Sending debounced room to client", zap.Int("debounces", room.Debounces), zap.ByteString("message", data))
 
 			// set our write deadline
 			_ = c.ws.SetWriteDeadline(time.Now().Add(writeWait))
@@ -162,45 +162,45 @@ func (c *Client) writePump() {
 	}
 }
 
-type aggregatedMessage struct {
-	Message    json.RawMessage
-	Aggregated int
+type debouncedMessage struct {
+	Message   json.RawMessage
+	Debounces int
 }
 
-func msgAggregator(updates chan json.RawMessage, over time.Duration) chan aggregatedMessage {
-	out := make(chan aggregatedMessage)
+func msgDebouncer(updates chan json.RawMessage, over time.Duration) chan debouncedMessage {
+	out := make(chan debouncedMessage)
 
 	go func() {
 		defer close(out)
 
-		done := time.Time{}
-		final := aggregatedMessage{}
+		final := debouncedMessage{}
+
+		timerSet := false
+		timer := time.NewTimer(0 * time.Second)
+		<-timer.C
 
 		for {
 			select {
 			case update, ok := <-updates:
 				if !ok {
-					// kill the aggregator
+					// kill the debouncer
 					return
 				}
 
 				final.Message = update
-				final.Aggregated++
+				final.Debounces++
 
-				if done.IsZero() {
-					done = time.Now().Add(over)
+				if !timerSet {
+					// the channel should always be drained by this point
+					timer.Reset(over)
+					timerSet = true
 				}
-			default:
-				if done.IsZero() || time.Now().Before(done) {
-					time.Sleep(over / 10)
-					continue
-				}
-
+			case <-timer.C:
 				out <- final
 
 				// reset things
-				final = aggregatedMessage{}
-				done = time.Time{}
+				final = debouncedMessage{}
+				timerSet = false
 			}
 		}
 	}()

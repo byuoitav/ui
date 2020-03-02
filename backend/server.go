@@ -69,15 +69,18 @@ func main() {
 	// build echo server
 	e := echo.New()
 
-	wsHandler := handlers.NewClientHandler(handlers.NewClientConfig{
+	bffhandlers := handlers.BFF{
 		AvApiAddr:         avApiAddr,
 		CodeServiceAddr:   codeServiceAddr,
 		RemoteControlAddr: remoteControlAddr,
-	})
+	}
 
 	// register new clients
-	e.GET("/ws", wsHandler)
-	e.GET("/ws/:key", wsHandler)
+	e.GET("/ws", bffhandlers.NewClient)
+	e.GET("/ws/:key", bffhandlers.NewClient)
+
+	// uicontrol endpoints
+	e.GET("/uicontrol/refresh", bffhandlers.RefreshClients)
 
 	// handle load balancer status check
 	e.GET("/healthz", func(c echo.Context) error {
