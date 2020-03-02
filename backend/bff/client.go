@@ -18,11 +18,12 @@ import (
 	"go.uber.org/zap"
 )
 
+// ClientConfig represents some configuration options for the client
 type ClientConfig struct {
 	RoomID         string
 	ControlGroupID string
 
-	AvApiAddr         string
+	AvAPIAddr         string
 	CodeServiceAddr   string
 	RemoteControlAddr string
 }
@@ -39,7 +40,7 @@ type Client struct {
 	uiConfig UIConfig
 
 	lazs       LazaretteState
-	lazUpdates chan lazarette.KeyValue
+	lazUpdates chan lazMessage
 
 	// controlKeys is periodically updated
 	controlKeysMu sync.RWMutex
@@ -82,7 +83,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		Out:        make(chan Message, 1),
 		SendEvent:  make(chan events.Event),
 		Logger:     log.P.Named(ws.RemoteAddr().String()),
-		lazUpdates: make(chan lazarette.KeyValue),
+		lazUpdates: make(chan lazMessage),
 		lazs: LazaretteState{
 			Map: &sync.Map{},
 		},
@@ -99,7 +100,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 	// get the room state
 	g.Go(func() error {
 		var err error
-		c.state, err = GetRoomState(ctx, c.httpClient, c.config.AvApiAddr, c.roomID)
+		c.state, err = GetRoomState(ctx, c.httpClient, c.config.AvAPIAddr, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get room state: %w", err)
 		}
@@ -112,7 +113,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 	g.Go(func() error {
 		var err error
 
-		c.room, err = GetRoomConfig(ctx, c.httpClient, c.config.AvApiAddr, c.roomID)
+		c.room, err = GetRoomConfig(ctx, c.httpClient, c.config.AvAPIAddr, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get room config: %w", err)
 		}
@@ -150,6 +151,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		}
 
 		go c.syncLazaretteState(laz, sub)
+
 		return nil
 	})
 
@@ -230,6 +232,7 @@ func (c *Client) CurrentPreset() Preset {
 	return Preset{}
 }
 
+// Refresh refreshes the client
 func (c *Client) Refresh() {
 	c.Info("Sending refresh message")
 	c.Out <- StringMessage("refresh", "")

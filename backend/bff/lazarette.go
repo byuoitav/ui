@@ -19,17 +19,25 @@ const (
 	lazSharingDisplays = "-sharingDisplays"
 )
 
+// LazaretteState represents the current lazarette state in a room
 type LazaretteState struct {
 	*sync.Map
 }
 
+// ShareDataMap is contained in the LazaretteState map and contains information about sharing in a room
 type ShareDataMap map[ID]ShareData
 
+// ShareData is all the information a sharing display needs to know
 type ShareData struct {
 	State    ShareState
 	Active   []ID
 	Inactive []ID
 	Master   ID
+}
+
+type lazMessage struct {
+	Key  string
+	Data ShareDataMap
 }
 
 func (c *Client) getShareMap() ShareDataMap {
@@ -42,6 +50,11 @@ func (c *Client) getShareMap() ShareDataMap {
 	return nil
 }
 
+func (c *Client) setShareMap(l ShareDataMap) {
+	c.lazs.Store(lazSharingDisplays, l)
+}
+
+// ConnectToLazarette dials lazarette and returns a new client
 func ConnectToLazarette(ctx context.Context) (lazarette.LazaretteClient, error) {
 	lazAddr := os.Getenv("LAZARETTE_ADDR")
 	if len(lazAddr) == 0 {
@@ -61,13 +74,21 @@ func (c *Client) syncLazaretteState(laz lazarette.LazaretteClient, sub lazarette
 		select {
 		case <-c.kill:
 			return
-		case kv := <-c.lazUpdates:
+		case message := <-c.lazUpdates:
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-
-			_, err := laz.Set(ctx, &kv)
+			key := fmt.Sprintf("%v%v", c.roomID, message.Key)
+			j, err := json.Marshal(message.Data)
 			if err != nil {
-				c.Warn("unable to set updated key to lazarette", zap.String("key", kv.GetKey()), zap.Error(err))
+				c.Warn("unable to marshal lazarette message", zap.String("key", key), zap.Error(err))
 			}
+			_, err = laz.Set(ctx, &lazarette.KeyValue{
+				Key:  key,
+				Data: j,
+			})
+			if err != nil {
+				c.Warn("unable to set updated key to lazarette", zap.String("key", key), zap.Error(err))
+			}
+			c.setShareMap(message.Data)
 
 			cancel()
 		default:

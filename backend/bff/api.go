@@ -22,7 +22,7 @@ func (c *Client) SendAPIRequest(ctx context.Context, room structs.PublicRoom) er
 
 	roomSplit := strings.Split(c.roomID, "-")
 
-	url := fmt.Sprintf("http://%s/buildings/%s/rooms/%s", c.config.AvApiAddr, c.buildingID, roomSplit[1])
+	url := fmt.Sprintf("http://%s/buildings/%s/rooms/%s", c.config.AvAPIAddr, c.buildingID, roomSplit[1])
 	req, err := http.NewRequestWithContext(ctx, "PUT", url, bytes.NewReader(body))
 	if err != nil {
 		return err
