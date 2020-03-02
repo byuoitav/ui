@@ -27,13 +27,13 @@
         </div>
     <!-- </ng-container> -->
     
-    <div class="yourmom">
+    <div>
         <button mat-button class="input mat-elevation-z7"
             [class.selected]="selectedInput == blanked"
             [id]="'input' + blanked.id"
             [class.mat-raised-button]="selectedInput == blanked"
-            (click)="toggleBlank(cg?.displayGroups[selectedOutput])"
-            (press)="toggleBlank(cg?.displayGroups[selectedOutput])"
+            (click)="setBlank(cg?.displayGroups[selectedOutput])"
+            (press)="setBlank(cg?.displayGroups[selectedOutput])"
         >
             <div class="icon">
                 <i class="material-icons">{{ blanked?.icon }}</i>

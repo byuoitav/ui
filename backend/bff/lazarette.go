@@ -80,7 +80,7 @@ func (c *Client) syncLazaretteState(laz lazarette.LazaretteClient, sub lazarette
 				c.Warn("lazarette stream ended", zap.Error(err))
 				return
 			case err != nil:
-				c.Warn("lazarette stream error", zap.Error(err))
+				// c.Warn("lazarette stream error", zap.Error(err))
 				continue
 			case kv == nil:
 				continue
