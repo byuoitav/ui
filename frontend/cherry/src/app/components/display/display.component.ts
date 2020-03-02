@@ -75,12 +75,9 @@ export class DisplayComponent implements OnInit {
     }
   }
 
-  public toggleBlank(d: DisplayGroup) {
-    if (d.blanked == true) {
-      this.roomRef.setBlanked(d.id, false);
-    } else {
-      this.roomRef.setBlanked(d.id, true);
-    }
+  public setBlank(d: DisplayGroup) {
+    document.getElementById("input" + this.blanked.id).classList.toggle("feedback");
+    this.roomRef.setBlanked(d.id, true);
   }
 
   public getInputIcon(d: DisplayGroup) {

@@ -43,6 +43,7 @@ func (c *Client) handleEvents() {
 		for {
 			select {
 			case event := <-c.SendEvent:
+				c.stats.Events.Sent++
 				mess.SendEvent(event)
 			case <-c.kill:
 				return
@@ -56,6 +57,8 @@ func (c *Client) handleEvents() {
 		for {
 			select {
 			case eventWrap := <-eventCh:
+				c.stats.Events.Recieved++
+
 				var event events.Event
 				if err := json.Unmarshal(eventWrap.Event, &event); err != nil {
 					c.Warn("received an invalid event", zap.Error(err))

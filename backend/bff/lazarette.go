@@ -3,6 +3,7 @@ package bff
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -75,6 +76,7 @@ func (c *Client) syncLazaretteState(laz lazarette.LazaretteClient, sub lazarette
 		case <-c.kill:
 			return
 		case message := <-c.lazUpdates:
+			c.stats.Lazarette.UpdatesSent++
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			key := fmt.Sprintf("%v%v", c.roomID, message.Key)
 			j, err := json.Marshal(message.Data)
@@ -86,6 +88,7 @@ func (c *Client) syncLazaretteState(laz lazarette.LazaretteClient, sub lazarette
 				Data: j,
 			})
 			if err != nil {
+				cancel()
 				c.Warn("unable to set updated key to lazarette", zap.String("key", key), zap.Error(err))
 			}
 			c.setShareMap(message.Data)
@@ -94,13 +97,17 @@ func (c *Client) syncLazaretteState(laz lazarette.LazaretteClient, sub lazarette
 		default:
 			kv, err := sub.Recv()
 			switch {
-			case err == io.EOF:
-				// TODO
+			case errors.Is(err, io.EOF):
+				c.Warn("lazarette stream ended", zap.Error(err))
+				return
 			case err != nil:
-				// TODO
+				// c.Warn("lazarette stream error", zap.Error(err))
+				continue
 			case kv == nil:
 				continue
 			}
+
+			c.stats.Lazarette.UpdatesRecieved++
 
 			// strip off beginning roomID so that we only have the actual key
 			key := strings.TrimPrefix(kv.GetKey(), c.roomID)

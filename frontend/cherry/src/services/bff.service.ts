@@ -226,6 +226,12 @@ export class BFFService {
             roomRef.commandInProgress = false;
 
             break;
+
+          case "refresh":
+            console.log("refreshing!");
+            location.assign("http://" + location.hostname);
+            break;
+
           default:
             console.warn(
               "got key '" + k + "', not sure how to handle that message"

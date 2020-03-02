@@ -73,9 +73,13 @@ export class AppComponent implements OnInit {
   }
 
   public openMobileControlDialog() {
+    console.log(this.cg.controlInfo.url);
     const dialogRef = this.dialog.open(MobileControlComponent, {
       width: "70vw",
-      height: "52.5vw"
+      data: {
+        url: this.cg.controlInfo.url,
+        key: this.cg.controlInfo.key
+      }
     });
   }
 
