@@ -86,9 +86,11 @@ export class AppComponent implements OnInit {
   public togglePower() {
 
     if (this.cg.poweredOn == true) {
+      // console.log("Roomref lock, home: " + this.roomRef.loadingLock + " " + this.roomRef.loadingHome);
       //probably have to do a check to see if all the displays should turn off
       this.roomRef.setPower(false);
     } else {
+      // console.log("Roomref lock, home: " + this.roomRef.loadingLock + " " + this.roomRef.loadingHome);
       this.roomRef.setPower(true);
     }
   }

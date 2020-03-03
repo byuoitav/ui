@@ -18,18 +18,17 @@ export class DisplayComponent implements OnInit {
   cg: ControlGroup;
   selectedOutput: number;
   selectedInput: Input;
-  blanked: Input;
+  blank: Input;
   constructor(
     private dialog: MatDialog
   ) { }
 
   ngOnInit() {
-    this.blanked = {
+    this.blank = {
       id: "blank",
       icon: "crop_landscape",
       name: "Blank",
       subInputs: null,
-      // disabled: false
     }
     this.roomRef.subject().subscribe((r) => {
       if (r) {
@@ -39,7 +38,12 @@ export class DisplayComponent implements OnInit {
             this.selectedOutput = 0;
           }
           if (this.cg.displayGroups[this.selectedOutput].blanked == true) {
-            this.selectedInput = this.blanked;
+            this.selectedInput = this.blank;
+            
+            // for some reason the spinny edge of blank doesn't work the same as the inputs
+            // so we need to do this...
+            let btn = document.getElementById("input" + this.blank.id);
+            btn.classList.remove("feedback")
           } else {
             this.selectedInput = this.cg.inputs.find((i) => i.id === this.cg.displayGroups[this.selectedOutput].input)
           }
@@ -66,23 +70,23 @@ export class DisplayComponent implements OnInit {
 
   public getInputForOutput(d: DisplayGroup) {
     if (d.blanked == true) {
-      this.selectedInput = this.blanked;
+      this.selectedInput = this.blank;
     } else {
       this.selectedInput = this.cg.inputs.find((i) => i.id === d.input)
       if (this.selectedInput == undefined) {
-        this.selectedInput = this.blanked;
+        this.selectedInput = this.blank;
       }
     }
   }
 
   public setBlank(d: DisplayGroup) {
-    document.getElementById("input" + this.blanked.id).classList.toggle("feedback");
+    document.getElementById("input" + this.blank.id).classList.toggle("feedback");
     this.roomRef.setBlanked(d.id, true);
   }
 
   public getInputIcon(d: DisplayGroup) {
     if (d.blanked == true) {
-      return this.blanked.icon;
+      return this.blank.icon;
     } else {
       const input = this.cg.inputs.find((i) => i.id === d.input);
       if (input == undefined) {
@@ -94,7 +98,7 @@ export class DisplayComponent implements OnInit {
 
   public getInputName(d: DisplayGroup) {
     if (d.blanked == true) {
-      return this.blanked.name;
+      return this.blank.name;
     } else {
       const input = this.cg.inputs.find((i) => i.id === d.input);
       if (input == undefined) {
