@@ -74,6 +74,7 @@ type DisplayGroup struct {
 	ShareInfo ShareInfo `json:"shareInfo,omitempty"`
 }
 
+// ShareInfo .
 type ShareInfo struct {
 	State   ShareState `json:"state"`
 	Options []string   `json:"options,omitempty"`
@@ -129,6 +130,7 @@ type IconPair struct {
 // ID .
 type ID string
 
+// GetName gets the name of an ID
 func (i ID) GetName() string {
 	split := strings.Split(string(i), "-")
 	if len(split) != 3 {
