@@ -24,14 +24,14 @@ func (c *Client) SendAPIRequest(ctx context.Context, room structs.PublicRoom) er
 
 	roomSplit := strings.Split(c.roomID, "-")
 
-	url := fmt.Sprintf("http://%s/buildings/%s/rooms/%s", c.config.AvAPIAddr, c.buildingID, roomSplit[1])
+	url := fmt.Sprintf("http://%s/buildings/%s/rooms/%s", c.config.AvApiAddr, c.buildingID, roomSplit[1])
 	req, err := http.NewRequestWithContext(ctx, "PUT", url, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("unable to build request: %w", err)
 	}
 
 	req.Header.Add("Content-Type", "application/json")
-	c.Debug("sending API request", zap.String("url", url), zap.ByteString("body", body))
+	c.Debug("Sending request to av-api", zap.String("url", url), zap.ByteString("body", body))
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -45,6 +45,8 @@ func (c *Client) SendAPIRequest(ctx context.Context, room structs.PublicRoom) er
 	if err != nil {
 		return fmt.Errorf("unable to read response: %w", err)
 	}
+
+	c.Debug("Response from av-api", zap.ByteString("resp-body", data))
 
 	var newState structs.PublicRoom
 	err = json.Unmarshal(data, &newState)

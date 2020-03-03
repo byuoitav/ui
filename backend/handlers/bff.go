@@ -19,6 +19,7 @@ type BFF struct {
 	AvApiAddr         string
 	CodeServiceAddr   string
 	RemoteControlAddr string
+	LazaretteAddr     string
 
 	init     sync.Once
 	upgrader websocket.Upgrader
@@ -66,6 +67,7 @@ func (b *BFF) NewClient(c echo.Context) error {
 		AvApiAddr:         b.AvApiAddr,
 		CodeServiceAddr:   b.CodeServiceAddr,
 		RemoteControlAddr: b.RemoteControlAddr,
+		LazaretteAddr:     b.LazaretteAddr,
 	}
 
 	// if it is coming from localhost then don't worry about a key

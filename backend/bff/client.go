@@ -23,9 +23,10 @@ type ClientConfig struct {
 	RoomID         string
 	ControlGroupID string
 
-	AvAPIAddr         string
+	AvApiAddr         string
 	CodeServiceAddr   string
 	RemoteControlAddr string
+	LazaretteAddr     string
 }
 
 // Client represents a client of the bff
@@ -98,16 +99,16 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 	c.stats.CreatedAt = &now
 
 	// setup shoudn't take longer than 10 seconds
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	sctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	// create the errgroup for all these setup functions
-	g, ctx := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(sctx)
 
 	// get the room state
 	g.Go(func() error {
 		var err error
-		c.state, err = GetRoomState(ctx, c.httpClient, c.config.AvAPIAddr, c.roomID)
+		c.state, err = GetRoomState(gctx, c.httpClient, c.config.AvApiAddr, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get room state: %w", err)
 		}
@@ -120,7 +121,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 	g.Go(func() error {
 		var err error
 
-		c.room, err = GetRoomConfig(ctx, c.httpClient, c.config.AvAPIAddr, c.roomID)
+		c.room, err = GetRoomConfig(gctx, c.httpClient, c.config.AvApiAddr, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get room config: %w", err)
 		}
@@ -133,7 +134,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 	g.Go(func() error {
 		var err error
 
-		c.uiConfig, err = GetUIConfig(ctx, c.httpClient, c.roomID)
+		c.uiConfig, err = GetUIConfig(gctx, c.httpClient, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get ui config: %w", err)
 		}
@@ -142,49 +143,29 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		return nil
 	})
 
-	// connect to lazarette
-	g.Go(func() error {
-		var err error
-
-		laz, err := ConnectToLazarette(ctx)
-		if err != nil {
-			return fmt.Errorf("unable to connect to lazarette: %w", err)
-		}
-
-		// create the subscription
-		sub, err := laz.Subscribe(ctx, &lazarette.Key{Key: c.roomID})
-		if err != nil {
-			return fmt.Errorf("unable to subscribe to lazarette: %w", err)
-		}
-
-		go c.syncLazaretteState(laz, sub)
-
-		return nil
-	})
-
 	if err := g.Wait(); err != nil {
-		return nil, fmt.Errorf("unable to get setup client: %w", err)
+		return nil, fmt.Errorf("unable to setup client: %w", err)
 	}
 
+	// connect to lazarette - we need to use the ctx associated with the websocket,
+	// or else it will close the connection when this function ends
+	laz, err := ConnectToLazarette(ctx, c.config.LazaretteAddr)
+	if err != nil {
+		return nil, fmt.Errorf("unable to connect to lazarette: %w", err)
+	}
+
+	sub, err := laz.Subscribe(ctx, &lazarette.Key{Key: c.roomID})
+	if err != nil {
+		return nil, fmt.Errorf("unable to subscribe to lazarette: %w", err)
+	}
+
+	go c.syncLazaretteState(laz, sub)
+
+	// build the initial room
 	room := c.GetRoom()
 	if _, ok := room.ControlGroups[config.ControlGroupID]; ok {
 		c.selectedControlGroupID = config.ControlGroupID
 	}
-
-	// TODO this should happen in get room
-	// Set up who can share to who
-	//s := make(map[ID][]ID)
-	//for _, p := range c.uiConfig.Presets {
-	//	for i, d := range p.ShareableDisplays {
-	//		shar := remove(p.ShareableDisplays, i)
-	//		shareable := make([]ID, len(shar))
-	//		for j := range shar {
-	//			shareable[j] = ID(shar[j])
-	//		}
-	//		s[ID(d)] = shareable
-	//	}
-	//}
-	//c.shareable = s
 
 	// send the inital room info
 	msg, err := JSONMessage("room", c.GetRoom())

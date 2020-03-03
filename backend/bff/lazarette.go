@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -14,6 +13,8 @@ import (
 	"github.com/byuoitav/lazarette/lazarette"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -55,14 +56,10 @@ func (c *Client) setShareMap(l ShareDataMap) {
 	c.lazs.Store(lazSharingDisplays, l)
 }
 
-// ConnectToLazarette dials lazarette and returns a new client
-func ConnectToLazarette(ctx context.Context) (lazarette.LazaretteClient, error) {
-	lazAddr := os.Getenv("LAZARETTE_ADDR")
-	if len(lazAddr) == 0 {
-		return nil, fmt.Errorf("LAZARETTE_ADDR not set")
-	}
-
-	conn, err := grpc.DialContext(ctx, lazAddr, grpc.WithInsecure(), grpc.WithBlock())
+// ConnectToLazarette dials lazarette and returns a new client. The connection will be killed
+// when ctx expires.
+func ConnectToLazarette(ctx context.Context, addr string) (lazarette.LazaretteClient, error) {
+	conn, err := grpc.DialContext(ctx, addr, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		return nil, fmt.Errorf("unable to open grpc connection: %s", err)
 	}
@@ -75,6 +72,7 @@ func (c *Client) syncLazaretteState(laz lazarette.LazaretteClient, sub lazarette
 		select {
 		case <-c.kill:
 			return
+			// TODO seperate these
 		case message := <-c.lazUpdates:
 			c.stats.Lazarette.UpdatesSent++
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -101,7 +99,13 @@ func (c *Client) syncLazaretteState(laz lazarette.LazaretteClient, sub lazarette
 				c.Warn("lazarette stream ended", zap.Error(err))
 				return
 			case err != nil:
-				// c.Warn("lazarette stream error", zap.Error(err))
+				s := status.Convert(err)
+				if s.Code() == codes.Canceled || s.Code() == codes.DeadlineExceeded {
+					c.Warn("ending lazarette stream", zap.Error(s.Err()))
+					return
+				}
+
+				c.Warn("lazarette stream error", zap.Error(err))
 				continue
 			case kv == nil:
 				continue
