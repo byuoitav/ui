@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/byuoitav/lazarette/lazarette"
+	"github.com/golang/protobuf/ptypes"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -39,7 +40,7 @@ type ShareData struct {
 
 type lazMessage struct {
 	Key  string
-	Data ShareDataMap
+	Data interface{}
 }
 
 func (c *Client) getShareMap() ShareDataMap {
@@ -64,6 +65,8 @@ func ConnectToLazarette(ctx context.Context, addr string) (lazarette.LazaretteCl
 		return nil, fmt.Errorf("unable to open grpc connection: %s", err)
 	}
 
+	// TODO reconnect
+
 	return lazarette.NewLazaretteClient(conn), nil
 }
 
@@ -71,24 +74,33 @@ func (c *Client) updateLazaretteState(laz lazarette.LazaretteClient) {
 	for {
 		select {
 		case <-c.kill:
+			return
 		case message := <-c.lazUpdates:
 			c.stats.Lazarette.UpdatesSent++
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
 			key := fmt.Sprintf("%v%v", c.roomID, message.Key)
-			j, err := json.Marshal(message.Data)
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			// cancel needs to be called before this block ends!!!
+
+			data, err := json.Marshal(message.Data)
 			if err != nil {
 				c.Warn("unable to marshal lazarette message", zap.String("key", key), zap.Error(err))
+				cancel()
+				continue
 			}
+
 			_, err = laz.Set(ctx, &lazarette.KeyValue{
-				Key:  key,
-				Data: j,
+				Timestamp: ptypes.TimestampNow(),
+				Key:       key,
+				Data:      data,
 			})
 			if err != nil {
-				cancel()
 				c.Warn("unable to set updated key to lazarette", zap.String("key", key), zap.Error(err))
+				cancel()
 			}
-			c.setShareMap(message.Data)
 
+			// store it in our local map
+			c.lazs.Store(key, data)
 			cancel()
 		}
 	}
@@ -132,6 +144,7 @@ func (c *Client) subLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 					continue
 				}
 
+				c.Debug("Got lazarette update", zap.String("key", lazSharingDisplays), zap.ByteString("data", kv.GetData()))
 				c.lazs.Store(lazSharingDisplays, data)
 			default:
 			}

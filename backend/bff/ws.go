@@ -70,7 +70,12 @@ func (c *Client) readPump() {
 			}
 
 			// handle message
-			go c.HandleMessage(m)
+			go func() {
+				c.stats.Routines++
+				defer c.stats.decRoutines()
+
+				c.HandleMessage(m)
+			}()
 		}
 	}
 }
@@ -85,7 +90,7 @@ func (c *Client) writePump() {
 	rooms := make(chan json.RawMessage)
 	defer close(rooms)
 
-	debouncedRooms := msgDebouncer(rooms, roomDebounceDuration)
+	debouncedRooms := c.msgDebouncer(rooms, roomDebounceDuration)
 
 	for {
 		select {
@@ -172,10 +177,12 @@ type debouncedMessage struct {
 	Debounces int
 }
 
-func msgDebouncer(updates chan json.RawMessage, over time.Duration) chan debouncedMessage {
+func (c *Client) msgDebouncer(updates chan json.RawMessage, over time.Duration) chan debouncedMessage {
 	out := make(chan debouncedMessage)
 
 	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
 		defer close(out)
 
 		final := debouncedMessage{}

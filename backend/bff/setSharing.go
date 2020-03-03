@@ -16,9 +16,9 @@ type SetSharing struct {
 
 // SetSharingMessage is a message enabling or disabling sharing
 type SetSharingMessage struct {
-	Status  bool `json:"status"`
-	Master  ID   `json:"master"`
-	Minions []ID `json:"minions,omitempty"`
+	Status  bool     `json:"status"`
+	Master  ID       `json:"master"`
+	Options []string `json:"options,omitempty"`
 }
 
 //
@@ -64,6 +64,7 @@ func (ss SetSharing) Do(c *Client, data []byte) {
 		c.Out <- ErrorMessage(fmt.Errorf("invalid value for setSharing: %s", err))
 		return
 	}
+
 	if msg.Status {
 		ss.On(c, msg)
 	} else {
@@ -84,12 +85,12 @@ func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
 	// and set all of the minion inputs
 	if shareMap := c.getShareMap(); shareMap != nil {
 		// First update the minions
-		for _, minion := range msg.Minions {
-			shareMap[minion] = ShareData{
+		for _, minion := range msg.Options {
+			shareMap[ID(minion)] = ShareData{
 				State:  MinionInactive,
 				Master: msg.Master,
 			}
-			dg, err := getDisplayGroup(cg, minion)
+			dg, err := getDisplayGroup(cg, ID(minion))
 			if err != nil {
 				fmt.Printf("no!!!\n")
 				return
@@ -98,7 +99,7 @@ func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
 			done := false
 			for _, p := range c.uiConfig.Presets {
 				for _, d := range p.Displays {
-					if ID(d) == minion {
+					if d == minion {
 						input = p.Inputs[0]
 						done = true
 						break
@@ -132,8 +133,9 @@ func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
 
 		// Then update the master
 		shareMap[msg.Master] = ShareData{
-			State:  Unshare,
-			Active: msg.Minions,
+			State: Unshare,
+			// TODO
+			// Active: msg.Options,
 		}
 
 		c.lazUpdates <- lazMessage{

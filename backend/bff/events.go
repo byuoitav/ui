@@ -38,6 +38,8 @@ func (c *Client) handleEvents() {
 
 	// send events
 	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
 		defer wg.Done()
 
 		for {
@@ -52,6 +54,8 @@ func (c *Client) handleEvents() {
 	}()
 
 	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
 		defer wg.Done()
 
 		for {

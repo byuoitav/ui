@@ -4,12 +4,12 @@ import "time"
 
 type ClientStats struct {
 	CreatedAt *time.Time `json:"CreatedAt,omitempty"`
+	Routines  uint
 
 	WebSocket struct {
 		MessagesRecieved uint
 		MessagesSent     uint
 		ErrorsSent       uint
-		TimeOpen         time.Duration `json:"TimeOpen,omitempty"`
 	}
 
 	AvControlApi struct {
@@ -29,16 +29,14 @@ type ClientStats struct {
 }
 
 type AggregateClientStats struct {
-	ClientCount uint
+	ClientCount  uint
+	OldestClient *time.Time `json:"OldestClient,omitempty"`
+
 	ClientStats
 }
 
 func (c *Client) Stats() ClientStats {
 	stats := c.stats
-
-	if stats.CreatedAt != nil {
-		stats.WebSocket.TimeOpen = time.Since(*stats.CreatedAt)
-	}
 
 	return stats
 }
@@ -49,6 +47,17 @@ func AggregateStats(stats []ClientStats) AggregateClientStats {
 
 	for i := range stats {
 		agg.ClientCount++
+
+		// figure out the oldest client
+		switch {
+		case stats[i].CreatedAt == nil:
+		case agg.OldestClient == nil:
+			agg.OldestClient = stats[i].CreatedAt
+		case stats[i].CreatedAt.Before(*agg.OldestClient):
+			agg.OldestClient = stats[i].CreatedAt
+		}
+
+		agg.Routines += stats[i].Routines
 
 		agg.WebSocket.MessagesRecieved += stats[i].WebSocket.MessagesRecieved
 		agg.WebSocket.MessagesSent += stats[i].WebSocket.MessagesSent
@@ -67,4 +76,8 @@ func AggregateStats(stats []ClientStats) AggregateClientStats {
 	}
 
 	return agg
+}
+
+func (s *ClientStats) decRoutines() {
+	s.Routines--
 }

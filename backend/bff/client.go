@@ -53,6 +53,7 @@ type Client struct {
 	// spawned by the client should exit
 	kill      chan struct{}
 	closeOnce sync.Once
+	killed    bool
 
 	ws         *websocket.Conn
 	httpClient *http.Client
@@ -107,6 +108,9 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 
 	// get the room state
 	g.Go(func() error {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
 		var err error
 		c.state, err = GetRoomState(gctx, c.httpClient, c.config.AvApiAddr, c.roomID)
 		if err != nil {
@@ -119,8 +123,10 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 
 	// get the room config
 	g.Go(func() error {
-		var err error
+		c.stats.Routines++
+		defer c.stats.decRoutines()
 
+		var err error
 		c.room, err = GetRoomConfig(gctx, c.httpClient, c.config.AvApiAddr, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get room config: %w", err)
@@ -132,8 +138,10 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 
 	// get the ui config
 	g.Go(func() error {
-		var err error
+		c.stats.Routines++
+		defer c.stats.decRoutines()
 
+		var err error
 		c.uiConfig, err = GetUIConfig(gctx, c.httpClient, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get ui config: %w", err)
@@ -159,8 +167,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		return nil, fmt.Errorf("unable to subscribe to lazarette: %w", err)
 	}
 
-	go c.subLazaretteState(sub)
-	go c.updateLazaretteState(laz)
+	c.Debug("Connected to lazarette and listening for changes", zap.String("prefix", c.roomID))
 
 	// build the initial room
 	room := c.GetRoom()
@@ -179,28 +186,65 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 	c.Info("Got all initial information, sent room to client. Starting ws/event goroutines")
 
 	// start data update routines
-	go c.updateControlKey()
-	go c.handleEvents()
-	go c.readPump()
-	go c.writePump()
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		c.subLazaretteState(sub)
+	}()
+
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		c.updateLazaretteState(laz)
+	}()
+
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		c.updateControlKey()
+	}()
+
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		c.handleEvents()
+	}()
+
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		c.readPump()
+	}()
+
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		c.writePump()
+	}()
 
 	return c, nil
 }
-
-//func remove(l []string, index int) []string {
-//	l[index] = l[len(l)-1]
-//	return l[:len(l)-1]
-//}
 
 // Wait waits until a client is dead
 func (c *Client) Wait() {
 	<-c.kill
 }
 
+func (c *Client) Killed() bool {
+	return c.killed
+}
+
 // Close closes the client
 func (c *Client) Close() {
 	c.closeOnce.Do(func() {
 		c.Info("Closing client. Bye!")
+		c.killed = true
 
 		// close the kill chan to clean up all resources
 		close(c.kill)

@@ -71,31 +71,13 @@ func main() {
 	// build echo server
 	e := echo.New()
 
-	bffhandlers := handlers.BFF{
-		AvApiAddr:         avApiAddr,
-		CodeServiceAddr:   codeServiceAddr,
-		RemoteControlAddr: remoteControlAddr,
-		LazaretteAddr:     lazaretteAddr,
-	}
-
-	// register new clients
-	e.GET("/ws", bffhandlers.NewClient)
-	e.GET("/ws/:key", bffhandlers.NewClient)
-
-	// uicontrol endpoints
-	e.GET("/uicontrol/refresh", bffhandlers.RefreshClients)
-
 	// handle load balancer status check
 	e.GET("/healthz", func(c echo.Context) error {
 		return c.String(http.StatusOK, "healthy")
 	})
 
-	// prometheus stats check
-	// e.GET("/statsz", echo.WrapHandler(promhttp.Handler()))
-	e.GET("/statsz", bffhandlers.Stats)
-
 	// set the log level
-	e.GET("/log/:level", func(c echo.Context) error {
+	e.GET("/logz/:level", func(c echo.Context) error {
 		level, err := strconv.Atoi(c.Param("level"))
 		if err != nil {
 			return c.String(http.StatusBadRequest, err.Error())
@@ -107,6 +89,27 @@ func main() {
 
 		return c.String(http.StatusOK, fmt.Sprintf("Set log level to %v", level))
 	})
+
+	bffhandlers := handlers.BFF{
+		AvApiAddr:         avApiAddr,
+		CodeServiceAddr:   codeServiceAddr,
+		RemoteControlAddr: remoteControlAddr,
+		LazaretteAddr:     lazaretteAddr,
+	}
+
+	bffg := e.Group("", bffhandlers.SetupMiddleware)
+
+	// register new clients
+	bffg.GET("/ws", bffhandlers.NewClient)
+	bffg.GET("/ws/:key", bffhandlers.NewClient)
+
+	// uicontrol endpoints
+	bffg.GET("/uicontrol/refresh", bffhandlers.RefreshClients)
+
+	// stats
+	statsg := bffg.Group("/statsz")
+	statsg.GET("", bffhandlers.Stats)
+	statsg.GET("/clients", bffhandlers.ClientStats)
 
 	// group to get ui config
 	single := singleflight.Group{}

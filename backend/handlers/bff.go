@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/byuoitav/ui/bff"
 	"github.com/byuoitav/ui/log"
@@ -28,19 +29,23 @@ type BFF struct {
 	clients   map[string]*bff.Client
 }
 
-func (b *BFF) setup() {
-	b.clients = make(map[string]*bff.Client)
-	b.upgrader = websocket.Upgrader{
-		EnableCompression: true,
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
+func (b *BFF) SetupMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		b.init.Do(func() {
+			b.clients = make(map[string]*bff.Client)
+			b.upgrader = websocket.Upgrader{
+				EnableCompression: true,
+				CheckOrigin: func(r *http.Request) bool {
+					return true
+				},
+			}
+		})
+
+		return next(c)
 	}
 }
 
 func (b *BFF) NewClient(c echo.Context) error {
-	b.init.Do(b.setup)
-
 	// open the websocket
 	ws, err := b.upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
@@ -118,9 +123,15 @@ func (b *BFF) NewClient(c echo.Context) error {
 
 	// defer deleting it from the map
 	defer func() {
-		b.clientsMu.Lock()
-		delete(b.clients, c.Request().RemoteAddr)
-		b.clientsMu.Unlock()
+		go func() {
+			// delay so that we can get stats off of it for a bit after it dies
+			time.Sleep(30 * time.Second)
+
+			b.clientsMu.Lock()
+			defer b.clientsMu.Unlock()
+
+			delete(b.clients, c.Request().RemoteAddr)
+		}()
 	}()
 
 	log.P.Info("Successfully registered client", zap.String("client", c.Request().RemoteAddr))
@@ -132,32 +143,47 @@ func (b *BFF) NewClient(c echo.Context) error {
 }
 
 func (b *BFF) RefreshClients(c echo.Context) error {
-	b.init.Do(b.setup)
-
 	count := 0
 
 	b.clientsMu.Lock()
 	defer b.clientsMu.Unlock()
 
 	for _, client := range b.clients {
-		count++
-		go client.Refresh()
+		if !client.Killed() {
+			count++
+			go client.Refresh()
+		}
 	}
 
+	log.P.Info("Refreshed clients.", zap.Int("count", count))
 	return c.String(http.StatusOK, fmt.Sprintf("Successfully refreshed %d clients.", count))
 }
 
 func (b *BFF) Stats(c echo.Context) error {
-	b.init.Do(b.setup)
-
 	var stats []bff.ClientStats
 
 	b.clientsMu.Lock()
 	defer b.clientsMu.Unlock()
 
 	for _, v := range b.clients {
-		stats = append(stats, v.Stats())
+		// don't include killed ones in agg
+		if !v.Killed() {
+			stats = append(stats, v.Stats())
+		}
 	}
 
 	return c.JSON(http.StatusOK, bff.AggregateStats(stats))
+}
+
+func (b *BFF) ClientStats(c echo.Context) error {
+	stats := make(map[string]bff.ClientStats)
+
+	b.clientsMu.Lock()
+	defer b.clientsMu.Unlock()
+
+	for k, v := range b.clients {
+		stats[k] = v.Stats()
+	}
+
+	return c.JSON(http.StatusOK, stats)
 }
