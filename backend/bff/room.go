@@ -76,11 +76,21 @@ func (c *Client) GetRoom() Room {
 				},
 			}
 
+			generateShareOptions := true
 			if shareMap := c.getShareMap(); shareMap != nil {
 				if data, ok := shareMap[group.ID]; ok {
+					generateShareOptions = false
+
 					group.ShareInfo.State = data.State
 					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
 				}
+			}
+
+			// if there is no share map present, but there are sharable displays
+			// then allow them to share to those options
+			if generateShareOptions && len(preset.ShareableDisplays) > 0 {
+				group.ShareInfo.State = Share
+				group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
 			}
 
 			group.Displays = append(group.Displays, IconPair{
