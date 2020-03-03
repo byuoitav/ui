@@ -3,7 +3,7 @@ import { Component, OnInit, Input as AngularInput } from "@angular/core";
 import { RoomRef } from "src/app/services/bff.service";
 import {
   ControlGroup,
-  DisplayBlock,
+  DisplayGroup,
   Input,
   IconPair
 } from "../../../../../objects/control";
@@ -12,7 +12,7 @@ import {
 class Page {
   pageOption: string;
   weight: number;
-  displays: DisplayBlock[];
+  displays: DisplayGroup[];
 
   constructor() {
     this.displays = [];
@@ -32,8 +32,8 @@ export class DisplayComponent implements OnInit {
 
   selectedDisplayIdx: number = 0;
   get selectedDisplay() {
-    if (this.cg && this.cg.displayBlocks && this.cg.displayBlocks.length > 0) {
-      return this.cg.displayBlocks[this.selectedDisplayIdx];
+    if (this.cg && this.cg.displayGroups && this.cg.displayGroups.length > 0) {
+      return this.cg.displayGroups[this.selectedDisplayIdx];
     }
 
     return undefined;
@@ -43,6 +43,13 @@ export class DisplayComponent implements OnInit {
   curDisplayPage = 0;
   inputPages: number[] = [];
   curInputPage = 0;
+
+  blankInput: Input = {
+    id: "blank",
+    name: "Blank",
+    icon: "crop_landscape",
+    subInputs: []
+  }
 
   constructor() {
     this.displayPages = [];
@@ -57,7 +64,7 @@ export class DisplayComponent implements OnInit {
   }
 
   generatePages = () => {
-    if (this.cg === undefined || this.cg.displayBlocks === undefined) {
+    if (this.cg === undefined || this.cg.displayGroups === undefined) {
       console.error("uninitialized control group");
       return;
     }
@@ -70,39 +77,49 @@ export class DisplayComponent implements OnInit {
     let p = new Page();
     p.displays = [];
 
-    while (displayIndex < this.cg.displayBlocks.length) {
-      if (
-        p.weight > 0 &&
-        p.weight + this.cg.displayBlocks[displayIndex].outputs.length >= 5
-      ) {
+    while (displayIndex < this.cg.displayGroups.length) {
+      p.weight += this.cg.displayGroups[displayIndex].displays.length;
+      p.displays.push(this.cg.displayGroups[displayIndex]);
+
+      if (p.weight >= 3) {
         this.displayPages.push(p);
         p = new Page();
       }
+      // if (
+      //   p.weight > 0 &&
+      //   p.weight + this.cg.displayGroups[displayIndex].displays.length >= 5
+      // ) {
+      //   this.displayPages.push(p);
+      //   p = new Page();
+      // }
 
-      // set the length of the outputs to the weight of the page
-      p.weight += this.cg.displayBlocks[displayIndex].outputs.length;
-      p.displays.push(this.cg.displayBlocks[displayIndex]);
-      if (p.weight > 4) {
-        p.pageOption = "4";
-      } else {
-        p.pageOption += "" + this.cg.displayBlocks[displayIndex].outputs.length;
-      }
+      // // set the length of the outputs to the weight of the page
+      // p.weight += this.cg.displayGroups[displayIndex].displays.length;
+      // p.displays.push(this.cg.displayGroups[displayIndex]);
+      // if (p.weight > 4) {
+      //   p.pageOption = "4";
+      // } else {
+      //   p.pageOption += "" + this.cg.displayGroups[displayIndex].displays.length;
+      // }
 
-      // check to see if the weight is less than the max
-      if (p.weight >= 4) {
-        // assign the page and move on to the next one
-        this.displayPages.push(p);
-        p = new Page();
-      } else {
-        if (displayIndex === this.cg.displayBlocks.length - 1) {
-          this.displayPages.push(p);
-        }
-      }
+      // // check to see if the weight is less than the max
+      // if (p.weight >= 4) {
+      //   // assign the page and move on to the next one
+      //   this.displayPages.push(p);
+      //   p = new Page();
+      // } else {
+      //   if (displayIndex === this.cg.displayGroups.length - 1) {
+      //     this.displayPages.push(p);
+      //   }
+      // }
 
-      displayIndex++;
+      // displayIndex++;
     }
 
+    console.log(this.displayPages);
+
     // set up the input pages
+    // this.cg.inputs.unshift(this.blankInput);
     const fullPages = Math.floor(this.cg.inputs.length / 6);
     const remainderPage = this.cg.inputs.length % 6;
 
@@ -244,11 +261,11 @@ export class DisplayComponent implements OnInit {
 
   setVolume = (level: number) => {
     // set the volume in some way
-    this._roomRef.setVolume(this.cg.audioGroups[0].audioDevices[0].id, level);
+    this._roomRef.setVolume(level);
   };
 
   setMute = (muted: boolean) => {
     // mute the volume in some way
-    this._roomRef.setMuted(this.cg.audioGroups[0].audioDevices[0].id, muted);
+    this._roomRef.setMuted(muted);
   };
 }

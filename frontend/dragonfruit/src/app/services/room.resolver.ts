@@ -34,12 +34,12 @@ export class RoomResolver implements Resolve<RoomRef> {
           val => {
             if (isRoom(val)) {
               console.log("meet val", val);
-              if (val.controlGroups[val.selectedControlGroup].power == "on") {
+              if (val.controlGroups[val.selectedControlGroup].poweredOn) {
                 observer.next(roomRef);
                 observer.complete();
                 unsubscribe.complete();
               } else {
-                roomRef.setPower(val.controlGroups[val.selectedControlGroup].displayBlocks, "on")
+                roomRef.setPower(true);
               }
             }
           },

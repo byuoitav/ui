@@ -23,12 +23,12 @@ export class AudioComponent implements OnInit {
 
   setVolume = (level: number, device: any) => {
     const audioDevice = device as AudioDevice;
-    this._roomRef.setVolume(audioDevice.id, level);
+    this._roomRef.setVolume(level, audioDevice.id);
   };
 
   setMute = (muted: boolean, device: any) => {
     const audioDevice = device as AudioDevice;
-    this._roomRef.setMuted(audioDevice.id, muted);
+    this._roomRef.setMuted(muted, audioDevice.id);
   };
 
   // if there is at least one that is not muted
@@ -41,7 +41,7 @@ export class AudioComponent implements OnInit {
     //                  all devices are muted
 
     for (const ad of ag.audioDevices) {
-      this._roomRef.setMuted(ad.id, muted);
+      this._roomRef.setMuted(muted, ad.id);
     }
   };
 }
