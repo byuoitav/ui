@@ -48,12 +48,24 @@ export class HomeComponent implements OnInit {
   }
 
   openSharing = () => {
-    this.dialog.open(SharingComponent, {data: this.cg})
+    this.dialog.open(SharingComponent, {data: this.roomRef})
   }
 
   canShare = () => {
     if (this.cg) {
-      return this.cg.displayGroups[0].shareOptions && this.cg.displayGroups[0].shareOptions.length > 0;
+      return this.cg.displayGroups[0].shareInfo.state === 1;
+    }
+  }
+
+  currentlySharing = () => {
+    if (this.cg) {
+      return this.cg.displayGroups[0].shareInfo.state === 2;
+    }
+  }
+
+  stopSharing = () => {
+    if (this.roomRef) {
+      this.roomRef.stopSharing(this.cg.displayGroups[0].id);
     }
   }
 

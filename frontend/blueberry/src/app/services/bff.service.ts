@@ -152,6 +152,29 @@ export class RoomRef {
 
     this._ws.send(JSON.stringify(kv));
   }
+
+  startSharing = (masterID: string, optionsIDs: string[]) => {
+    const kv = {
+      setSharing: {
+        status: true,
+        master: masterID,
+        minions: optionsIDs
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv));
+  }
+
+  stopSharing = (masterID: string) => {
+    const kv = {
+      setSharing: {
+        status: false,
+        master: masterID
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv));
+  }
 }
 
 @Injectable({

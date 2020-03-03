@@ -78,20 +78,8 @@ export class DisplayComponent implements OnInit {
     p.displays = [];
 
     while (displayIndex < this.cg.displayGroups.length) {
-      p.weight += this.cg.displayGroups[displayIndex].displays.length;
-      p.displays.push(this.cg.displayGroups[displayIndex]);
-
-      if (p.weight >= 3) {
-        this.displayPages.push(p);
-        p = new Page();
-      }
-      // if (
-      //   p.weight > 0 &&
-      //   p.weight + this.cg.displayGroups[displayIndex].displays.length >= 5
-      // ) {
-      //   this.displayPages.push(p);
-      //   p = new Page();
-      // }
+      
+      
 
       // // set the length of the outputs to the weight of the page
       // p.weight += this.cg.displayGroups[displayIndex].displays.length;
@@ -113,7 +101,7 @@ export class DisplayComponent implements OnInit {
       //   }
       // }
 
-      // displayIndex++;
+      displayIndex++;
     }
 
     console.log(this.displayPages);

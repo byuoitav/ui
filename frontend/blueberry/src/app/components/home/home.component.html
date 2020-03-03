@@ -26,6 +26,10 @@
     <mat-icon>screen_share</mat-icon>
   </button>
 
+  <button mat-fab class="dta button" (click)="stopSharing()" *ngIf="currentlySharing()">
+    <mat-icon>stop_screen_share</mat-icon>
+  </button>
+
   <button mat-fab class="dta button" (click)="screen.show(cg)" (press)="screen.show(cg)" *ngIf="hasScreens()">
     <mat-icon>unfold_more</mat-icon>
   </button>
