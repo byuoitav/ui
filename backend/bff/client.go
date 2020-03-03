@@ -159,7 +159,8 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		return nil, fmt.Errorf("unable to subscribe to lazarette: %w", err)
 	}
 
-	go c.syncLazaretteState(laz, sub)
+	go c.subLazaretteState(sub)
+	go c.updateLazaretteState(laz)
 
 	// build the initial room
 	room := c.GetRoom()

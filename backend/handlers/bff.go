@@ -60,7 +60,7 @@ func (b *BFF) NewClient(c echo.Context) error {
 			log.P.Warn("unable to write close message", zap.Error(err))
 		}
 
-		return err
+		return nil
 	}
 
 	cconfig := bff.ClientConfig{

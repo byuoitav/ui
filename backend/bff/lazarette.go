@@ -67,12 +67,10 @@ func ConnectToLazarette(ctx context.Context, addr string) (lazarette.LazaretteCl
 	return lazarette.NewLazaretteClient(conn), nil
 }
 
-func (c *Client) syncLazaretteState(laz lazarette.LazaretteClient, sub lazarette.Lazarette_SubscribeClient) {
+func (c *Client) updateLazaretteState(laz lazarette.LazaretteClient) {
 	for {
 		select {
 		case <-c.kill:
-			return
-			// TODO seperate these
 		case message := <-c.lazUpdates:
 			c.stats.Lazarette.UpdatesSent++
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -92,6 +90,15 @@ func (c *Client) syncLazaretteState(laz lazarette.LazaretteClient, sub lazarette
 			c.setShareMap(message.Data)
 
 			cancel()
+		}
+	}
+}
+
+func (c *Client) subLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
+	for {
+		select {
+		case <-c.kill:
+			return
 		default:
 			kv, err := sub.Recv()
 			switch {
