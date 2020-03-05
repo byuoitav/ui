@@ -158,7 +158,7 @@ export class RoomRef {
       setSharing: {
         status: true,
         master: masterID,
-        minions: optionsIDs
+        options: optionsIDs
       }
     }
 
