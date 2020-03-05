@@ -187,7 +187,7 @@ func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
 	}
 
 	// let the frontend know that sharing is complete
-	c.Out <- StringMessage("shareDone", "")
+	c.Out <- StringMessage("shareStarted", "")
 }
 
 func (ss SetSharing) Off(c *Client, msg SetSharingMessage) {
@@ -254,5 +254,5 @@ func (ss SetSharing) Off(c *Client, msg SetSharingMessage) {
 		c.Out <- ErrorMessage(fmt.Errorf("failed to set sharing: %w", err))
 	}
 
-	c.Out <- StringMessage("stopShareDone", "")
+	c.Out <- StringMessage("shareEnded", "")
 }
