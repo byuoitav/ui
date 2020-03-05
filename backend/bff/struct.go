@@ -3,24 +3,6 @@ package bff
 import "strings"
 
 // ShareState is one of 7 possible share states
-type ShareState int
-
-const (
-	// CantShare means that you can't share at all
-	CantShare ShareState = iota
-
-	// Share means that you can share right now
-	Share
-
-	// Unshare means that you are currently sharing, and that you could unshare
-	Unshare
-
-	// MinionActive means that you are being shared to and are participating in that share
-	MinionActive
-
-	// MinionInactive means that you are being shared to but you are NOT participating in that share
-	MinionInactive
-)
 
 // Room .
 type Room struct {
@@ -76,7 +58,7 @@ type DisplayGroup struct {
 
 // ShareInfo .
 type ShareInfo struct {
-	State   ShareState `json:"state"`
+	State   shareState `json:"state"`
 	Options []string   `json:"options,omitempty"`
 }
 

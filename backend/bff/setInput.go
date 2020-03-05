@@ -61,58 +61,58 @@ func (si SetInput) Do(c *Client, data []byte) {
 	// TODO FIXME IMPORTANT add share input
 
 	// figure out share stuff
-	if shareMap := c.getShareMap(); shareMap != nil {
-		if data, ok := shareMap[msg.DisplayGroup]; ok {
-			switch data.State {
-			case MinionActive:
-				// Should not be possible since a deactivate minion signal should have been sent
-				return
-			case Unshare:
-				// If you are a master, change all of your active minions
-				for _, active := range data.Active {
-					minionGroup, err := GetDisplayGroupByID(cg.DisplayGroups, active)
-					if err != nil {
-						// TODO
-					}
+	//if shareMap := c.getShareMap(); shareMap != nil {
+	//	if data, ok := shareMap[msg.DisplayGroup]; ok {
+	//		switch data.State {
+	//		case MinionActive:
+	//			// Should not be possible since a deactivate minion signal should have been sent
+	//			return
+	//		case Unshare:
+	//			// If you are a master, change all of your active minions
+	//			for _, active := range data.Active {
+	//				minionGroup, err := GetDisplayGroupByID(cg.DisplayGroups, active)
+	//				if err != nil {
+	//					// TODO
+	//				}
 
-					for _, disp := range minionGroup.Displays {
-						state.Displays = append(state.Displays, structs.Display{
-							PublicDevice: structs.PublicDevice{
-								Name:  disp.ID.GetName(),
-								Input: msg.Input.GetName(),
-							},
-							Blanked: BoolP(false),
-						})
-					}
-				}
-			case MinionInactive:
-				swap := data.Master == msg.Input
-				if swap {
-					// we are switching into the active list
-					masterGroup, err := GetDisplayGroupByID(cg.DisplayGroups, data.Master)
-					if err != nil {
-						// TODO
-					}
-					inputName = masterGroup.Input.GetName()
-					master := shareMap[data.Master]
-					if index, ok := contain(master.Inactive, msg.DisplayGroup); ok {
-						// and add me to the active list
-						master.Active = append(master.Active, msg.DisplayGroup)
-						// remove me from the inactive list
-						master.Inactive = removeID(master.Inactive, index)
-						shareMap[data.Master] = master
-						c.lazUpdates <- lazMessage{
-							Key:  lazSharingDisplays,
-							Data: shareMap,
-						}
-					} else {
-						// TODO  this is an error too
-						// Since you are an inactive minion, you should be on the inactive list
-					}
-				}
-			}
-		}
-	}
+	//				for _, disp := range minionGroup.Displays {
+	//					state.Displays = append(state.Displays, structs.Display{
+	//						PublicDevice: structs.PublicDevice{
+	//							Name:  disp.ID.GetName(),
+	//							Input: msg.Input.GetName(),
+	//						},
+	//						Blanked: BoolP(false),
+	//					})
+	//				}
+	//			}
+	//		case MinionInactive:
+	//			swap := data.Master == msg.Input
+	//			if swap {
+	//				// we are switching into the active list
+	//				masterGroup, err := GetDisplayGroupByID(cg.DisplayGroups, data.Master)
+	//				if err != nil {
+	//					// TODO
+	//				}
+	//				inputName = masterGroup.Input.GetName()
+	//				master := shareMap[data.Master]
+	//				if index, ok := contain(master.Inactive, msg.DisplayGroup); ok {
+	//					// and add me to the active list
+	//					master.Active = append(master.Active, msg.DisplayGroup)
+	//					// remove me from the inactive list
+	//					master.Inactive = removeID(master.Inactive, index)
+	//					shareMap[data.Master] = master
+	//					c.lazUpdates <- lazMessage{
+	//						Key:  lazSharingDisplays,
+	//						Data: shareMap,
+	//					}
+	//				} else {
+	//					// TODO  this is an error too
+	//					// Since you are an inactive minion, you should be on the inactive list
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 
 	for _, disp := range group.Displays {
 		display := structs.Display{
