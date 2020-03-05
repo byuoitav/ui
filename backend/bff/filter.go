@@ -78,6 +78,27 @@ func GetControlGroupByDisplayGroupID(groups map[string]ControlGroup, id ID) (Con
 	return ControlGroup{}, fmt.Errorf("displayGroup %q not found in any control group", id)
 }
 
+func (r *Room) GetAllDisplayGroups() DisplayGroups {
+	var groups DisplayGroups
+
+	for k, _ := range r.ControlGroups {
+		groups = append(groups, r.ControlGroups[k].DisplayGroups...)
+	}
+
+	return groups
+}
+
+func (groups DisplayGroups) GetDisplayGroup(id ID) (DisplayGroup, error) {
+	for i := range groups {
+		if groups[i].ID == id {
+			return groups[i], nil
+		}
+	}
+
+	return DisplayGroup{}, fmt.Errorf("displayGroup %q not found", id)
+
+}
+
 func (c *Client) GetPresetByName(name string) (Preset, error) {
 	for i := range c.uiConfig.Presets {
 		if name == c.uiConfig.Presets[i].Name {

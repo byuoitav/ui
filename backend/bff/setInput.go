@@ -38,12 +38,8 @@ func (si SetInput) Do(c *Client, data []byte) {
 		return
 	}
 
-	// this shouldn't take longer than 5 seconds
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
-	c.Info("Setting input", zap.String("on", string(msg.DisplayGroup)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
+	room := c.GetRoom()
+	cg := room.ControlGroups[c.selectedControlGroupID]
 
 	// find the display group by ID
 	group, err := GetDisplayGroupByID(cg.DisplayGroups, msg.DisplayGroup)
@@ -55,36 +51,55 @@ func (si SetInput) Do(c *Client, data []byte) {
 
 	// build the state object
 	var state structs.PublicRoom
+	input := msg.Input.GetName()
 
-	inputName := msg.Input.GetName()
+	// validate input is valid for myself
+	// validate input is valid for all minions
 
-	// TODO FIXME IMPORTANT add share input
+	switch group.ShareInfo.State {
+	case stateIsActiveMinion:
+		// TODO this is illegal, return an error
+	case stateIsMaster:
+		// get every display group in this room
+		allGroups := room.GetAllDisplayGroups()
+
+		// get all of my active minions
+		active, _ := c.getActiveAndInactiveForDisplayGroup(msg.DisplayGroup)
+
+		c.Info("Setting input as sharing master", zap.String("displayGroup", string(msg.DisplayGroup)), zap.String("input", string(msg.Input)), zap.Strings("activeMinions", IDsToStrings(active)))
+
+		// set each active minion's input
+		for i := range active {
+			mgroup, err := allGroups.GetDisplayGroup(active[i])
+			if err != nil {
+				// invalid display group id in active list
+				// TODO validate active list?
+				continue
+			}
+
+			for _, disp := range mgroup.Displays {
+				state.Displays = append(state.Displays, structs.Display{
+					PublicDevice: structs.PublicDevice{
+						Name:  disp.ID.GetName(),
+						Input: input,
+					},
+					Blanked: BoolP(false),
+				})
+			}
+		}
+	case stateIsInactiveMinion:
+		// TODO if input == my masters id, then i should switch into their active group
+		// c.Info("Rejoining share group", zap.String("displayGroup", string(msg.DisplayGroup)))
+		// and change input to whatever the master's input is
+		// and update lazarette!
+	default:
+		c.Info("Setting input", zap.String("displayGroup", string(msg.DisplayGroup)), zap.String("input", string(msg.Input)))
+	}
 
 	// figure out share stuff
 	//if shareMap := c.getShareMap(); shareMap != nil {
 	//	if data, ok := shareMap[msg.DisplayGroup]; ok {
 	//		switch data.State {
-	//		case MinionActive:
-	//			// Should not be possible since a deactivate minion signal should have been sent
-	//			return
-	//		case Unshare:
-	//			// If you are a master, change all of your active minions
-	//			for _, active := range data.Active {
-	//				minionGroup, err := GetDisplayGroupByID(cg.DisplayGroups, active)
-	//				if err != nil {
-	//					// TODO
-	//				}
-
-	//				for _, disp := range minionGroup.Displays {
-	//					state.Displays = append(state.Displays, structs.Display{
-	//						PublicDevice: structs.PublicDevice{
-	//							Name:  disp.ID.GetName(),
-	//							Input: msg.Input.GetName(),
-	//						},
-	//						Blanked: BoolP(false),
-	//					})
-	//				}
-	//			}
 	//		case MinionInactive:
 	//			swap := data.Master == msg.Input
 	//			if swap {
@@ -101,8 +116,7 @@ func (si SetInput) Do(c *Client, data []byte) {
 	//					// remove me from the inactive list
 	//					master.Inactive = removeID(master.Inactive, index)
 	//					shareMap[data.Master] = master
-	//					c.lazUpdates <- lazMessage{
-	//						Key:  lazSharingDisplays,
+	//					c.lazUpdates <- lazMessage{ Key:  lazSharingDisplays,
 	//						Data: shareMap,
 	//					}
 	//				} else {
@@ -114,18 +128,20 @@ func (si SetInput) Do(c *Client, data []byte) {
 	//	}
 	//}
 
+	// change input for all of my displays
 	for _, disp := range group.Displays {
-		display := structs.Display{
+		state.Displays = append(state.Displays, structs.Display{
 			PublicDevice: structs.PublicDevice{
 				Name:  disp.ID.GetName(),
-				Input: inputName,
+				Input: input,
 			},
 			Blanked: BoolP(false),
-		}
-
-		// Add each display to the list of displays to change on the new state
-		state.Displays = append(state.Displays, display)
+		})
 	}
+
+	// this shouldn't take longer than 5 seconds
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	// make the state changes
 	if err := c.SendAPIRequest(ctx, state); err != nil {
@@ -133,5 +149,5 @@ func (si SetInput) Do(c *Client, data []byte) {
 		c.Out <- ErrorMessage(fmt.Errorf("failed to change input: %s", err))
 	}
 
-	c.Info("Finished setting input", zap.String("on", string(msg.DisplayGroup)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
+	c.Info("Finished setInput", zap.String("displayGroup", string(msg.DisplayGroup)), zap.String("input", string(msg.Input)))
 }

@@ -120,11 +120,7 @@ func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
 	room := c.GetRoom()
 	cg := room.ControlGroups[c.selectedControlGroupID]
 
-	// create a list of all display groups across all control groups
-	var dgroups []DisplayGroup
-	for _, v := range room.ControlGroups {
-		dgroups = append(dgroups, v.DisplayGroups...)
-	}
+	dgroups := room.GetAllDisplayGroups()
 
 	// get the current input that the master is on
 	var input string
@@ -218,6 +214,7 @@ func (ss SetSharing) Off(c *Client, msg SetSharingMessage) {
 				Name:  active[i].GetName(),
 				Input: cg.Inputs[0].ID.GetName(),
 			},
+			Blanked: BoolP(false),
 		})
 	}
 

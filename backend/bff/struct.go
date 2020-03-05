@@ -13,6 +13,8 @@ type Room struct {
 	SelectedControlGroup ID                      `json:"selectedControlGroup"`
 }
 
+type DisplayGroups []DisplayGroup
+
 // ControlGroup .
 type ControlGroup struct {
 	ID   ID     `json:"id"`
@@ -20,7 +22,7 @@ type ControlGroup struct {
 
 	PoweredOn bool `json:"poweredOn"`
 
-	DisplayGroups []DisplayGroup `json:"displayGroups,omitempty"`
+	DisplayGroups DisplayGroups  `json:"displayGroups,omitempty"`
 	Inputs        []Input        `json:"inputs"`
 	AudioGroups   []AudioGroup   `json:"audioGroups,omitempty"`
 	PresentGroups []PresentGroup `json:"presentGroups,omitempty"`
@@ -111,6 +113,16 @@ type IconPair struct {
 
 // ID .
 type ID string
+
+func IDsToStrings(ids []ID) []string {
+	var strs []string
+
+	for i := range ids {
+		strs = append(strs, string(ids[i]))
+	}
+
+	return strs
+}
 
 // GetName gets the name of an ID
 func (i ID) GetName() string {
