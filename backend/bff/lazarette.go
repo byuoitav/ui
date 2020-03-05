@@ -57,6 +57,8 @@ func (c *Client) updateLazaretteState(laz lazarette.LazaretteClient) {
 				continue
 			}
 
+			c.Debug("Storing key in lazarette", zap.String("key", message.Key), zap.ByteString("data", data))
+
 			// store it in our local map
 			c.lazs.Store(key, data)
 

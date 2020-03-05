@@ -68,6 +68,16 @@ func GetDisplayGroupByID(groups []DisplayGroup, id ID) (DisplayGroup, error) {
 	return DisplayGroup{}, fmt.Errorf("displayGroup %q not found", id)
 }
 
+func GetControlGroupByDisplayGroupID(groups map[string]ControlGroup, id ID) (ControlGroup, error) {
+	for _, v := range groups {
+		if _, err := GetDisplayGroupByID(v.DisplayGroups, id); err == nil {
+			return v, nil
+		}
+	}
+
+	return ControlGroup{}, fmt.Errorf("displayGroup %q not found in any control group", id)
+}
+
 func (c *Client) GetPresetByName(name string) (Preset, error) {
 	for i := range c.uiConfig.Presets {
 		if name == c.uiConfig.Presets[i].Name {

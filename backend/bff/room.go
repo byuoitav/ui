@@ -80,7 +80,7 @@ func (c *Client) GetRoom() Room {
 			if shareData, err := c.getShareData(group.ID); err == nil {
 				generateShareOptions = false
 
-				group.ShareInfo.State = shareData.state
+				group.ShareInfo.State = shareData.State
 				group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
 			}
 

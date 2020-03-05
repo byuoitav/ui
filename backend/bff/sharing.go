@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/byuoitav/common/structs"
 	"go.uber.org/zap"
@@ -27,10 +28,10 @@ const (
 
 // the types of objects that are stored in lazarette for each display group
 type lazShareData struct {
-	state shareState
+	State shareState `json:"state"`
 
 	// if they are in a group, this is who that leader is
-	master ID
+	Master ID `json:"master,omitempty"`
 }
 
 func (c *Client) getActiveAndInactiveForDisplayGroup(group ID) ([]ID, []ID) {
@@ -49,7 +50,7 @@ func (c *Client) getActiveAndInactiveForDisplayGroup(group ID) ([]ID, []ID) {
 		}
 
 		// make sure it's in this group
-		if shareData.master != group {
+		if shareData.Master != group {
 			return true
 		}
 
@@ -57,7 +58,7 @@ func (c *Client) getActiveAndInactiveForDisplayGroup(group ID) ([]ID, []ID) {
 		id := strings.TrimPrefix(skey, lazSharing)
 
 		// add it to active/inactive list
-		switch shareData.state {
+		switch shareData.State {
 		case stateIsActiveMinion:
 			active = append(active, ID(id))
 		case stateIsInactiveMinion:
@@ -111,7 +112,7 @@ func (ss SetSharing) Do(c *Client, data []byte) {
 	if msg.Status {
 		ss.On(c, msg)
 	} else {
-		// ss.Off(c, msg)
+		ss.Off(c, msg)
 	}
 }
 
@@ -147,8 +148,8 @@ func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
 		c.lazUpdates <- lazMessage{
 			Key: lazSharing + minion,
 			Data: lazShareData{
-				state:  stateIsActiveMinion,
-				master: msg.Master,
+				State:  stateIsActiveMinion,
+				Master: msg.Master,
 			},
 		}
 
@@ -171,13 +172,87 @@ func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
 	c.lazUpdates <- lazMessage{
 		Key: lazSharing + string(msg.Master),
 		Data: lazShareData{
-			state: stateIsMaster,
+			State: stateIsMaster,
 		},
 	}
 
+	// don't take longer than 10 seconds
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	// send the api request
-	if err := c.SendAPIRequest(context.TODO(), state); err != nil {
+	if err := c.SendAPIRequest(ctx, state); err != nil {
 		c.Warn("failed to set sharing", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to set sharing: %w", err))
 	}
+
+	// let the frontend know that sharing is complete
+	c.Out <- StringMessage("shareDone", "")
+}
+
+func (ss SetSharing) Off(c *Client, msg SetSharingMessage) {
+	// reset everyone in my active group to their default inputs
+	active, inactive := c.getActiveAndInactiveForDisplayGroup(msg.Master)
+
+	var state structs.PublicRoom
+	room := c.GetRoom()
+
+	// process the active devices
+	for i := range active {
+		// reset its state
+		c.lazUpdates <- lazMessage{
+			Key: lazSharing + string(active[i]),
+			Data: lazShareData{
+				State: stateCanShare,
+			},
+		}
+
+		// get the default input for this group
+		cg, err := GetControlGroupByDisplayGroupID(room.ControlGroups, active[i])
+		if err != nil {
+			// handle
+		}
+
+		state.Displays = append(state.Displays, structs.Display{
+			PublicDevice: structs.PublicDevice{
+				Name:  active[i].GetName(),
+				Input: cg.Inputs[0].ID.GetName(),
+			},
+		})
+	}
+
+	// process the inactive devices
+	for i := range inactive {
+		// reset its state
+		c.lazUpdates <- lazMessage{
+			Key: lazSharing + string(inactive[i]),
+			Data: lazShareData{
+				State: stateCanShare,
+			},
+		}
+
+		// don't need to change it's state at all!
+		// just remove it from the group.
+	}
+
+	// reset the masters state
+	c.lazUpdates <- lazMessage{
+		Key: lazSharing + string(msg.Master),
+		Data: lazShareData{
+			State: stateCanShare,
+		},
+	}
+
+	// don't take longer than 10 seconds
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// send the api request
+	// TODO make sure we even need to do this
+	if err := c.SendAPIRequest(ctx, state); err != nil {
+		c.Warn("failed to set sharing", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("failed to set sharing: %w", err))
+	}
+
+	c.Out <- StringMessage("stopShareDone", "")
 }
