@@ -159,9 +159,8 @@ export class RoomRef {
   startSharing = (masterID: string, optionsIDs: string[]) => {
     const kv = {
       setSharing: {
-        status: true,
-        master: masterID,
-        options: optionsIDs
+        group: masterID,
+        opts: optionsIDs
       }
     }
 
@@ -172,8 +171,7 @@ export class RoomRef {
   stopSharing = (masterID: string) => {
     const kv = {
       setSharing: {
-        status: false,
-        master: masterID
+        group: masterID
       }
     }
 

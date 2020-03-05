@@ -10,14 +10,17 @@ import (
 	"go.uber.org/zap"
 )
 
+// SetBlanked .
 type SetBlanked struct {
 }
 
+// SetBlankedMessage is a message on who to (un)blank
 type SetBlankedMessage struct {
 	DisplayGroup ID   `json:"displayGroup"`
 	Blanked      bool `json:"blanked"`
 }
 
+// Do .
 func (sb SetBlanked) Do(c *Client, data []byte) {
 	var msg SetBlankedMessage
 	err := json.Unmarshal(data, &msg)
@@ -31,7 +34,8 @@ func (sb SetBlanked) Do(c *Client, data []byte) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
+	room := c.GetRoom()
+	cg := room.ControlGroups[c.selectedControlGroupID]
 	c.Info("Setting blanked", zap.String("on", string(msg.DisplayGroup)), zap.Bool("to", msg.Blanked), zap.String("controlGroup", string(cg.ID)))
 
 	// find the display group
@@ -42,8 +46,43 @@ func (sb SetBlanked) Do(c *Client, data []byte) {
 		return
 	}
 
-	// go through this display group and set all of it's displays blanked status
 	var state structs.PublicRoom
+
+	switch group.ShareInfo.State {
+	case stateIsActiveMinion:
+		// TODO this is illegal, return an error
+	case stateIsMaster:
+		// get every display group in this room
+		allGroups := room.GetAllDisplayGroups()
+
+		// get all of my active minions
+		active, _ := c.getActiveAndInactiveForDisplayGroup(msg.DisplayGroup)
+
+		c.Info("Setting blanked as sharing master", zap.String("displayGroup", string(msg.DisplayGroup)), zap.Bool("blanked", msg.Blanked), zap.Strings("activeMinions", IDsToStrings(active)))
+
+		// go through this display group and set all of it's displays blanked status
+		for i := range active {
+			mgroup, err := allGroups.GetDisplayGroup(active[i])
+			if err != nil {
+				// invalid display group id in active list
+				// TODO validate active list?
+				continue
+			}
+			for _, disp := range mgroup.Displays {
+				state.Displays = append(state.Displays, structs.Display{
+					PublicDevice: structs.PublicDevice{
+						Name: disp.ID.GetName(),
+					},
+					Blanked: BoolP(msg.Blanked),
+				})
+
+			}
+		}
+	default:
+		c.Info("Setting blanked", zap.String("on", string(msg.DisplayGroup)), zap.Bool("to", msg.Blanked), zap.String("controlGroup", string(cg.ID)))
+	}
+
+	// go through this display group and set all of it's displays blanked status
 	for _, disp := range group.Displays {
 		display := structs.Display{
 			PublicDevice: structs.PublicDevice{

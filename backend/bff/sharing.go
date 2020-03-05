@@ -97,6 +97,7 @@ type SetSharingMessage struct {
 	Options []string `json:"opts,omitempty"`
 }
 
+// Do .
 func (ss SetSharing) Do(c *Client, data []byte) {
 	var msg SetSharingMessage
 	if err := json.Unmarshal(data, &msg); err != nil {
@@ -131,6 +132,7 @@ func (ss SetSharing) Do(c *Client, data []byte) {
 	}
 }
 
+// Share starts sharing
 func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 	room := c.GetRoom()
 	cg := room.ControlGroups[c.selectedControlGroupID]
@@ -155,6 +157,7 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 	// validate that inputs are valid for minions
 
 	var state structs.PublicRoom
+	toMute := make(map[string]structs.AudioDevice)
 	for _, minion := range msg.Options {
 		c.lazUpdates <- lazMessage{
 			Key: lazSharing + minion,
@@ -169,6 +172,7 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 			// handle
 		}
 
+		// Update all the minion displays to be the master input
 		for _, disp := range mgroup.Displays {
 			state.Displays = append(state.Displays, structs.Display{
 				PublicDevice: structs.PublicDevice{
@@ -177,6 +181,30 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 				},
 			})
 		}
+
+		// Mute the minions
+		mcg, err := GetControlGroupByDisplayGroupID(room.ControlGroups, mgroup.ID)
+		preset, err := c.GetPresetByName(string(mcg.ID))
+		if err != nil {
+			// handle
+		}
+		for _, audio := range preset.AudioDevices {
+			if ID(audio) == msg.Group {
+				continue
+			}
+			toMute[audio] = structs.AudioDevice{
+				PublicDevice: structs.PublicDevice{
+					Name: audio,
+				},
+				Muted: BoolP(true),
+			}
+
+		}
+	}
+
+	// Actually mute the audio devices
+	for _, dev := range toMute {
+		state.AudioDevices = append(state.AudioDevices, dev)
 	}
 
 	// update the masters lazarette data
@@ -201,13 +229,16 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 	c.Out <- StringMessage("shareStarted", "")
 }
 
+// Unshare stops sharing
 func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 	// reset everyone in my active group to their default inputs
 	active, inactive := c.getActiveAndInactiveForDisplayGroup(msg.Group)
 
 	var state structs.PublicRoom
 	room := c.GetRoom()
+	dgroups := room.GetAllDisplayGroups()
 
+	toUnmute := make(map[string]structs.AudioDevice)
 	// process the active devices
 	for i := range active {
 		// reset its state
@@ -231,6 +262,34 @@ func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 			},
 			Blanked: BoolP(false),
 		})
+
+		mgroup, err := GetDisplayGroupByID(dgroups, active[i])
+		if err != nil {
+			// handle
+		}
+
+		mcg, err := GetControlGroupByDisplayGroupID(room.ControlGroups, mgroup.ID)
+		preset, err := c.GetPresetByName(string(mcg.ID))
+		if err != nil {
+			// handle
+		}
+		for _, audio := range preset.AudioDevices {
+			if ID(audio) == msg.Group {
+				continue
+			}
+			toUnmute[audio] = structs.AudioDevice{
+				PublicDevice: structs.PublicDevice{
+					Name: audio,
+				},
+				Muted: BoolP(false),
+			}
+
+		}
+	}
+
+	// Actually unmute the audio devices
+	for _, dev := range toUnmute {
+		state.AudioDevices = append(state.AudioDevices, dev)
 	}
 
 	// process the inactive devices
