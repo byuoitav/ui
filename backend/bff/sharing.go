@@ -93,9 +93,8 @@ type SetSharing struct {
 
 // SetSharingMessage is a message enabling or disabling sharing
 type SetSharingMessage struct {
-	Master  ID       `json:"master"`
-	Status  bool     `json:"status"`
-	Options []string `json:"options,omitempty"`
+	Group   ID       `json:"group,omitempty"`
+	Options []string `json:"opts,omitempty"`
 }
 
 func (ss SetSharing) Do(c *Client, data []byte) {
@@ -109,14 +108,30 @@ func (ss SetSharing) Do(c *Client, data []byte) {
 	// two people starting a share at the exact same time,
 	// right now, whoever's request gets put into lazarette second will win
 
-	if msg.Status {
-		ss.On(c, msg)
-	} else {
-		ss.Off(c, msg)
+	// get the group we are talking about
+	room := c.GetRoom()
+	cg := room.ControlGroups[c.selectedControlGroupID]
+	// TODO make sure cg is not nil
+
+	group, err := cg.DisplayGroups.GetDisplayGroup(msg.Group)
+	if err != nil {
+		// handle err
+	}
+
+	switch group.ShareInfo.State {
+	case stateCanShare:
+		c.Info("Starting share", zap.String("master", string(msg.Group)), zap.Strings("minions", msg.Options))
+		ss.Share(c, msg)
+	case stateIsMaster:
+		c.Info("Stopping share", zap.String("master", string(msg.Group)))
+		ss.Unshare(c, msg)
+	case stateIsActiveMinion:
+		c.Info("Leaving share", zap.String("group", string(msg.Group)))
+		// ss.LeaveShare()
 	}
 }
 
-func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
+func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 	room := c.GetRoom()
 	cg := room.ControlGroups[c.selectedControlGroupID]
 
@@ -125,7 +140,7 @@ func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
 	// get the current input that the master is on
 	var input string
 	for i := range cg.DisplayGroups {
-		if cg.DisplayGroups[i].ID == msg.Master {
+		if cg.DisplayGroups[i].ID == msg.Group {
 			input = cg.DisplayGroups[i].Input.GetName()
 		}
 	}
@@ -145,7 +160,7 @@ func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
 			Key: lazSharing + minion,
 			Data: lazShareData{
 				State:  stateIsActiveMinion,
-				Master: msg.Master,
+				Master: msg.Group,
 			},
 		}
 
@@ -166,7 +181,7 @@ func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
 
 	// update the masters lazarette data
 	c.lazUpdates <- lazMessage{
-		Key: lazSharing + string(msg.Master),
+		Key: lazSharing + string(msg.Group),
 		Data: lazShareData{
 			State: stateIsMaster,
 		},
@@ -186,9 +201,9 @@ func (ss SetSharing) On(c *Client, msg SetSharingMessage) {
 	c.Out <- StringMessage("shareStarted", "")
 }
 
-func (ss SetSharing) Off(c *Client, msg SetSharingMessage) {
+func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 	// reset everyone in my active group to their default inputs
-	active, inactive := c.getActiveAndInactiveForDisplayGroup(msg.Master)
+	active, inactive := c.getActiveAndInactiveForDisplayGroup(msg.Group)
 
 	var state structs.PublicRoom
 	room := c.GetRoom()
@@ -234,7 +249,7 @@ func (ss SetSharing) Off(c *Client, msg SetSharingMessage) {
 
 	// reset the masters state
 	c.lazUpdates <- lazMessage{
-		Key: lazSharing + string(msg.Master),
+		Key: lazSharing + string(msg.Group),
 		Data: lazShareData{
 			State: stateCanShare,
 		},
