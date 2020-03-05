@@ -26,6 +26,11 @@
     <mat-icon>screen_share</mat-icon>
   </button>
 
+  <button mat-fab class="dta button" (click)="testMinion()" *ngIf="canShare()">
+
+      <mat-icon>screen_share</mat-icon>
+    </button>
+
   <button mat-fab class="dta button" (click)="stopSharing()" *ngIf="currentlySharing()">
     <mat-icon>stop_screen_share</mat-icon>
   </button>

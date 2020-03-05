@@ -35,6 +35,7 @@ import { SharingComponent } from './dialogs/sharing/sharing.component';
 import { HelpComponent } from './dialogs/help/help.component';
 import { ActivityButtonComponent } from './components/activity-button/activity-button.component';
 import { ManagementComponent } from './components/management/management.component';
+import { MinionComponent } from './dialogs/minion/minion.component';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { ManagementComponent } from './components/management/management.componen
     HelpComponent,
     ActivityButtonComponent,
     ManagementComponent,
+    MinionComponent,
   ],
   imports: [
     BrowserModule,
@@ -72,7 +74,8 @@ import { ManagementComponent } from './components/management/management.componen
   entryComponents: [
     MobileComponent,
     HelpComponent,
-    SharingComponent
+    SharingComponent,
+    MinionComponent
   ],
   providers: [
     BFFService
