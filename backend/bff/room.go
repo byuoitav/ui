@@ -80,13 +80,15 @@ func (c *Client) GetRoom() Room {
 			switch {
 			case len(preset.ShareableDisplays) == 0:
 				group.ShareInfo.State = stateCantShare
-			case err == nil:
-				group.ShareInfo.State = shareData.State
-				group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
 			case err != nil:
 				// if there is no share data (yet), but there are sharable displays
 				// then allow them to share to those options
 				group.ShareInfo.State = stateCanShare
+				group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
+			case shareData.State == stateIsMaster || shareData.State == stateIsActiveMinion || shareData.State == stateIsInactiveMinion:
+				group.ShareInfo.State = shareData.State
+			default:
+				group.ShareInfo.State = shareData.State
 				group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
 			}
 
