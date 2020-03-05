@@ -124,6 +124,7 @@ export class RoomRef {
       raiseProjectorScreen: screen
     }
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   }
 
@@ -132,6 +133,7 @@ export class RoomRef {
       lowerProjectorScreen: screen
     }
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   }
 
@@ -140,6 +142,7 @@ export class RoomRef {
       stopProjectorScreen: screen
     }
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   }
 
@@ -162,6 +165,7 @@ export class RoomRef {
       }
     }
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   }
 
@@ -173,6 +177,7 @@ export class RoomRef {
       }
     }
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   }
 }
@@ -188,6 +193,8 @@ export class BFFService {
 
   roomRef: RoomRef;
 
+  dialogCloser: EventEmitter<string>;
+
   constructor(private router: Router, private dialog: MatDialog) {
     // do things based on route changes
     this.router.events.subscribe(event => {
@@ -200,6 +207,7 @@ export class BFFService {
         }
       }
     });
+    this.dialogCloser = new EventEmitter();
   }
 
   getRoom = (): RoomRef => {
@@ -230,6 +238,7 @@ export class BFFService {
             console.log("new room", data[k]);
             room.next(data[k]);
             this.loaded = true;
+            roomRef.loading = false;
 
             break;
 
@@ -237,6 +246,12 @@ export class BFFService {
             console.log("mobile control info", data[k]);
             
             console.log(this.roomControlUrl, this.controlKey);
+            break;
+          case "shareStarted":
+            this.dialogCloser.emit("sharing");
+            break;
+          case "shareEnded":
+            console.log("The sharing session has ended.");
             break;
           default:
             console.warn(

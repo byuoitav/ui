@@ -14,7 +14,8 @@ import {
   MatSlideToggleModule,
   MatToolbarModule,
   MatTabsModule,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
+  MatProgressBarModule
 } from "@angular/material";
 import { UiSwitchModule } from "ngx-ui-switch";
 import "hammerjs";
@@ -64,6 +65,7 @@ import { MinionComponent } from './dialogs/minion/minion.component';
     MatGridListModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatSlideToggleModule,
     UiSwitchModule,
     AppRoutingModule,

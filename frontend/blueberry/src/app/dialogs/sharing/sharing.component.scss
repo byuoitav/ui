@@ -33,3 +33,11 @@
 .chosen {
     background-color: #1e88e5 !important;
 }
+
+.base {
+    display: flex;
+    flex-flow: column nowrap;
+    width: 70vw;
+    height: 20vw;
+    justify-content: space-evenly;
+}

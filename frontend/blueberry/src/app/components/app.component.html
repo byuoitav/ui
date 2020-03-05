@@ -1,6 +1,7 @@
 <app-audio #audio class="hidden-page"></app-audio>
 <app-projector #screen class="hidden-page"></app-projector>
 <div class="base">
+  <mat-progress-bar style="position: fixed; bottom: 0;" color="primary" mode="indeterminate" *ngIf="roomRef?.loading"></mat-progress-bar>
   <management [enabled]="showManagement()"></management>
   <div *ngIf="!cg?.poweredOn" class="lock">
     <ng-container *ngIf="bff.locked; else poweringOn">

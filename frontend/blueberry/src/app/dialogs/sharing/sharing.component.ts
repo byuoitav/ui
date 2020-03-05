@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ControlGroup, Room } from '../../../../../objects/control';
-import { RoomRef } from 'src/app/services/bff.service';
+import { RoomRef, BFFService } from 'src/app/services/bff.service';
 
 @Component({
   selector: 'app-sharing',
@@ -11,11 +11,12 @@ import { RoomRef } from 'src/app/services/bff.service';
 export class SharingComponent implements OnInit {
   chosenOptions: string[];
   cg: ControlGroup;
+  sharingSpin = false;
 
   constructor(
     public ref: MatDialogRef<SharingComponent>,
-    @Inject(MAT_DIALOG_DATA) public roomRef: RoomRef
-    ) {
+    @Inject(MAT_DIALOG_DATA) public roomRef: RoomRef,
+    public bff: BFFService) {
       this.cg = this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup];
       this.chosenOptions = [];
       // this.cg.displayGroups[0].shareOptions = ["Station 1", "Station 2", "Station 3"];
@@ -25,6 +26,11 @@ export class SharingComponent implements OnInit {
       }
       this.chosenOptions.sort();
       console.log(this.chosenOptions);
+      this.bff.dialogCloser.subscribe((shouldClose) => {
+        if (shouldClose === "sharing") {
+          this.cancel();
+        }
+      });
     }
 
   ngOnInit() {
@@ -55,7 +61,7 @@ export class SharingComponent implements OnInit {
   }
 
   startShare = () => {
-    console.log("Let's start sharing!!!");
     this.roomRef.startSharing(this.cg.displayGroups[0].id, this.chosenOptions);
+    this.sharingSpin = true;
   }
 }
