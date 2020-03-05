@@ -49,29 +49,27 @@ func (c *Client) updateLazaretteState(laz lazarette.LazaretteClient) {
 		case message := <-c.lazUpdates:
 			c.stats.Lazarette.UpdatesSent++
 
-			key := fmt.Sprintf("%v%v", c.roomID, message.Key)
-
 			data, err := json.Marshal(message.Data)
 			if err != nil {
-				c.Warn("unable to marshal lazarette message", zap.String("key", key), zap.Error(err))
+				c.Warn("unable to marshal lazarette message", zap.String("key", message.Key), zap.Error(err))
 				continue
 			}
 
 			c.Debug("Storing key in lazarette", zap.String("key", message.Key), zap.ByteString("data", data))
 
 			// store it in our local map
-			c.lazs.Store(key, data)
+			c.lazs.Store(message.Key, data)
 
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			// cancel needs to be called before this block ends!!!
 
 			_, err = laz.Set(ctx, &lazarette.KeyValue{
 				Timestamp: ptypes.TimestampNow(),
-				Key:       key,
+				Key:       c.roomID + message.Key,
 				Data:      data,
 			})
 			if err != nil {
-				c.Warn("unable to set updated key to lazarette", zap.String("key", key), zap.Error(err))
+				c.Warn("unable to set updated key to lazarette", zap.String("key", message.Key), zap.Error(err))
 				cancel()
 			}
 

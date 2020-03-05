@@ -38,7 +38,7 @@ func (c *Client) getActiveAndInactiveForDisplayGroup(group ID) ([]ID, []ID) {
 	var active []ID
 	var inactive []ID
 
-	c.lazs.Range(func(key interface{}, value interface{}) bool {
+	c.lazs.Range(func(key, value interface{}) bool {
 		skey, ok := key.(string)
 		if !ok || !strings.HasPrefix(skey, lazSharing) {
 			return true
@@ -74,7 +74,7 @@ func (c *Client) getActiveAndInactiveForDisplayGroup(group ID) ([]ID, []ID) {
 func (c *Client) getShareData(group ID) (lazShareData, error) {
 	var data lazShareData
 
-	idata, ok := c.lazs.Load(lazSharing + group)
+	idata, ok := c.lazs.Load(lazSharing + string(group))
 	if !ok {
 		return data, errors.New("no share data found")
 	}
