@@ -61,7 +61,7 @@ type DisplayGroup struct {
 // ShareInfo .
 type ShareInfo struct {
 	State   shareState `json:"state"`
-	Options []string   `json:"options,omitempty"`
+	Options []string   `json:"opts,omitempty"`
 	Master  ID         `json:"master,omitempty"`
 }
 
