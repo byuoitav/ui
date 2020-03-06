@@ -12,7 +12,7 @@ import {
   AudioDevice,
   AudioGroup,
   PresentGroup
-} from "../objects/control";
+} from "../../../../objects/control";
 // import { ErrorDialog } from "../dialogs/error/error.dialog";
 // import { TurnOffRoomDialogComponent } from "../dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component";
 
@@ -124,6 +124,7 @@ export class RoomRef {
       raiseProjectorScreen: screen
     }
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   }
 
@@ -132,6 +133,7 @@ export class RoomRef {
       lowerProjectorScreen: screen
     }
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   }
 
@@ -140,6 +142,7 @@ export class RoomRef {
       stopProjectorScreen: screen
     }
 
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   }
 
@@ -150,6 +153,29 @@ export class RoomRef {
       }
     }
 
+    this._ws.send(JSON.stringify(kv));
+  }
+
+  startSharing = (masterID: string, optionsIDs: string[]) => {
+    const kv = {
+      setSharing: {
+        group: masterID,
+        opts: optionsIDs
+      }
+    }
+
+    this.loading = true;
+    this._ws.send(JSON.stringify(kv));
+  }
+
+  stopSharing = (masterID: string) => {
+    const kv = {
+      setSharing: {
+        group: masterID
+      }
+    }
+
+    this.loading = true;
     this._ws.send(JSON.stringify(kv));
   }
 }
@@ -165,6 +191,8 @@ export class BFFService {
 
   roomRef: RoomRef;
 
+  dialogCloser: EventEmitter<string>;
+
   constructor(private router: Router, private dialog: MatDialog) {
     // do things based on route changes
     this.router.events.subscribe(event => {
@@ -177,6 +205,7 @@ export class BFFService {
         }
       }
     });
+    this.dialogCloser = new EventEmitter();
   }
 
   getRoom = (): RoomRef => {
@@ -207,14 +236,27 @@ export class BFFService {
             console.log("new room", data[k]);
             room.next(data[k]);
             this.loaded = true;
+            roomRef.loading = false;
 
             break;
 
           case "mobileControl":
             console.log("mobile control info", data[k]);
-            this.controlKey = data[k].controlKey;
-            this.roomControlUrl = data[k].controlURL;
+            
             console.log(this.roomControlUrl, this.controlKey);
+            break;
+          case "shareStarted":
+            this.dialogCloser.emit("sharing");
+            break;
+          case "shareEnded":
+            console.log("The sharing session has ended.");
+            break;
+          case "refresh":
+            console.log("refreshing!");
+            window.location.reload()
+            break;
+          case "becameInactive":
+            this.dialogCloser.emit("inactive");
             break;
           default:
             console.warn(

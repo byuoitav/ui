@@ -1,8 +1,11 @@
 <app-audio #audio class="hidden-page"></app-audio>
 <app-projector #screen class="hidden-page"></app-projector>
 <div class="base">
+  <mat-progress-bar style="position: fixed; bottom: 0;" color="primary" mode="indeterminate" *ngIf="roomRef?.loading"></mat-progress-bar>
+  <management [enabled]="showManagement()"></management>
   <div *ngIf="!cg?.poweredOn" class="lock">
-      <object type="image/svg+xml" data="../../assets/examples/logo.svg" class="logo"></object>
+    <ng-container *ngIf="bff.locked; else poweringOn">
+      <img src="../../assets/examples/logo.svg" class="logo">
       <div class="bottom-half">
         <div class="buttons-row">
           <button mat-stroked class="lock-screen-button" style="font-size: 18pt;" (click)="unlock()" (press)="unlock()">Start</button>
@@ -22,6 +25,13 @@
           </button>
         </div>
       </div>
+    </ng-container>
+    <ng-template #poweringOn>
+      <div class="logo">
+          <mat-spinner color="primary"></mat-spinner>
+      </div>
+      <span class="text smaller">powering on, please wait...</span>
+  </ng-template>
   </div>
 
   <app-home *ngIf="cg?.poweredOn" [roomRef]="roomRef"></app-home>

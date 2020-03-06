@@ -106,7 +106,7 @@ func (c *Client) updateControlKey() {
 		room := c.GetRoom()
 
 		// TODO delete ids that no longer exist? not a big deal
-		for id, _ := range room.ControlGroups {
+		for id := range room.ControlGroups {
 			updateOne(id)
 		}
 

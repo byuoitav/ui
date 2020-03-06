@@ -22,6 +22,9 @@ const (
 
 	// time allowed to send a message to the client
 	writeWait = 10 * time.Second
+
+	// duration after getting an intial room message to wait for more
+	roomDebounceDuration = 400 * time.Millisecond
 )
 
 // readPump receives messages from the frontend and passes them to
@@ -56,6 +59,8 @@ func (c *Client) readPump() {
 				return
 			}
 
+			c.stats.WebSocket.MessagesRecieved++
+
 			// parse message
 			var m Message
 			if err := json.Unmarshal(msg, &m); err != nil {
@@ -65,24 +70,79 @@ func (c *Client) readPump() {
 			}
 
 			// handle message
-			go c.HandleMessage(m)
+			go func() {
+				c.stats.Routines++
+				defer c.stats.decRoutines()
+
+				c.HandleMessage(m)
+			}()
 		}
 	}
 }
 
 func (c *Client) writePump() {
-	ticker := time.NewTicker(pingPeriod)
+	ping := time.NewTicker(pingPeriod)
 
 	defer c.Close()
-	defer ticker.Stop()
+	defer ping.Stop()
+
+	// debounce room messages over <duration> before sending them
+	rooms := make(chan json.RawMessage)
+	defer close(rooms)
+
+	debouncedRooms := c.msgDebouncer(rooms, roomDebounceDuration)
 
 	for {
 		select {
+		case <-c.kill:
+			return
+		case <-ping.C:
+			_ = c.ws.SetWriteDeadline(time.Now().Add(writeWait))
+
+			if err := c.ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+				return
+			}
+		case room := <-debouncedRooms:
+			// send this room
+			msg, err := JSONMessage("room", room.Message)
+			if err != nil {
+				c.Warn("unable to create room message to send to client", zap.Error(err))
+				continue
+			}
+
+			// marshal the message
+			data, err := json.Marshal(msg)
+			if err != nil {
+				c.Warn("unable to marshal room message to send to client", zap.Error(err))
+				continue
+			}
+
+			c.Debug("Sending debounced room to client", zap.Int("debounces", room.Debounces), zap.ByteString("message", data))
+			c.stats.WebSocket.MessagesSent++
+
+			// set our write deadline
+			_ = c.ws.SetWriteDeadline(time.Now().Add(writeWait))
+
+			if err := c.ws.WriteMessage(websocket.TextMessage, data); err != nil {
+				c.Error("unable to write room to client", zap.Error(err))
+				return
+			}
 		case msg, ok := <-c.Out:
 			if !ok {
 				// my channel got closed, must be time to stop
 				_ = c.ws.WriteMessage(websocket.CloseMessage, []byte{})
 				return
+			}
+
+			if _, ok := msg["room"]; ok {
+				// send my room
+				rooms <- msg["room"]
+
+				// delete it from this message
+				delete(msg, "room")
+				if len(msg) == 0 {
+					continue
+				}
 			}
 
 			// marshal the message
@@ -95,8 +155,10 @@ func (c *Client) writePump() {
 			// log that we are sending a message
 			if _, ok := msg["error"]; ok {
 				c.Warn("sending error to client", zap.ByteString("message", data))
+				c.stats.WebSocket.ErrorsSent++
 			} else {
 				c.Debug("Sending message to client", zap.ByteString("message", data))
+				c.stats.WebSocket.MessagesSent++
 			}
 
 			// set our write deadline
@@ -106,14 +168,54 @@ func (c *Client) writePump() {
 				c.Error("unable to write message to client", zap.Error(err))
 				return // bye
 			}
-		case <-ticker.C:
-			_ = c.ws.SetWriteDeadline(time.Now().Add(writeWait))
-
-			if err := c.ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
-				return
-			}
-		case <-c.kill:
-			return
 		}
 	}
+}
+
+type debouncedMessage struct {
+	Message   json.RawMessage
+	Debounces int
+}
+
+func (c *Client) msgDebouncer(updates chan json.RawMessage, over time.Duration) chan debouncedMessage {
+	out := make(chan debouncedMessage)
+
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+		defer close(out)
+
+		final := debouncedMessage{}
+
+		timerSet := false
+		timer := time.NewTimer(0 * time.Second)
+		<-timer.C
+
+		for {
+			select {
+			case update, ok := <-updates:
+				if !ok {
+					// kill the debouncer
+					return
+				}
+
+				final.Message = update
+				final.Debounces++
+
+				if !timerSet {
+					// the channel should always be drained by this point
+					timer.Reset(over)
+					timerSet = true
+				}
+			case <-timer.C:
+				out <- final
+
+				// reset things
+				final = debouncedMessage{}
+				timerSet = false
+			}
+		}
+	}()
+
+	return out
 }

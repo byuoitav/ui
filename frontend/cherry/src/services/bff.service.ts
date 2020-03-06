@@ -20,7 +20,8 @@ export class RoomRef {
   private _room: BehaviorSubject<Room>;
   private _ws: WebSocket;
   private _logout: () => void;
-  loading: boolean;
+  loadingHome = false;
+  loadingLock = false;
   commandInProgress: boolean;
 
   get room() {
@@ -105,7 +106,11 @@ export class RoomRef {
       }
     };
 
-    this.loading = true;
+    if (power == true) {
+      this.loadingHome = true;
+    } else {
+      this.loadingLock = true;
+    }
     this._ws.send(JSON.stringify(kv));
   };
 
@@ -144,7 +149,7 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   }
 
-  getControlKey = (cgID: string) => {
+  getControlInfo = (cgID: string) => {
     const kv = {
       getControlKey: {
         controlGroupID: cgID
@@ -221,11 +226,22 @@ export class BFFService {
         switch (k) {
           case "room":
             console.log("new room", data[k]);
-            room.next(data[k]);
-            roomRef.loading = false;
-            roomRef.commandInProgress = false;
 
+            room.next(data[k]);
+            if (roomRef.loadingHome == true && data[k].controlGroups[data[k].selectedControlGroup].poweredOn == true) {
+              roomRef.loadingHome = false;
+            }
+            if (roomRef.loadingLock == true && data[k].controlGroups[data[k].selectedControlGroup].poweredOn == false) {
+              roomRef.loadingLock = false;
+            }
+            roomRef.commandInProgress = false;
             break;
+
+          case "refresh":
+            console.log("refreshing!");
+            window.location.reload()
+            break;
+
           default:
             console.warn(
               "got key '" + k + "', not sure how to handle that message"

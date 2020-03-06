@@ -3,11 +3,16 @@ package bff
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/byuoitav/common/structs"
 	"go.uber.org/zap"
+)
+
+const (
+	inputBecomeActive = "_becomeActiveMinion"
 )
 
 // HTTPRequest .
@@ -38,74 +43,8 @@ func (si SetInput) Do(c *Client, data []byte) {
 		return
 	}
 
-	// this shouldn't take longer than 5 seconds
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
-	c.Info("Setting input", zap.String("on", string(msg.DisplayGroup)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
-
-	// sharingChanged := false
-
-	// Go through all sharing groups
-	//c.shareMutex.Lock()
-	//for master, list := range c.sharing {
-	//	done := false
-	//	// If the master is changing input
-	//	if master == ID(msg.DisplayID) {
-	//		// Each active gets their outputs added to the public room with the input being the input of the master
-	//		for _, m := range list.Active {
-	//			disp, err := getDisplay(cg, m)
-	//			if err != nil {
-	//				fmt.Printf("no!!!\n")
-	//				return
-	//			}
-	//			for _, out := range disp.Outputs {
-	//				// TODO write a getnamefromid func
-	//				dSplit := strings.Split(string(out.ID), "-")
-	//				display := structs.Display{
-	//					PublicDevice: structs.PublicDevice{
-	//						Name: dSplit[2],
-	//					},
-	//				}
-
-	//				if msg.InputID == "blank" {
-	//					display.Blanked = BoolP(true)
-	//				} else {
-	//					iSplit := strings.Split(string(msg.InputID), "-")
-	//					display.Input = iSplit[2]
-	//					display.Blanked = BoolP(false)
-	//				}
-
-	//				state.Displays = append(state.Displays, display)
-	//			}
-	//		}
-	//		done = true
-	//	} else {
-	//		// Otherwise go through each active member of the list
-	//		for i, a := range list.Active {
-	//			// If the active member is the changed input
-	//			if a == ID(msg.DisplayID) {
-	//				//Remove it from the active list and add it to the inactive list
-	//				NewActive := removeID(list.Active, i)
-	//				Inactive := append(list.Inactive, a)
-	//				input := list.Input
-	//				c.sharing[master] = ShareGroups{
-	//					Input:    input,
-	//					Active:   NewActive,
-	//					Inactive: Inactive,
-	//				}
-	//				done = true
-	//				break
-	//			}
-	//		}
-	//	}
-	//	if done {
-	//		sharingChanged = true
-	//		break
-	//	}
-	//}
-	//c.shareMutex.Unlock()
+	room := c.GetRoom()
+	cg := room.ControlGroups[c.selectedControlGroupID]
 
 	// find the display group by ID
 	group, err := GetDisplayGroupByID(cg.DisplayGroups, msg.DisplayGroup)
@@ -117,22 +56,111 @@ func (si SetInput) Do(c *Client, data []byte) {
 
 	// build the state object
 	var state structs.PublicRoom
-	for _, disp := range group.Displays {
-		display := structs.Display{
-			PublicDevice: structs.PublicDevice{
-				Name:  disp.ID.GetName(),
-				Input: msg.Input.GetName(),
-			},
-			Blanked: BoolP(false),
+	input := msg.Input.GetName()
+
+	// validate input is valid for myself
+	// validate input is valid for all minions
+
+	switch group.ShareInfo.State {
+	case stateIsActiveMinion:
+		// TODO this is illegal, return an error
+	case stateIsMaster:
+		// get every display group in this room
+		allGroups := room.GetAllDisplayGroups()
+
+		// get all of my active minions
+		active, _ := c.getActiveAndInactiveForDisplayGroup(msg.DisplayGroup)
+
+		c.Info("Setting input as sharing master", zap.String("displayGroup", string(msg.DisplayGroup)), zap.String("input", string(msg.Input)), zap.Strings("activeMinions", IDsToStrings(active)))
+
+		// set each active minion's input
+		for i := range active {
+			mgroup, err := allGroups.GetDisplayGroup(active[i])
+			if err != nil {
+				// invalid display group id in active list
+				// TODO validate active list?
+				continue
+			}
+
+			for _, disp := range mgroup.Displays {
+				state.Displays = append(state.Displays, structs.Display{
+					PublicDevice: structs.PublicDevice{
+						Name:  disp.ID.GetName(),
+						Input: input,
+					},
+					Blanked: BoolP(false),
+				})
+			}
+		}
+	case stateIsInactiveMinion:
+		if string(msg.Input) != inputBecomeActive {
+			// this is just a normal change input request
+			c.Info("Setting input", zap.String("displayGroup", string(msg.DisplayGroup)), zap.String("input", string(msg.Input)))
+			break
 		}
 
-		// Add each display to the list of displays to change on the new state
-		state.Displays = append(state.Displays, display)
+		// find the masters input
+		allGroups := room.GetAllDisplayGroups()
+
+		for i := range allGroups {
+			if allGroups[i].ID == group.ShareInfo.Master {
+				input = allGroups[i].Input.GetName()
+				break
+			}
+		}
+
+		if input == inputBecomeActive {
+			err := errors.New("cannot change input, invalid master")
+			c.Warn("setInput failed", zap.Error(err))
+			c.Out <- ErrorMessage(err)
+			return
+		}
+
+		c.Info("Becoming an active minion", zap.String("displayGroup", string(msg.DisplayGroup)), zap.String("master", string(group.ShareInfo.Master)))
+
+		// mute my audio devices
+		audioDevices, err := cg.GetMediaAudioDeviceIDs(c.uiConfig.Presets)
+		if err != nil {
+			err := errors.New("cannot change input, preset not found")
+			c.Warn("setInput failed", zap.Error(err))
+			c.Out <- ErrorMessage(err)
+			return
+		}
+		for i := range audioDevices {
+			state.AudioDevices = append(state.AudioDevices, structs.AudioDevice{
+				PublicDevice: structs.PublicDevice{
+					Name: audioDevices[i].GetName(),
+				},
+				Muted: BoolP(true),
+			})
+		}
+
+		// update my state in lazarette
+		c.lazUpdates <- lazMessage{
+			Key: lazSharing + string(group.ID),
+			Data: lazShareData{
+				State:  stateIsActiveMinion,
+				Master: group.ShareInfo.Master,
+			},
+		}
+	default:
+		c.Info("Setting input", zap.String("displayGroup", string(msg.DisplayGroup)), zap.String("input", string(msg.Input)))
 	}
 
-	//if sharingChanged {
-	//	go updateLazSharing(context.TODO(), c)
-	//}
+	// change input for all of my displays
+	for _, disp := range group.Displays {
+		state.Displays = append(state.Displays, structs.Display{
+			PublicDevice: structs.PublicDevice{
+				Name:  disp.ID.GetName(),
+				Input: input,
+			},
+			Blanked: BoolP(false),
+		})
+	}
+
+	// this shouldn't take longer than 5 seconds
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	// make the state changes
 	if err := c.SendAPIRequest(ctx, state); err != nil {
@@ -140,5 +168,5 @@ func (si SetInput) Do(c *Client, data []byte) {
 		c.Out <- ErrorMessage(fmt.Errorf("failed to change input: %s", err))
 	}
 
-	c.Info("Finished setting input", zap.String("on", string(msg.DisplayGroup)), zap.String("to", string(msg.Input)), zap.String("controlGroup", string(cg.ID)))
+	c.Info("Finished setInput", zap.String("displayGroup", string(msg.DisplayGroup)), zap.String("input", string(msg.Input)))
 }

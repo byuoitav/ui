@@ -3,44 +3,6 @@ package bff
 import "strings"
 
 // ShareState is one of 7 possible share states
-type ShareState int
-
-const (
-	// Nothing means that you can't share at all
-	Nothing ShareState = iota + 1
-
-	// Share means that you can share right now
-	Share
-
-	// Unshare means that you are currently sharing, and that you could unshare
-	Unshare
-
-	// Link means that you can link
-	Link
-
-	// Unlink means that you currently are linked, and you could unlink
-	Unlink
-
-	// MinionActive means that you are being shared to and are participating in that share
-	MinionActive
-
-	// MinionInactive means that you are being shared to but you are NOT participating in that share
-	MinionInactive
-)
-
-//// Shareable .
-//type Shareable map[ID][]ID
-//
-// Sharing .
-// type Sharing map[ID]ShareGroups
-
-// ShareGroups .
-//type ShareGroups struct {
-//	Input    ID   `json:"input"`
-//	Active   []ID `json:"active"`
-//	Inactive []ID `json:"inactive"`
-//	Linked   []ID `json:"linked"`
-//}
 
 // Room .
 type Room struct {
@@ -51,6 +13,8 @@ type Room struct {
 	SelectedControlGroup ID                      `json:"selectedControlGroup"`
 }
 
+type DisplayGroups []DisplayGroup
+
 // ControlGroup .
 type ControlGroup struct {
 	ID   ID     `json:"id"`
@@ -58,7 +22,7 @@ type ControlGroup struct {
 
 	PoweredOn bool `json:"poweredOn"`
 
-	DisplayGroups []DisplayGroup `json:"displayGroups,omitempty"`
+	DisplayGroups DisplayGroups  `json:"displayGroups,omitempty"`
 	Inputs        []Input        `json:"inputs"`
 	AudioGroups   []AudioGroup   `json:"audioGroups,omitempty"`
 	PresentGroups []PresentGroup `json:"presentGroups,omitempty"`
@@ -91,15 +55,15 @@ type DisplayGroup struct {
 	Blanked  bool       `json:"blanked"`
 	Input    ID         `json:"input"`
 
-	// Share ShareInfo `json:"share"`
+	ShareInfo ShareInfo `json:"shareInfo,omitempty"`
 }
 
 // ShareInfo .
-//type ShareInfo struct {
-//	State   ShareState `json:"state"`
-//	Master  ID         `json:"master"`
-//	Options []string   `json:"options"`
-//}
+type ShareInfo struct {
+	State   shareState `json:"state"`
+	Options []string   `json:"options,omitempty"`
+	Master  ID         `json:"master,omitempty"`
+}
 
 // Input .
 type Input struct {
@@ -151,6 +115,27 @@ type IconPair struct {
 // ID .
 type ID string
 
+func IDsToStrings(ids []ID) []string {
+	var strs []string
+
+	for i := range ids {
+		strs = append(strs, string(ids[i]))
+	}
+
+	return strs
+}
+
+func StringsToIDs(strings []string) []ID {
+	var ids []ID
+
+	for i := range strings {
+		ids = append(ids, ID(strings[i]))
+	}
+
+	return ids
+}
+
+// GetName gets the name of an ID
 func (i ID) GetName() string {
 	split := strings.Split(string(i), "-")
 	if len(split) != 3 {

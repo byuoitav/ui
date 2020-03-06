@@ -22,24 +22,22 @@
     <!-- to open up the mobile control qr code -->
     <!-- <ng-container *ngIf=room control exists> -->
         <div class="room-control-info" (click)="openMobileControlDialog()" (press)="openMobileControlDialog()">
-            <div>rooms.stg.byu.edu</div>
-            <div>Key: 111111</div>
-            <!-- <div>{{ bff.roomControlUrl }}</div>
-            <div>Key: {{ bff.controlKey }}</div> -->
+            <div>{{ cg?.controlInfo?.url }}</div>
+            <div>Key: {{ cg?.controlInfo?.key }}</div>
         </div>
     <!-- </ng-container> -->
     
-    <div class="yourmom">
+    <div>
         <button mat-button class="input mat-elevation-z7"
-            [class.selected]="selectedInput == blanked"
-            [id]="'input' + blanked.id"
-            [class.mat-raised-button]="selectedInput == blanked"
-            (click)="toggleBlank(cg?.displayGroups[selectedOutput])"
-            (press)="toggleBlank(cg?.displayGroups[selectedOutput])"
+            [class.selected]="selectedInput == blank"
+            [id]="'input' + blank.id"
+            [class.mat-raised-button]="selectedInput == blank"
+            (click)="setBlank(cg?.displayGroups[selectedOutput])"
+            (press)="setBlank(cg?.displayGroups[selectedOutput])"
         >
             <div class="icon">
-                <i class="material-icons">{{ blanked?.icon }}</i>
-                <span>{{ blanked?.name }}</span>
+                <i class="material-icons">{{ blank?.icon }}</i>
+                <span>{{ blank?.name }}</span>
             </div>
         </button>
         <ng-container *ngFor="let i of cg?.inputs">

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ControlGroup } from 'src/app/objects/control';
+import { ControlGroup } from '../../../../../objects/control';
 import { BFFService } from 'src/app/services/bff.service';
 
 @Component({
@@ -22,7 +22,7 @@ export class ProjectorComponent implements OnInit {
   show = (cg: ControlGroup) => {
     this.cg = cg;
 
-    this.cg.screens = ["SCR1"];
+    // this.cg.screens = ["SCR1"];
 
     if (this.cg.screens) {
       const pages = Math.ceil(this.cg.screens.length / 4);
