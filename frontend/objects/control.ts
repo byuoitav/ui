@@ -68,6 +68,7 @@ export interface DisplayGroup {
 export interface ShareInfo {
   state: number;
   master: string;
+  opts: string[];
 }
 
 export interface Input {

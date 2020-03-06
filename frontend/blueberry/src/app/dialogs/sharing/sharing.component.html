@@ -1,7 +1,7 @@
 <div *ngIf="!sharingSpin" class="base">
   <div class="text">Select stations to share {{getSelectedInput()}} with</div>
   <div class="row secondary-theme">
-      <button mat-raised-button *ngFor="let g of cg?.displayGroups[0]?.shareInfo.options" class="share-button" [class.chosen]="chosenOptions.includes(g)" (click)="toggle(g)">{{g}}</button>
+      <button mat-raised-button *ngFor="let g of cg?.displayGroups[0]?.shareInfo.opts" class="share-button" [class.chosen]="chosenOptions.includes(g)" (click)="toggle(g)">{{g}}</button>
   </div>
   
   <div mat-dialog-actions class="items secondary-theme">
