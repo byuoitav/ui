@@ -85,11 +85,15 @@ func (c *Client) GetRoom() Room {
 				// then allow them to share to those options
 				group.ShareInfo.State = stateCanShare
 				group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
-			case shareData.State == stateIsMaster || shareData.State == stateIsActiveMinion || shareData.State == stateIsInactiveMinion:
+			case shareData.State == stateIsMaster:
 				group.ShareInfo.State = shareData.State
+			case shareData.State == stateIsActiveMinion || shareData.State == stateIsInactiveMinion:
+				group.ShareInfo.State = shareData.State
+				group.ShareInfo.Master = shareData.Master
 			default:
 				group.ShareInfo.State = shareData.State
 				group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
+				group.ShareInfo.Master = shareData.Master
 			}
 
 			group.Displays = append(group.Displays, IconPair{

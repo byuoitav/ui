@@ -127,8 +127,8 @@ func (ss SetSharing) Do(c *Client, data []byte) {
 		c.Info("Stopping share", zap.String("master", string(msg.Group)))
 		ss.Unshare(c, msg)
 	case stateIsActiveMinion:
-		c.Info("Leaving share", zap.String("group", string(msg.Group)))
-		// ss.LeaveShare()
+		c.Info("Becoming an inactive minion", zap.String("group", string(msg.Group)))
+		ss.becomeInactiveMinion(c, msg)
 	}
 }
 
@@ -221,8 +221,8 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 
 	// send the api request
 	if err := c.SendAPIRequest(ctx, state); err != nil {
-		c.Warn("failed to set sharing", zap.Error(err))
-		c.Out <- ErrorMessage(fmt.Errorf("failed to set sharing: %w", err))
+		c.Warn("failed to start share", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("failed to start share: %w", err))
 	}
 
 	// let the frontend know that sharing is complete
@@ -321,9 +321,79 @@ func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 	// send the api request
 	// TODO make sure we even need to do this
 	if err := c.SendAPIRequest(ctx, state); err != nil {
-		c.Warn("failed to set sharing", zap.Error(err))
-		c.Out <- ErrorMessage(fmt.Errorf("failed to set sharing: %w", err))
+		c.Warn("failed to end share", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("failed to end share: %w", err))
+		return
 	}
 
 	c.Out <- StringMessage("shareEnded", "")
+}
+
+// becomeInactiveMinion causes a minion in a share group to become inactive. Becoming inactive does a few things on the UI:
+// 1. The modal saying that you are being shared to disappears
+// 2. A new input shows up to rejoin the share group (see (*client).GetRoom())
+// 3. The state of the display group is set to muted=false, blanked=false, and input=default
+//
+// This function is only ever called from blueberry.
+// TODO: we should probably validate that it is blueberry.
+func (ss SetSharing) becomeInactiveMinion(c *Client, msg SetSharingMessage) {
+	room := c.GetRoom()
+	cg := room.ControlGroups[c.selectedControlGroupID]
+
+	// get the group
+	group, err := cg.DisplayGroups.GetDisplayGroup(msg.Group)
+	if err != nil {
+		// handle err
+	}
+
+	// build the av-api state
+	var state structs.PublicRoom
+
+	// change the displays
+	for i := range group.Displays {
+		state.Displays = append(state.Displays, structs.Display{
+			PublicDevice: structs.PublicDevice{
+				Name:  group.Displays[i].ID.GetName(),
+				Input: cg.Inputs[0].ID.GetName(),
+			},
+			Blanked: BoolP(false),
+		})
+	}
+
+	// change the audio devices
+	audioDevices, err := cg.GetMediaAudioDeviceIDs(c.uiConfig.Presets)
+	if err != nil {
+		// handle err
+	}
+
+	for i := range audioDevices {
+		state.AudioDevices = append(state.AudioDevices, structs.AudioDevice{
+			PublicDevice: structs.PublicDevice{
+				Name: group.Displays[i].ID.GetName(),
+			},
+			Muted: BoolP(false),
+		})
+	}
+
+	// update lazarette
+	c.lazUpdates <- lazMessage{
+		Key: lazSharing + string(msg.Group),
+		Data: lazShareData{
+			State:  stateIsInactiveMinion,
+			Master: group.ShareInfo.Master,
+		},
+	}
+
+	// don't take longer than 5 seconds
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// send the api request
+	if err := c.SendAPIRequest(ctx, state); err != nil {
+		c.Warn("failed to become an inactive minion", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("failed to become an inactive minion: %w", err))
+		return
+	}
+
+	c.Out <- StringMessage("becameInactive", "")
 }

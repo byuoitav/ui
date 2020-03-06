@@ -62,6 +62,7 @@ type DisplayGroup struct {
 type ShareInfo struct {
 	State   shareState `json:"state"`
 	Options []string   `json:"options,omitempty"`
+	Master  ID         `json:"master,omitempty"`
 }
 
 // Input .
@@ -122,6 +123,16 @@ func IDsToStrings(ids []ID) []string {
 	}
 
 	return strs
+}
+
+func StringsToIDs(strings []string) []ID {
+	var ids []ID
+
+	for i := range strings {
+		ids = append(ids, ID(strings[i]))
+	}
+
+	return ids
 }
 
 // GetName gets the name of an ID

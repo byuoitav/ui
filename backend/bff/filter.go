@@ -108,3 +108,13 @@ func (c *Client) GetPresetByName(name string) (Preset, error) {
 
 	return Preset{}, fmt.Errorf("preset %q not found", name)
 }
+
+func (cg *ControlGroup) GetMediaAudioDeviceIDs(presets []Preset) ([]ID, error) {
+	for i := range presets {
+		if string(cg.ID) == presets[i].Name {
+			return StringsToIDs(presets[i].AudioDevices), nil
+		}
+	}
+
+	return nil, fmt.Errorf("preset %q not found", cg.ID)
+}
