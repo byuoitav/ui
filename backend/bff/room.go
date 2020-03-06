@@ -1,6 +1,9 @@
 package bff
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // GetRoom .
 func (c *Client) GetRoom() Room {
@@ -158,7 +161,12 @@ func (c *Client) GetRoom() Room {
 				cg.MediaAudio.Muted = false
 			}
 		}
-		cg.MediaAudio.Level /= len(preset.AudioDevices)
+		if len(preset.AudioDevices) == 0 {
+			c.Out <- ErrorMessage(errors.New("Caleb was Actually right and caught a divide-by-zero error"))
+			cg.MediaAudio.Level = 69
+		} else {
+			cg.MediaAudio.Level /= len(preset.AudioDevices)
+		}
 
 		// create the cg's audio groups.
 		// if audioGroups are present in the config, then use those.
