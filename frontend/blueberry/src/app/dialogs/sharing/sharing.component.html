@@ -1,11 +1,19 @@
-<div class="text">Select stations to share {{getSelectedInput()}} with</div>
-<div class="row secondary-theme">
-    <button mat-raised-button color="primary" *ngFor="let g of cg?.displayGroups[0]?.shareOptions" class="share-button">{{g}}</button>
-</div>
-
-<div mat-dialog-actions class="items secondary-theme">
-    <button mat-raised-button color="warn" (click)="cancel()" press="cancel()">
-      Cancel
-    </button>
-    <button mat-raised-button color="primary">Share</button>
+<div *ngIf="!sharingSpin" class="base">
+  <div class="text">Select stations to share {{getSelectedInput()}} with</div>
+  <div class="row secondary-theme">
+      <button mat-raised-button *ngFor="let g of cg?.displayGroups[0]?.shareInfo.opts" class="share-button" [class.chosen]="chosenOptions.includes(g)" (click)="toggle(g)">{{g}}</button>
   </div>
+  
+  <div mat-dialog-actions class="items secondary-theme">
+      <button mat-raised-button color="warn" (click)="cancel()" (press)="cancel()">
+        Cancel
+      </button>
+      <button mat-raised-button color="primary" (click)="startShare()" (press)="startShare()">Share</button>
+    </div>
+  </div>
+<div *ngIf="sharingSpin" class="base">
+  <div class="text">Sharing {{getSelectedInput()}}...</div>
+  <div class="row">
+    <mat-spinner color="accent"></mat-spinner>
+  </div>
+</div>

@@ -7,7 +7,7 @@ import { MatDialog } from "@angular/material";
 import {
   Room,
   ControlGroup,
-  DisplayBlock,
+  DisplayGroup,
   Input,
   AudioDevice,
   AudioGroup,
@@ -61,7 +61,7 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  setVolume = (audioDeviceID: string, level: number) => {
+  setVolume = (level: number, audioDeviceID?: string) => {
     const kv = {
       setVolume: {
         audioDevice: audioDeviceID,
@@ -73,7 +73,7 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  setMuted = (audioDeviceID: string, muted: boolean) => {
+  setMuted = (muted: boolean, audioDeviceID?: string) => {
     const kv = {
       setMuted: {
         audioDevice: audioDeviceID,
@@ -85,17 +85,12 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  setPower = (displays: DisplayBlock[], power: string) => {
+  setPower = (power: boolean) => {
     const kv = {
       setPower: {
-        displays: [],
-        status: power
+        poweredOn: power
       }
     };
-
-    for (const disp of displays) {
-      kv.setPower.displays.push(disp.id);
-    }
 
     this.loading = true;
     this._ws.send(JSON.stringify(kv));

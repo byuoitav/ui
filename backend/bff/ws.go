@@ -59,6 +59,8 @@ func (c *Client) readPump() {
 				return
 			}
 
+			c.stats.WebSocket.MessagesRecieved++
+
 			// parse message
 			var m Message
 			if err := json.Unmarshal(msg, &m); err != nil {
@@ -68,7 +70,12 @@ func (c *Client) readPump() {
 			}
 
 			// handle message
-			go c.HandleMessage(m)
+			go func() {
+				c.stats.Routines++
+				defer c.stats.decRoutines()
+
+				c.HandleMessage(m)
+			}()
 		}
 	}
 }
@@ -83,7 +90,7 @@ func (c *Client) writePump() {
 	rooms := make(chan json.RawMessage)
 	defer close(rooms)
 
-	debouncedRooms := msgDebouncer(rooms, roomDebounceDuration)
+	debouncedRooms := c.msgDebouncer(rooms, roomDebounceDuration)
 
 	for {
 		select {
@@ -111,6 +118,7 @@ func (c *Client) writePump() {
 			}
 
 			c.Debug("Sending debounced room to client", zap.Int("debounces", room.Debounces), zap.ByteString("message", data))
+			c.stats.WebSocket.MessagesSent++
 
 			// set our write deadline
 			_ = c.ws.SetWriteDeadline(time.Now().Add(writeWait))
@@ -147,8 +155,10 @@ func (c *Client) writePump() {
 			// log that we are sending a message
 			if _, ok := msg["error"]; ok {
 				c.Warn("sending error to client", zap.ByteString("message", data))
+				c.stats.WebSocket.ErrorsSent++
 			} else {
 				c.Debug("Sending message to client", zap.ByteString("message", data))
+				c.stats.WebSocket.MessagesSent++
 			}
 
 			// set our write deadline
@@ -167,10 +177,12 @@ type debouncedMessage struct {
 	Debounces int
 }
 
-func msgDebouncer(updates chan json.RawMessage, over time.Duration) chan debouncedMessage {
+func (c *Client) msgDebouncer(updates chan json.RawMessage, over time.Duration) chan debouncedMessage {
 	out := make(chan debouncedMessage)
 
 	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
 		defer close(out)
 
 		final := debouncedMessage{}

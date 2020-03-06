@@ -28,13 +28,15 @@ func main() {
 		avApiAddr         string
 		codeServiceAddr   string
 		remoteControlAddr string
+		lazaretteAddr     string
 	)
 
-	pflag.IntVarP(&port, "port", "p", 8080, "port to run the server on")
-	pflag.IntVarP(&logLevel, "log-level", "l", 2, "level of logging wanted. 1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=PANIC")
+	pflag.IntVarP(&port, "port", "P", 8080, "port to run the server on")
+	pflag.IntVarP(&logLevel, "log-level", "L", 2, "level of logging wanted. 1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=PANIC")
 	pflag.StringVarP(&avApiAddr, "av-api", "a", "localhost:8000", "address of the av-control-api to use")
 	pflag.StringVarP(&codeServiceAddr, "code-service", "c", "control-keys.avs.byu.edu", "address of the code service to use")
 	pflag.StringVarP(&remoteControlAddr, "remote-control", "r", "rooms.av.byu.edu", "address of the remote control to show")
+	pflag.StringVarP(&lazaretteAddr, "lazarette", "l", "localhost:7777", "address of the lazarette cache to use")
 	pflag.Parse()
 
 	setLog := func(level int) error {
@@ -69,23 +71,13 @@ func main() {
 	// build echo server
 	e := echo.New()
 
-	wsHandler := handlers.NewClientHandler(handlers.NewClientConfig{
-		AvApiAddr:         avApiAddr,
-		CodeServiceAddr:   codeServiceAddr,
-		RemoteControlAddr: remoteControlAddr,
-	})
-
-	// register new clients
-	e.GET("/ws", wsHandler)
-	e.GET("/ws/:key", wsHandler)
-
 	// handle load balancer status check
 	e.GET("/healthz", func(c echo.Context) error {
 		return c.String(http.StatusOK, "healthy")
 	})
 
 	// set the log level
-	e.GET("/log/:level", func(c echo.Context) error {
+	e.GET("/logz/:level", func(c echo.Context) error {
 		level, err := strconv.Atoi(c.Param("level"))
 		if err != nil {
 			return c.String(http.StatusBadRequest, err.Error())
@@ -97,6 +89,27 @@ func main() {
 
 		return c.String(http.StatusOK, fmt.Sprintf("Set log level to %v", level))
 	})
+
+	bffhandlers := handlers.BFF{
+		AvApiAddr:         avApiAddr,
+		CodeServiceAddr:   codeServiceAddr,
+		RemoteControlAddr: remoteControlAddr,
+		LazaretteAddr:     lazaretteAddr,
+	}
+
+	bffg := e.Group("", bffhandlers.SetupMiddleware)
+
+	// register new clients
+	bffg.GET("/ws", bffhandlers.NewClient)
+	bffg.GET("/ws/:key", bffhandlers.NewClient)
+
+	// uicontrol endpoints
+	bffg.GET("/uicontrol/refresh", bffhandlers.RefreshClients)
+
+	// stats
+	statsg := bffg.Group("/statsz")
+	statsg.GET("", bffhandlers.Stats)
+	statsg.GET("/clients", bffhandlers.ClientStats)
 
 	// group to get ui config
 	single := singleflight.Group{}

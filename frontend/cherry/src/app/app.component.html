@@ -3,7 +3,7 @@
 
 <div class="base mat-app-background">
   <management [enabled]="showManagement()"></management>
-  <ng-container *ngIf="!roomRef?.loading; else loading">
+  <ng-container *ngIf="!roomRef?.loadingHome && !roomRef?.loadingLock; else loading">
     <div *ngIf="!cg?.poweredOn; else home" class="lock">
 
         <object type="image/svg+xml" data="./assets/byu_medallion_white.svg" class="logo">

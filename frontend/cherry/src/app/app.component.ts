@@ -73,18 +73,24 @@ export class AppComponent implements OnInit {
   }
 
   public openMobileControlDialog() {
+    console.log(this.cg.controlInfo.url);
     const dialogRef = this.dialog.open(MobileControlComponent, {
       width: "70vw",
-      height: "52.5vw"
+      data: {
+        url: this.cg.controlInfo.url,
+        key: this.cg.controlInfo.key
+      }
     });
   }
 
   public togglePower() {
 
     if (this.cg.poweredOn == true) {
+      // console.log("Roomref lock, home: " + this.roomRef.loadingLock + " " + this.roomRef.loadingHome);
       //probably have to do a check to see if all the displays should turn off
       this.roomRef.setPower(false);
     } else {
+      // console.log("Roomref lock, home: " + this.roomRef.loadingLock + " " + this.roomRef.loadingHome);
       this.roomRef.setPower(true);
     }
   }

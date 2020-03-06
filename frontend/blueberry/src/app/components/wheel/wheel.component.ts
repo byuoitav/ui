@@ -10,6 +10,8 @@ import {
 import { MatDialog } from "@angular/material";
 import { RoomRef, BFFService } from 'src/app/services/bff.service';
 import { ControlGroup, Input } from '../../../../../objects/control';
+import { MinionComponent } from 'src/app/dialogs/minion/minion.component';
+
 
 @Component({
   selector: "app-wheel",
@@ -35,6 +37,8 @@ export class WheelComponent {
   translate: string;
   circleOpen = true;
   thumbLabel = true;
+  mirrorMaster: Input;
+
 
   @ViewChild("wheel", {static: false}) wheel: ElementRef;
 
@@ -48,7 +52,7 @@ export class WheelComponent {
     if (this.roomRef) {
       this.roomRef.subject().subscribe((r) => {
         if (r) {
-          if (!this.cg) {
+          if (!this.cg || this.cg.inputs.length != r.controlGroups[r.selectedControlGroup].inputs.length) {
             this.cg = r.controlGroups[r.selectedControlGroup];
             setTimeout(() => {
               this.render();

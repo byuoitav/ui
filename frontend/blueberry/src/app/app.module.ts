@@ -14,7 +14,8 @@ import {
   MatSlideToggleModule,
   MatToolbarModule,
   MatTabsModule,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
+  MatProgressBarModule
 } from "@angular/material";
 import { UiSwitchModule } from "ngx-ui-switch";
 import "hammerjs";
@@ -34,6 +35,8 @@ import { NgxQRCodeModule } from 'ngx-qrcode2';
 import { SharingComponent } from './dialogs/sharing/sharing.component';
 import { HelpComponent } from './dialogs/help/help.component';
 import { ActivityButtonComponent } from './components/activity-button/activity-button.component';
+import { ManagementComponent } from './components/management/management.component';
+import { MinionComponent } from './dialogs/minion/minion.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +50,8 @@ import { ActivityButtonComponent } from './components/activity-button/activity-b
     SharingComponent,
     HelpComponent,
     ActivityButtonComponent,
+    ManagementComponent,
+    MinionComponent,
   ],
   imports: [
     BrowserModule,
@@ -60,6 +65,7 @@ import { ActivityButtonComponent } from './components/activity-button/activity-b
     MatGridListModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatSlideToggleModule,
     UiSwitchModule,
     AppRoutingModule,
@@ -70,7 +76,8 @@ import { ActivityButtonComponent } from './components/activity-button/activity-b
   entryComponents: [
     MobileComponent,
     HelpComponent,
-    SharingComponent
+    SharingComponent,
+    MinionComponent
   ],
   providers: [
     BFFService

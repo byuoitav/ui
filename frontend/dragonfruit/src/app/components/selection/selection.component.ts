@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 
 import { RoomRef } from "src/app/services/bff.service";
 import { TurnOffRoomDialogComponent } from "src/app/dialogs/turnOffRoom-dialog/turnOffRoom-dialog.component";
-import { ControlGroup, DisplayBlock, Room } from "../../../../../objects/control";
+import { Room } from "../../../../../objects/control";
 
 @Component({
   selector: "app-selection",

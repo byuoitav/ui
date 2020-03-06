@@ -68,6 +68,37 @@ func GetDisplayGroupByID(groups []DisplayGroup, id ID) (DisplayGroup, error) {
 	return DisplayGroup{}, fmt.Errorf("displayGroup %q not found", id)
 }
 
+func GetControlGroupByDisplayGroupID(groups map[string]ControlGroup, id ID) (ControlGroup, error) {
+	for _, v := range groups {
+		if _, err := GetDisplayGroupByID(v.DisplayGroups, id); err == nil {
+			return v, nil
+		}
+	}
+
+	return ControlGroup{}, fmt.Errorf("displayGroup %q not found in any control group", id)
+}
+
+func (r *Room) GetAllDisplayGroups() DisplayGroups {
+	var groups DisplayGroups
+
+	for k := range r.ControlGroups {
+		groups = append(groups, r.ControlGroups[k].DisplayGroups...)
+	}
+
+	return groups
+}
+
+func (groups DisplayGroups) GetDisplayGroup(id ID) (DisplayGroup, error) {
+	for i := range groups {
+		if groups[i].ID == id {
+			return groups[i], nil
+		}
+	}
+
+	return DisplayGroup{}, fmt.Errorf("displayGroup %q not found", id)
+
+}
+
 func (c *Client) GetPresetByName(name string) (Preset, error) {
 	for i := range c.uiConfig.Presets {
 		if name == c.uiConfig.Presets[i].Name {
@@ -76,4 +107,14 @@ func (c *Client) GetPresetByName(name string) (Preset, error) {
 	}
 
 	return Preset{}, fmt.Errorf("preset %q not found", name)
+}
+
+func (cg *ControlGroup) GetMediaAudioDeviceIDs(presets []Preset) ([]ID, error) {
+	for i := range presets {
+		if string(cg.ID) == presets[i].Name {
+			return StringsToIDs(presets[i].AudioDevices), nil
+		}
+	}
+
+	return nil, fmt.Errorf("preset %q not found", cg.ID)
 }

@@ -62,15 +62,13 @@ export interface DisplayGroup {
   displays: IconPair[];
   input: string;
   blanked: boolean;
-  shareOptions: string[];
+  shareInfo: ShareInfo;
+}
 
-  // getOutputNameList(): string[] {
-  //     const toReturn: string[] = [];
-  //     for (const o of this.outputs) {
-  //         toReturn.push(o.name);
-  //     }
-  //     return toReturn;
-  // }
+export interface ShareInfo {
+  state: number;
+  master: string;
+  opts: string[];
 }
 
 export interface Input {

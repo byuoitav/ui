@@ -17,6 +17,7 @@ require (
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0
 	github.com/nlopes/slack v0.6.0 // indirect
+	github.com/prometheus/client_golang v1.4.1
 	github.com/robfig/cron v1.2.0 // indirect
 	github.com/sevenNt/echo-pprof v0.1.0 // indirect
 	github.com/shirou/gopsutil v2.19.11+incompatible // indirect
@@ -26,8 +27,7 @@ require (
 	gobot.io/x/gobot v1.14.0 // indirect
 	golang.org/x/crypto v0.0.0-20200115085410-6d4e4cb37c7d // indirect
 	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa // indirect
-	golang.org/x/sync v0.0.0-20190423024810-112230192c58
-	golang.org/x/sys v0.0.0-20200113162924-86b910548bc1 // indirect
+	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/tools v0.0.0-20200115192306-3ded1b734dda // indirect
 	google.golang.org/grpc v1.26.0
 	gopkg.in/oleiade/reflections.v1 v1.0.0 // indirect

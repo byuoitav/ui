@@ -18,6 +18,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// ClientConfig represents some configuration options for the client
 type ClientConfig struct {
 	RoomID         string
 	ControlGroupID string
@@ -25,11 +26,14 @@ type ClientConfig struct {
 	AvApiAddr         string
 	CodeServiceAddr   string
 	RemoteControlAddr string
+	LazaretteAddr     string
 }
 
 // Client represents a client of the bff
 type Client struct {
-	config                 ClientConfig
+	config ClientConfig
+	stats  ClientStats
+
 	buildingID             string
 	roomID                 string
 	selectedControlGroupID string
@@ -39,20 +43,17 @@ type Client struct {
 	uiConfig UIConfig
 
 	lazs       LazaretteState
-	lazUpdates chan lazarette.KeyValue
+	lazUpdates chan lazMessage
 
 	// controlKeys is periodically updated
 	controlKeysMu sync.RWMutex
 	controlKeys   map[string]string
 
-	//sharing    Sharing
-	//// TODO get shareable
-	//shareable Shareable
-
 	// if this channel is closed, then all goroutines
 	// spawned by the client should exit
 	kill      chan struct{}
 	closeOnce sync.Once
+	killed    bool
 
 	ws         *websocket.Conn
 	httpClient *http.Client
@@ -86,24 +87,32 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		Out:        make(chan Message, 1),
 		SendEvent:  make(chan events.Event),
 		Logger:     log.P.Named(ws.RemoteAddr().String()),
-		lazUpdates: make(chan lazarette.KeyValue),
+		lazUpdates: make(chan lazMessage),
 		lazs: LazaretteState{
 			Map: &sync.Map{},
 		},
 		controlKeys: make(map[string]string),
 	}
 
+	// init stats
+	c.stats.AvControlApi.ResponseCodes = make(map[int]uint)
+	now := time.Now()
+	c.stats.CreatedAt = &now
+
 	// setup shoudn't take longer than 10 seconds
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	sctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	// create the errgroup for all these setup functions
-	g, ctx := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(sctx)
 
 	// get the room state
 	g.Go(func() error {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
 		var err error
-		c.state, err = GetRoomState(ctx, c.httpClient, c.config.AvApiAddr, c.roomID)
+		c.state, err = GetRoomState(gctx, c.httpClient, c.config.AvApiAddr, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get room state: %w", err)
 		}
@@ -114,9 +123,11 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 
 	// get the room config
 	g.Go(func() error {
-		var err error
+		c.stats.Routines++
+		defer c.stats.decRoutines()
 
-		c.room, err = GetRoomConfig(ctx, c.httpClient, c.config.AvApiAddr, c.roomID)
+		var err error
+		c.room, err = GetRoomConfig(gctx, c.httpClient, c.config.AvApiAddr, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get room config: %w", err)
 		}
@@ -127,9 +138,11 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 
 	// get the ui config
 	g.Go(func() error {
-		var err error
+		c.stats.Routines++
+		defer c.stats.decRoutines()
 
-		c.uiConfig, err = GetUIConfig(ctx, c.httpClient, c.roomID)
+		var err error
+		c.uiConfig, err = GetUIConfig(gctx, c.httpClient, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get ui config: %w", err)
 		}
@@ -138,48 +151,29 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		return nil
 	})
 
-	// connect to lazarette
-	g.Go(func() error {
-		var err error
-
-		laz, err := ConnectToLazarette(ctx)
-		if err != nil {
-			return fmt.Errorf("unable to connect to lazarette: %w", err)
-		}
-
-		// create the subscription
-		sub, err := laz.Subscribe(ctx, &lazarette.Key{Key: c.roomID})
-		if err != nil {
-			return fmt.Errorf("unable to subscribe to lazarette: %w", err)
-		}
-
-		go c.syncLazaretteState(sub)
-		return nil
-	})
-
 	if err := g.Wait(); err != nil {
-		return nil, fmt.Errorf("unable to get setup client: %w", err)
+		return nil, fmt.Errorf("unable to setup client: %w", err)
 	}
 
+	// connect to lazarette - we need to use the ctx associated with the websocket,
+	// or else it will close the connection when this function ends
+	laz, err := ConnectToLazarette(ctx, c.config.LazaretteAddr)
+	if err != nil {
+		return nil, fmt.Errorf("unable to connect to lazarette: %w", err)
+	}
+
+	sub, err := laz.Subscribe(ctx, &lazarette.Key{Key: c.roomID})
+	if err != nil {
+		return nil, fmt.Errorf("unable to subscribe to lazarette: %w", err)
+	}
+
+	c.Debug("Connected to lazarette and listening for changes", zap.String("prefix", c.roomID))
+
+	// build the initial room
 	room := c.GetRoom()
 	if _, ok := room.ControlGroups[config.ControlGroupID]; ok {
 		c.selectedControlGroupID = config.ControlGroupID
 	}
-
-	// TODO this should happen in get room
-	// Set up who can share to who
-	//s := make(map[ID][]ID)
-	//for _, p := range c.uiConfig.Presets {
-	//	for i, d := range p.ShareableDisplays {
-	//		shar := remove(p.ShareableDisplays, i)
-	//		shareable := make([]ID, len(shar))
-	//		for j := range shar {
-	//			shareable[j] = ID(shar[j])
-	//		}
-	//		s[ID(d)] = shareable
-	//	}
-	//}
-	//c.shareable = s
 
 	// send the inital room info
 	msg, err := JSONMessage("room", c.GetRoom())
@@ -192,28 +186,65 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 	c.Info("Got all initial information, sent room to client. Starting ws/event goroutines")
 
 	// start data update routines
-	go c.updateControlKey()
-	go c.handleEvents()
-	go c.readPump()
-	go c.writePump()
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		c.subLazaretteState(sub)
+	}()
+
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		c.updateLazaretteState(laz)
+	}()
+
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		c.updateControlKey()
+	}()
+
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		c.handleEvents()
+	}()
+
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		c.readPump()
+	}()
+
+	go func() {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		c.writePump()
+	}()
 
 	return c, nil
 }
-
-//func remove(l []string, index int) []string {
-//	l[index] = l[len(l)-1]
-//	return l[:len(l)-1]
-//}
 
 // Wait waits until a client is dead
 func (c *Client) Wait() {
 	<-c.kill
 }
 
+func (c *Client) Killed() bool {
+	return c.killed
+}
+
 // Close closes the client
 func (c *Client) Close() {
 	c.closeOnce.Do(func() {
 		c.Info("Closing client. Bye!")
+		c.killed = true
 
 		// close the kill chan to clean up all resources
 		close(c.kill)
@@ -232,4 +263,10 @@ func (c *Client) CurrentPreset() Preset {
 	}
 
 	return Preset{}
+}
+
+// Refresh refreshes the client
+func (c *Client) Refresh() {
+	c.Info("Sending refresh message")
+	c.Out <- StringMessage("refresh", "")
 }

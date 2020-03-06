@@ -15,9 +15,11 @@ import (
 
 // SendAPIRequest .
 func (c *Client) SendAPIRequest(ctx context.Context, room structs.PublicRoom) error {
+	c.stats.AvControlApi.Requests++
+
 	body, err := json.Marshal(room)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to marshal av-api room: %w", err)
 	}
 
 	roomSplit := strings.Split(c.roomID, "-")
@@ -25,27 +27,31 @@ func (c *Client) SendAPIRequest(ctx context.Context, room structs.PublicRoom) er
 	url := fmt.Sprintf("http://%s/buildings/%s/rooms/%s", c.config.AvApiAddr, c.buildingID, roomSplit[1])
 	req, err := http.NewRequestWithContext(ctx, "PUT", url, bytes.NewReader(body))
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to build request: %w", err)
 	}
 
 	req.Header.Add("Content-Type", "application/json")
-	c.Debug("sending API request", zap.String("url", url), zap.ByteString("body", body))
+	c.Debug("Sending request to av-api", zap.String("url", url), zap.ByteString("body", body))
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to make request: %w", err)
 	}
 	defer resp.Body.Close()
 
+	c.stats.AvControlApi.ResponseCodes[resp.StatusCode]++
+
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to read response: %w", err)
 	}
+
+	c.Debug("Response from av-api", zap.ByteString("resp-body", data))
 
 	var newState structs.PublicRoom
 	err = json.Unmarshal(data, &newState)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to parse response: %w", err)
 	}
 
 	c.updateRoom(newState)
@@ -53,7 +59,7 @@ func (c *Client) SendAPIRequest(ctx context.Context, room structs.PublicRoom) er
 
 	roomMsg, err := JSONMessage("room", c.GetRoom())
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to build updated room: %w", err)
 	}
 
 	c.Out <- roomMsg
