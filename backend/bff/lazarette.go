@@ -119,7 +119,6 @@ func (c *Client) subLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 					c.Warn("unable to parse share data from lazarette", zap.String("key", key), zap.Error(err))
 					continue
 				}
-
 				c.lazs.Store(key, data)
 				updateRoom = true
 			default:

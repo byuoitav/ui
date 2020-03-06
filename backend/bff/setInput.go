@@ -3,6 +3,7 @@ package bff
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -109,7 +110,10 @@ func (si SetInput) Do(c *Client, data []byte) {
 		}
 
 		if input == inputBecomeActive {
-			// i guess there wasn't a current input found? error!
+			err := errors.New("cannot change input, invalid master")
+			c.Warn("setInput failed", zap.Error(err))
+			c.Out <- ErrorMessage(err)
+			return
 		}
 
 		c.Info("Becoming an active minion", zap.String("displayGroup", string(msg.DisplayGroup)), zap.String("master", string(group.ShareInfo.Master)))
@@ -117,9 +121,11 @@ func (si SetInput) Do(c *Client, data []byte) {
 		// mute my audio devices
 		audioDevices, err := cg.GetMediaAudioDeviceIDs(c.uiConfig.Presets)
 		if err != nil {
-			// TODO preset doesn't exist?
+			err := errors.New("cannot change input, preset not found")
+			c.Warn("setInput failed", zap.Error(err))
+			c.Out <- ErrorMessage(err)
+			return
 		}
-
 		for i := range audioDevices {
 			state.AudioDevices = append(state.AudioDevices, structs.AudioDevice{
 				PublicDevice: structs.PublicDevice{

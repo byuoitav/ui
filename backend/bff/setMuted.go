@@ -3,6 +3,7 @@ package bff
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -26,6 +27,20 @@ func (sm SetMuted) Do(c *Client, data []byte) {
 		return
 	}
 
+	if len(msg.AudioDevice) > 0 {
+		shareData, err := c.getShareData(msg.AudioDevice)
+		if err != nil {
+			c.Warn("setMuted failed", zap.Error(err))
+			c.Out <- ErrorMessage(fmt.Errorf("cannot validate AudioDevice state: %w", err))
+			return
+		}
+		if shareData.State == stateIsActiveMinion {
+			err := errors.New("cannot set muted as an active minion")
+			c.Warn("setMuted failed", zap.Error(err))
+			c.Out <- ErrorMessage(err)
+			return
+		}
+	}
 	// this shouldn't take longer than 5 seconds
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

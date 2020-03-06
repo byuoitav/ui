@@ -81,7 +81,7 @@ func GetControlGroupByDisplayGroupID(groups map[string]ControlGroup, id ID) (Con
 func (r *Room) GetAllDisplayGroups() DisplayGroups {
 	var groups DisplayGroups
 
-	for k, _ := range r.ControlGroups {
+	for k := range r.ControlGroups {
 		groups = append(groups, r.ControlGroups[k].DisplayGroups...)
 	}
 

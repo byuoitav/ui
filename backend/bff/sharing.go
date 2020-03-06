@@ -232,6 +232,11 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 
 		// Mute the minions
 		mcg, err := GetControlGroupByDisplayGroupID(room.ControlGroups, mgroup.ID)
+		if err != nil {
+			c.Warn("failed to start share", zap.Error(err))
+			c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get control group by display group id: %w", err))
+			return
+		}
 		preset, err := c.GetPresetByName(string(mcg.ID))
 		if err != nil {
 			c.Warn("failed to start share", zap.Error(err))
