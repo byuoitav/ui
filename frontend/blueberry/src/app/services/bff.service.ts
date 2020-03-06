@@ -255,6 +255,9 @@ export class BFFService {
             console.log("refreshing!");
             window.location.reload()
             break;
+          case "becameInactive":
+            this.dialogCloser.emit("inactive");
+            break;
           default:
             console.warn(
               "got key '" + k + "', not sure how to handle that message"
