@@ -332,12 +332,19 @@ func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 		}
 
 		mcg, err := GetControlGroupByDisplayGroupID(room.ControlGroups, mgroup.ID)
+		if err != nil {
+			c.Warn("failed to stop share", zap.Error(err))
+			c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get control group by display group id for %s: %w", mgroup.ID, err))
+			return
+		}
+
 		preset, err := c.GetPresetByName(string(mcg.ID))
 		if err != nil {
 			c.Warn("failed to stop share", zap.Error(err))
 			c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get preset by name for %s: %w", mgroup.ID, err))
 			return
 		}
+
 		for _, audio := range preset.AudioDevices {
 			if ID(audio) == msg.Group {
 				continue
