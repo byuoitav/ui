@@ -135,7 +135,7 @@ func (c *Client) GetRoom() Room {
 		// the input will let them become an active minion again
 		if len(cg.DisplayGroups) == 1 && cg.DisplayGroups[0].ShareInfo.State == stateIsInactiveMinion {
 			cg.Inputs = append(cg.Inputs, Input{
-				ID: ID(inputBecomeActivePrefix + cg.DisplayGroups[0].ShareInfo.Master),
+				ID: ID(inputBecomeActive),
 				IconPair: IconPair{
 					Name: string(cg.DisplayGroups[0].ShareInfo.Master),
 					Icon: "share",
