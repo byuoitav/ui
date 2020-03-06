@@ -122,15 +122,25 @@ func (c *Client) GetRoom() Room {
 				icon = IOconfig.Icon
 			}
 
-			i := Input{
+			cg.Inputs = append(cg.Inputs, Input{
 				ID: ID(config.ID),
 				IconPair: IconPair{
 					Name: config.DisplayName,
 					Icon: icon,
 				},
-			}
+			})
+		}
 
-			cg.Inputs = append(cg.Inputs, i)
+		// create an extra input if our ONLY display group is an inactive minion
+		// the input will let them become an active minion again
+		if len(cg.DisplayGroups) == 1 && cg.DisplayGroups[0].ShareInfo.State == stateIsInactiveMinion {
+			cg.Inputs = append(cg.Inputs, Input{
+				ID: ID(inputBecomeActivePrefix + cg.DisplayGroups[0].ShareInfo.Master),
+				IconPair: IconPair{
+					Name: string(cg.DisplayGroups[0].ShareInfo.Master),
+					Icon: "share",
+				},
+			})
 		}
 
 		// create this cg's media audio info

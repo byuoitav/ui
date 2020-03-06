@@ -10,6 +10,10 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	inputBecomeActivePrefix = "becomeActive_"
+)
+
 // HTTPRequest .
 type HTTPRequest struct {
 	Method string          `json:"method"`
