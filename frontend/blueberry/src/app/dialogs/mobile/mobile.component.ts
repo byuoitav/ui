@@ -11,8 +11,7 @@ import { RoomRef, BFFService } from 'src/app/services/bff.service';
 export class MobileComponent implements OnInit {
   public elementType: 'url';
 
-  constructor(public ref: MatDialogRef<MobileComponent>, @Inject(MAT_DIALOG_DATA) public data: RoomRef, public bff: BFFService) {
-    this.data.getControlKey(this.data.room.selectedControlGroup);
+  constructor(public ref: MatDialogRef<MobileComponent>, @Inject(MAT_DIALOG_DATA) public data: ControlGroup) {
   }
 
   ngOnInit() {
@@ -24,6 +23,6 @@ export class MobileComponent implements OnInit {
   }
 
   getQRCode() {
-    return "http://" + this.bff.roomControlUrl + "/key/" + this.bff.controlKey;
+    return "http://" + this.data.controlInfo.url + "/key/" + this.data.controlInfo.key;
   }
 }

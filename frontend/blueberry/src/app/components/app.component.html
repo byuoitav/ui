@@ -16,8 +16,9 @@
             <mat-icon>unfold_more</mat-icon>
           </button>
           <button mat-stroked class="lock-screen-button" *ngIf="haveControlKey()" (click)="showMobileControl()" (press)="showMobileControl()">
-            <div class="button-text">Mobile Control</div>
             <mat-icon>phone_iphone</mat-icon>
+            <div class="button-text">Key: {{cg?.controlInfo?.key}}</div>
+
           </button>
           <button mat-stroked class="lock-screen-button" *ngIf="hasAudioGroups()" (click)="showAudioControl()" (press)="showAudioControl()">
             <div class="button-text">Audio Control</div>

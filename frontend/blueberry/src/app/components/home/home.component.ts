@@ -7,6 +7,7 @@ import { MatDialog, MatDialogRef } from '@angular/material';
 import { HelpComponent } from 'src/app/dialogs/help/help.component';
 import { SharingComponent } from 'src/app/dialogs/sharing/sharing.component';
 import { MinionComponent } from 'src/app/dialogs/minion/minion.component';
+import { MobileComponent } from 'src/app/dialogs/mobile/mobile.component';
 
 @Component({
   selector: 'app-home',
@@ -65,13 +66,11 @@ export class HomeComponent implements OnInit {
   }
 
   openSharing = () => {
-    this.dialog.open(SharingComponent, {data: this.roomRef})
+    this.dialog.open(SharingComponent, {data: this.roomRef});
   }
 
-  testMinion = () => {
-    this.dialog.open(MinionComponent, {
-      width: "70vw"
-    });
+  openMobileControl = () => {
+    this.dialog.open(MobileComponent, {data: this.cg});
   }
 
   canShare = () => {
