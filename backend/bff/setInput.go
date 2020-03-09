@@ -3,11 +3,16 @@ package bff
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/byuoitav/common/structs"
 	"go.uber.org/zap"
+)
+
+const (
+	inputBecomeActive = "_becomeActiveMinion"
 )
 
 // HTTPRequest .
@@ -88,45 +93,59 @@ func (si SetInput) Do(c *Client, data []byte) {
 			}
 		}
 	case stateIsInactiveMinion:
-		// TODO if input == my masters id, then i should switch into their active group
-		// c.Info("Rejoining share group", zap.String("displayGroup", string(msg.DisplayGroup)))
-		// and change input to whatever the master's input is
-		// and update lazarette!
+		if string(msg.Input) != inputBecomeActive {
+			// this is just a normal change input request
+			c.Info("Setting input", zap.String("displayGroup", string(msg.DisplayGroup)), zap.String("input", string(msg.Input)))
+			break
+		}
+
+		// find the masters input
+		allGroups := room.GetAllDisplayGroups()
+
+		for i := range allGroups {
+			if allGroups[i].ID == group.ShareInfo.Master {
+				input = allGroups[i].Input.GetName()
+				break
+			}
+		}
+
+		if input == inputBecomeActive {
+			err := errors.New("cannot change input, invalid master")
+			c.Warn("setInput failed", zap.Error(err))
+			c.Out <- ErrorMessage(err)
+			return
+		}
+
+		c.Info("Becoming an active minion", zap.String("displayGroup", string(msg.DisplayGroup)), zap.String("master", string(group.ShareInfo.Master)))
+
+		// mute my audio devices
+		audioDevices, err := cg.GetMediaAudioDeviceIDs(c.uiConfig.Presets)
+		if err != nil {
+			err := errors.New("cannot change input, preset not found")
+			c.Warn("setInput failed", zap.Error(err))
+			c.Out <- ErrorMessage(err)
+			return
+		}
+		for i := range audioDevices {
+			state.AudioDevices = append(state.AudioDevices, structs.AudioDevice{
+				PublicDevice: structs.PublicDevice{
+					Name: audioDevices[i].GetName(),
+				},
+				Muted: BoolP(true),
+			})
+		}
+
+		// update my state in lazarette
+		c.lazUpdates <- lazMessage{
+			Key: lazSharing + string(group.ID),
+			Data: lazShareData{
+				State:  stateIsActiveMinion,
+				Master: group.ShareInfo.Master,
+			},
+		}
 	default:
 		c.Info("Setting input", zap.String("displayGroup", string(msg.DisplayGroup)), zap.String("input", string(msg.Input)))
 	}
-
-	// figure out share stuff
-	//if shareMap := c.getShareMap(); shareMap != nil {
-	//	if data, ok := shareMap[msg.DisplayGroup]; ok {
-	//		switch data.State {
-	//		case MinionInactive:
-	//			swap := data.Master == msg.Input
-	//			if swap {
-	//				// we are switching into the active list
-	//				masterGroup, err := GetDisplayGroupByID(cg.DisplayGroups, data.Master)
-	//				if err != nil {
-	//					// TODO
-	//				}
-	//				inputName = masterGroup.Input.GetName()
-	//				master := shareMap[data.Master]
-	//				if index, ok := contain(master.Inactive, msg.DisplayGroup); ok {
-	//					// and add me to the active list
-	//					master.Active = append(master.Active, msg.DisplayGroup)
-	//					// remove me from the inactive list
-	//					master.Inactive = removeID(master.Inactive, index)
-	//					shareMap[data.Master] = master
-	//					c.lazUpdates <- lazMessage{ Key:  lazSharingDisplays,
-	//						Data: shareMap,
-	//					}
-	//				} else {
-	//					// TODO  this is an error too
-	//					// Since you are an inactive minion, you should be on the inactive list
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
 
 	// change input for all of my displays
 	for _, disp := range group.Displays {

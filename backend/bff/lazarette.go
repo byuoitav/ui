@@ -107,6 +107,8 @@ func (c *Client) subLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 			// strip off beginning roomID so that we only have the actual key
 			key := strings.TrimPrefix(kv.GetKey(), c.roomID)
 
+			updateRoom := false
+
 			// stick the value into our map
 			switch {
 			case strings.HasPrefix(key, lazSharing):
@@ -117,12 +119,20 @@ func (c *Client) subLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 					c.Warn("unable to parse share data from lazarette", zap.String("key", key), zap.Error(err))
 					continue
 				}
-
 				c.lazs.Store(key, data)
+				updateRoom = true
 			default:
 			}
 
-			// TODO get a new room and send it?
+			if updateRoom {
+				roomMsg, err := JSONMessage("room", c.GetRoom())
+				if err != nil {
+					c.Warn("unable to build updated room: %w", zap.Error(err))
+					continue
+				}
+
+				c.Out <- roomMsg
+			}
 		}
 	}
 }

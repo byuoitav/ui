@@ -251,6 +251,13 @@ export class BFFService {
           case "shareEnded":
             console.log("The sharing session has ended.");
             break;
+          case "refresh":
+            console.log("refreshing!");
+            window.location.reload()
+            break;
+          case "becameInactive":
+            this.dialogCloser.emit("inactive");
+            break;
           default:
             console.warn(
               "got key '" + k + "', not sure how to handle that message"

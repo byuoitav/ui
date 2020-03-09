@@ -23,6 +23,9 @@ export class AppComponent {
     this.roomRef.subject().subscribe((r) => {
       if (r) {
         this.cg = r.controlGroups[r.selectedControlGroup];
+        if (this.cg.poweredOn == true) {
+          this.bff.locked = false;
+        }
       }
     })
   }
@@ -87,6 +90,8 @@ export class AppComponent {
   }
 
   showManagement = (): boolean => {
+    console.log(this.powerIsOff());
+    console.log(this.bff.locked);
     if (this.dialog.openDialogs.length > 0) {
       return false;
     }

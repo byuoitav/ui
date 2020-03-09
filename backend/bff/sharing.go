@@ -101,7 +101,7 @@ type SetSharingMessage struct {
 func (ss SetSharing) Do(c *Client, data []byte) {
 	var msg SetSharingMessage
 	if err := json.Unmarshal(data, &msg); err != nil {
-		c.Out <- ErrorMessage(fmt.Errorf("invalid value for setSharing: %s", err))
+		c.Out <- ErrorMessage(fmt.Errorf("invalid value for setSharing: %w", err))
 		return
 	}
 
@@ -111,12 +111,16 @@ func (ss SetSharing) Do(c *Client, data []byte) {
 
 	// get the group we are talking about
 	room := c.GetRoom()
-	cg := room.ControlGroups[c.selectedControlGroupID]
-	// TODO make sure cg is not nil
+	cg, ok := room.ControlGroups[c.selectedControlGroupID]
+	if !ok {
+		c.Out <- ErrorMessage(errors.New("sharing: selectedControlGroupID not in room.ControlGroups"))
+		return
+	}
 
 	group, err := cg.DisplayGroups.GetDisplayGroup(msg.Group)
 	if err != nil {
-		// handle err
+		c.Out <- ErrorMessage(errors.New("sharing: msg.Group not in cg.DisplayGroups"))
+		return
 	}
 
 	switch group.ShareInfo.State {
@@ -127,8 +131,8 @@ func (ss SetSharing) Do(c *Client, data []byte) {
 		c.Info("Stopping share", zap.String("master", string(msg.Group)))
 		ss.Unshare(c, msg)
 	case stateIsActiveMinion:
-		c.Info("Leaving share", zap.String("group", string(msg.Group)))
-		// ss.LeaveShare()
+		c.Info("Becoming an inactive minion", zap.String("group", string(msg.Group)))
+		ss.becomeInactiveMinion(c, msg)
 	}
 }
 
@@ -139,22 +143,64 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 
 	dgroups := room.GetAllDisplayGroups()
 
+	// Find all of the display group names
+	disps := make(map[ID]int)
+	for i, name := range dgroups {
+		fmt.Printf("\n%s\n", name.ID)
+		disps[name.ID] = i
+	}
+
 	// get the current input that the master is on
+	// and validate that master group id is valid
 	var input string
 	for i := range cg.DisplayGroups {
 		if cg.DisplayGroups[i].ID == msg.Group {
 			input = cg.DisplayGroups[i].Input.GetName()
+			break
 		}
 	}
 
 	if len(input) == 0 {
-		// handle
+		err := errors.New("sharing: msg.Group not found in cg.DisplayGroups")
+		c.Warn("failed to start share", zap.Error(err))
+		c.Out <- ErrorMessage(err)
+		return
 	}
 
-	// blanked?
-	// validate that options are valid
-	// validate that master group id is valid
-	// validate that inputs are valid for minions
+	//TODO
+	// blanked? <- what does this mean
+
+	// Find the set of shareable displays and see if it is a super set of msg.Options
+	shareable := make(map[string]bool)
+	preset, err := c.GetPresetByName(msg.Group.GetName())
+	if err != nil {
+		c.Warn("failed to start share", zap.Error(err))
+		c.Out <- ErrorMessage(errors.New("sharing: no preset found for msg.Group"))
+		return
+	}
+	for _, name := range preset.ShareableDisplays {
+		shareable[name] = true
+	}
+
+	for _, id := range msg.Options {
+		// validate that options exist in the room's display groups
+		c.Out <- StringMessage(id, "")
+		c.Out <- StringMessage(room.ID.GetName()+"-", "")
+		c.Out <- StringMessage(strings.TrimPrefix(id, room.ID.GetName()+"-"), "")
+		if _, ok := disps[ID(id)]; !ok {
+			c.Warn("failed to start share", zap.Error(err))
+			c.Out <- ErrorMessage(errors.New("sharing: option " + id + " not found in cg.DisplayGroups"))
+			return
+		}
+
+		// validate that inputs are valid for minions by
+		// validating that options exist in the preset's shareable displays
+		if _, ok := shareable[strings.TrimPrefix(id, room.ID.GetName()+"-")]; !ok {
+			c.Warn("failed to start share", zap.Error(err))
+			c.Out <- ErrorMessage(errors.New("sharing: option " + id + " not found in preset.ShareableDisplays"))
+			return
+		}
+	}
 
 	var state structs.PublicRoom
 	toMute := make(map[string]structs.AudioDevice)
@@ -169,7 +215,9 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 
 		mgroup, err := GetDisplayGroupByID(dgroups, ID(minion))
 		if err != nil {
-			// handle
+			c.Warn("failed to start share", zap.Error(err))
+			c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get display group by ID: %w", err))
+			return
 		}
 
 		// Update all the minion displays to be the master input
@@ -184,9 +232,16 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 
 		// Mute the minions
 		mcg, err := GetControlGroupByDisplayGroupID(room.ControlGroups, mgroup.ID)
+		if err != nil {
+			c.Warn("failed to start share", zap.Error(err))
+			c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get control group by display group id: %w", err))
+			return
+		}
 		preset, err := c.GetPresetByName(string(mcg.ID))
 		if err != nil {
-			// handle
+			c.Warn("failed to start share", zap.Error(err))
+			c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get preset by name: %w", err))
+			return
 		}
 		for _, audio := range preset.AudioDevices {
 			if ID(audio) == msg.Group {
@@ -221,8 +276,9 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 
 	// send the api request
 	if err := c.SendAPIRequest(ctx, state); err != nil {
-		c.Warn("failed to set sharing", zap.Error(err))
-		c.Out <- ErrorMessage(fmt.Errorf("failed to set sharing: %w", err))
+		c.Warn("failed to start share", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("failed to start share: %w", err))
+		return
 	}
 
 	// let the frontend know that sharing is complete
@@ -233,6 +289,9 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 	// reset everyone in my active group to their default inputs
 	active, inactive := c.getActiveAndInactiveForDisplayGroup(msg.Group)
+	if len(active) == 0 && len(inactive) == 0 {
+		c.Warn(msg.Group.GetName() + " was sharing to nobody... (active and inactive lists both empty)")
+	}
 
 	var state structs.PublicRoom
 	room := c.GetRoom()
@@ -252,7 +311,9 @@ func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 		// get the default input for this group
 		cg, err := GetControlGroupByDisplayGroupID(room.ControlGroups, active[i])
 		if err != nil {
-			// handle
+			c.Warn("failed to stop share", zap.Error(err))
+			c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get control group by ID for %s: %w", active[i], err))
+			return
 		}
 
 		state.Displays = append(state.Displays, structs.Display{
@@ -265,14 +326,25 @@ func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 
 		mgroup, err := GetDisplayGroupByID(dgroups, active[i])
 		if err != nil {
-			// handle
+			c.Warn("failed to stop share", zap.Error(err))
+			c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get display group by ID for %s: %w", active[i], err))
+			return
 		}
 
 		mcg, err := GetControlGroupByDisplayGroupID(room.ControlGroups, mgroup.ID)
+		if err != nil {
+			c.Warn("failed to stop share", zap.Error(err))
+			c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get control group by display group id for %s: %w", mgroup.ID, err))
+			return
+		}
+
 		preset, err := c.GetPresetByName(string(mcg.ID))
 		if err != nil {
-			// handle
+			c.Warn("failed to stop share", zap.Error(err))
+			c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get preset by name for %s: %w", mgroup.ID, err))
+			return
 		}
+
 		for _, audio := range preset.AudioDevices {
 			if ID(audio) == msg.Group {
 				continue
@@ -319,11 +391,91 @@ func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 	defer cancel()
 
 	// send the api request
-	// TODO make sure we even need to do this
+	// make sure we even need to do this
+	if len(state.Displays) == 0 && len(state.AudioDevices) == 0 {
+		c.Out <- StringMessage("nothing to unshare", "")
+		c.Out <- StringMessage("shareEnded", "")
+		return
+
+	}
 	if err := c.SendAPIRequest(ctx, state); err != nil {
-		c.Warn("failed to set sharing", zap.Error(err))
-		c.Out <- ErrorMessage(fmt.Errorf("failed to set sharing: %w", err))
+		c.Warn("failed to end share", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("failed to end share: %w", err))
+		return
 	}
 
 	c.Out <- StringMessage("shareEnded", "")
+}
+
+// becomeInactiveMinion causes a minion in a share group to become inactive. Becoming inactive does a few things on the UI:
+// 1. The modal saying that you are being shared to disappears
+// 2. A new input shows up to rejoin the share group (see (*client).GetRoom())
+// 3. The state of the display group is set to muted=false, blanked=false, and input=default
+//
+// This function is only ever called from blueberry.
+// TODO: we should probably validate that it is blueberry.
+func (ss SetSharing) becomeInactiveMinion(c *Client, msg SetSharingMessage) {
+	room := c.GetRoom()
+	cg := room.ControlGroups[c.selectedControlGroupID]
+
+	// get the group
+	group, err := cg.DisplayGroups.GetDisplayGroup(msg.Group)
+	if err != nil {
+		c.Warn("failed to become an inactive minion", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get display group for %s: %w", msg.Group, err))
+		return
+	}
+
+	// build the av-api state
+	var state structs.PublicRoom
+
+	// change the displays
+	for i := range group.Displays {
+		state.Displays = append(state.Displays, structs.Display{
+			PublicDevice: structs.PublicDevice{
+				Name:  group.Displays[i].ID.GetName(),
+				Input: cg.Inputs[0].ID.GetName(),
+			},
+			Blanked: BoolP(false),
+		})
+	}
+
+	// change the audio devices
+	audioDevices, err := cg.GetMediaAudioDeviceIDs(c.uiConfig.Presets)
+	if err != nil {
+		c.Warn("failed to become an inactive minion", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get media audio device ids: %w", err))
+		return
+	}
+
+	for i := range audioDevices {
+		state.AudioDevices = append(state.AudioDevices, structs.AudioDevice{
+			PublicDevice: structs.PublicDevice{
+				Name: group.Displays[i].ID.GetName(),
+			},
+			Muted: BoolP(false),
+		})
+	}
+
+	// update lazarette
+	c.lazUpdates <- lazMessage{
+		Key: lazSharing + string(msg.Group),
+		Data: lazShareData{
+			State:  stateIsInactiveMinion,
+			Master: group.ShareInfo.Master,
+		},
+	}
+
+	// don't take longer than 5 seconds
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// send the api request
+	if err := c.SendAPIRequest(ctx, state); err != nil {
+		c.Warn("failed to become an inactive minion", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("failed to become an inactive minion: %w", err))
+		return
+	}
+
+	c.Out <- StringMessage("becameInactive", "")
 }

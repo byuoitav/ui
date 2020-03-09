@@ -81,7 +81,7 @@ func GetControlGroupByDisplayGroupID(groups map[string]ControlGroup, id ID) (Con
 func (r *Room) GetAllDisplayGroups() DisplayGroups {
 	var groups DisplayGroups
 
-	for k, _ := range r.ControlGroups {
+	for k := range r.ControlGroups {
 		groups = append(groups, r.ControlGroups[k].DisplayGroups...)
 	}
 
@@ -107,4 +107,14 @@ func (c *Client) GetPresetByName(name string) (Preset, error) {
 	}
 
 	return Preset{}, fmt.Errorf("preset %q not found", name)
+}
+
+func (cg *ControlGroup) GetMediaAudioDeviceIDs(presets []Preset) ([]ID, error) {
+	for i := range presets {
+		if string(cg.ID) == presets[i].Name {
+			return StringsToIDs(presets[i].AudioDevices), nil
+		}
+	}
+
+	return nil, fmt.Errorf("preset %q not found", cg.ID)
 }

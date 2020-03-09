@@ -239,7 +239,7 @@ export class BFFService {
 
           case "refresh":
             console.log("refreshing!");
-            location.assign("http://" + location.hostname);
+            window.location.reload()
             break;
 
           default:
