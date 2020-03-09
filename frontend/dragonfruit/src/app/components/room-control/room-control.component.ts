@@ -104,7 +104,7 @@ export class RoomControlComponent implements OnInit {
     if (this.room && Object.keys(this.room.controlGroups).length == 1) {
       this._roomRef.logout();
     } else {
-      this.router.navigate(["../"], { relativeTo: this.route });
+      this.router.navigate(["../../"], { relativeTo: this.route });
     }
   };
 
