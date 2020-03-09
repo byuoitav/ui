@@ -105,7 +105,7 @@ func (c *Client) GetRoom() Room {
 							options = append(options, option)
 						}
 					}
-					group.ShareInfo.Options = options
+					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, options)
 				}
 			case shareData.State == stateIsMaster:
 				group.ShareInfo.State = shareData.State
@@ -127,7 +127,7 @@ func (c *Client) GetRoom() Room {
 							options = append(options, option)
 						}
 					}
-					group.ShareInfo.Options = options
+					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, options)
 				}
 			}
 
