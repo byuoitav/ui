@@ -1,4 +1,21 @@
 <div class="row">
+  <div class="audio-group mobile">
+    <mat-divider></mat-divider>
+    <div class="group-label">
+      <span style="margin-left: 5px;">Media Audio</span>
+    </div>
+      <div class="audio-device">
+        <span class="device-name">{{cg?.name}}</span>
+        <volume-slider
+          [audioID]=""
+          [muted]="cg?.mediaAudio?.muted"
+          [level]="cg?.mediaAudio?.level"
+          [levelChange]="setVolume"
+          [muteChange]="setMute"
+          class="shorter"
+        ></volume-slider>
+      </div>
+  </div>
   <div *ngFor="let ag of cg?.audioGroups" class="audio-group mobile">
     <mat-divider></mat-divider>
     <div class="group-label">
@@ -19,7 +36,7 @@
       <div class="audio-device">
         <span class="device-name">{{ ad?.name }}</span>
         <volume-slider
-          [audioDevice]="ad"
+          [audioID]="ad?.id"
           [muted]="ad?.muted"
           [level]="ad?.level"
           [levelChange]="setVolume"
@@ -49,7 +66,7 @@
       <div class="audio-device">
         <span class="device-name">{{ ad?.name }}</span>
         <volume-slider
-          [audioDevice]="ad"
+          [audioID]="ad?.id"
           [muted]="ad?.muted"
           [level]="ad?.level"
           [levelChange]="setVolume"

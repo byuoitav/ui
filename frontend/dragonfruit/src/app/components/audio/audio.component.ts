@@ -21,14 +21,12 @@ export class AudioComponent implements OnInit {
 
   ngOnInit() {}
 
-  setVolume = (level: number, device: any) => {
-    const audioDevice = device as AudioDevice;
-    this._roomRef.setVolume(level, audioDevice.id);
+  setVolume = (level: number, audioID: string) => {
+    this._roomRef.setVolume(level, audioID);
   };
 
-  setMute = (muted: boolean, device: any) => {
-    const audioDevice = device as AudioDevice;
-    this._roomRef.setMuted(muted, audioDevice.id);
+  setMute = (muted: boolean, audioID: string) => {
+    this._roomRef.setMuted(muted, audioID);
   };
 
   // if there is at least one that is not muted

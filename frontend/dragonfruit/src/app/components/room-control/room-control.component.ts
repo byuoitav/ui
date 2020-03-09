@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { MatTabChangeEvent, MatTab } from "@angular/material";
+import { MatTabChangeEvent, MatTab, MatDialog } from "@angular/material";
 
 import { BFFService, RoomRef } from "src/app/services/bff.service";
 import {
@@ -11,6 +11,7 @@ import {
   PRESENT_TAB,
   HELP_TAB
 } from "../../../../../objects/control";
+import { SharingComponent } from 'src/app/dialogs/sharing/sharing.component';
 
 @Component({
   selector: "app-room-control",
@@ -54,7 +55,8 @@ export class RoomControlComponent implements OnInit {
   constructor(
     public bff: BFFService,
     public route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) {
     this.route.data.subscribe(data => {
       this._roomRef = data.roomRef;
@@ -112,5 +114,11 @@ export class RoomControlComponent implements OnInit {
     const newURL =
       currentURL.substr(0, currentURL.lastIndexOf("/") + 1) + this.selectedTab;
     this.router.navigate([newURL]);
+  }
+
+  openSharing = () => {
+    this.dialog.open(SharingComponent, {data: {
+      roomRef: this._roomRef,
+    }});
   }
 }

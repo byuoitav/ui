@@ -23,7 +23,7 @@ export class VolumeSliderComponent implements OnInit {
   @AngularInput() levelChange: SliderAction;
   @AngularInput() muteChange: SliderAction;
 
-  @AngularInput() audioDevice: AudioDevice;
+  @AngularInput() audioID: string;
 
   @AngularInput() master = false;
 
@@ -49,8 +49,8 @@ export class VolumeSliderComponent implements OnInit {
       return;
     }
 
-    if (this.audioDevice) {
-      f(newLevel, this.audioDevice);
+    if (this.audioID) {
+      f(newLevel, this.audioID);
     } else {
       f(newLevel);
     }
@@ -62,8 +62,8 @@ export class VolumeSliderComponent implements OnInit {
       return;
     }
 
-    if (this.audioDevice) {
-      f(mute, this.audioDevice);
+    if (this.audioID) {
+      f(mute, this.audioID);
     } else {
       f(mute);
     }

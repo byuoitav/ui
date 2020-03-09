@@ -7,7 +7,6 @@ import {
   Input,
   IconPair
 } from "../../../../../objects/control";
-// import { IControlTab } from "../control-tab/icontrol-tab";
 
 class Page {
   pageOption: string;
@@ -59,6 +58,7 @@ export class DisplayComponent implements OnInit {
 
   ngOnChanges() {
     if (this.cg) {
+      console.log(this.cg);
       this.generatePages();
     }
   }
@@ -77,37 +77,30 @@ export class DisplayComponent implements OnInit {
     let p = new Page();
     p.displays = [];
 
-    while (displayIndex < this.cg.displayGroups.length) {
-      
-      
+    for (let i = 0; i < this.cg.displayGroups.length; i++) {
+      p.weight += this.cg.displayGroups[i].displays.length;
+      p.displays.push(this.cg.displayGroups[i]);
 
-      // // set the length of the outputs to the weight of the page
-      // p.weight += this.cg.displayGroups[displayIndex].displays.length;
-      // p.displays.push(this.cg.displayGroups[displayIndex]);
-      // if (p.weight > 4) {
-      //   p.pageOption = "4";
-      // } else {
-      //   p.pageOption += "" + this.cg.displayGroups[displayIndex].displays.length;
-      // }
+      if (p.weight > 4) {
+        p.pageOption = "4";
+      } else {
+        p.pageOption += "" + this.cg.displayGroups[i].displays.length;
+      }
 
-      // // check to see if the weight is less than the max
-      // if (p.weight >= 4) {
-      //   // assign the page and move on to the next one
-      //   this.displayPages.push(p);
-      //   p = new Page();
-      // } else {
-      //   if (displayIndex === this.cg.displayGroups.length - 1) {
-      //     this.displayPages.push(p);
-      //   }
-      // }
-
-      displayIndex++;
+      if (p.weight >= 3) {
+        this.displayPages.push(p);
+        p = new Page();
+      } else {
+        if (i === this.cg.displayGroups.length - 1) {
+          this.displayPages.push(p);
+        }
+      }
     }
 
     console.log(this.displayPages);
 
     // set up the input pages
-    // this.cg.inputs.unshift(this.blankInput);
+    this.cg.inputs.unshift(this.blankInput);
     const fullPages = Math.floor(this.cg.inputs.length / 6);
     const remainderPage = this.cg.inputs.length % 6;
 
@@ -243,8 +236,11 @@ export class DisplayComponent implements OnInit {
   };
 
   setInput = (input: Input) => {
-    // this.selectedDisplay.input = input.id;
-    this._roomRef.setInput(this.selectedDisplay.id, input.id);
+    if (input.id === "blank" && !this.selectedDisplay.blanked) {
+      this._roomRef.setBlanked(this.selectedDisplay.id, true);
+    } else {
+      this._roomRef.setInput(this.selectedDisplay.id, input.id);
+    }
   };
 
   setVolume = (level: number) => {

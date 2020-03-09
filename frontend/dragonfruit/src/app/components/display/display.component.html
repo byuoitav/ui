@@ -53,7 +53,7 @@
                             <wide-button class="display" [data]="(p?.displays)[0]" [outputs]="(p?.displays)[0].displays" [input]="getInputInfo((p?.displays)[0].input)" (click)="selectedDisplayIdx = 0" [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"></wide-button>
                             <wide-button class="display" [data]="(p?.displays)[1]" [outputs]="(p?.displays)[1].displays" [input]="getInputInfo((p?.displays)[1].input)" (click)="selectedDisplayIdx = 1" [selected]="selectedDisplay?.id === (p?.displays)[1]?.id"></wide-button>
                         </div>
-                        <div *ngSwitchCase="'1'" [id]="'display-page' + i" class="display-row 1">
+                        <div *ngSwitchCase="'1'" [id]="'display-page' + i" class="display-row 1" [class.adjusted]="i > 0">
                             <wide-button class="display" [data]="(p?.displays)[0]" [outputs]="(p?.displays)[0].displays" [input]="getInputInfo((p?.displays)[0].input)" (click)="selectedDisplayIdx = 0" [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"></wide-button>
                         </div>
                     </ng-container>

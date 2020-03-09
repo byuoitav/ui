@@ -47,6 +47,7 @@ export class SquareButtonComponent extends SquareButtonBase implements OnInit {
   }
 
   do(f: ButtonAction) {
+    if (this.selected) { return; }
     
     this.toggleSelect();
     document.getElementById(this.title).classList.toggle("feedback")

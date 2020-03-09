@@ -52,8 +52,20 @@ export class RoomRef {
   setInput = (displayID: string, inputID: string) => {
     const kv = {
       setInput: {
-        display: displayID,
+        displayGroup: displayID,
         input: inputID
+      }
+    };
+
+    this.loading = true;
+    this._ws.send(JSON.stringify(kv));
+  };
+
+  setBlanked = (displayID: string, blanked: boolean) => {
+    const kv = {
+      setBlanked: {
+        displayGroup: displayID,
+        blanked: blanked
       }
     };
 
@@ -115,6 +127,31 @@ export class RoomRef {
 
     this._ws.send(JSON.stringify(req));
   };
+
+  startSharing = (masterID: string, optionsIDs: string[]) => {
+    const kv = {
+      setSharing: {
+        status: true,
+        master: masterID,
+        options: optionsIDs
+      }
+    }
+
+    this.loading = true;
+    this._ws.send(JSON.stringify(kv));
+  }
+
+  stopSharing = (masterID: string) => {
+    const kv = {
+      setSharing: {
+        status: false,
+        master: masterID
+      }
+    }
+
+    this.loading = true;
+    this._ws.send(JSON.stringify(kv));
+  }
 }
 
 @Injectable({

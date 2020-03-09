@@ -9,7 +9,9 @@
       }}
     </button>
         <span class="room-title">{{ controlGroup?.name }}</span>
-        <div class="empty-thing"></div>
+        <div class="empty-thing">
+            <button mat-button color="primary" class="share-button" (click)="openSharing()">Share</button>
+        </div>
     </div>
     <mat-progress-bar *ngIf="_roomRef.loading" [mode]="'indeterminate'" color="primary" class="mpb"></mat-progress-bar>
     <mat-tab-group [headerPosition]="tabPosition" [disableRipple]="true" (selectedTabChange)="tabChange($event.index)" [selectedIndex]="selectedTab">
@@ -31,7 +33,7 @@
           ><span>Audio</span></span>
             </ng-template>
 
-            <app-audio *ngIf="controlGroup?.audioGroups" [_roomRef]="_roomRef" [cg]="controlGroup"></app-audio>
+            <app-audio [_roomRef]="_roomRef" [cg]="controlGroup"></app-audio>
         </mat-tab>
 
         <!-- present tab -->

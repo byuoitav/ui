@@ -31,6 +31,11 @@ $body-height: calc(#{$group-height} - #{$label-height});
     padding-left: 5px;
 }
 
+.share-button {
+    justify-self: flex-end;
+    font-size: 12pt;
+}
+
 .exit-icon {
     transform: rotate(180deg);
     font-size: 16pt;
@@ -40,6 +45,8 @@ $body-height: calc(#{$group-height} - #{$label-height});
 
 .empty-thing {
     width: 33%;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .tab-icon {
