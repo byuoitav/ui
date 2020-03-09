@@ -31,10 +31,9 @@ export class RoomControlComponent implements OnInit {
     return undefined;
   }
 
-  public _controlGroupID: string;
   get controlGroup(): ControlGroup {
-    if (this.room && this._controlGroupID) {
-      return this.room.controlGroups[this._controlGroupID];
+    if (this.room && this.room.selectedControlGroup) {
+      return this.room.controlGroups[this.room.selectedControlGroup];
     }
 
     return undefined;
@@ -60,10 +59,15 @@ export class RoomControlComponent implements OnInit {
   ) {
     this.route.data.subscribe(data => {
       this._roomRef = data.roomRef;
+
+      this._roomRef.subject().subscribe(room => {
+        if (!room.selectedControlGroup) {
+          this.router.navigate(["../../"], { relativeTo: this.route });
+        }
+      });
     });
 
     this.route.params.subscribe(params => {
-      this._controlGroupID = params["groupid"];
       this.selectedTab = +params["tab"];
 
       // TODO make sure the room has this group, if not, redirect up?
@@ -104,7 +108,7 @@ export class RoomControlComponent implements OnInit {
     if (this.room && Object.keys(this.room.controlGroups).length == 1) {
       this._roomRef.logout();
     } else {
-      this.router.navigate(["../../"], { relativeTo: this.route });
+      this._roomRef.selectControlGroup("");
     }
   };
 

@@ -30,20 +30,8 @@ export class SelectionComponent implements OnInit {
       this._roomRef = data.roomRef;
 
       this._roomRef.subject().subscribe(room => {
-        if (room.selectedControlGroup && room.selectedControlGroup.length > 0) {
-          this.selectControlGroup(room.selectedControlGroup);
-        }
-
-        switch (Object.keys(room.controlGroups).length) {
-          case 0:
-            // redirect back to login,
-            // say that something is wrong with this room?
-            break;
-          case 1:
-            this.selectControlGroup(Object.keys(room.controlGroups)[0]);
-            break;
-          default:
-            break;
+        if (room.selectedControlGroup) {
+          this.router.navigate(["./" + room.selectedControlGroup + "/0"], { relativeTo: this.route });
         }
       });
     });
@@ -65,8 +53,7 @@ export class SelectionComponent implements OnInit {
       });
   };
 
-  selectControlGroup = (cg: string) => {
-    console.log("selecting", cg);
-    this.router.navigate(["./" + cg + "/0"], { relativeTo: this.route });
+  selectControlGroup = (id: string) => {
+    this._roomRef.selectControlGroup(id);
   };
 }

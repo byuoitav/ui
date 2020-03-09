@@ -152,6 +152,17 @@ export class RoomRef {
     this.loading = true;
     this._ws.send(JSON.stringify(kv));
   }
+
+  selectControlGroup = (id: string) => {
+    const msg = {
+      selectControlGroup: {
+        id: id
+      }
+    }
+
+    this.loading = true;
+    this._ws.send(JSON.stringify(msg));
+  };
 }
 
 @Injectable({

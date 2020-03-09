@@ -17,7 +17,7 @@ type SelectControlGroupMessage struct {
 }
 
 // Do .
-func (s SelectControlGroupMessage) Do(c *Client, data []byte) {
+func (s SelectControlGroup) Do(c *Client, data []byte) {
 	var msg SelectControlGroupMessage
 	if err := json.Unmarshal(data, &msg); err != nil {
 		c.Warn("invalid value for selectControlGroup", zap.Error(err))
@@ -25,23 +25,26 @@ func (s SelectControlGroupMessage) Do(c *Client, data []byte) {
 		return
 	}
 
-	// Validate that the control group is real
-	exists := false
-	for _, cg := range c.GetRoom().ControlGroups {
-		if cg.ID == msg.ID {
-			exists = true
-			break
+	var id string
+
+	if len(msg.ID) > 0 {
+		// Validate that the control group is real
+		for _, cg := range c.GetRoom().ControlGroups {
+			if cg.ID == msg.ID {
+				id = string(cg.ID)
+				break
+			}
+		}
+
+		if len(id) == 0 {
+			c.Warn("invalid control group", zap.String("id", string(msg.ID)))
+			c.Out <- ErrorMessage(fmt.Errorf("invalid control group: %s", msg.ID))
+			return
 		}
 	}
 
-	if !exists {
-		c.Warn("invalid control group", zap.String("control-group", msg.ID.GetName()))
-		c.Out <- ErrorMessage(fmt.Errorf("invalid control group: %s", msg.ID.GetName()))
-		return
-	}
-
 	// Otherwise set the control group on the client
-	c.selectedControlGroupID = msg.ID.GetName()
+	c.selectedControlGroupID = id
 
 	// And send the updated room to the front end
 	roomMsg, err := JSONMessage("room", c.GetRoom())

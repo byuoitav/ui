@@ -13,8 +13,8 @@
   <square-button
     class="square-button"
     *ngFor="let cg of room?.controlGroups | keyvalue"
-    [data]="cg?.value"
-    [icon]="cg?.value.name"
+    [data]="cg?.key"
+    [icon]="cg?.value?.name"
     [showIcon]="false"
     [click]="selectControlGroup"
     [press]="selectControlGroup"
