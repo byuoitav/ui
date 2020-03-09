@@ -20,7 +20,7 @@ export class LockScreenAudioComponent implements OnInit {
 
   show(roomRef: RoomRef) {
     this._show = true;
-    this.roomRef = roomRef;
+    this.roomRef = roomRef; 
     this.roomRef.subject().subscribe((r) => {
       if (r) {
         this.cg = r.controlGroups[r.selectedControlGroup];
