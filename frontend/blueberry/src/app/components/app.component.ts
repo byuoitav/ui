@@ -90,8 +90,6 @@ export class AppComponent {
   }
 
   showManagement = (): boolean => {
-    console.log(this.powerIsOff());
-    console.log(this.bff.locked);
     if (this.dialog.openDialogs.length > 0) {
       return false;
     }
