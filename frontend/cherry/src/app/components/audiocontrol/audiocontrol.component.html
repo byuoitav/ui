@@ -3,13 +3,12 @@
     #tabs
     color="accent"
     class="mat-tab-label-darker">
-    <ng-container *ngIf="cg?.audioGroups?.length == 1 && cg?.audioGroups[0]?.name == 'Display Volume Mixing'">
+    <ng-container *ngIf="cg?.audioGroups?.length == 0">
         Nothing to see here!
     </ng-container>
-    <ng-container *ngIf="cg?.audioGroups?.length > 1 || cg?.audioGroups[0].name != 'Display Volume Mixing'">
+    <ng-container *ngIf="cg?.audioGroups?.length > 0">
         <ng-container *ngFor="let i of cg?.audioGroups">
-            <mat-tab *ngIf="i.name != 'Display Volume Mixing'" [label]="i.name">
-            <!-- <mat-tab label="Displays"> -->
+            <mat-tab [label]="i.name">
 
                 <!-- If there aren't enough to make 2 pages -->
                 <div class="devices less" *ngIf="i?.audioDevices.length <= 3">
