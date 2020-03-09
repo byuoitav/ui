@@ -252,4 +252,13 @@ export class DisplayComponent implements OnInit {
     // mute the volume in some way
     this._roomRef.setMuted(muted);
   };
+
+  isSelected = (id: string): boolean => {
+    if (id === "blank" && this.selectedDisplay.blanked){
+      return true;
+    } else if (id === this.selectedDisplay.input && !this.selectedDisplay.blanked) {
+      return true; 
+    }
+    return false;
+  };
 }

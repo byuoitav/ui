@@ -33,6 +33,7 @@ export class SelectionComponent implements OnInit {
         if (room.selectedControlGroup && room.selectedControlGroup.length > 0) {
           this.selectControlGroup(room.selectedControlGroup);
         }
+
         switch (Object.keys(room.controlGroups).length) {
           case 0:
             // redirect back to login,
