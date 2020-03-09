@@ -1,4 +1,4 @@
-<div [id]="title" class="wrapper" [class.empty]="empty" (click)="do(click)" (press)="do(press)" [class.selected]="selected">
+<div [id]="id" class="wrapper" [class.empty]="empty" (click)="do(click)" (press)="do(press)" [class.selected]="selected">
     <!-- <div class="inside"> -->
     <button *ngIf="showIcon" class="button-icon material-icons" mat-icon-button [disableRipple]=true><mat-icon>{{icon}}</mat-icon></button>
     <div *ngIf="!showIcon" class="icon-title">

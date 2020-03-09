@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from "@angular/core";
+import { Component, OnInit, HostListener, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTabChangeEvent, MatTab, MatDialog } from "@angular/material";
 
@@ -12,6 +12,7 @@ import {
   HELP_TAB
 } from "../../../../../objects/control";
 import { SharingComponent } from 'src/app/dialogs/sharing/sharing.component';
+import { DisplayComponent } from '../display/display.component';
 
 @Component({
   selector: "app-room-control",
@@ -41,6 +42,8 @@ export class RoomControlComponent implements OnInit {
 
   tabPosition = "below";
   selectedTab: number | string;
+
+  @ViewChild("displayComp", {static: false}) displayComp: DisplayComponent;
 
   @HostListener("window:resize", ["$event"])
   onResize(event) {
@@ -123,6 +126,7 @@ export class RoomControlComponent implements OnInit {
   openSharing = () => {
     this.dialog.open(SharingComponent, {data: {
       roomRef: this._roomRef,
+      displayIdx: this.displayComp.selectedDisplayIdx
     }});
   }
 }
