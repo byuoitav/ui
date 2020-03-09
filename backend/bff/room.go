@@ -81,6 +81,10 @@ func (c *Client) GetRoom() Room {
 
 			// Add share info
 			shareData, err := c.getShareData(group.ID)
+			/*
+				fmt.Printf("State: %v\n", shareData.State)
+				fmt.Printf("Display Count: %v\n", preset)
+			*/
 			switch {
 			//If you are blueberry and have no shareble displays
 			case len(preset.ShareableDisplays) == 0 && len(preset.Displays) == 1:

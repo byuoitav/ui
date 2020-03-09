@@ -228,6 +228,7 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 				PublicDevice: structs.PublicDevice{
 					Name:  disp.ID.GetName(),
 					Input: input,
+					Power: "on",
 				},
 			})
 		}
