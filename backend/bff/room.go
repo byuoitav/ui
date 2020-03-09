@@ -110,7 +110,7 @@ func (c *Client) GetRoom() Room {
 			case shareData.State == stateIsMaster:
 				group.ShareInfo.State = shareData.State
 			case shareData.State == stateIsActiveMinion || shareData.State == stateIsInactiveMinion:
-				fmt.Printf("We are %v\n", shareData.State)
+				//fmt.Printf("We are %v\n", shareData.State)
 				group.ShareInfo.State = shareData.State
 				group.ShareInfo.Master = shareData.Master
 			default:
@@ -168,7 +168,7 @@ func (c *Client) GetRoom() Room {
 
 		// create an extra input if our ONLY display group is an inactive minion
 		// the input will let them become an active minion again
-		fmt.Printf("DisplayGroup Count: %v || State: %v\n", len(cg.DisplayGroups), cg.DisplayGroups[0].ShareInfo.State)
+		//fmt.Printf("DisplayGroup Count: %v || State: %v\n", len(cg.DisplayGroups), cg.DisplayGroups[0].ShareInfo.State)
 		if len(cg.DisplayGroups) == 1 && cg.DisplayGroups[0].ShareInfo.State == stateIsInactiveMinion {
 			cg.Inputs = append(cg.Inputs, Input{
 				ID: ID(inputBecomeActive),
