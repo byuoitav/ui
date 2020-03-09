@@ -79,15 +79,30 @@ func (c *Client) GetRoom() Room {
 				},
 			}
 
+			// Add share info
 			shareData, err := c.getShareData(group.ID)
 			switch {
-			case len(preset.ShareableDisplays) == 0:
+			//If you are blueberry and have no shareble displays
+			case len(preset.ShareableDisplays) == 0 && len(preset.Displays) == 1:
 				group.ShareInfo.State = stateCantShare
+			// No shareable data found
 			case err != nil:
 				// if there is no share data (yet), but there are sharable displays
 				// then allow them to share to those options
 				group.ShareInfo.State = stateCanShare
-				group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
+
+				// blueberry case
+				if len(preset.Displays) == 1 {
+					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
+				} else { // cherry case
+					var options []string
+					for _, option := range preset.Displays {
+						if option != name {
+							options = append(options, option)
+						}
+					}
+					group.ShareInfo.Options = options
+				}
 			case shareData.State == stateIsMaster:
 				group.ShareInfo.State = shareData.State
 			case shareData.State == stateIsActiveMinion || shareData.State == stateIsInactiveMinion:
@@ -95,8 +110,20 @@ func (c *Client) GetRoom() Room {
 				group.ShareInfo.Master = shareData.Master
 			default:
 				group.ShareInfo.State = shareData.State
-				group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
 				group.ShareInfo.Master = shareData.Master
+
+				// blueberry case
+				if len(preset.Displays) == 1 {
+					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
+				} else { // cherry case
+					var options []string
+					for _, option := range preset.Displays {
+						if option != name {
+							options = append(options, option)
+						}
+					}
+					group.ShareInfo.Options = options
+				}
 			}
 
 			group.Displays = append(group.Displays, IconPair{
