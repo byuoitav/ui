@@ -46,6 +46,23 @@
       </div>
     </ng-container>
   </div>
+  <div class="audio-group desktop">
+    <mat-divider></mat-divider>
+    <div class="group-label">
+      <span style="margin-left: 5px;">Media Audio</span>
+    </div>
+      <div class="audio-device">
+        <span class="device-name">{{cg?.name}}</span>
+        <volume-slider
+          [audioID]=""
+          [muted]="cg?.mediaAudio?.muted"
+          [level]="cg?.mediaAudio?.level"
+          [levelChange]="setVolume"
+          [muteChange]="setMute"
+          class="shorter"
+        ></volume-slider>
+      </div>
+  </div>
   <div *ngFor="let ag of cg?.audioGroups" class="audio-group desktop">
     <mat-divider></mat-divider>
     <div class="group-label">
