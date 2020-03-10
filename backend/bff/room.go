@@ -3,6 +3,7 @@ package bff
 import (
 	"errors"
 	"fmt"
+	"sort"
 )
 
 // GetRoom .
@@ -170,6 +171,13 @@ func (c *Client) GetRoom() Room {
 				cg.DisplayGroups = append(cg.DisplayGroups, v)
 			}
 		}
+
+		// Now sort the display groups by size
+		fmt.Println(cg.DisplayGroups)
+		sort.SliceStable(cg.DisplayGroups, func(i, j int) bool {
+			return len(cg.DisplayGroups[i].Displays) > len(cg.DisplayGroups[j].Displays)
+		})
+		fmt.Println(cg.DisplayGroups)
 
 		cg.PoweredOn = poweredOn
 
