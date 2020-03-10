@@ -140,25 +140,27 @@ func (c *Client) GetRoom() Room {
 			cg.DisplayGroups = append(cg.DisplayGroups, group)
 		}
 
-		copy(cg.fullDisplayGroups, cg.DisplayGroups)
+		cg.fullDisplayGroups = append(cg.fullDisplayGroups, cg.DisplayGroups...)
 
 		// check displays groups that i need to get rid of (cherry)
 		if len(cg.DisplayGroups) > 1 {
-			keep := make(map[ID]DisplayGroup)
+			var keep DisplayGroups
 
 			for i := range cg.DisplayGroups {
 				if cg.DisplayGroups[i].ShareInfo.State == stateCanShare || cg.DisplayGroups[i].ShareInfo.State == stateIsMaster {
-					keep[cg.DisplayGroups[i].ID] = cg.DisplayGroups[i]
+					keep = append(keep, cg.DisplayGroups[i])
 				}
 			}
 
 			// add minions to their masters
 			for i := range cg.DisplayGroups {
 				if cg.DisplayGroups[i].ShareInfo.State == stateIsActiveMinion {
-					dg := keep[cg.DisplayGroups[i].ShareInfo.Master]
-					dg.Displays = append(dg.Displays, cg.DisplayGroups[i].Displays...)
-
-					keep[cg.DisplayGroups[i].ShareInfo.Master] = dg
+					// find the master
+					for j := range keep {
+						if keep[j].ID == cg.DisplayGroups[i].ShareInfo.Master {
+							keep[j].Displays = append(keep[j].Displays, cg.DisplayGroups[i].Displays...)
+						}
+					}
 				}
 			}
 
