@@ -140,6 +140,33 @@ func (c *Client) GetRoom() Room {
 			cg.DisplayGroups = append(cg.DisplayGroups, group)
 		}
 
+		// check displays groups that i need to get rid of (cherry)
+		if len(cg.DisplayGroups) > 1 {
+			keep := make(map[ID]DisplayGroup)
+
+			for i := range cg.DisplayGroups {
+				if cg.DisplayGroups[i].ShareInfo.State == stateCanShare || cg.DisplayGroups[i].ShareInfo.State == stateIsMaster {
+					keep[cg.DisplayGroups[i].ID] = cg.DisplayGroups[i]
+				}
+			}
+
+			// add minions to their masters
+			for i := range cg.DisplayGroups {
+				if cg.DisplayGroups[i].ShareInfo.State == stateIsActiveMinion {
+					dg := keep[cg.DisplayGroups[i].ShareInfo.Master]
+					dg.Displays = append(dg.Displays, cg.DisplayGroups[i].Displays...)
+
+					keep[cg.DisplayGroups[i].ShareInfo.Master] = dg
+				}
+			}
+
+			// recreate display groups for this controlgroup
+			cg.DisplayGroups = nil
+			for _, v := range keep {
+				cg.DisplayGroups = append(cg.DisplayGroups, v)
+			}
+		}
+
 		cg.PoweredOn = poweredOn
 
 		// create the list of inputs available in this control group
