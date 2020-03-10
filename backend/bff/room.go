@@ -167,17 +167,13 @@ func (c *Client) GetRoom() Room {
 
 			// recreate display groups for this controlgroup
 			cg.DisplayGroups = nil
-			for _, v := range keep {
-				cg.DisplayGroups = append(cg.DisplayGroups, v)
-			}
+			cg.DisplayGroups = append(cg.DisplayGroups, keep...)
 		}
 
 		// Now sort the display groups by size
-		fmt.Println(cg.DisplayGroups)
 		sort.SliceStable(cg.DisplayGroups, func(i, j int) bool {
 			return len(cg.DisplayGroups[i].Displays) > len(cg.DisplayGroups[j].Displays)
 		})
-		fmt.Println(cg.DisplayGroups)
 
 		cg.PoweredOn = poweredOn
 
