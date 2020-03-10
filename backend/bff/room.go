@@ -140,6 +140,8 @@ func (c *Client) GetRoom() Room {
 			cg.DisplayGroups = append(cg.DisplayGroups, group)
 		}
 
+		copy(cg.fullDisplayGroups, cg.DisplayGroups)
+
 		// check displays groups that i need to get rid of (cherry)
 		if len(cg.DisplayGroups) > 1 {
 			keep := make(map[ID]DisplayGroup)

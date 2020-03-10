@@ -22,10 +22,11 @@ type ControlGroup struct {
 
 	PoweredOn bool `json:"poweredOn"`
 
-	DisplayGroups DisplayGroups  `json:"displayGroups,omitempty"`
-	Inputs        []Input        `json:"inputs"`
-	AudioGroups   []AudioGroup   `json:"audioGroups,omitempty"`
-	PresentGroups []PresentGroup `json:"presentGroups,omitempty"`
+	fullDisplayGroups DisplayGroups
+	DisplayGroups     DisplayGroups  `json:"displayGroups,omitempty"`
+	Inputs            []Input        `json:"inputs"`
+	AudioGroups       []AudioGroup   `json:"audioGroups,omitempty"`
+	PresentGroups     []PresentGroup `json:"presentGroups,omitempty"`
 
 	MediaAudio struct {
 		Level int  `json:"level"`

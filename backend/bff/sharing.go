@@ -261,7 +261,6 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 				},
 				Muted: BoolP(true),
 			}
-
 		}
 	}
 

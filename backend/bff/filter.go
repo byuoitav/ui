@@ -82,7 +82,7 @@ func (r *Room) GetAllDisplayGroups() DisplayGroups {
 	var groups DisplayGroups
 
 	for k := range r.ControlGroups {
-		groups = append(groups, r.ControlGroups[k].DisplayGroups...)
+		groups = append(groups, r.ControlGroups[k].fullDisplayGroups...)
 	}
 
 	return groups
