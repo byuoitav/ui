@@ -18,7 +18,8 @@ export class HomeComponent implements OnInit {
   @AngularInput() roomRef: RoomRef;
   cg: ControlGroup;
   mirrorMaster: Input;
-  ref: MatDialogRef<MinionComponent>;
+  minionRef: MatDialogRef<MinionComponent>;
+  sharingRef: MatDialogRef<SharingComponent>;
 
   @ViewChild(AudioComponent, {static: false}) public audio: AudioComponent;
   @ViewChild(ProjectorComponent, {static: false}) public screen: ProjectorComponent;
@@ -31,6 +32,15 @@ export class HomeComponent implements OnInit {
         if (r) {
           if (!this.cg) {
             this.cg = r.controlGroups[r.selectedControlGroup];
+            if (this.cg.displayGroups[0].shareInfo.state == 3 && !this.dialog.openDialogs.includes(this.minionRef)) {
+              this.minionRef = this.dialog.open(MinionComponent, {
+                width: "70vw",
+                data: {
+                  roomRef: this.roomRef
+                },
+                disableClose: true
+              });
+            }
           } else {
             this.applyChanges(r.controlGroups[r.selectedControlGroup])
           }
@@ -41,14 +51,20 @@ export class HomeComponent implements OnInit {
 
   applyChanges(tempCG: ControlGroup) {
     this.cg.displayGroups[0].shareInfo.state = tempCG.displayGroups[0].shareInfo.state;
-    if (this.cg.displayGroups[0].shareInfo.state == 3 && !this.dialog.openDialogs.includes(this.ref)) {
-      this.ref = this.dialog.open(MinionComponent, {
+    if (this.cg.displayGroups[0].shareInfo.state == 3 && !this.dialog.openDialogs.includes(this.minionRef)) {
+      this.minionRef = this.dialog.open(MinionComponent, {
         width: "70vw",
         data: {
           roomRef: this.roomRef
         },
         disableClose: true
       });
+    }
+    if (this.cg.displayGroups[0].shareInfo.state == 1 && this.dialog.openDialogs.includes(this.minionRef)) {
+      this.minionRef.close();
+    }
+    if (this.cg.displayGroups[0].shareInfo.state != 1 && this.dialog.openDialogs.includes(this.sharingRef)) {
+      this.sharingRef.close();
     }
   }
   
@@ -67,7 +83,7 @@ export class HomeComponent implements OnInit {
   }
 
   openSharing = () => {
-    this.dialog.open(SharingComponent, {data: this.roomRef});
+    this.sharingRef = this.dialog.open(SharingComponent, {data: this.roomRef});
   }
 
   openMobileControl = () => {
