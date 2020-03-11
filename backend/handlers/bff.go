@@ -55,6 +55,8 @@ func (b *BFF) NewClient(c echo.Context) error {
 	defer ws.Close()
 
 	closeWithReason := func(msg string) error {
+		log.P.Warn("unable to create new client", zap.String("error", msg))
+
 		// max control frame size is 125 bytes (https://tools.ietf.org/html/rfc6455#section-5.5)
 		cmsg := websocket.FormatCloseMessage(4000, msg)
 		if len(cmsg) > 125 {
