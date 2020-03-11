@@ -3,6 +3,7 @@ package bff
 import (
 	"errors"
 	"fmt"
+	"sort"
 )
 
 // GetRoom .
@@ -79,24 +80,56 @@ func (c *Client) GetRoom() Room {
 				},
 			}
 
+			// Add share info
 			shareData, err := c.getShareData(group.ID)
+			/*
+				fmt.Printf("State: %v\n", shareData.State)
+				fmt.Printf("Display Count: %v\n", preset)
+			*/
 			switch {
-			case len(preset.ShareableDisplays) == 0:
+			//If you are blueberry and have no shareble displays
+			case len(preset.ShareableDisplays) == 0 && len(preset.Displays) == 1:
 				group.ShareInfo.State = stateCantShare
+			// No shareable data found
 			case err != nil:
 				// if there is no share data (yet), but there are sharable displays
 				// then allow them to share to those options
 				group.ShareInfo.State = stateCanShare
-				group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
+
+				// blueberry case
+				if len(preset.Displays) == 1 {
+					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
+				} else { // cherry case
+					var options []string
+					for _, option := range preset.Displays {
+						if option != name {
+							options = append(options, option)
+						}
+					}
+					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, options)
+				}
 			case shareData.State == stateIsMaster:
 				group.ShareInfo.State = shareData.State
 			case shareData.State == stateIsActiveMinion || shareData.State == stateIsInactiveMinion:
+				//fmt.Printf("We are %v\n", shareData.State)
 				group.ShareInfo.State = shareData.State
 				group.ShareInfo.Master = shareData.Master
 			default:
 				group.ShareInfo.State = shareData.State
-				group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
 				group.ShareInfo.Master = shareData.Master
+
+				// blueberry case
+				if len(preset.Displays) == 1 {
+					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
+				} else { // cherry case
+					var options []string
+					for _, option := range preset.Displays {
+						if option != name {
+							options = append(options, option)
+						}
+					}
+					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, options)
+				}
 			}
 
 			group.Displays = append(group.Displays, IconPair{
@@ -107,6 +140,40 @@ func (c *Client) GetRoom() Room {
 
 			cg.DisplayGroups = append(cg.DisplayGroups, group)
 		}
+
+		cg.fullDisplayGroups = append(cg.fullDisplayGroups, cg.DisplayGroups...)
+
+		// check displays groups that i need to get rid of (cherry)
+		if len(cg.DisplayGroups) > 1 {
+			var keep DisplayGroups
+
+			for i := range cg.DisplayGroups {
+				if cg.DisplayGroups[i].ShareInfo.State == stateCanShare || cg.DisplayGroups[i].ShareInfo.State == stateIsMaster {
+					keep = append(keep, cg.DisplayGroups[i])
+				}
+			}
+
+			// add minions to their masters
+			for i := range cg.DisplayGroups {
+				if cg.DisplayGroups[i].ShareInfo.State == stateIsActiveMinion {
+					// find the master
+					for j := range keep {
+						if keep[j].ID == cg.DisplayGroups[i].ShareInfo.Master {
+							keep[j].Displays = append(keep[j].Displays, cg.DisplayGroups[i].Displays...)
+						}
+					}
+				}
+			}
+
+			// recreate display groups for this controlgroup
+			cg.DisplayGroups = nil
+			cg.DisplayGroups = append(cg.DisplayGroups, keep...)
+		}
+
+		// Now sort the display groups by size
+		sort.SliceStable(cg.DisplayGroups, func(i, j int) bool {
+			return len(cg.DisplayGroups[i].Displays) > len(cg.DisplayGroups[j].Displays)
+		})
 
 		cg.PoweredOn = poweredOn
 
@@ -136,6 +203,7 @@ func (c *Client) GetRoom() Room {
 
 		// create an extra input if our ONLY display group is an inactive minion
 		// the input will let them become an active minion again
+		//fmt.Printf("DisplayGroup Count: %v || State: %v\n", len(cg.DisplayGroups), cg.DisplayGroups[0].ShareInfo.State)
 		if len(cg.DisplayGroups) == 1 && cg.DisplayGroups[0].ShareInfo.State == stateIsInactiveMinion {
 			cg.Inputs = append(cg.Inputs, Input{
 				ID: ID(inputBecomeActive),
@@ -162,7 +230,7 @@ func (c *Client) GetRoom() Room {
 			}
 		}
 		if len(preset.AudioDevices) == 0 {
-			c.Out <- ErrorMessage(errors.New("Caleb was Actually right and caught a divide-by-zero error"))
+			c.Out <- ErrorMessage(errors.New("Caleb was actually right and caught a divide-by-zero error"))
 			cg.MediaAudio.Level = 69
 		} else {
 			cg.MediaAudio.Level /= len(preset.AudioDevices)

@@ -49,6 +49,8 @@ func (c *Client) HandleMessage(msg Message) {
 			c.CurrentPreset().Actions.HelpRequest.Do(c, v)
 		case "setSharing":
 			c.CurrentPreset().Actions.SetSharing.Do(c, v)
+		case "selectControlGroup":
+			c.CurrentPreset().Actions.SelectControlGroup.Do(c, v)
 		default:
 			// c.Warn("received message with unknown key", zap.String("key", k), zap.ByteString("val", v))
 			fmt.Printf("v: %s", v)

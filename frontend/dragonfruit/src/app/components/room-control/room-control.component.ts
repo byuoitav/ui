@@ -1,6 +1,6 @@
-import { Component, OnInit, HostListener } from "@angular/core";
+import { Component, OnInit, HostListener, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { MatTabChangeEvent, MatTab } from "@angular/material";
+import { MatTabChangeEvent, MatTab, MatDialog } from "@angular/material";
 
 import { BFFService, RoomRef } from "src/app/services/bff.service";
 import {
@@ -9,8 +9,11 @@ import {
   CONTROL_TAB,
   AUDIO_TAB,
   PRESENT_TAB,
-  HELP_TAB
+  HELP_TAB,
+  DisplayGroup
 } from "../../../../../objects/control";
+import { SharingComponent } from 'src/app/dialogs/sharing/sharing.component';
+import { DisplayComponent } from '../display/display.component';
 
 @Component({
   selector: "app-room-control",
@@ -30,17 +33,24 @@ export class RoomControlComponent implements OnInit {
     return undefined;
   }
 
-  public _controlGroupID: string;
   get controlGroup(): ControlGroup {
-    if (this.room && this._controlGroupID) {
-      return this.room.controlGroups[this._controlGroupID];
+    if (this.room && this.room.selectedControlGroup) {
+      return this.room.controlGroups[this.room.selectedControlGroup];
     }
 
     return undefined;
   }
 
+  get selectedDisplay(): DisplayGroup {
+    if (this.displayComp) {
+      return this.displayComp.selectedDisplay;
+    }
+  }
+
   tabPosition = "below";
   selectedTab: number | string;
+
+  @ViewChild("displayComp", {static: false}) displayComp: DisplayComponent;
 
   @HostListener("window:resize", ["$event"])
   onResize(event) {
@@ -54,14 +64,20 @@ export class RoomControlComponent implements OnInit {
   constructor(
     public bff: BFFService,
     public route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) {
     this.route.data.subscribe(data => {
       this._roomRef = data.roomRef;
+
+      this._roomRef.subject().subscribe(room => {
+        if (!room.selectedControlGroup) {
+          this.router.navigate(["../../"], { relativeTo: this.route });
+        }
+      });
     });
 
     this.route.params.subscribe(params => {
-      this._controlGroupID = params["groupid"];
       this.selectedTab = +params["tab"];
 
       // TODO make sure the room has this group, if not, redirect up?
@@ -102,7 +118,7 @@ export class RoomControlComponent implements OnInit {
     if (this.room && Object.keys(this.room.controlGroups).length == 1) {
       this._roomRef.logout();
     } else {
-      this.router.navigate(["../"], { relativeTo: this.route });
+      this._roomRef.selectControlGroup("");
     }
   };
 
@@ -112,5 +128,37 @@ export class RoomControlComponent implements OnInit {
     const newURL =
       currentURL.substr(0, currentURL.lastIndexOf("/") + 1) + this.selectedTab;
     this.router.navigate([newURL]);
+  }
+
+  // openSharing = () => {
+  //   this.dialog.open(SharingComponent, {data: {
+  //     roomRef: this._roomRef,
+  //     display: this.displayComp.selectedDisplay
+  //   }});
+  // }
+
+  // stopSharing() {
+  // }
+
+  getShareText(): string {
+    if (this.displayComp && this.displayComp.selectedDisplay.shareInfo.state === 1) {
+      return "Share";
+    }
+    if (this.displayComp && this.displayComp.selectedDisplay.shareInfo.state === 2) {
+      return "Stop Sharing";
+    }
+    return "";
+  }
+
+  handleSharing() {
+    if (this.displayComp.selectedDisplay.shareInfo.state === 1) {
+      this.dialog.open(SharingComponent, {data: {
+        roomRef: this._roomRef,
+        display: this.displayComp.selectedDisplay
+      }});
+    }
+    if (this.displayComp.selectedDisplay.shareInfo.state === 2) {
+      this._roomRef.stopSharing(this.displayComp.selectedDisplay.id);
+    }
   }
 }

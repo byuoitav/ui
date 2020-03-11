@@ -14,76 +14,74 @@
         color="accent"
         class="mat-tab-label-darker"
     >
-        <!-- <ng-container *ngIf="there is at least one display"> -->
-            <mat-tab *ngFor="let i of cg?.audioGroups" [label]="i.name">
+        <mat-tab *ngFor="let i of cg?.audioGroups" [label]="i.name">
 
-                <!-- If there aren't enough displays to make 2 pages -->
-                <div class="devices less" *ngIf="i?.audioDevices.length <= 3">
-                    <div class="device slider-container" *ngFor="let a of i?.audioDevices">
-                        <span class="volume-label">{{ a.name }}</span>
-                        <i class="material-icons">{{ a.icon }}</i>
-                        <volume
-                            class="volume display"
-                            [mute]="a?.muted"
-                            [level]="a?.level"
-                            (levelChange)="roomRef.setVolume($event, a?.id)"
-                            (muteChange)="roomRef.setMuted($event, a?.id)"
-                        >
-                        </volume>
+            <!-- If there aren't enough displays to make 2 pages -->
+            <div class="devices less" *ngIf="i?.audioDevices.length <= 3">
+                <div class="device slider-container" *ngFor="let a of i?.audioDevices">
+                    <span class="volume-label">{{ a.name }}</span>
+                    <i class="material-icons">{{ a.icon }}</i>
+                    <volume
+                        class="volume display"
+                        [mute]="a?.muted"
+                        [level]="a?.level"
+                        (levelChange)="roomRef.setVolume($event, a?.id)"
+                        (muteChange)="roomRef.setMuted($event, a?.id)"
+                    >
+                    </volume>
+                </div>
+            </div>
+
+            <!-- If there are enough for multiple pages -->
+            <div class="devices displays" *ngIf="i?.audioDevices.length > 3">
+                <div
+                    class="button left display"
+                >
+                    <mat-icon style="transform: scale(3)">keyboard_arrow_left</mat-icon>
+                </div>
+                <div class="mixers">
+                    <div class="sliders">
+                        <div class="device slider-container" *ngFor="let a of i?.audioDevices">
+                            <span>{{ a.name }}</span>
+                            <i class="material-icons">{{ a.icon }}</i>
+                            <volume
+                                class="volume display"
+                                [mute]="a?.muted"
+                                [level]="a?.level"
+                                (levelChange)="roomRef.setVolume($event, a?.id)"
+                                (muteChange)="roomRef.setMuted($event, a?.id)"
+                            >
+                            </volume>
+                        </div>
+                        <div class="slider-container">
+                            <div class="volume display"></div>
+                        </div>
+                        <div class="slider-container">
+                            <div class="volume display"></div>
+                        </div>
+                        <div class="slider-container">
+                            <div class="volume display"></div>
+                        </div>
+                        <div class="slider-container">
+                            <div class="volume display"></div>
+                        </div>
+                    </div>
+                    <div
+                        class="page-indicator"
+                    >
+                        <span
+                            class="dot"
+                        ></span>
                     </div>
                 </div>
 
-                <!-- If there are enough for multiple pages -->
-                <div class="devices displays" *ngIf="i?.audioDevices.length > 3">
-                    <div
-                        class="button left display"
-                    >
-                        <mat-icon style="transform: scale(3)">keyboard_arrow_left</mat-icon>
-                    </div>
-                    <div class="mixers">
-                        <div class="sliders">
-                            <div class="device slider-container" *ngFor="let a of i?.audioDevices">
-                                <span>{{ a.name }}</span>
-                                <i class="material-icons">{{ a.icon }}</i>
-                                <volume
-                                    class="volume display"
-                                    [mute]="a?.muted"
-                                    [level]="a?.level"
-                                    (levelChange)="roomRef.setVolume($event, a?.id)"
-                                    (muteChange)="roomRef.setMuted($event, a?.id)"
-                                >
-                                </volume>
-                            </div>
-                            <div class="slider-container">
-                                <div class="volume display"></div>
-                            </div>
-                            <div class="slider-container">
-                                <div class="volume display"></div>
-                            </div>
-                            <div class="slider-container">
-                                <div class="volume display"></div>
-                            </div>
-                            <div class="slider-container">
-                                <div class="volume display"></div>
-                            </div>
-                        </div>
-                        <div
-                            class="page-indicator"
-                        >
-                            <span
-                                class="dot"
-                            ></span>
-                        </div>
-                    </div>
-
-                    <div
-                        class="button right"
-                    >
-                        <mat-icon style="transform: scale(3)">keyboard_arrow_right</mat-icon>
-                    </div>
+                <div
+                    class="button right"
+                >
+                    <mat-icon style="transform: scale(3)">keyboard_arrow_right</mat-icon>
                 </div>
-            </mat-tab>
-        <!-- </ng-container> -->
+            </div>
+        </mat-tab>
     </mat-tab-group>
     <!-- <mat-progress-bar
         *ngIf="command in progress"

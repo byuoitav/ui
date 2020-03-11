@@ -33,7 +33,6 @@ export class RoomResolver implements Resolve<RoomRef> {
         .subscribe(
           val => {
             if (isRoom(val)) {
-              console.log("meet val", val);
               if (val.controlGroups[val.selectedControlGroup].poweredOn) {
                 observer.next(roomRef);
                 observer.complete();
