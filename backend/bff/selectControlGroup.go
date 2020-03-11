@@ -55,5 +55,4 @@ func (s SelectControlGroup) Do(c *Client, data []byte) {
 	}
 
 	c.Out <- roomMsg
-	return
 }
