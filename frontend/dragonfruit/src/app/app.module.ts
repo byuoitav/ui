@@ -38,6 +38,8 @@ import { HelpInfoComponent } from "./components/help/help-info/help-info.compone
 import { WideButtonComponent } from "./components/wide-button/wide-button.component";
 import { ErrorDialog } from "./dialogs/error/error.dialog";
 import { DisplayComponent } from './components/display/display.component';
+import { SharingComponent } from './dialogs/sharing/sharing.component';
+import { MirrorComponent } from './dialogs/mirror/mirror.component';
 
 @NgModule({
   declarations: [
@@ -56,7 +58,9 @@ import { DisplayComponent } from './components/display/display.component';
     HelpInfoComponent,
     WideButtonComponent,
     ErrorDialog,
-    DisplayComponent
+    DisplayComponent,
+    SharingComponent,
+    MirrorComponent
   ],
   imports: [
     BrowserModule,
@@ -88,7 +92,9 @@ import { DisplayComponent } from './components/display/display.component';
     AudioComponent,
     PresentComponent,
     HelpComponent,
-    ErrorDialog
+    ErrorDialog,
+    SharingComponent,
+    MirrorComponent
   ],
   bootstrap: [AppComponent]
 })

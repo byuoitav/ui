@@ -52,8 +52,20 @@ export class RoomRef {
   setInput = (displayID: string, inputID: string) => {
     const kv = {
       setInput: {
-        display: displayID,
+        displayGroup: displayID,
         input: inputID
+      }
+    };
+
+    this.loading = true;
+    this._ws.send(JSON.stringify(kv));
+  };
+
+  setBlanked = (displayID: string, blanked: boolean) => {
+    const kv = {
+      setBlanked: {
+        displayGroup: displayID,
+        blanked: blanked
       }
     };
 
@@ -115,12 +127,48 @@ export class RoomRef {
 
     this._ws.send(JSON.stringify(req));
   };
+
+  startSharing = (masterID: string, optionsIDs: string[]) => {
+    const kv = {
+      setSharing: {
+        group: masterID,
+        opts: optionsIDs
+      }
+    }
+
+    this.loading = true;
+    this._ws.send(JSON.stringify(kv));
+  }
+
+  stopSharing = (masterID: string) => {
+    const kv = {
+      setSharing: {
+        group: masterID
+      }
+    }
+
+    this.loading = true;
+    this._ws.send(JSON.stringify(kv));
+  }
+
+  selectControlGroup = (id: string) => {
+    const msg = {
+      selectControlGroup: {
+        id: id
+      }
+    }
+
+    this.loading = true;
+    this._ws.send(JSON.stringify(msg));
+  };
 }
 
 @Injectable({
   providedIn: "root"
 })
 export class BFFService {
+  dialogCloser: EventEmitter<string>;
+
   constructor(private router: Router, private dialog: MatDialog) {
     // do things based on route changes
     this.router.events.subscribe(event => {
@@ -133,6 +181,8 @@ export class BFFService {
         }
       }
     });
+
+    this.dialogCloser = new EventEmitter();
   }
 
   getRoom = (key: string | number): RoomRef => {
@@ -180,6 +230,15 @@ export class BFFService {
             room.next(data[k]);
             roomRef.loading = false;
 
+            break;
+          case "shareStarted":
+            this.dialogCloser.emit("sharing");
+            break;
+          case "shareEnded":
+            console.log("The sharing session has ended.");
+            break;
+          case "becameInactive":
+            this.dialogCloser.emit("inactive");
             break;
           default:
             console.warn(

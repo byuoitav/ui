@@ -24,6 +24,7 @@ $full-width: calc(#{$side-length} * 5);
     max-height: 40%;
     width: 100%;
     max-width: 100%;
+    
     &.single {
         height: 25%;
         max-height: 25%;
@@ -40,6 +41,7 @@ $full-width: calc(#{$side-length} * 5);
     width: 100%;
     max-width: $main-width;
     min-width: $main-width;
+    overflow: hidden;
 }
 
 .large-icon {
@@ -68,6 +70,11 @@ $full-width: calc(#{$side-length} * 5);
     align-items: center;
     justify-content: space-evenly;
     margin: auto;
+    &.adjusted {
+        justify-content: flex-start;
+        padding-left: 3%;
+        padding-right: 3%;
+    }
 }
 
 .page-indicator {
@@ -169,14 +176,14 @@ $full-width: calc(#{$side-length} * 5);
 }
 
 @media (min-width: 768px) {
-    $main-width: calc(4.6 * #{$side-length});
+    $main-width: calc(5 * #{$side-length});
     $double-width: calc(#{$side-length} * 3);
     $triple-width: calc(#{$side-length} * 4);
     $half-width: calc(#{$side-length} * 2.5);
     $full-width: calc(#{$side-length} * 5);
     .base {
         // border: solid 1px green;
-        width: 55%;
+        width: 57%;
     }
     .page-button {
         display: block;
@@ -190,6 +197,26 @@ $full-width: calc(#{$side-length} * 5);
         margin-top: 10%;
         &.hidden {
             display: block;
+        }
+    }
+    .page-column {
+        width: $main-width;
+        max-width: $main-width;
+    }
+    .display-row {
+        display: flex;
+        flex-flow: row nowrap;
+        height: 100%;
+        width: $main-width;
+        min-width: $main-width;
+        max-width: $main-width;
+        align-items: center;
+        justify-content: space-evenly;
+        margin: auto;
+        &.adjusted {
+            justify-content: flex-start;
+            padding-left: 3%;
+            padding-right: 3%;
         }
     }
 }

@@ -7,7 +7,8 @@ import {
   Input,
   IconPair
 } from "../../../../../objects/control";
-// import { IControlTab } from "../control-tab/icontrol-tab";
+import { MatDialogRef, MatDialog } from '@angular/material';
+import { MirrorComponent } from 'src/app/dialogs/mirror/mirror.component';
 
 class Page {
   pageOption: string;
@@ -44,6 +45,8 @@ export class DisplayComponent implements OnInit {
   inputPages: number[] = [];
   curInputPage = 0;
 
+  mirrorRef: MatDialogRef<MirrorComponent>;
+
   blankInput: Input = {
     id: "blank",
     name: "Blank",
@@ -51,7 +54,7 @@ export class DisplayComponent implements OnInit {
     subInputs: []
   }
 
-  constructor() {
+  constructor(public dialog: MatDialog) {
     this.displayPages = [];
   }
 
@@ -59,7 +62,16 @@ export class DisplayComponent implements OnInit {
 
   ngOnChanges() {
     if (this.cg) {
+      console.log(this.cg);
       this.generatePages();
+      if (this.cg.displayGroups[0].shareInfo.state === 3 && !this.dialog.openDialogs.includes(this.mirrorRef)) {
+        this.mirrorRef = this.dialog.open(MirrorComponent, {
+          data: {
+            roomRef: this._roomRef
+          },
+          disableClose: true
+        })
+      }
     }
   }
 
@@ -77,37 +89,30 @@ export class DisplayComponent implements OnInit {
     let p = new Page();
     p.displays = [];
 
-    while (displayIndex < this.cg.displayGroups.length) {
-      
-      
+    for (let i = 0; i < this.cg.displayGroups.length; i++) {
+      p.weight += this.cg.displayGroups[i].displays.length;
+      p.displays.push(this.cg.displayGroups[i]);
 
-      // // set the length of the outputs to the weight of the page
-      // p.weight += this.cg.displayGroups[displayIndex].displays.length;
-      // p.displays.push(this.cg.displayGroups[displayIndex]);
-      // if (p.weight > 4) {
-      //   p.pageOption = "4";
-      // } else {
-      //   p.pageOption += "" + this.cg.displayGroups[displayIndex].displays.length;
-      // }
+      if (p.weight > 4) {
+        p.pageOption = "4";
+      } else {
+        p.pageOption += "" + this.cg.displayGroups[i].displays.length;
+      }
 
-      // // check to see if the weight is less than the max
-      // if (p.weight >= 4) {
-      //   // assign the page and move on to the next one
-      //   this.displayPages.push(p);
-      //   p = new Page();
-      // } else {
-      //   if (displayIndex === this.cg.displayGroups.length - 1) {
-      //     this.displayPages.push(p);
-      //   }
-      // }
-
-      displayIndex++;
+      if (p.weight >= 3) {
+        this.displayPages.push(p);
+        p = new Page();
+      } else {
+        if (i === this.cg.displayGroups.length - 1) {
+          this.displayPages.push(p);
+        }
+      }
     }
 
     console.log(this.displayPages);
 
     // set up the input pages
-    // this.cg.inputs.unshift(this.blankInput);
+    this.cg.inputs.unshift(this.blankInput);
     const fullPages = Math.floor(this.cg.inputs.length / 6);
     const remainderPage = this.cg.inputs.length % 6;
 
@@ -243,8 +248,14 @@ export class DisplayComponent implements OnInit {
   };
 
   setInput = (input: Input) => {
-    // this.selectedDisplay.input = input.id;
-    this._roomRef.setInput(this.selectedDisplay.id, input.id);
+    if (this.isSelected(input.id)) {
+      return;
+    }
+    if (input.id === "blank" && !this.selectedDisplay.blanked) {
+      this._roomRef.setBlanked(this.selectedDisplay.id, true);
+    } else {
+      this._roomRef.setInput(this.selectedDisplay.id, input.id);
+    }
   };
 
   setVolume = (level: number) => {
@@ -255,5 +266,14 @@ export class DisplayComponent implements OnInit {
   setMute = (muted: boolean) => {
     // mute the volume in some way
     this._roomRef.setMuted(muted);
+  };
+
+  isSelected = (id: string): boolean => {
+    if (id === "blank" && this.selectedDisplay.blanked){
+      return true;
+    } else if (id === this.selectedDisplay.input && !this.selectedDisplay.blanked) {
+      return true; 
+    }
+    return false;
   };
 }

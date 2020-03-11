@@ -167,39 +167,46 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 		return
 	}
 
-	//TODO
-	// blanked? <- what does this mean
+	/*
+		// TODO do this validation only on blueberry
+			preset, err := c.GetPresetByName(msg.Group.GetName())
+			if err != nil {
+				// If we can't find
+				c.Warn("failed to start share", zap.Error(err))
+				c.Out <- ErrorMessage(errors.New("sharing: no preset found for msg.Group"))
+				return
+			}
+			// FOR BLUEBERRY
+			// Find the set of shareable displays and see if it is a super set of msg.Options
+			if len(room.ControlGroups) == 1 {
+			}
+			shareable := make(map[string]bool)
 
-	// Find the set of shareable displays and see if it is a super set of msg.Options
-	shareable := make(map[string]bool)
-	preset, err := c.GetPresetByName(msg.Group.GetName())
-	if err != nil {
-		c.Warn("failed to start share", zap.Error(err))
-		c.Out <- ErrorMessage(errors.New("sharing: no preset found for msg.Group"))
-		return
-	}
-	for _, name := range preset.ShareableDisplays {
-		shareable[name] = true
-	}
-
+			for _, name := range preset.ShareableDisplays {
+				shareable[name] = true
+			}
+	*/
 	for _, id := range msg.Options {
 		// validate that options exist in the room's display groups
-		c.Out <- StringMessage(id, "")
-		c.Out <- StringMessage(room.ID.GetName()+"-", "")
-		c.Out <- StringMessage(strings.TrimPrefix(id, room.ID.GetName()+"-"), "")
+		/*
+			c.Out <- StringMessage(id, "")
+			c.Out <- StringMessage(room.ID.GetName()+"-", "")
+			c.Out <- StringMessage(strings.TrimPrefix(id, room.ID.GetName()+"-"), "")
+		*/
 		if _, ok := disps[ID(id)]; !ok {
-			c.Warn("failed to start share", zap.Error(err))
+			c.Warn("failed to start share", zap.Error(errors.New("sharing: option "+id+" not found in cg.DisplayGroups")))
 			c.Out <- ErrorMessage(errors.New("sharing: option " + id + " not found in cg.DisplayGroups"))
 			return
 		}
-
-		// validate that inputs are valid for minions by
-		// validating that options exist in the preset's shareable displays
-		if _, ok := shareable[strings.TrimPrefix(id, room.ID.GetName()+"-")]; !ok {
-			c.Warn("failed to start share", zap.Error(err))
-			c.Out <- ErrorMessage(errors.New("sharing: option " + id + " not found in preset.ShareableDisplays"))
-			return
-		}
+		/*
+			// validate that inputs are valid for minions by
+			// validating that options exist in the preset's shareable displays
+			if _, ok := shareable[strings.TrimPrefix(id, room.ID.GetName()+"-")]; !ok {
+				c.Warn("failed to start share", zap.Error(err))
+				c.Out <- ErrorMessage(errors.New("sharing: option " + id + " not found in preset.ShareableDisplays"))
+				return
+			}
+		*/
 	}
 
 	var state structs.PublicRoom
@@ -226,6 +233,7 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 				PublicDevice: structs.PublicDevice{
 					Name:  disp.ID.GetName(),
 					Input: input,
+					Power: "on",
 				},
 			})
 		}
@@ -253,7 +261,6 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 				},
 				Muted: BoolP(true),
 			}
-
 		}
 	}
 

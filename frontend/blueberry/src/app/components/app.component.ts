@@ -57,7 +57,7 @@ export class AppComponent {
 
   haveControlKey() {
     // TODO: do this thing
-    if (this.bff.controlKey) {
+    if (this.cg.controlInfo) {
       return true;
     }
   }
@@ -85,13 +85,11 @@ export class AppComponent {
 
   showMobileControl() {
     if (this.roomRef && this.roomRef.room) {
-      this.dialog.open(MobileComponent, {data: this.roomRef});
+      this.dialog.open(MobileComponent, {data: this.cg});
     }
   }
 
   showManagement = (): boolean => {
-    console.log(this.powerIsOff());
-    console.log(this.bff.locked);
     if (this.dialog.openDialogs.length > 0) {
       return false;
     }

@@ -3,6 +3,7 @@ $height-value: 120px;
 $double-width: calc(2 * #{$width-value});
 $triple-width: calc(3 * #{$width-value});
 $full-width: calc(4 * #{$width-value});
+$half-width: calc(1.7 * #{$width-value});
 wide-button {
     .wrapper {
         display: flex;
@@ -32,6 +33,9 @@ wide-button {
         }
         &.full {
             width: $full-width;
+        }
+        &.half {
+            width: $half-width;
         }
     }
 }

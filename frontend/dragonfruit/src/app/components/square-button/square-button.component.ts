@@ -15,6 +15,7 @@ export type ButtonAction = (data: any) => Promise<boolean>;
 })
 export class SquareButtonComponent extends SquareButtonBase implements OnInit {
   @Input() data: any;
+  @Input() id: string;
   @Input() click: ButtonAction;
   @Input() press: ButtonAction;
   @Input() selected = false;
@@ -24,6 +25,7 @@ export class SquareButtonComponent extends SquareButtonBase implements OnInit {
   @Input() subTitle: string;
   @Input() showIcon = true;
   @Input() empty = false;
+  @Input() curDisplayID: string;
 
   constructor(elementRef: ElementRef) {
     super(elementRef);
@@ -33,8 +35,8 @@ export class SquareButtonComponent extends SquareButtonBase implements OnInit {
   }
 
   ngOnChanges() {
-    if (this.title) {
-      let btn = document.getElementById(this.title);
+    if (this.id) {
+      let btn = document.getElementById(this.id);
       if (btn && this.selected && btn.classList.contains("feedback")) {
         btn.classList.remove("feedback")
       }
@@ -42,14 +44,10 @@ export class SquareButtonComponent extends SquareButtonBase implements OnInit {
     
   }
 
-  toggleSelect = () => {
-    // this.selected = !this.selected;
-  }
-
   do(f: ButtonAction) {
-    
-    this.toggleSelect();
-    document.getElementById(this.title).classList.toggle("feedback")
+    if (this.id && !this.selected) {
+      document.getElementById(this.id).classList.toggle("feedback")
+    }
     if (!f) {
       console.warn('no function for this action has been defined');
       return;

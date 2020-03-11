@@ -70,7 +70,7 @@ func GetDisplayGroupByID(groups []DisplayGroup, id ID) (DisplayGroup, error) {
 
 func GetControlGroupByDisplayGroupID(groups map[string]ControlGroup, id ID) (ControlGroup, error) {
 	for _, v := range groups {
-		if _, err := GetDisplayGroupByID(v.DisplayGroups, id); err == nil {
+		if _, err := GetDisplayGroupByID(v.fullDisplayGroups, id); err == nil {
 			return v, nil
 		}
 	}
@@ -82,7 +82,7 @@ func (r *Room) GetAllDisplayGroups() DisplayGroups {
 	var groups DisplayGroups
 
 	for k := range r.ControlGroups {
-		groups = append(groups, r.ControlGroups[k].DisplayGroups...)
+		groups = append(groups, r.ControlGroups[k].fullDisplayGroups...)
 	}
 
 	return groups

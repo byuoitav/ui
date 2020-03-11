@@ -1,0 +1,15 @@
+.base {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-evenly;
+    min-height: 30vh;
+    width: 70vw;
+}
+.row {
+    display: flex;
+    flex-flow: row wrap;
+    max-width: 100%;
+    width: 100%;
+    justify-content: space-evenly;
+    align-items: center;
+}
