@@ -1,19 +1,19 @@
 <div class="base">
-    <div class="display-section" [class.single]="cg?.displayGroups?.length == 1">
-        <ng-container *ngIf="cg?.displayGroups?.length == 1">
+    <div class="display-section" [class.single]="cg?.displayGroups?.length === 1 && cg?.displayGroups[0].displays.length === 1">
+        <ng-container *ngIf="cg?.displayGroups?.length === 1 && cg?.displayGroups[0].displays.length === 1">
             <div class="page-column">
                 <div class="display-row">
                     <div class="display-column">
                         <span class="mat-h1 display-title">{{
               (selectedDisplay?.displays)[0].name
             }}</span>
-                        <mat-icon class="large-icon">{{ (selectedDisplay?.displays)[0].icon }}
+                        <mat-icon class="large-icon">{{ (selectedDisplay)?.displays[0].icon }}
                         </mat-icon>
                     </div>
                 </div>
             </div>
         </ng-container>
-        <ng-container *ngIf="cg?.displayGroups?.length > 1">
+        <ng-container *ngIf="cg?.displayGroups?.length > 1 || cg?.displayGroups[0].displays.length > 1">
             <button mat-icon-button class="page-button left" [disableRipple]="true" (click)="pageLeft('display')" [class.blank]="!canPageLeft('display')">
         <mat-icon>keyboard_arrow_left</mat-icon>
       </button>
@@ -40,8 +40,8 @@
                             <wide-button class="display" [data]="(p?.displays)[1]" [outputs]="(p?.displays)[1].displays" [input]="getInputInfo((p?.displays)[1].input)" (click)="selectedDisplayIdx = i * 3 + 1" [selected]="selectedDisplay?.id === (p?.displays)[1]?.id"></wide-button>
                         </div>
                         <div *ngSwitchCase="'22'" [id]="'display-page' + i" class="display-row 22">
-                            <wide-button class="display half" [data]="(p?.displays)[0]" [outputs]="(p?.displays)[0].displays" [input]="getInputInfo((p?.displays)[0].input)" (click)="selectedDisplayIdx = i * 3 + 0" [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"></wide-button>
-                            <wide-button class="display half" [data]="(p?.displays)[1]" [outputs]="(p?.displays)[1].displays" [input]="getInputInfo((p?.displays)[1].input)" (click)="selectedDisplayIdx = i * 3 + 1" [selected]="selectedDisplay?.id === (p?.displays)[1]?.id"></wide-button>
+                            <wide-button class="display half" [data]="(p?.displays)[0]" [half]=true [outputs]="(p?.displays)[0].displays" [input]="getInputInfo((p?.displays)[0].input)" (click)="selectedDisplayIdx = i * 3 + 0" [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"></wide-button>
+                            <wide-button class="display half" [data]="(p?.displays)[1]" [half]=true [outputs]="(p?.displays)[1].displays" [input]="getInputInfo((p?.displays)[1].input)" (click)="selectedDisplayIdx = i * 3 + 1" [selected]="selectedDisplay?.id === (p?.displays)[1]?.id"></wide-button>
                         </div>
                         <div *ngSwitchCase="'3'" [id]="'display-page' + i" class="display-row 3">
                             <wide-button class="display full" [full]="true" [data]="(p?.displays)[0]" [outputs]="(p?.displays)[0].displays" [input]="getInputInfo((p?.displays)[0].input)" (click)="selectedDisplayIdx = i * 3 + 0" [selected]="selectedDisplay?.id === (p?.displays)[0]?.id"></wide-button>
@@ -77,155 +77,95 @@
                 <ng-container [ngSwitch]="p">
                     <div [id]="'input-page' + i" class="button-row two center" *ngSwitchCase="1">
                         <!-- <square-button *ngIf="i == 0" class="input box" [data]="blankInput" [icon]="blankInput.icon" [title]="blankInput.name" [click]="setBlank" [selected]="selectedDisplay?.blanked"></square-button> -->
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 0]" [id]="(cg?.inputs)[i * 6 + 0]?.id" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 0]" [id]="(cg?.inputs)[i * 6 + 0]?.id" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 0]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 1]" [id]="(cg?.inputs)[i * 6 + 1]?.id" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 1]" [id]="(cg?.inputs)[i * 6 + 1]?.id" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 1]?.id
               "></square-button>
                     </div>
                     <div [id]="'input-page' + i" class="button-row two left" *ngSwitchCase="2">
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 0]" [id]="(cg?.inputs)[i * 6 + 0]?.id" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 0]" [id]="(cg?.inputs)[i * 6 + 0]?.id" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 0]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 1]" [id]="(cg?.inputs)[i * 6 + 1]?.id" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 1]" [id]="(cg?.inputs)[i * 6 + 1]?.id" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 1]?.id
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 0]" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 0]" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
                 isSelected((cg?.inputs)[i * 6 + 0]?.id)
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 1]" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 1]" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
                 isSelected((cg?.inputs)[i * 6 + 1]?.id)
               "></square-button>
                     </div>
                     <div [id]="'input-page' + i" class="button-row two left" *ngSwitchCase="2">
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 0]" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 0]" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
                 isSelected((cg?.inputs)[i * 6 + 0]?.id) 
                 "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 1]" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 1]" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
                 isSelected((cg?.inputs)[i * 6 + 1]?.id)
               "></square-button>
-                        <square-button class="input box" [empty]="true"></square-button>
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [empty]="true"></square-button>
                     </div>
                     <div [id]="'input-page' + i" class="button-row three" *ngSwitchCase="3">
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 0]" [id]="(cg?.inputs)[i * 6 + 0]?.id" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 0]" [id]="(cg?.inputs)[i * 6 + 0]?.id" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 0]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 1]" [id]="(cg?.inputs)[i * 6 + 1]?.id" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 1]" [id]="(cg?.inputs)[i * 6 + 1]?.id" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 1]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 2]" [id]="(cg?.inputs)[i * 6 + 2]?.id" [icon]="(cg?.inputs)[i * 6 + 2]?.icon" [title]="(cg?.inputs)[i * 6 + 2]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 2]" [id]="(cg?.inputs)[i * 6 + 2]?.id" [icon]="(cg?.inputs)[i * 6 + 2]?.icon" [title]="(cg?.inputs)[i * 6 + 2]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 2]?.id
               "></square-button>
                     </div>
                     <div [id]="'input-page' + i" class="button-row four" *ngSwitchCase="4">
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 0]" [id]="(cg?.inputs)[i * 6 + 0]?.id" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 0]" [id]="(cg?.inputs)[i * 6 + 0]?.id" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 0]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 1]" [id]="(cg?.inputs)[i * 6 + 1]?.id" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 1]" [id]="(cg?.inputs)[i * 6 + 1]?.id" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 1]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 2]" [id]="(cg?.inputs)[i * 6 + 2]?.id" [icon]="(cg?.inputs)[i * 6 + 2]?.icon" [title]="(cg?.inputs)[i * 6 + 2]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 2]" [id]="(cg?.inputs)[i * 6 + 2]?.id" [icon]="(cg?.inputs)[i * 6 + 2]?.icon" [title]="(cg?.inputs)[i * 6 + 2]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 2]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 3]" [id]="(cg?.inputs)[i * 6 + 3]?.id" [icon]="(cg?.inputs)[i * 6 + 3]?.icon" [title]="(cg?.inputs)[i * 6 + 3]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 3]" [id]="(cg?.inputs)[i * 6 + 3]?.id" [icon]="(cg?.inputs)[i * 6 + 3]?.icon" [title]="(cg?.inputs)[i * 6 + 3]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 3]?.id
               "></square-button>
                     </div>
                     <div [id]="'input-page' + i" class="button-row five" *ngSwitchCase="5">
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 0]" [id]="(cg?.inputs)[i * 6 + 0]?.id" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 0]" [id]="(cg?.inputs)[i * 6 + 0]?.id" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 0]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 1]" [id]="(cg?.inputs)[i * 6 + 1]?.id" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 1]" [id]="(cg?.inputs)[i * 6 + 1]?.id" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 1]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 2]" [id]="(cg?.inputs)[i * 6 + 2]?.id" [icon]="(cg?.inputs)[i * 6 + 2]?.icon" [title]="(cg?.inputs)[i * 6 + 2]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 2]" [id]="(cg?.inputs)[i * 6 + 2]?.id" [icon]="(cg?.inputs)[i * 6 + 2]?.icon" [title]="(cg?.inputs)[i * 6 + 2]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 2]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 3]" [id]="(cg?.inputs)[i * 6 + 3]?.id" [icon]="(cg?.inputs)[i * 6 + 3]?.icon" [title]="(cg?.inputs)[i * 6 + 3]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 3]" [id]="(cg?.inputs)[i * 6 + 3]?.id" [icon]="(cg?.inputs)[i * 6 + 3]?.icon" [title]="(cg?.inputs)[i * 6 + 3]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 3]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 4]" [id]="(cg?.inputs)[i * 6 + 4]?.id" [icon]="(cg?.inputs)[i * 6 + 4]?.icon" [title]="(cg?.inputs)[i * 6 + 4]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 4]" [id]="(cg?.inputs)[i * 6 + 4]?.id" [icon]="(cg?.inputs)[i * 6 + 4]?.icon" [title]="(cg?.inputs)[i * 6 + 4]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 4]?.id
               "></square-button>
                     </div>
                     <div [id]="'input-page' + i" class="button-row six" *ngSwitchCase="6">
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 0]" [id]="(cg?.inputs)[i * 6 + 0]?.id" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 0]" [id]="(cg?.inputs)[i * 6 + 0]?.id" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 0]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 1]" [id]="(cg?.inputs)[i * 6 + 1]?.id" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 1]" [id]="(cg?.inputs)[i * 6 + 1]?.id" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 1]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 2]" [id]="(cg?.inputs)[i * 6 + 2]?.id" [icon]="(cg?.inputs)[i * 6 + 2]?.icon" [title]="(cg?.inputs)[i * 6 + 2]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 2]" [id]="(cg?.inputs)[i * 6 + 2]?.id" [icon]="(cg?.inputs)[i * 6 + 2]?.icon" [title]="(cg?.inputs)[i * 6 + 2]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 2]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 3]" [id]="(cg?.inputs)[i * 6 + 3]?.id" [icon]="(cg?.inputs)[i * 6 + 3]?.icon" [title]="(cg?.inputs)[i * 6 + 3]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 3]" [id]="(cg?.inputs)[i * 6 + 3]?.id" [icon]="(cg?.inputs)[i * 6 + 3]?.icon" [title]="(cg?.inputs)[i * 6 + 3]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 3]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 4]" [id]="(cg?.inputs)[i * 6 + 4]?.id" [icon]="(cg?.inputs)[i * 6 + 4]?.icon" [title]="(cg?.inputs)[i * 6 + 4]?.name" [click]="setInput" [selected]="
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 4]" [id]="(cg?.inputs)[i * 6 + 4]?.id" [icon]="(cg?.inputs)[i * 6 + 4]?.icon" [title]="(cg?.inputs)[i * 6 + 4]?.name" [click]="setInput" [selected]="
                 selectedDisplay?.input === (cg?.inputs)[i * 6 + 4]?.id
               "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 5]" [id]="(cg?.inputs)[i * 6 + 5]?.id" [icon]="(cg?.inputs)[i * 6 + 5]?.icon" [title]="(cg?.inputs)[i * 6 + 5]?.name" [click]="setInput" [selected]="
-                selectedDisplay?.input === (cg?.inputs)[i * 6 + 5]?.id
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 0]" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 0]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 1]" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 1]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 2]" [icon]="(cg?.inputs)[i * 6 + 2]?.icon" [title]="(cg?.inputs)[i * 6 + 2]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 2]?.id)
-              "></square-button>
-                    </div>
-                    <div [id]="'input-page' + i" class="button-row four" *ngSwitchCase="4">
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 0]" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 0]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 1]" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 1]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 2]" [icon]="(cg?.inputs)[i * 6 + 2]?.icon" [title]="(cg?.inputs)[i * 6 + 2]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 2]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 3]" [icon]="(cg?.inputs)[i * 6 + 3]?.icon" [title]="(cg?.inputs)[i * 6 + 3]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 3]?.id)
-              "></square-button>
-                    </div>
-                    <div [id]="'input-page' + i" class="button-row five" *ngSwitchCase="5">
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 0]" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 0]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 1]" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 1]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 2]" [icon]="(cg?.inputs)[i * 6 + 2]?.icon" [title]="(cg?.inputs)[i * 6 + 2]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 2]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 3]" [icon]="(cg?.inputs)[i * 6 + 3]?.icon" [title]="(cg?.inputs)[i * 6 + 3]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 3]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 4]" [icon]="(cg?.inputs)[i * 6 + 4]?.icon" [title]="(cg?.inputs)[i * 6 + 4]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 4]?.id)
-              "></square-button>
-                    </div>
-                    <div [id]="'input-page' + i" class="button-row six" *ngSwitchCase="6">
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 0]" [icon]="(cg?.inputs)[i * 6 + 0]?.icon" [title]="(cg?.inputs)[i * 6 + 0]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 0]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 1]" [icon]="(cg?.inputs)[i * 6 + 1]?.icon" [title]="(cg?.inputs)[i * 6 + 1]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 1]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 2]" [icon]="(cg?.inputs)[i * 6 + 2]?.icon" [title]="(cg?.inputs)[i * 6 + 2]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 2]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 3]" [icon]="(cg?.inputs)[i * 6 + 3]?.icon" [title]="(cg?.inputs)[i * 6 + 3]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 3]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 4]" [icon]="(cg?.inputs)[i * 6 + 4]?.icon" [title]="(cg?.inputs)[i * 6 + 4]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 4]?.id)
-              "></square-button>
-                        <square-button class="input box" [data]="(cg?.inputs)[i * 6 + 5]" [icon]="(cg?.inputs)[i * 6 + 5]?.icon" [title]="(cg?.inputs)[i * 6 + 5]?.name" [click]="setInput" [selected]="
-                isSelected((cg?.inputs)[i * 6 + 5]?.id)
-              "></square-button>
+                        <square-button class="input box" [curDisplayID]="selectedDisplay?.id" [data]="(cg?.inputs)[i * 6 + 5]" [id]="(cg?.inputs)[i * 6 + 5]?.id" [icon]="(cg?.inputs)[i * 6 + 5]?.icon" [title]="(cg?.inputs)[i * 6 + 5]?.name" [click]="setInput" [selected]="
+                selectedDisplay?.input === (cg?.inputs)[i * 6 + 5]?.id"></square-button>
                     </div>
                 </ng-container>
             </ng-container>

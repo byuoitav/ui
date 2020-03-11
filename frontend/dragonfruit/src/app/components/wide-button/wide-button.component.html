@@ -1,4 +1,4 @@
-<div class="wrapper" [class.double]="outputs.length == 2" [class.triple]="outputs.length >= 3" [class.full]="full" (click)="do(click)" (press)="do(press)" [class.selected]="selected">
+<div class="wrapper" [class.double]="outputs.length == 2" [class.half]="half" [class.triple]="outputs.length >= 3" [class.full]="full" (click)="do(click)" (press)="do(press)" [class.selected]="selected">
     <div class="row" *ngIf="outputs.length < 5">
         <ng-container *ngFor="let out of outputs">
             <div class="column output">

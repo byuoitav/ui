@@ -39,6 +39,7 @@ import { WideButtonComponent } from "./components/wide-button/wide-button.compon
 import { ErrorDialog } from "./dialogs/error/error.dialog";
 import { DisplayComponent } from './components/display/display.component';
 import { SharingComponent } from './dialogs/sharing/sharing.component';
+import { MirrorComponent } from './dialogs/mirror/mirror.component';
 
 @NgModule({
   declarations: [
@@ -58,7 +59,8 @@ import { SharingComponent } from './dialogs/sharing/sharing.component';
     WideButtonComponent,
     ErrorDialog,
     DisplayComponent,
-    SharingComponent
+    SharingComponent,
+    MirrorComponent
   ],
   imports: [
     BrowserModule,
@@ -91,7 +93,8 @@ import { SharingComponent } from './dialogs/sharing/sharing.component';
     PresentComponent,
     HelpComponent,
     ErrorDialog,
-    SharingComponent
+    SharingComponent,
+    MirrorComponent
   ],
   bootstrap: [AppComponent]
 })

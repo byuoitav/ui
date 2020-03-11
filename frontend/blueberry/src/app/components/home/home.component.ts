@@ -46,7 +46,8 @@ export class HomeComponent implements OnInit {
         width: "70vw",
         data: {
           roomRef: this.roomRef
-        }
+        },
+        disableClose: true
       });
     }
   }
@@ -58,7 +59,7 @@ export class HomeComponent implements OnInit {
   }
 
   openHelp = () => {
-    this.dialog.open(HelpComponent, {data: this.cg}).afterClosed().subscribe((helpMe) => {
+    this.dialog.open(HelpComponent, {data: this.cg, disableClose: true}).afterClosed().subscribe((helpMe) => {
       if (helpMe) {
         this.roomRef.requestHelp("");
       }

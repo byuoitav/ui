@@ -22,6 +22,7 @@ export class WideButtonComponent extends WideButtonBase implements OnInit {
   @Input() showIcons = true;
   @Input() multiple = false;
   @Input() full = false;
+  @Input() half = false;
 
   constructor(elementRef: ElementRef) {
     super(elementRef);

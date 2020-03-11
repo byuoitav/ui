@@ -9,7 +9,8 @@ import {
   CONTROL_TAB,
   AUDIO_TAB,
   PRESENT_TAB,
-  HELP_TAB
+  HELP_TAB,
+  DisplayGroup
 } from "../../../../../objects/control";
 import { SharingComponent } from 'src/app/dialogs/sharing/sharing.component';
 import { DisplayComponent } from '../display/display.component';
@@ -38,6 +39,12 @@ export class RoomControlComponent implements OnInit {
     }
 
     return undefined;
+  }
+
+  get selectedDisplay(): DisplayGroup {
+    if (this.displayComp) {
+      return this.displayComp.selectedDisplay;
+    }
   }
 
   tabPosition = "below";
@@ -123,10 +130,35 @@ export class RoomControlComponent implements OnInit {
     this.router.navigate([newURL]);
   }
 
-  openSharing = () => {
-    this.dialog.open(SharingComponent, {data: {
-      roomRef: this._roomRef,
-      displayIdx: this.displayComp.selectedDisplayIdx
-    }});
+  // openSharing = () => {
+  //   this.dialog.open(SharingComponent, {data: {
+  //     roomRef: this._roomRef,
+  //     display: this.displayComp.selectedDisplay
+  //   }});
+  // }
+
+  // stopSharing() {
+  // }
+
+  getShareText(): string {
+    if (this.displayComp && this.displayComp.selectedDisplay.shareInfo.state === 1) {
+      return "Share";
+    }
+    if (this.displayComp && this.displayComp.selectedDisplay.shareInfo.state === 2) {
+      return "Stop Sharing";
+    }
+    return "";
+  }
+
+  handleSharing() {
+    if (this.displayComp.selectedDisplay.shareInfo.state === 1) {
+      this.dialog.open(SharingComponent, {data: {
+        roomRef: this._roomRef,
+        display: this.displayComp.selectedDisplay
+      }});
+    }
+    if (this.displayComp.selectedDisplay.shareInfo.state === 2) {
+      this._roomRef.stopSharing(this.displayComp.selectedDisplay.id);
+    }
   }
 }

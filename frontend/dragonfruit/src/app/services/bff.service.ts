@@ -131,9 +131,8 @@ export class RoomRef {
   startSharing = (masterID: string, optionsIDs: string[]) => {
     const kv = {
       setSharing: {
-        status: true,
-        master: masterID,
-        options: optionsIDs
+        group: masterID,
+        opts: optionsIDs
       }
     }
 
@@ -144,8 +143,7 @@ export class RoomRef {
   stopSharing = (masterID: string) => {
     const kv = {
       setSharing: {
-        status: false,
-        master: masterID
+        group: masterID
       }
     }
 
@@ -169,6 +167,8 @@ export class RoomRef {
   providedIn: "root"
 })
 export class BFFService {
+  dialogCloser: EventEmitter<string>;
+
   constructor(private router: Router, private dialog: MatDialog) {
     // do things based on route changes
     this.router.events.subscribe(event => {
@@ -181,6 +181,8 @@ export class BFFService {
         }
       }
     });
+
+    this.dialogCloser = new EventEmitter();
   }
 
   getRoom = (key: string | number): RoomRef => {
@@ -228,6 +230,15 @@ export class BFFService {
             room.next(data[k]);
             roomRef.loading = false;
 
+            break;
+          case "shareStarted":
+            this.dialogCloser.emit("sharing");
+            break;
+          case "shareEnded":
+            console.log("The sharing session has ended.");
+            break;
+          case "becameInactive":
+            this.dialogCloser.emit("inactive");
             break;
           default:
             console.warn(

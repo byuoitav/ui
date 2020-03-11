@@ -10,7 +10,8 @@
     </button>
         <span class="room-title">{{ controlGroup?.name }}</span>
         <div class="empty-thing">
-            <button mat-button color="primary" class="share-button" (click)="openSharing()">Share</button>
+            <button mat-button color="primary" class="share-button" (click)="handleSharing()">{{ getShareText() }}</button>
+            <!-- <button *ngIf="displayComp?.selectedDisplay?.shareInfo.state === 2" mat-button color="primary" class="share-button" (click)="stopSharing()">Stop Sharing</button> -->
         </div>
     </div>
     <mat-progress-bar *ngIf="_roomRef.loading" [mode]="'indeterminate'" color="primary" class="mpb"></mat-progress-bar>
@@ -23,7 +24,7 @@
           <span>Control</span>
                 </span>
             </ng-template>
-            <app-display id="displayComp" [_roomRef]="_roomRef" [cg]="controlGroup"> </app-display>
+            <app-display #displayComp [_roomRef]="_roomRef" [cg]="controlGroup"> </app-display>
         </mat-tab>
 
         <!-- audio tab -->

@@ -1,1 +1,32 @@
-<h2 class="mat-dialog-title">Share {{selectedInput()}}</h2>
+<ng-container *ngIf="!sharingSpin">
+    <div class="base">
+        <h2 class="mat-dialog-title row">Share {{selectedInput.name}}</h2>
+        <mat-divider></mat-divider>
+        <div class="row">
+            <h3 class="mat-h3" style="margin-top: 20px;">Choose displays to share to</h3>
+          </div>
+        <div class="row">
+            <ng-container *ngFor="let op of selectedDisplay?.shareInfo.opts">
+                <square-button [icon]="trimOption(op)" [showIcon]="false" [data]="op" [click]="toggleDisplaySelection" [selected]="chosenOptions.includes(op)"></square-button>
+            </ng-container>
+        </div>
+        
+    </div>
+    <mat-dialog-actions class="row">
+        <button mat-button color="warn" (click)="dialogRef.close()">Cancel</button>
+        <button mat-button color="primary" (click)="startSharing()">Start Sharing</button>
+    </mat-dialog-actions>
+</ng-container>
+
+
+<div *ngIf="sharingSpin" class="base">
+    <div class="row">
+        <h2 class="mat-dialog-title">
+            Sharing {{selectedInput.name}}...
+        </h2>
+    </div>
+    <div class="row">
+      <mat-spinner color="primary"></mat-spinner>
+    </div>
+  </div>
+

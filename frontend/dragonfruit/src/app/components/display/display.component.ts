@@ -7,6 +7,8 @@ import {
   Input,
   IconPair
 } from "../../../../../objects/control";
+import { MatDialogRef, MatDialog } from '@angular/material';
+import { MirrorComponent } from 'src/app/dialogs/mirror/mirror.component';
 
 class Page {
   pageOption: string;
@@ -43,6 +45,8 @@ export class DisplayComponent implements OnInit {
   inputPages: number[] = [];
   curInputPage = 0;
 
+  mirrorRef: MatDialogRef<MirrorComponent>;
+
   blankInput: Input = {
     id: "blank",
     name: "Blank",
@@ -50,7 +54,7 @@ export class DisplayComponent implements OnInit {
     subInputs: []
   }
 
-  constructor() {
+  constructor(public dialog: MatDialog) {
     this.displayPages = [];
   }
 
@@ -60,6 +64,14 @@ export class DisplayComponent implements OnInit {
     if (this.cg) {
       console.log(this.cg);
       this.generatePages();
+      if (this.cg.displayGroups[0].shareInfo.state === 3 && !this.dialog.openDialogs.includes(this.mirrorRef)) {
+        this.mirrorRef = this.dialog.open(MirrorComponent, {
+          data: {
+            roomRef: this._roomRef
+          },
+          disableClose: true
+        })
+      }
     }
   }
 
@@ -236,6 +248,9 @@ export class DisplayComponent implements OnInit {
   };
 
   setInput = (input: Input) => {
+    if (this.isSelected(input.id)) {
+      return;
+    }
     if (input.id === "blank" && !this.selectedDisplay.blanked) {
       this._roomRef.setBlanked(this.selectedDisplay.id, true);
     } else {

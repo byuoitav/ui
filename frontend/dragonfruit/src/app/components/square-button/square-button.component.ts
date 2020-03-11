@@ -25,6 +25,7 @@ export class SquareButtonComponent extends SquareButtonBase implements OnInit {
   @Input() subTitle: string;
   @Input() showIcon = true;
   @Input() empty = false;
+  @Input() curDisplayID: string;
 
   constructor(elementRef: ElementRef) {
     super(elementRef);
@@ -44,9 +45,7 @@ export class SquareButtonComponent extends SquareButtonBase implements OnInit {
   }
 
   do(f: ButtonAction) {
-    if (this.selected) { return; }
-    
-    if (this.id) {
+    if (this.id && !this.selected) {
       document.getElementById(this.id).classList.toggle("feedback")
     }
     if (!f) {

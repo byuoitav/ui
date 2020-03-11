@@ -63,5 +63,6 @@ export class SharingComponent implements OnInit {
   startShare = () => {
     this.roomRef.startSharing(this.cg.displayGroups[0].id, this.chosenOptions);
     this.sharingSpin = true;
+    this.ref.disableClose = true;
   }
 }
