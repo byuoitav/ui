@@ -67,18 +67,18 @@ build: deps
 	@echo Build output is located in ./dist/.
 
 docker: clean build
-ifneq (${COMMIT_HASH},${RELEASE})
+ifneq (${COMMIT_HASH},${VERSION})
 	@echo Building container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}:${VERSION}
 	@docker build -f dockerfile --build-arg NAME=${NAME}-linux-amd64 -t ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}:${VERSION} dist
 
 	@echo Building container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm:${VERSION}
 	@docker build -f dockerfile --build-arg NAME=${NAME}-linux-arm -t ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm:${VERSION} dist
 else
-	@echo Building container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-dev:${VERSION}
-	@docker build -f dockerfile --build-arg NAME=${NAME}-linux-amd64 -t ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-dev:${VERSION} dist
+	@echo Building container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-dev:${COMMIT_HASH}
+	@docker build -f dockerfile --build-arg NAME=${NAME}-linux-amd64 -t ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-dev:${COMMIT_HASH} dist
 
-	@echo Building container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm-dev:${VERSION}
-	@docker build -f dockerfile --build-arg NAME=${NAME}-linux-arm -t ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm-dev:${VERSION} dist
+	@echo Building container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm-dev:${COMMIT_HASH}
+	@docker build -f dockerfile --build-arg NAME=${NAME}-linux-arm -t ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm-dev:${COMMIT_HASH} dist
 endif
 
 deploy: docker
@@ -86,7 +86,7 @@ deploy: docker
 	@docker login ${DOCKER_URL} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
 
 # if the commit hash and release are different, this is a tagged build and we should build the tagged version
-ifneq (${COMMIT_HASH},${RELEASE})
+ifneq (${COMMIT_HASH},${VERSION})
 	@echo Pushing container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}:${VERSION}
 	@docker push ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}:${VERSION}
 
