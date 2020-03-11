@@ -1,7 +1,10 @@
 name: Deploy
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - master
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
 
 jobs:
   codecov:
@@ -11,7 +14,7 @@ jobs:
       - name: Set up go (TODO - test frontend)
         uses: actions/setup-go@v1
         with:
-          go-version: 1.13
+          go-version: 1.14.x
 
       - name: Check out code
         uses: actions/checkout@v1
@@ -32,7 +35,7 @@ jobs:
       - name: Set up go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.13
+          go-version: 1.14.x
 
       - name: Set up node
         uses: actions/setup-node@v1
