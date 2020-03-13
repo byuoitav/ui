@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -100,7 +101,10 @@ func (b *BFF) NewClient(c echo.Context) error {
 		// if not localhost then use the code service to get the info
 		log.P.Info("Getting room/preset from control key", zap.String("key", c.Param("key")))
 
-		room, cgID, err := bff.GetRoomAndControlGroup(c.Request().Context(), b.CodeServiceAddr, c.Param("key"))
+		ctx, cancel := context.WithTimeout(c.Request().Context(), 3*time.Second)
+		defer cancel()
+
+		room, cgID, err := bff.GetRoomAndControlGroup(ctx, b.CodeServiceAddr, c.Param("key"))
 		switch {
 		case errors.Is(err, bff.ErrInvalidControlKey):
 			return closeWithReason("Invalid control key")

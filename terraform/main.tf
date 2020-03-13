@@ -47,8 +47,8 @@ module "deployment" {
 
   // required
   name           = "av-control-ui-dev"
-  image          = "docker.pkg.github.com/byuoitav/ui/ui"
-  image_version  = "v0.7.0"
+  image          = "docker.pkg.github.com/byuoitav/ui/ui-dev"
+  image_version  = "01e1354"
   container_port = 8080
   repo_url       = "https://github.com/byuoitav/ui"
 
@@ -66,9 +66,10 @@ module "deployment" {
   container_args = [
     "--port", "8080",
     "--log-level", "2", // set log level to info
-    "--av-api", "av-api-prd.default.svc.cluster.local",
+    // "--av-api", "av-api-prd.default.svc.cluster.local",
+    "--av-api", "itb-1006-cp1.byu.edu:8000",
     "--lazarette", "lazarette-dev.default.svc.cluster.local",
-    "--code-service", "control-keys.stg.avs.byu.edu",
+    "--code-service", data.aws_ssm_parameter.dev_code_service_address.value,
   ]
 }
 
