@@ -69,8 +69,6 @@ type Client struct {
 
 // RegisterClient registers a new client
 func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig) (*Client, error) {
-	log.P.Info("Registering client", zap.String("roomID", config.RoomID), zap.String("controlGroupID", config.ControlGroupID), zap.String("name", ws.RemoteAddr().String()))
-
 	split := strings.Split(config.RoomID, "-")
 	if len(split) != 2 {
 		return nil, fmt.Errorf("invalid roomID %q - must match format BLDG-ROOM", config.RoomID)
@@ -93,6 +91,8 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		},
 		controlKeys: make(map[string]string),
 	}
+
+	c.Info("Registering client", zap.String("roomID", config.RoomID), zap.String("controlGroupID", config.ControlGroupID))
 
 	// init stats
 	c.stats.AvControlApi.ResponseCodes = make(map[int]uint)

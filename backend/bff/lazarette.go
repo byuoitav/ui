@@ -31,7 +31,7 @@ type lazMessage struct {
 // ConnectToLazarette dials lazarette and returns a new client. The connection will be killed
 // when ctx expires.
 func ConnectToLazarette(ctx context.Context, addr string) (lazarette.LazaretteClient, error) {
-	conn, err := grpc.DialContext(ctx, addr, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.DialContext(ctx, addr, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithTimeout(2*time.Second))
 	if err != nil {
 		return nil, fmt.Errorf("unable to open grpc connection: %s", err)
 	}
