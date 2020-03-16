@@ -2,6 +2,7 @@ package bff
 
 import (
 	"context"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,11 +12,18 @@ import (
 	"time"
 
 	"github.com/byuoitav/lazarette/lazarette"
+	"github.com/byuoitav/ui/log"
 	"github.com/golang/protobuf/ptypes"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
+)
+
+var (
+	grpcInitCreds sync.Once
+	grpcCreds     credentials.TransportCredentials
 )
 
 // LazaretteState represents the current lazarette state in a room
@@ -30,8 +38,20 @@ type lazMessage struct {
 
 // ConnectToLazarette dials lazarette and returns a new client. The connection will be killed
 // when ctx expires.
-func ConnectToLazarette(ctx context.Context, addr string) (lazarette.LazaretteClient, error) {
-	conn, err := grpc.DialContext(ctx, addr, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithTimeout(2*time.Second))
+func ConnectToLazarette(ctx context.Context, addr string, ssl bool) (lazarette.LazaretteClient, error) {
+	var opts []grpc.DialOption
+
+	opts = append(opts, grpc.WithBlock())
+	opts = append(opts, grpc.WithTimeout(2500*time.Millisecond))
+
+	if ssl {
+		grpcInitCreds.Do(setupGrpcCreds)
+		opts = append(opts, grpc.WithTransportCredentials(grpcCreds))
+	} else {
+		opts = append(opts, grpc.WithInsecure())
+	}
+
+	conn, err := grpc.DialContext(ctx, addr, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("unable to open grpc connection: %s", err)
 	}
@@ -135,4 +155,14 @@ func (c *Client) subLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 			}
 		}
 	}
+}
+
+func setupGrpcCreds() {
+	pool, err := x509.SystemCertPool()
+	if err != nil {
+		// should only warn on windows? i think?
+		log.P.Fatal("unable to get system cert pool", zap.Error(err))
+	}
+
+	grpcCreds = credentials.NewClientTLSFromCert(pool, "")
 }

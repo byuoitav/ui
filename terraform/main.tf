@@ -48,7 +48,7 @@ module "deployment" {
   // required
   name           = "av-control-ui-dev"
   image          = "docker.pkg.github.com/byuoitav/ui/ui-dev"
-  image_version  = "84f4424"
+  image_version  = "e25f848"
   container_port = 8080
   repo_url       = "https://github.com/byuoitav/ui"
 

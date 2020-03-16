@@ -29,6 +29,7 @@ func main() {
 		codeServiceAddr   string
 		remoteControlAddr string
 		lazaretteAddr     string
+		lazaretteSSL      bool
 	)
 
 	pflag.IntVarP(&port, "port", "P", 8080, "port to run the server on")
@@ -37,6 +38,7 @@ func main() {
 	pflag.StringVarP(&codeServiceAddr, "code-service", "c", "control-keys.avs.byu.edu", "address of the code service to use")
 	pflag.StringVarP(&remoteControlAddr, "remote-control", "r", "rooms.av.byu.edu", "address of the remote control to show")
 	pflag.StringVarP(&lazaretteAddr, "lazarette", "l", "localhost:7777", "address of the lazarette cache to use")
+	pflag.BoolVar(&lazaretteSSL, "use-lazarette-ssl", false, "include to enable lazarette tls/ssl")
 	pflag.Parse()
 
 	setLog := func(level int) error {
@@ -95,6 +97,7 @@ func main() {
 		CodeServiceAddr:   codeServiceAddr,
 		RemoteControlAddr: remoteControlAddr,
 		LazaretteAddr:     lazaretteAddr,
+		LazaretteSSL:      lazaretteSSL,
 	}
 
 	bffg := e.Group("", bffhandlers.SetupMiddleware)

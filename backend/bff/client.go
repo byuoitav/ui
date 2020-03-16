@@ -27,6 +27,7 @@ type ClientConfig struct {
 	CodeServiceAddr   string
 	RemoteControlAddr string
 	LazaretteAddr     string
+	LazaretteSSL      bool
 }
 
 // Client represents a client of the bff
@@ -157,7 +158,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 
 	// connect to lazarette - we need to use the ctx associated with the websocket,
 	// or else it will close the connection when this function ends
-	laz, err := ConnectToLazarette(ctx, c.config.LazaretteAddr)
+	laz, err := ConnectToLazarette(ctx, c.config.LazaretteAddr, c.config.LazaretteSSL)
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to lazarette: %w", err)
 	}
