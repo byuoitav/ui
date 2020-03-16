@@ -38,7 +38,7 @@ func main() {
 	pflag.StringVarP(&codeServiceAddr, "code-service", "c", "control-keys.avs.byu.edu", "address of the code service to use")
 	pflag.StringVarP(&remoteControlAddr, "remote-control", "r", "rooms.av.byu.edu", "address of the remote control to show")
 	pflag.StringVarP(&lazaretteAddr, "lazarette", "l", "localhost:7777", "address of the lazarette cache to use")
-	pflag.BoolVar(&lazaretteSSL, "use-lazarette-ssl", false, "include to enable lazarette tls/ssl")
+	pflag.BoolVar(&lazaretteSSL, "lazarette-use-ssl", false, "include to enable lazarette tls/ssl")
 	pflag.Parse()
 
 	setLog := func(level int) error {
