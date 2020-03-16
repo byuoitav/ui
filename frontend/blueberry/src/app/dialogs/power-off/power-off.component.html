@@ -1,0 +1,11 @@
+<div class="row">
+    <h1 class="mat-h1 text">Power off</h1>
+</div>
+<div class="row">
+    <h3 class="mat-h2">Would you like to turn off all displays or just this one?</h3>
+</div>
+<div class="row secondary-theme">
+    <button mat-raised-button class="btn" (click)="cancel()" color="warn">Cancel</button>
+    <button mat-raised-button class="btn" (click)="shutDown('one')" color="accent">This display</button>
+    <button mat-raised-button class="btn" (click)="shutDown('all')" color="accent">All displays</button>
+</div>

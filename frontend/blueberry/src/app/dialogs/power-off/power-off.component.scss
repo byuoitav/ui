@@ -1,0 +1,20 @@
+.row {
+    display: flex;
+    flex-flow: row nowrap;
+    // height: 15vh;
+    width: 70vw;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.btn {
+    min-width: 100px;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.text {
+    font-size: 20pt;
+}

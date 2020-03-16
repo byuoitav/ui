@@ -32,7 +32,7 @@ export class AppComponent {
 
   unlock = () => {
     this.bff.locked = false;
-    this.roomRef.setPower(true);
+    this.roomRef.setPower(true, true);
   }
 
   powerIsOff = ():boolean => {
@@ -56,14 +56,12 @@ export class AppComponent {
   }
 
   haveControlKey() {
-    // TODO: do this thing
-    if (this.cg.controlInfo) {
+    if (this.cg && this.cg.controlInfo) {
       return true;
     }
   }
 
   hasAudioGroups() {
-    // return true;
     if (this.roomRef && this.roomRef.room) {
       if (this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].audioGroups) {
         return this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup].audioGroups.length > 1;

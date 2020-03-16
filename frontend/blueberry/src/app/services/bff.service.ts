@@ -97,10 +97,11 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   }
 
-  setPower = (power: boolean) => {
+  setPower = (power: boolean, doAll: boolean) => {
     const kv = {
       setPower: {
-        poweredOn: power
+        poweredOn: power,
+        all: doAll
       }
     };
 
