@@ -71,6 +71,10 @@ module "deployment" {
     "--lazarette", "lazarette-dev.default.svc.cluster.local",
     "--code-service", data.aws_ssm_parameter.dev_code_service_address.value,
   ]
+  ingress_annotations = {
+    //"nginx.ingress.kubernetes.io/proxy-read-timeout" = "5400"
+    //"nginx.ingress.kubernetes.io/proxy-send-timeout" = "5400"
+  }
 }
 
 // TODO prod

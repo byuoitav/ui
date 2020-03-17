@@ -106,13 +106,14 @@ func (c *Client) subLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 				return
 			case err != nil:
 				s := status.Convert(err)
-				if s.Code() == codes.Canceled || s.Code() == codes.DeadlineExceeded {
+				switch s.Code() {
+				case codes.Canceled, codes.DeadlineExceeded:
 					c.Warn("ending lazarette stream", zap.Error(s.Err()))
 					return
+				default:
+					c.Warn("lazarette stream error", zap.Error(err))
+					continue
 				}
-
-				c.Warn("lazarette stream error", zap.Error(err))
-				continue
 			case kv == nil:
 				continue
 			}
