@@ -46,6 +46,7 @@ export class AppComponent implements OnInit {
     this.power = false;
     console.log(this.bff);
     console.log(this.roomRef);
+    
   }
 
   ngOnInit() {
@@ -59,6 +60,27 @@ export class AppComponent implements OnInit {
           // else {
           //   this.roomRef.loading = false;
           // }
+        }
+      })
+    }
+    if (this.bff) {
+      this.bff.closeEmitter.subscribe((e) => {
+        if (e) {
+          this.roomRef = this.bff.getRoom();
+          if (this.roomRef) {
+            this.roomRef.subject().subscribe((r) => {
+              if (r) {
+                this.cg = r.controlGroups[r.selectedControlGroup];
+                // if (this.cg.poweredOn == true) {
+                //   this.roomRef.loading = false;
+                // }
+                // else {
+                //   this.roomRef.loading = false;
+                // }
+              }
+            })
+          }
+          console.log("emitted!");
         }
       })
     }

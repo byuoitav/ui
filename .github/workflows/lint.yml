@@ -2,8 +2,7 @@ name: Lint & Test
 on:
   push:
     branches:
-      - "*"
-      - "*/*"
+      - "**"
       - "!master"
 
 jobs:
@@ -14,7 +13,7 @@ jobs:
       - name: Set up go (TODO - lint frontend)
         uses: actions/setup-go@v1
         with:
-          go-version: 1.13
+          go-version: 1.14.x
 
       - name: Check out code
         uses: actions/checkout@v1
@@ -32,7 +31,7 @@ jobs:
       - name: Set up go (TODO - test frontend)
         uses: actions/setup-go@v1
         with:
-          go-version: 1.13
+          go-version: 1.14.x
 
       - name: Check out code
         uses: actions/checkout@v1

@@ -47,8 +47,8 @@ module "deployment" {
 
   // required
   name           = "av-control-ui-dev"
-  image          = "docker.pkg.github.com/byuoitav/ui/amd64"
-  image_version  = "v0.3.0"
+  image          = "docker.pkg.github.com/byuoitav/ui/ui-dev"
+  image_version  = "e25f848"
   container_port = 8080
   repo_url       = "https://github.com/byuoitav/ui"
 
@@ -59,12 +59,17 @@ module "deployment" {
     "DB_ADDRESS"       = data.aws_ssm_parameter.dev_couch_address.value
     "DB_USERNAME"      = data.aws_ssm_parameter.dev_couch_username.value
     "DB_PASSWORD"      = data.aws_ssm_parameter.dev_couch_password.value
+    "STOP_REPLICATION" = "true"
     "CODE_SERVICE_URL" = data.aws_ssm_parameter.dev_code_service_address.value
     "HUB_ADDRESS"      = data.aws_ssm_parameter.dev_hub_address.value
   }
   container_args = [
-    "--port", "8080",  // run on port 8080
-    "--log-level", "2" // set log level to info
+    "--port", "8080",
+    "--log-level", "1", // set log level to info
+    // "--av-api", "av-api-prd.default.svc.cluster.local",
+    "--av-api", "itb-1006-cp1.byu.edu:8000",
+    "--lazarette", "lazarette-dev.default.svc.cluster.local",
+    "--code-service", data.aws_ssm_parameter.dev_code_service_address.value,
   ]
 }
 

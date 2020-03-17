@@ -1,6 +1,6 @@
 module github.com/byuoitav/ui
 
-go 1.13
+go 1.14
 
 require (
 	github.com/byuoitav/central-event-system v0.0.0-20200115195636-0c9fbced1b99

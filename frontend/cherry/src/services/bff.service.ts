@@ -168,11 +168,13 @@ export class BFFService {
   loaded = false;
   controlKey: string;
   roomControlUrl: string;
+  closeEmitter: EventEmitter<string>;
   
   roomRef: RoomRef;
   
   constructor(private router: Router, private dialog: MatDialog) {
     // do things based on route changes
+    this.closeEmitter = new EventEmitter();
     this.router.events.subscribe(event => {
       if (event instanceof ActivationEnd) {
         const snapshot = event.snapshot;
@@ -195,27 +197,10 @@ export class BFFService {
     }
 
     const endpoint = protocol + "//" + window.location.host + "/ws";
-    
     const ws = new WebSocket(endpoint);
 
-    const roomRef = new RoomRef(room, ws, () => {
+    this.roomRef = new RoomRef(room, ws, () => {
       console.log("closing room connection", room.value.id);
-      // this.dialog.open(TurnOffRoomDialogComponent).afterClosed().subscribe((answer) => {
-      //   if (answer !== undefined) {
-      //     if (answer === "yes") {
-      //       roomRef.turnOff();
-      //     }
-
-      //     // close the websocket
-      //     ws.close();
-
-      //     // say that we are done with sending rooms
-      //     room.complete();
-
-      //     // route back to login page since we are gonna need a new code
-      //     this.router.navigate(["/login"], { replaceUrl: true });
-      //   }
-      // });
     });
 
     // handle incoming messages from bff
@@ -228,13 +213,13 @@ export class BFFService {
             console.log("new room", data[k]);
 
             room.next(data[k]);
-            if (roomRef.loadingHome == true && data[k].controlGroups[data[k].selectedControlGroup].poweredOn == true) {
-              roomRef.loadingHome = false;
+            if (this.roomRef.loadingHome == true && data[k].controlGroups[data[k].selectedControlGroup].poweredOn == true) {
+              this.roomRef.loadingHome = false;
             }
-            if (roomRef.loadingLock == true && data[k].controlGroups[data[k].selectedControlGroup].poweredOn == false) {
-              roomRef.loadingLock = false;
+            if (this.roomRef.loadingLock == true && data[k].controlGroups[data[k].selectedControlGroup].poweredOn == false) {
+              this.roomRef.loadingLock = false;
             }
-            roomRef.commandInProgress = false;
+            this.roomRef.commandInProgress = false;
             break;
 
           case "refresh":
@@ -252,10 +237,12 @@ export class BFFService {
 
     ws.onclose = event => {
       console.warn("websocket close", event);
+      this.closeEmitter.emit("conn closed");
       room.error(event);
+      // this.roomRef = this.getRoom();
     };
 
-    return roomRef;
+    return this.roomRef;
   };
 
   error = (msg: string) => {

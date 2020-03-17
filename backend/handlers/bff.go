@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -21,6 +22,7 @@ type BFF struct {
 	CodeServiceAddr   string
 	RemoteControlAddr string
 	LazaretteAddr     string
+	LazaretteSSL      bool
 
 	init     sync.Once
 	upgrader websocket.Upgrader
@@ -55,6 +57,8 @@ func (b *BFF) NewClient(c echo.Context) error {
 	defer ws.Close()
 
 	closeWithReason := func(msg string) error {
+		log.P.Warn("unable to create new client", zap.String("error", msg))
+
 		// max control frame size is 125 bytes (https://tools.ietf.org/html/rfc6455#section-5.5)
 		cmsg := websocket.FormatCloseMessage(4000, msg)
 		if len(cmsg) > 125 {
@@ -73,6 +77,7 @@ func (b *BFF) NewClient(c echo.Context) error {
 		CodeServiceAddr:   b.CodeServiceAddr,
 		RemoteControlAddr: b.RemoteControlAddr,
 		LazaretteAddr:     b.LazaretteAddr,
+		LazaretteSSL:      b.LazaretteSSL,
 	}
 
 	// if it is coming from localhost then don't worry about a key
@@ -98,7 +103,10 @@ func (b *BFF) NewClient(c echo.Context) error {
 		// if not localhost then use the code service to get the info
 		log.P.Info("Getting room/preset from control key", zap.String("key", c.Param("key")))
 
-		room, cgID, err := bff.GetRoomAndControlGroup(c.Request().Context(), b.CodeServiceAddr, c.Param("key"))
+		ctx, cancel := context.WithTimeout(c.Request().Context(), 3*time.Second)
+		defer cancel()
+
+		room, cgID, err := bff.GetRoomAndControlGroup(ctx, b.CodeServiceAddr, c.Param("key"))
 		switch {
 		case errors.Is(err, bff.ErrInvalidControlKey):
 			return closeWithReason("Invalid control key")
