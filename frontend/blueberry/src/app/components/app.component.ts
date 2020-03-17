@@ -27,6 +27,10 @@ export class AppComponent {
           this.bff.locked = false;
         }
       }
+    });
+    this.bff.retryEmitter.subscribe(() => {
+      console.log("websocket closed, retrying...");
+      this.roomRef = this.bff.getRoom();
     })
   }
 

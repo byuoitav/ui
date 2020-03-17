@@ -38,6 +38,7 @@ import { ActivityButtonComponent } from './components/activity-button/activity-b
 import { ManagementComponent } from './components/management/management.component';
 import { MinionComponent } from './dialogs/minion/minion.component';
 import { PowerOffComponent } from './dialogs/power-off/power-off.component';
+import { ConfirmHelpDialog } from './dialogs/help/confirmhelp';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { PowerOffComponent } from './dialogs/power-off/power-off.component';
     ManagementComponent,
     MinionComponent,
     PowerOffComponent,
+    ConfirmHelpDialog
   ],
   imports: [
     BrowserModule,
@@ -80,7 +82,8 @@ import { PowerOffComponent } from './dialogs/power-off/power-off.component';
     HelpComponent,
     SharingComponent,
     MinionComponent,
-    PowerOffComponent
+    PowerOffComponent,
+    ConfirmHelpDialog
   ],
   providers: [
     BFFService

@@ -193,6 +193,7 @@ export class BFFService {
   roomRef: RoomRef;
 
   dialogCloser: EventEmitter<string>;
+  retryEmitter: EventEmitter<any>;
 
   constructor(private router: Router, private dialog: MatDialog) {
     // do things based on route changes
@@ -207,6 +208,7 @@ export class BFFService {
       }
     });
     this.dialogCloser = new EventEmitter();
+    this.retryEmitter = new EventEmitter();
   }
 
   getRoom = (): RoomRef => {
@@ -268,8 +270,11 @@ export class BFFService {
     };
 
     ws.onclose = event => {
-      console.warn("websocket close", event);
-      room.error(event);
+      setTimeout(() => {
+        console.warn("websocket close", event);
+        this.retryEmitter.emit();
+        room.error(event);
+      }, 3000);
     };
 
     this.roomRef = roomRef;
