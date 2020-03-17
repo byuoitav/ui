@@ -40,9 +40,17 @@ func (sp SetPower) Do(c *Client, data []byte) {
 	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
 	c.Info("Setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
 
+	// Dissolve share group if master is powered off
+
 	// go through all of the display groups and turn on all of their displays
 	var state structs.PublicRoom
 	for _, group := range cg.DisplayGroups {
+		if group.ShareInfo.State == stateIsMaster {
+			var ss SetSharing
+			ss.Unshare(c, SetSharingMessage{
+				Group: group.ID,
+			})
+		}
 		for _, disp := range group.Displays {
 			state.Displays = append(state.Displays, structs.Display{
 				PublicDevice: structs.PublicDevice{
