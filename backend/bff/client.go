@@ -13,6 +13,7 @@ import (
 	"github.com/byuoitav/lazarette/lazarette"
 	"github.com/byuoitav/ui/log"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
 
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
@@ -44,6 +45,7 @@ type Client struct {
 	uiConfig UIConfig
 
 	lazs       LazaretteState
+	lazConn    *grpc.ClientConn
 	lazUpdates chan lazMessage
 
 	// controlKeys is periodically updated
@@ -152,23 +154,31 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		return nil
 	})
 
+	// connect to lazarette
+	g.Go(func() error {
+		c.stats.Routines++
+		defer c.stats.decRoutines()
+
+		var err error
+		c.lazConn, err = createGrpcConn(gctx, c.config.LazaretteAddr, c.config.LazaretteSSL)
+		if err != nil {
+			return fmt.Errorf("unable to connect to lazarette: %w", err)
+		}
+
+		c.Debug("Successfully connected to lazarette")
+		return nil
+	})
+
 	if err := g.Wait(); err != nil {
 		return nil, fmt.Errorf("unable to setup client: %w", err)
 	}
 
-	// connect to lazarette - we need to use the ctx associated with the websocket,
-	// or else it will close the connection when this function ends
-	laz, err := ConnectToLazarette(ctx, c.config.LazaretteAddr, c.config.LazaretteSSL)
-	if err != nil {
-		return nil, fmt.Errorf("unable to connect to lazarette: %w", err)
-	}
-
+	// start lazarette subscription
+	laz := lazarette.NewLazaretteClient(c.lazConn)
 	sub, err := laz.Subscribe(ctx, &lazarette.Key{Key: c.roomID})
 	if err != nil {
 		return nil, fmt.Errorf("unable to subscribe to lazarette: %w", err)
 	}
-
-	c.Debug("Connected to lazarette and listening for changes", zap.String("prefix", c.roomID))
 
 	// build the initial room
 	room := c.GetRoom()
@@ -249,6 +259,9 @@ func (c *Client) Close() {
 
 		// close the kill chan to clean up all resources
 		close(c.kill)
+
+		// close the lazarette connection
+		c.lazConn.Close()
 
 		// close our websocket with the frontend
 		c.ws.Close()

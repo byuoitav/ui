@@ -69,6 +69,7 @@ func (sv SetVolume) Do(c *Client, data []byte) {
 					Name: dev,
 				},
 				Volume: &msg.Level,
+				Muted:  BoolP(false),
 			})
 		}
 	} else {
@@ -77,6 +78,7 @@ func (sv SetVolume) Do(c *Client, data []byte) {
 				Name: msg.AudioDevice.GetName(),
 			},
 			Volume: &msg.Level,
+			Muted:  BoolP(false),
 		})
 	}
 
