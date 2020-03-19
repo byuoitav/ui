@@ -52,9 +52,11 @@ export class DisplayComponent implements OnInit {
     })
   }
 
-  public changeInput(display: string, input: Input) {
-    document.getElementById("input" + input.id).classList.toggle("feedback");
-    this.roomRef.setInput(display, input.id);
+  public changeInput(display: DisplayGroup, input: Input) {
+    if (display.input != input.id) {
+      document.getElementById("input" + input.id).classList.toggle("feedback");
+      this.roomRef.setInput(display.id, input.id);
+    }
   }
 
   public openMobileControlDialog() {
@@ -80,8 +82,10 @@ export class DisplayComponent implements OnInit {
   }
 
   public setBlank(d: DisplayGroup) {
-    document.getElementById("input" + this.blank.id).classList.toggle("feedback");
-    this.roomRef.setBlanked(d.id, true);
+    if (!d.blanked) {
+      document.getElementById("input" + this.blank.id).classList.toggle("feedback");
+      this.roomRef.setBlanked(d.id, true);
+    }
   }
 
   public getInputIcon(d: DisplayGroup) {

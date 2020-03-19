@@ -12,7 +12,7 @@
 
                 <!-- If there aren't enough to make 2 pages -->
                 <div class="devices less" *ngIf="i?.audioDevices.length <= 3">
-                    <div class="device slider-container" *ngFor="let a of i?.audioDevices">
+                    <div class="device slider-container" *ngFor="let a of i?.audioDevices; let idx = index" [id]="i.id + idx">
                         <span class="volume-label">{{ a.name }}</span>
                         <i class="material-icons">{{ a.icon }}</i>
                         <volume
@@ -30,12 +30,14 @@
                 <div class="devices displays" *ngIf="i?.audioDevices.length > 3">
                     <div
                         class="button left display"
+                        (click)=groupPageLeft(i?.id)
+                        [class.blank]="!groupCanPageLeft(i?.id)"
                     >
                         <mat-icon style="transform: scale(3)">keyboard_arrow_left</mat-icon>
                     </div>
                     <div class="mixers">
                         <div class="sliders">
-                            <div class="device slider-container" *ngFor="let a of i?.audioDevices">
+                            <div class="device slider-container" *ngFor="let a of i?.audioDevices; let idx = index" [id]="i.id + idx">
                                 <span>{{ a.name }}</span>
                                 <i class="material-icons">{{ a.icon }}</i>
                                 <volume
@@ -77,6 +79,8 @@
                     </div>
                     <div
                         class="button right"
+                        (click)="groupPageRight(i?.id)"
+                        [class.blank]="!groupCanPageRight(i?.id)"
                     >
                         <mat-icon style="transform: scale(3)">keyboard_arrow_right</mat-icon>
                     </div>
