@@ -4,60 +4,62 @@
 <div class="base mat-app-background">
   <management [enabled]="showManagement()"></management>
   <ng-container *ngIf="!roomRef?.loadingHome && !roomRef?.loadingLock; else loading">
-    <div *ngIf="!cg?.poweredOn; else home" class="lock">
+    <ng-container *ngIf="cg">
+      <div *ngIf="!cg?.poweredOn; else home" class="lock">
 
-        <object type="image/svg+xml" data="./assets/byu_medallion_white.svg" class="logo">
-        </object>
-        
-        <div class="text">
-          <button mat-stroked-button
-            class="lock-screen-button start-button"
-            (click)="togglePower()"
-            (press)="togglePower()"
-          >
-            Start
-          </button>
-        </div>
-        
-        <div class="optional-buttons">
-          <!-- Screen Control -->
-          <ng-container *ngIf="cg?.screens?.length > 0">
-            <button mat-stroked-button
-              class="lock-screen-button screen-button"
-              (click)="screen.show()"
-              (press)="screen.show()"
-            >
-              <mat-icon class="screen-control-icon">unfold_more</mat-icon>
-              <div class="button-text">Screen Control</div>
-            </button>
-          </ng-container>
-
-        
-          <!-- Mobile Control -->
-          <button mat-stroked-button
-            class="lock-screen-button mobile-control"
-            (click)="openMobileControlDialog()"
-            (press)="openMobileControlDialog()"
-          >
-            <mat-icon class="screen-control-icon">phone_iphone</mat-icon>
-            <div class="button-text">Key: {{ cg?.controlInfo?.key }}</div>
-          </button>
+          <object type="image/svg+xml" data="./assets/byu_medallion_white.svg" class="logo">
+          </object>
           
-          <!-- Audio Control -->
-          <ng-container *ngIf="cg?.audioGroups != null">
-            <ng-container *ngIf="cg?.audioGroups?.length > 1 || cg?.audioGroups[0]?.name != 'Display Volume Mixing'">
+          <div class="text">
+            <button mat-stroked-button
+              class="lock-screen-button start-button"
+              (click)="togglePower()"
+              (press)="togglePower()"
+            >
+              Start
+            </button>
+          </div>
+          
+          <div class="optional-buttons">
+            <!-- Screen Control -->
+            <ng-container *ngIf="cg?.screens?.length > 0">
               <button mat-stroked-button
-                class="lock-screen-button audio-button"
-                (click)="audio.show(roomRef)"
-                (press)="audio.show(roomRef)"
+                class="lock-screen-button screen-button"
+                (click)="screen.show()"
+                (press)="screen.show()"
               >
-                <mat-icon class="rotate-90">tune</mat-icon>
-                <div class="button-text">Audio Control</div>
+                <mat-icon class="screen-control-icon">unfold_more</mat-icon>
+                <div class="button-text">Screen Control</div>
               </button>
             </ng-container>
-          </ng-container>
-        </div>
-    </div>
+
+          
+            <!-- Mobile Control -->
+            <button mat-stroked-button
+              class="lock-screen-button mobile-control"
+              (click)="openMobileControlDialog()"
+              (press)="openMobileControlDialog()"
+            >
+              <mat-icon class="screen-control-icon">phone_iphone</mat-icon>
+              <div class="button-text">Key: {{ cg?.controlInfo?.key }}</div>
+            </button>
+            
+            <!-- Audio Control -->
+            <ng-container *ngIf="cg?.audioGroups != null">
+              <ng-container *ngIf="cg?.audioGroups?.length > 1 || cg?.audioGroups[0]?.name != 'Display Volume Mixing'">
+                <button mat-stroked-button
+                  class="lock-screen-button audio-button"
+                  (click)="audio.show(roomRef)"
+                  (press)="audio.show(roomRef)"
+                >
+                  <mat-icon class="rotate-90">tune</mat-icon>
+                  <div class="button-text">Audio Control</div>
+                </button>
+              </ng-container>
+            </ng-container>
+          </div>
+      </div>
+    </ng-container>
   </ng-container>
 
 

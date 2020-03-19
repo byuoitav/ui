@@ -102,6 +102,9 @@ export class AppComponent implements OnInit {
   }
 
   public showManagement() {
+    if (!this.cg) {
+      return true;
+    }
     if (this.dialog.openDialogs.includes(this.helpRef)) {
       return true;
     }
