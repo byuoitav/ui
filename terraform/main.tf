@@ -48,7 +48,7 @@ module "deployment" {
   // required
   name           = "av-control-ui-dev"
   image          = "docker.pkg.github.com/byuoitav/ui/ui-dev"
-  image_version  = "e25f848"
+  image_version  = "fbbf239"
   container_port = 8080
   repo_url       = "https://github.com/byuoitav/ui"
 
@@ -68,9 +68,13 @@ module "deployment" {
     "--log-level", "1", // set log level to info
     // "--av-api", "av-api-prd.default.svc.cluster.local",
     "--av-api", "itb-1006-cp1.byu.edu:8000",
-    "--lazarette", "lazarette-dev.default.svc.cluster.local",
+    "--lazarette", "lazarette-dev.default.svc.cluster.local:80",
     "--code-service", data.aws_ssm_parameter.dev_code_service_address.value,
   ]
+  ingress_annotations = {
+    //"nginx.ingress.kubernetes.io/proxy-read-timeout" = "5400"
+    //"nginx.ingress.kubernetes.io/proxy-send-timeout" = "5400"
+  }
 }
 
 // TODO prod

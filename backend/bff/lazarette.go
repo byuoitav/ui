@@ -36,13 +36,8 @@ type lazMessage struct {
 	Data interface{}
 }
 
-// ConnectToLazarette dials lazarette and returns a new client. The connection will be killed
-// when ctx expires.
-func ConnectToLazarette(ctx context.Context, addr string, ssl bool) (lazarette.LazaretteClient, error) {
-	var opts []grpc.DialOption
-
-	opts = append(opts, grpc.WithBlock())
-	opts = append(opts, grpc.WithTimeout(2500*time.Millisecond))
+func createGrpcConn(ctx context.Context, addr string, ssl bool) (*grpc.ClientConn, error) {
+	opts := []grpc.DialOption{}
 
 	if ssl {
 		grpcInitCreds.Do(setupGrpcCreds)
@@ -53,12 +48,12 @@ func ConnectToLazarette(ctx context.Context, addr string, ssl bool) (lazarette.L
 
 	conn, err := grpc.DialContext(ctx, addr, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("unable to open grpc connection: %s", err)
+		return nil, fmt.Errorf("unable to create grpc connection: %s", err)
 	}
 
 	// TODO reconnect
 
-	return lazarette.NewLazaretteClient(conn), nil
+	return conn, nil
 }
 
 func (c *Client) updateLazaretteState(laz lazarette.LazaretteClient) {
@@ -111,13 +106,14 @@ func (c *Client) subLazaretteState(sub lazarette.Lazarette_SubscribeClient) {
 				return
 			case err != nil:
 				s := status.Convert(err)
-				if s.Code() == codes.Canceled || s.Code() == codes.DeadlineExceeded {
+				switch s.Code() {
+				case codes.Canceled, codes.DeadlineExceeded:
 					c.Warn("ending lazarette stream", zap.Error(s.Err()))
 					return
+				default:
+					c.Warn("lazarette stream error", zap.Error(err))
+					continue
 				}
-
-				c.Warn("lazarette stream error", zap.Error(err))
-				continue
 			case kv == nil:
 				continue
 			}
