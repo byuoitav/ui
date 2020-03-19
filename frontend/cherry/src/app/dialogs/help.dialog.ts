@@ -63,8 +63,8 @@ export class HelpDialog {
     }
 
     public requestHelp() {
-      this.roomRef.requestHelp(location.hostname + "needs help");
       const dialogRef = this.dialog.open(ConfirmHelpDialog, {
+        data: this.roomRef,
         width: "70vw",
         disableClose: true
       });

@@ -61,7 +61,6 @@
   </ng-container>
 
 
-  <!-- GO THROUGH THIS ONCE WE PULL INFO FROM THE BACKEND TO ADJUST FOR NO DISPLAYS -->
   <ng-template #home>
     <button mat-raised-button
       class="power"
@@ -83,7 +82,7 @@
       </button>
     </div>
 
-    <mat-tab-group backgroundColor="primary" color="accent">
+    <mat-tab-group backgroundColor="primary" color="accent" [(selectedIndex)]="selectedTabIndex">
       <ng-container *ngIf="cg?.displayGroups.length > 0">
         <mat-tab label="Display">
           <display [roomRef]="roomRef"></display>
@@ -91,7 +90,7 @@
       </ng-container>
       <ng-container *ngIf="cg?.audioGroups != null">
           <mat-tab *ngIf="cg?.audioGroups.length > 0" label="Audio">
-              <audiocontrol [roomRef]="roomRef"></audiocontrol>
+              <audiocontrol *ngIf="selectedTabIndex == 1" [roomRef]="roomRef"></audiocontrol>
             </mat-tab>
       </ng-container>
       <mat-tab *ngIf="cg?.screens?.length > 0" label="Screen Control">
