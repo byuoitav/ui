@@ -45,8 +45,8 @@
                 [class.selected]="selectedInput == i"
                 [id]="'input' + i.id"
                 [class.mat-raised-button]="selectedInput == i"
-                (click)="changeInput(cg?.displayGroups[selectedOutput]?.id, i)"
-                (press)="changeInput(cg?.displayGroups[selectedOutput]?.id, i)"
+                (click)="changeInput(cg?.displayGroups[selectedOutput], i)"
+                (press)="changeInput(cg?.displayGroups[selectedOutput], i)"
             >
                 <div class="icon">
                     <i class="material-icons">{{ i?.icon }}</i>

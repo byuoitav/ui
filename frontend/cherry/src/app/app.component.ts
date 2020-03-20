@@ -1,5 +1,5 @@
 import { Component, ViewEncapsulation, OnInit, ViewChild } from "@angular/core";
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatDialogRef, SELECT_PANEL_INDENT_PADDING_X } from '@angular/material';
 import { trigger, transition, animate } from "@angular/animations";
 import { Http } from "@angular/http";
 import { BFFService, RoomRef } from '../services/bff.service';
@@ -31,6 +31,7 @@ export class AppComponent implements OnInit {
   public power: boolean;
   public roomRef: RoomRef;
   public cg: ControlGroup;
+  public helpRef: MatDialogRef<HelpDialog>
 
   @ViewChild(LockScreenAudioComponent, {static: true})
   public lockAudio: LockScreenAudioComponent;
@@ -54,12 +55,6 @@ export class AppComponent implements OnInit {
       this.roomRef.subject().subscribe((r) => {
         if (r) {
           this.cg = r.controlGroups[r.selectedControlGroup];
-          // if (this.cg.poweredOn == true) {
-          //   this.roomRef.loading = false;
-          // }
-          // else {
-          //   this.roomRef.loading = false;
-          // }
         }
       })
     }
@@ -71,12 +66,6 @@ export class AppComponent implements OnInit {
             this.roomRef.subject().subscribe((r) => {
               if (r) {
                 this.cg = r.controlGroups[r.selectedControlGroup];
-                // if (this.cg.poweredOn == true) {
-                //   this.roomRef.loading = false;
-                // }
-                // else {
-                //   this.roomRef.loading = false;
-                // }
               }
             })
           }
@@ -87,7 +76,7 @@ export class AppComponent implements OnInit {
   }
 
   public openHelpDialog() {
-    const dialogRef = this.dialog.open(HelpDialog, {
+    this.helpRef = this.dialog.open(HelpDialog, {
       data: this.roomRef,
       width: "70vw",
       disableClose: true
@@ -95,7 +84,6 @@ export class AppComponent implements OnInit {
   }
 
   public openMobileControlDialog() {
-    console.log(this.cg.controlInfo.url);
     const dialogRef = this.dialog.open(MobileControlComponent, {
       width: "70vw",
       data: {
@@ -106,18 +94,20 @@ export class AppComponent implements OnInit {
   }
 
   public togglePower() {
-
     if (this.cg.poweredOn == true) {
-      // console.log("Roomref lock, home: " + this.roomRef.loadingLock + " " + this.roomRef.loadingHome);
-      //probably have to do a check to see if all the displays should turn off
       this.roomRef.setPower(false);
     } else {
-      // console.log("Roomref lock, home: " + this.roomRef.loadingLock + " " + this.roomRef.loadingHome);
       this.roomRef.setPower(true);
     }
   }
 
   public showManagement() {
+    if (!this.cg) {
+      return true;
+    }
+    if (this.dialog.openDialogs.includes(this.helpRef)) {
+      return true;
+    }
     if (this.screen.isShowing() || this.lockAudio.isShowing()) {
       return false;
     }
