@@ -400,6 +400,7 @@ func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 		return
 
 	}
+
 	if err := c.SendAPIRequest(ctx, state); err != nil {
 		c.Warn("failed to end share", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to end share: %w", err))
