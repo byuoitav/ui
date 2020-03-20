@@ -15,6 +15,7 @@ type SetPower struct {
 
 type SetPowerMessage struct {
 	PoweredOn bool `json:"poweredOn"`
+	All       bool `json:"all"`
 }
 
 // Do .
@@ -37,12 +38,21 @@ func (sp SetPower) Do(c *Client, data []byte) {
 		status = "on"
 	}
 
-	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
-	c.Info("Setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
+	room := c.GetRoom()
 
-	// go through all of the display groups and turn on all of their displays
+	// build the state body
 	var state structs.PublicRoom
-	for _, group := range cg.DisplayGroups {
+
+	addDisplayGroup := func(group DisplayGroup) {
+		// Dissolve share group it's a master
+		if group.ShareInfo.State == stateIsMaster {
+			// TODO might be better to inline the logic here, but this is easier for now
+			var ss SetSharing
+			ss.Unshare(c, SetSharingMessage{
+				Group: group.ID,
+			})
+		}
+
 		for _, disp := range group.Displays {
 			state.Displays = append(state.Displays, structs.Display{
 				PublicDevice: structs.PublicDevice{
@@ -53,70 +63,27 @@ func (sp SetPower) Do(c *Client, data []byte) {
 		}
 	}
 
+	if msg.All {
+		c.Info("Setting power for the entire room", zap.String("to", status))
+
+		// set power on everything in the room
+		for _, group := range room.GetAllDisplayGroups() {
+			addDisplayGroup(group)
+		}
+	} else {
+		// set power on everything in my controlGroup
+		cg := room.ControlGroups[c.selectedControlGroupID]
+		c.Info("Setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
+
+		for _, group := range cg.fullDisplayGroups {
+			addDisplayGroup(group)
+		}
+	}
+
 	if err := c.SendAPIRequest(ctx, state); err != nil {
 		c.Warn("failed to set power", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to set power: %s", err))
 	}
 
-	c.Info("Finished setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
+	c.Info("Finished setting power", zap.String("to", status), zap.Bool("entireRoom?", msg.All))
 }
-
-// PowerOffAll .
-//func (sp SetPower) PowerOffAll(c *Client) error {
-//	controlGroups := c.GetRoom().ControlGroups
-//	if controlGroups == nil {
-//		// error
-//		return fmt.Errorf("Control Groups not found %q", c.selectedControlGroupID)
-//	}
-//
-//	c.Info("Powering off all devices in the room.")
-//	var disp []DisplayBlock
-//	for _, cg := range controlGroups {
-//		c.Info("Powering off all devices in the room.")
-//
-//		for _, d := range cg.DisplayBlocks {
-//			if !contains(disp, d) {
-//				disp = append(disp, d)
-//			}
-//		}
-//	}
-//
-//	if len(disp) <= 0 {
-//		// error
-//		fmt.Printf("no!!!\n")
-//		return fmt.Errorf("the display(s) are less than or equal to zero")
-//	}
-//
-//	var state structs.PublicRoom
-//	for _, display := range disp {
-//		for _, out := range display.Outputs {
-//			// TODO write a getnamefromid func
-//			dSplit := strings.Split(string(out.ID), "-")
-//			display := structs.Display{
-//				PublicDevice: structs.PublicDevice{
-//					Name:  dSplit[2],
-//					Power: "standby",
-//				},
-//			}
-//
-//			state.Displays = append(state.Displays, display)
-//		}
-//	}
-//
-//	err := c.SendAPIRequest(context.Background(), state)
-//	if err != nil {
-//		c.Warn("failed to set power", zap.Error(err))
-//		c.Out <- ErrorMessage(fmt.Errorf("failed to set power: %s", err))
-//	}
-//
-//	return nil
-//}
-
-//func contains(s []DisplayBlock, e DisplayBlock) bool {
-//	for _, a := range s {
-//		if a.ID == e.ID {
-//			return true
-//		}
-//	}
-//	return false
-//}

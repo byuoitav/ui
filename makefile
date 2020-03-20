@@ -20,7 +20,7 @@ PKG_LIST := $(shell cd backend && go list ${PKG}/...)
 all: clean build
 
 test:
-	@cd backend && go test -v ${PKG_LIST} && pwd
+	@cd backend && go test -v ${PKG_LIST}
 
 test-cov:
 	@cd backend && go test -coverprofile=coverage.txt -covermode=atomic ${PKG_LIST}
