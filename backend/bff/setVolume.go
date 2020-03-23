@@ -3,7 +3,6 @@ package bff
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
@@ -25,21 +24,6 @@ func (sv SetVolume) Do(c *Client, data []byte) {
 		c.Warn("invalid value for setVolume", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("invalid value for setVolume: %s", err))
 		return
-	}
-
-	if len(msg.AudioDevice) > 0 {
-		shareData, err := c.getShareData(msg.AudioDevice)
-		if err != nil {
-			c.Warn("setVolume failed", zap.Error(err))
-			c.Out <- ErrorMessage(fmt.Errorf("cannot validate AudioDevice state: %w", err))
-			return
-		}
-		if shareData.State == stateIsActiveMinion {
-			err := errors.New("cannot set volume as an active minion")
-			c.Warn("setVolume failed", zap.Error(err))
-			c.Out <- ErrorMessage(err)
-			return
-		}
 	}
 
 	// this shouldn't take longer than 5 seconds
