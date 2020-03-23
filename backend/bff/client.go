@@ -24,7 +24,7 @@ type ClientConfig struct {
 	RoomID         string
 	ControlGroupID string
 
-	AvApiAddr         string
+	AvAPIAddr         string
 	CodeServiceAddr   string
 	RemoteControlAddr string
 	LazaretteAddr     string
@@ -115,7 +115,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		defer c.stats.decRoutines()
 
 		var err error
-		c.state, err = GetRoomState(gctx, c.httpClient, c.config.AvApiAddr, c.roomID)
+		c.state, err = GetRoomState(gctx, c.httpClient, c.config.AvAPIAddr, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get room state: %w", err)
 		}
@@ -130,7 +130,7 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 		defer c.stats.decRoutines()
 
 		var err error
-		c.room, err = GetRoomConfig(gctx, c.httpClient, c.config.AvApiAddr, c.roomID)
+		c.room, err = GetRoomConfig(gctx, c.httpClient, c.config.AvAPIAddr, c.roomID)
 		if err != nil {
 			return fmt.Errorf("unable to get room config: %w", err)
 		}
