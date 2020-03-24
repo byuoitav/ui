@@ -48,7 +48,7 @@ module "deployment" {
   // required
   name           = "av-control-ui-dev"
   image          = "docker.pkg.github.com/byuoitav/ui/ui-dev"
-  image_version  = "fbbf239"
+  image_version  = "f1011cc"
   container_port = 8080
   repo_url       = "https://github.com/byuoitav/ui"
 
@@ -60,7 +60,6 @@ module "deployment" {
     "DB_USERNAME"      = data.aws_ssm_parameter.dev_couch_username.value
     "DB_PASSWORD"      = data.aws_ssm_parameter.dev_couch_password.value
     "STOP_REPLICATION" = "true"
-    "CODE_SERVICE_URL" = data.aws_ssm_parameter.dev_code_service_address.value
     "HUB_ADDRESS"      = data.aws_ssm_parameter.dev_hub_address.value
   }
   container_args = [
