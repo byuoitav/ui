@@ -30,9 +30,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="master slider-container" *ngIf="j == 0">
-                                <volume class="slider" [level]="ag?.level" [mute]="ag?.audioDevices[0]?.muted" [name]="'Master Volume'" (levelChange)="bff.roomRef.setVolume($event)" (muteChange)="bff.roomRef.setMuted($event)"></volume>
-                            </div>
                         </div>
                     </ng-container>
         
