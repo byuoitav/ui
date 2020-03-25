@@ -32,6 +32,7 @@ export class AppComponent implements OnInit {
   public roomRef: RoomRef;
   public cg: ControlGroup;
   public helpRef: MatDialogRef<HelpDialog>
+  public mobileRef: MatDialogRef<MobileControlComponent>
 
   @ViewChild(LockScreenAudioComponent, {static: true})
   public lockAudio: LockScreenAudioComponent;
@@ -54,6 +55,14 @@ export class AppComponent implements OnInit {
     if (this.roomRef) {
       this.roomRef.subject().subscribe((r) => {
         if (r) {
+          if (this.cg) {
+            if ((this.cg.poweredOn == false && r.controlGroups[r.selectedControlGroup].poweredOn == true)
+            || (this.cg.poweredOn == true && r.controlGroups[r.selectedControlGroup].poweredOn == false)) {
+            if (this.dialog.openDialogs.includes(this.mobileRef)) {
+              this.mobileRef.close();
+            }
+          }
+          }
           this.cg = r.controlGroups[r.selectedControlGroup];
         }
       })
@@ -65,6 +74,13 @@ export class AppComponent implements OnInit {
           if (this.roomRef) {
             this.roomRef.subject().subscribe((r) => {
               if (r) {
+                console.log(this.dialog.openDialogs.includes(this.mobileRef));
+                if ((this.cg.poweredOn == false && r.controlGroups[r.selectedControlGroup].poweredOn == true)
+                  || (this.cg.poweredOn == true && r.controlGroups[r.selectedControlGroup].poweredOn == false)) {
+                  if (this.dialog.openDialogs.includes(this.mobileRef)) {
+                    this.dialog.closeAll();
+                  }
+                }
                 this.cg = r.controlGroups[r.selectedControlGroup];
               }
             })
@@ -84,7 +100,7 @@ export class AppComponent implements OnInit {
   }
 
   public openMobileControlDialog() {
-    const dialogRef = this.dialog.open(MobileControlComponent, {
+    this.mobileRef = this.dialog.open(MobileControlComponent, {
       width: "70vw",
       data: {
         url: this.cg.controlInfo.url,
