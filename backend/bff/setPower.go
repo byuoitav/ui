@@ -54,7 +54,26 @@ func (sp SetPower) Do(c *Client, data []byte) {
 					})
 				}
 			}
+			if status == "on" {
+				level := 30
+				preset, err := c.GetPresetByName(string(cg.ID))
+				if err != nil {
+					c.Warn("failed to set volume on media audio", zap.Error(err))
+					c.Out <- ErrorMessage(fmt.Errorf("failed to set volume media audio: %w", err))
+				}
+
+				// add each device to the av api request
+				for _, dev := range preset.AudioDevices {
+					state.AudioDevices = append(state.AudioDevices, structs.AudioDevice{
+						PublicDevice: structs.PublicDevice{
+							Name: dev,
+						},
+						Volume: &level,
+					})
+				}
+			}
 		}
+
 	} else {
 		cg := room.ControlGroups[c.selectedControlGroupID]
 		c.Info("Setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
@@ -67,6 +86,24 @@ func (sp SetPower) Do(c *Client, data []byte) {
 						Name:  disp.ID.GetName(),
 						Power: status,
 					},
+				})
+			}
+		}
+		if status == "on" {
+			level := 30
+			preset, err := c.GetPresetByName(string(cg.ID))
+			if err != nil {
+				c.Warn("failed to set volume on media audio", zap.Error(err))
+				c.Out <- ErrorMessage(fmt.Errorf("failed to set volume media audio: %w", err))
+			}
+
+			// add each device to the av api request
+			for _, dev := range preset.AudioDevices {
+				state.AudioDevices = append(state.AudioDevices, structs.AudioDevice{
+					PublicDevice: structs.PublicDevice{
+						Name: dev,
+					},
+					Volume: &level,
 				})
 			}
 		}
