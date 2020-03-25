@@ -94,7 +94,7 @@ export class RoomRef {
         muted: muted
       }
     };
-
+    console.log(kv)
     this.commandInProgress = true;
     this._ws.send(JSON.stringify(kv));
   };

@@ -28,25 +28,27 @@ export class LockScreenAudioComponent implements OnInit {
     this.roomRef = roomRef; 
     this.roomRef.subject().subscribe((r) => {
       if (r) {
-        this.cg = r.controlGroups[r.selectedControlGroup];
-        if (this.cg.audioGroups.length > 0) {
-          if (this.groupPages.size != this.cg.audioGroups.length) {
-            this.cg.audioGroups.forEach(group => {
-              if (!this.groupPages.get(group.id)) {
-                const numPages = Math.ceil(group.audioDevices.length / 4);
-                const tempPages = new Array(numPages).fill(undefined).map((x, i) => i);
-                this.groupPages.set(group.id, tempPages);
-              }
-              if (!this.groupCurPage.get(group.id)) {
-                this.groupCurPage.set(group.id, 0);
-              }
-              console.log(
-                group.id, ":",
-                group.audioDevices.length,
-                "pages:",
-                this.groupPages.get(group.id)
-              )
-            });
+        if (!this.cg || this.cg.audioGroups.length < r.controlGroups[r.selectedControlGroup].audioGroups.length) {
+          this.cg = r.controlGroups[r.selectedControlGroup];
+          if (this.cg.audioGroups.length > 0) {
+            if (this.groupPages.size != this.cg.audioGroups.length) {
+              this.cg.audioGroups.forEach(group => {
+                if (!this.groupPages.get(group.id)) {
+                  const numPages = Math.ceil(group.audioDevices.length / 4);
+                  const tempPages = new Array(numPages).fill(undefined).map((x, i) => i);
+                  this.groupPages.set(group.id, tempPages);
+                }
+                if (!this.groupCurPage.get(group.id)) {
+                  this.groupCurPage.set(group.id, 0);
+                }
+                console.log(
+                  group.id, ":",
+                  group.audioDevices.length,
+                  "pages:",
+                  this.groupPages.get(group.id)
+                )
+              });
+            }
           }
         }
       }
