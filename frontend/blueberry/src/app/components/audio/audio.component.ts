@@ -24,6 +24,11 @@ export class AudioComponent implements OnInit {
 
   show = (group: ControlGroup) => {
     this.cg = group;
+    this.bff.roomRef.subject().subscribe((r) => {
+      if (r) {
+        this.applyChanges(r.controlGroups[r.selectedControlGroup]);
+      }
+    })
 
     // this.cg.audioGroups.push(
     //   {
@@ -93,6 +98,16 @@ export class AudioComponent implements OnInit {
     this._show = false;
   }
 
+  applyChanges(cg: ControlGroup) {
+    for (let i = 0; i < this.cg.audioGroups.length; i++) {
+      for (let x = 0; x < this.cg.audioGroups[i].audioDevices.length; x++) {
+        if (this.cg.audioGroups[i].audioDevices[x].muted != cg.audioGroups[i].audioDevices[x].muted) {
+          this.cg.audioGroups[i].audioDevices[x].muted = cg.audioGroups[i].audioDevices[x].muted;
+        }
+      }
+    }
+  }
+
   isShowing = () => {
     return this._show;
   }
@@ -137,5 +152,10 @@ export class AudioComponent implements OnInit {
 
   selectPage = (ag: AudioGroup, pageNum: number) => {
     this.curPageNumbers.set(ag.id, pageNum);
+  }
+
+  setMute(mute: boolean, id: string) {
+    console.log(this.cg.audioGroups[0].muted)
+    this.bff.roomRef.setMuted(mute, id);
   }
 }
