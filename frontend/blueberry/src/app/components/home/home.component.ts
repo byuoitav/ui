@@ -51,6 +51,9 @@ export class HomeComponent implements OnInit {
   }
 
   applyChanges(tempCG: ControlGroup) {
+    if (this.cg.poweredOn == true && tempCG.poweredOn == false) {
+      this.dialog.closeAll();
+    }
     this.cg.displayGroups[0].shareInfo.state = tempCG.displayGroups[0].shareInfo.state;
     if (this.cg.displayGroups[0].shareInfo.state == 3 && !this.dialog.openDialogs.includes(this.minionRef)) {
       this.minionRef = this.dialog.open(MinionComponent, {

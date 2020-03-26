@@ -18,7 +18,7 @@ import (
 )
 
 type BFF struct {
-	AvApiAddr         string
+	AvAPIAddr         string
 	CodeServiceAddr   string
 	RemoteControlAddr string
 	LazaretteAddr     string
@@ -73,7 +73,7 @@ func (b *BFF) NewClient(c echo.Context) error {
 	}
 
 	cconfig := bff.ClientConfig{
-		AvApiAddr:         b.AvApiAddr,
+		AvAPIAddr:         b.AvAPIAddr,
 		CodeServiceAddr:   b.CodeServiceAddr,
 		RemoteControlAddr: b.RemoteControlAddr,
 		LazaretteAddr:     b.LazaretteAddr,

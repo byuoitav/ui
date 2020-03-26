@@ -188,11 +188,6 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 	*/
 	for _, id := range msg.Options {
 		// validate that options exist in the room's display groups
-		/*
-			c.Out <- StringMessage(id, "")
-			c.Out <- StringMessage(room.ID.GetName()+"-", "")
-			c.Out <- StringMessage(strings.TrimPrefix(id, room.ID.GetName()+"-"), "")
-		*/
 		if _, ok := disps[ID(id)]; !ok {
 			c.Warn("failed to start share", zap.Error(errors.New("sharing: option "+id+" not found in cg.DisplayGroups")))
 			c.Out <- ErrorMessage(errors.New("sharing: option " + id + " not found in cg.DisplayGroups"))
@@ -405,6 +400,7 @@ func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 		return
 
 	}
+
 	if err := c.SendAPIRequest(ctx, state); err != nil {
 		c.Warn("failed to end share", zap.Error(err))
 		c.Out <- ErrorMessage(fmt.Errorf("failed to end share: %w", err))

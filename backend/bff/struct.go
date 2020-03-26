@@ -150,3 +150,7 @@ func (i ID) GetName() string {
 func BoolP(b bool) *bool {
 	return &b
 }
+
+func IntP(i int) *int {
+	return &i
+}

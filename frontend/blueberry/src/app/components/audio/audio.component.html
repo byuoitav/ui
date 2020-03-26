@@ -99,16 +99,6 @@
                               >keyboard_arrow_right</mat-icon
                             >
                           </button>
-                
-                          <div class="master slider-container" *ngIf="j == 0">
-                            <volume 
-                              class="slider" 
-                              [level]="cg?.audioGroups[0]?.audioDevices[0]?.level" 
-                              [mute]="cg?.audioGroups[0]?.audioDevices[0]?.muted" 
-                              [name]="'Master Volume'"
-                              (levelChange)="bff.roomRef.setVolume($event)"
-                              (muteChange)="bff.roomRef.setMuted($event)"></volume>
-                          </div>
                         </div>
                   
                       </div>
@@ -137,15 +127,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="master slider-container no-tabs">
-                        <volume 
-                          class="slider" 
-                          [level]="cg?.audioGroups[0]?.audioDevices[0]?.level" 
-                          [mute]="cg?.audioGroups[0]?.audioDevices[0]?.muted" 
-                          [name]="'Master Volume'"
-                          (levelChange)="bff.roomRef.setVolume($event)"
-                          (muteChange)="bff.roomRef.setMuted($event)"></volume>
                     </div>
                 </div>
             </ng-container>
@@ -214,16 +195,6 @@
                       >keyboard_arrow_right</mat-icon
                     >
                   </button>
-        
-                  <div class="master slider-container">
-                    <volume 
-                      class="slider" 
-                      [level]="cg?.audioGroups[0]?.audioDevices[0]?.level" 
-                      [mute]="cg?.audioGroups[0]?.audioDevices[0]?.muted" 
-                      [name]="'Master Volume'"
-                      (levelChange)="bff.roomRef.setVolume($event)"
-                      (muteChange)="bff.roomRef.setMuted($event)"></volume>
-                  </div>
                 </div>
               </ng-container>
         </div>

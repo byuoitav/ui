@@ -25,7 +25,7 @@ func main() {
 		port     int
 		logLevel int
 
-		avApiAddr         string
+		avAPIAddr         string
 		codeServiceAddr   string
 		remoteControlAddr string
 		lazaretteAddr     string
@@ -34,7 +34,7 @@ func main() {
 
 	pflag.IntVarP(&port, "port", "P", 8080, "port to run the server on")
 	pflag.IntVarP(&logLevel, "log-level", "L", 2, "level of logging wanted. 1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=PANIC")
-	pflag.StringVarP(&avApiAddr, "av-api", "a", "localhost:8000", "address of the av-control-api to use")
+	pflag.StringVarP(&avAPIAddr, "av-api", "a", "localhost:8000", "address of the av-control-api to use")
 	pflag.StringVarP(&codeServiceAddr, "code-service", "c", "control-keys.avs.byu.edu", "address of the code service to use")
 	pflag.StringVarP(&remoteControlAddr, "remote-control", "r", "rooms.av.byu.edu", "address of the remote control to show")
 	pflag.StringVarP(&lazaretteAddr, "lazarette", "l", "localhost:7777", "address of the lazarette cache to use")
@@ -93,7 +93,7 @@ func main() {
 	})
 
 	bffhandlers := handlers.BFF{
-		AvApiAddr:         avApiAddr,
+		AvAPIAddr:         avAPIAddr,
 		CodeServiceAddr:   codeServiceAddr,
 		RemoteControlAddr: remoteControlAddr,
 		LazaretteAddr:     lazaretteAddr,

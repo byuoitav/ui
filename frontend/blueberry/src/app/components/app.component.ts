@@ -22,6 +22,11 @@ export class AppComponent {
     this.roomRef = this.bff.getRoom();
     this.roomRef.subject().subscribe((r) => {
       if (r) {
+        if (this.cg){
+          if (this.cg.poweredOn == false && r.controlGroups[r.selectedControlGroup].poweredOn == true) {
+              this.dialog.closeAll();
+            }
+        }
         this.cg = r.controlGroups[r.selectedControlGroup];
         if (this.cg.poweredOn == true) {
           this.bff.locked = false;
