@@ -28,7 +28,7 @@ export class LockScreenAudioComponent implements OnInit {
     this.roomRef = roomRef; 
     this.roomRef.subject().subscribe((r) => {
       if (r) {
-        if (!this.cg || this.cg.audioGroups.length < r.controlGroups[r.selectedControlGroup].audioGroups.length) {
+        if (!this.cg || this.cg.audioGroups.length != r.controlGroups[r.selectedControlGroup].audioGroups.length) {
           this.cg = r.controlGroups[r.selectedControlGroup];
           if (this.cg.audioGroups.length > 0) {
             if (this.groupPages.size != this.cg.audioGroups.length) {
