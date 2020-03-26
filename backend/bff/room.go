@@ -289,11 +289,6 @@ func (c *Client) GetRoom() Room {
 
 				cg.AudioGroups = append(cg.AudioGroups, group)
 			}
-
-			// order the audiogroups alphabetically
-			sort.Slice(cg.AudioGroups, func(i, j int) bool {
-				return len(cg.AudioGroups[i].ID) < len(cg.AudioGroups[j].ID)
-			})
 		} else if len(preset.IndependentAudioDevices) > 0 {
 			// create an audio group for all of the independentAudioDevices
 			group := AudioGroup{
@@ -341,6 +336,11 @@ func (c *Client) GetRoom() Room {
 
 			cg.AudioGroups = append(cg.AudioGroups, group)
 		}
+
+		// order the audiogroups alphabetically
+		sort.Slice(cg.AudioGroups, func(i, j int) bool {
+			return len(cg.AudioGroups[i].ID) < len(cg.AudioGroups[j].ID)
+		})
 
 		// set this cg in the controlgroups map
 		room.ControlGroups[string(cg.ID)] = cg
