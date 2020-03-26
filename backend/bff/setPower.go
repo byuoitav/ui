@@ -49,28 +49,30 @@ func (sp SetPower) DoWithMessage(c *Client, msg SetPowerMessage) error {
 	// build the state body
 	var state structs.PublicRoom
 
-	addDisplayGroup := func(group DisplayGroup) error {
-		// Dissolve share group it's a master
-		if group.ShareInfo.State == stateIsMaster {
-			// TODO might be better to inline the logic here, but this is easier for now
-			var ss SetSharing
-			ss.Unshare(c, SetSharingMessage{
-				Group: group.ID,
-			})
-		}
+	addControlGroup := func(cg ControlGroup) error {
+		for _, dg := range cg.fullDisplayGroups {
+			// Dissolve share group it's a master
+			if dg.ShareInfo.State == stateIsMaster {
+				// TODO might be better to inline the logic here, but this is easier for now
+				var ss SetSharing
+				ss.Unshare(c, SetSharingMessage{
+					Group: dg.ID,
+				})
+			}
 
-		for _, disp := range group.Displays {
-			state.Displays = append(state.Displays, structs.Display{
-				PublicDevice: structs.PublicDevice{
-					Name:  disp.ID.GetName(),
-					Power: status,
-				},
-			})
+			for _, disp := range dg.Displays {
+				state.Displays = append(state.Displays, structs.Display{
+					PublicDevice: structs.PublicDevice{
+						Name:  disp.ID.GetName(),
+						Power: status,
+					},
+				})
+			}
 		}
 
 		// set the media volume to 30 if we are turning it on
 		if msg.PoweredOn {
-			preset, err := c.GetPresetByName(string(group.ID))
+			preset, err := c.GetPresetByName(string(cg.ID))
 			if err != nil {
 				return fmt.Errorf("unable to set media audio level: %w", err)
 			}
@@ -93,22 +95,18 @@ func (sp SetPower) DoWithMessage(c *Client, msg SetPowerMessage) error {
 		c.Info("Setting power for the entire room", zap.String("to", status))
 
 		// set power on everything in the room
-		for _, group := range room.GetAllDisplayGroups() {
-			err := addDisplayGroup(group)
-			if err != nil {
+		for _, v := range room.ControlGroups {
+			if err := addControlGroup(v); err != nil {
 				return err
 			}
 		}
 	} else {
-		// set power on everything in my controlGroup
 		cg := room.ControlGroups[c.selectedControlGroupID]
 		c.Info("Setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
 
-		for _, group := range cg.fullDisplayGroups {
-			err := addDisplayGroup(group)
-			if err != nil {
-				return err
-			}
+		// set power on everything in my controlGroup
+		if err := addControlGroup(cg); err != nil {
+			return err
 		}
 	}
 
