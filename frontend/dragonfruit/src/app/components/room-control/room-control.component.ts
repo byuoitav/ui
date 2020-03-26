@@ -82,28 +82,6 @@ export class RoomControlComponent implements OnInit {
 
       // TODO make sure the room has this group, if not, redirect up?
     });
-
-    /*
-    this.route.params.subscribe(params => {
-      this.selectedTab = +params["tabName"];
-      if (this.bff.room === undefined) {
-        this.bff.getRoom(this.controlKey);
-        // this.bff.connectToRoom(this.controlKey);
-
-        /*
-        this.bff.done.subscribe(e => {
-          this.controlGroup = this.bff.room.controlGroups[this.groupIndex];
-          if (this.controlGroup.id === "Third") {
-          }
-        });
-        // *
-      } else {
-        // this.controlGroup = this.bff.room.controlGroups[this.groupIndex];
-        if (this.controlGroup.id === "Third") {
-        }
-      }
-    });
-      */
   }
 
   ngOnInit() {
@@ -130,21 +108,11 @@ export class RoomControlComponent implements OnInit {
     this.router.navigate([newURL]);
   }
 
-  // openSharing = () => {
-  //   this.dialog.open(SharingComponent, {data: {
-  //     roomRef: this._roomRef,
-  //     display: this.displayComp.selectedDisplay
-  //   }});
-  // }
-
-  // stopSharing() {
-  // }
-
   getShareText(): string {
-    if (this.displayComp && this.displayComp.selectedDisplay.shareInfo.state === 1) {
+    if (this.displayComp && this.selectedDisplay.shareInfo.state === 1) {
       return "Share";
     }
-    if (this.displayComp && this.displayComp.selectedDisplay.shareInfo.state === 2) {
+    if (this.displayComp && this.selectedDisplay.shareInfo.state === 2) {
       return "Stop Sharing";
     }
     return "";

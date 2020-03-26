@@ -41,16 +41,7 @@ export class SelectionComponent implements OnInit {
 
   goBack = () => {
     this.dialog
-      .open(TurnOffRoomDialogComponent)
-      .afterClosed()
-      .subscribe(result => {
-        // if the result is true then send command to turn off room and redirect page, else redirect webpage
-        if (result) {
-          this._roomRef.turnOff();
-        }
-
-        this._roomRef.logout();
-      });
+      .open(TurnOffRoomDialogComponent, {data: this._roomRef});
   };
 
   selectControlGroup = (id: string) => {

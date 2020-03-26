@@ -97,20 +97,12 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  setPower = (power: boolean) => {
+  setPower = (power: boolean, doAll: boolean) => {
     const kv = {
       setPower: {
-        poweredOn: power
+        poweredOn: power,
+        all: doAll
       }
-    };
-
-    this.loading = true;
-    this._ws.send(JSON.stringify(kv));
-  };
-
-  turnOff = () => {
-    const kv = {
-      turnOffRoom: {}
     };
 
     this.loading = true;
@@ -199,24 +191,13 @@ export class BFFService {
 
     const roomRef = new RoomRef(room, ws, () => {
       console.log('closing room connection', room.value.id);
-      this.dialog.open(TurnOffRoomDialogComponent).afterClosed().subscribe((answer) => {
-        if (answer !== undefined) {
-          if (answer === 'yes') {
-            roomRef.turnOff();
-          }
+      ws.close();
 
-          if (answer === 'yes' || answer === 'no') {
-            // close the websocket
-            ws.close();
+      // say that we are done with sending rooms
+      room.complete();
 
-            // say that we are done with sending rooms
-            room.complete();
-
-            // route back to login page since we are gonna need a new code
-            this.router.navigate(["/login"], { replaceUrl: true });
-          }
-        }
-      });
+      // route back to login page since we are gonna need a new code
+      this.router.navigate(["/login"], { replaceUrl: true });
     });
 
     // handle incoming messages from bff
