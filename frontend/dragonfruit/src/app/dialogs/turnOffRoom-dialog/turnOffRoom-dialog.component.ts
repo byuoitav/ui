@@ -1,9 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-
-export class TurnOffRoomDialogData {
-
-}
+import { RoomRef } from 'src/app/services/bff.service';
 
 @Component({
   selector: 'turnOffRoom-dialog',
@@ -13,13 +10,20 @@ export class TurnOffRoomDialogData {
 export class TurnOffRoomDialogComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<TurnOffRoomDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: TurnOffRoomDialogData) { }
+    @Inject(MAT_DIALOG_DATA) public roomRef: RoomRef) { }
 
   ngOnInit() {
   }
 
-  onCloseClick(): void {
+  cancel() {
     this.dialogRef.close();
   }
 
+  leaveRoom(turnThingsOff: boolean) {
+    if (turnThingsOff) {
+      this.roomRef.setPower(false, true);
+    } 
+    this.roomRef.logout();
+    this.dialogRef.close();
+  }
 }

@@ -1,9 +1,7 @@
 import { Component, OnInit, EventEmitter } from "@angular/core";
-import { MatBottomSheet, MatSpinner } from "@angular/material";
-import { NumpadComponent } from "../../dialogs/numpad/numpad.component";
+import { MatBottomSheet } from "@angular/material";
 import {
   Router,
-  Event,
   NavigationStart,
   NavigationEnd,
   NavigationError,
@@ -51,24 +49,6 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {}
 
-  showNumpad = () => {
-    // this.bottomSheet
-    //   .open(NumpadComponent, {
-    //     data: this.keyboardEmitter,
-    //     backdropClass: "keyboard-bg"
-    //   })
-    //   .afterDismissed()
-    //   .subscribe(result => {
-    //     if (result !== undefined) {
-    //       console.log(
-    //         "redirecting using the following room code:",
-    //         this.roomCode
-    //       );
-    //       this.goToRoomControl();
-    //     }
-    //   });
-  };
-
   codeKeyUp(event, index) {
     console.log(event);
     if (event.key === "Backspace") {
@@ -100,25 +80,5 @@ export class LoginComponent implements OnInit {
     }
 
     this.key = "";
-    /*
-    this.bff.done.subscribe(e => {
-      console.log("world");
-      if (this.bff.room.selectedControlGroup) {
-        this.router.navigate([
-          "/key/" +
-            this.roomCode +
-            "/room/" +
-            this.bff.room.id +
-            "/group/" +
-            this.bff.room.selectedControlGroup +
-            "/tab/0"
-        ]);
-      } else {
-        this.router.navigate([
-          "/key/" + this.roomCode + "/room/" + this.bff.room.id
-        ]);
-      }
-    });
-    */
   };
 }

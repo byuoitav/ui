@@ -1,12 +1,6 @@
 <div class="column">
-    <img src="../../../assets/logo.svg" class="logo" />
-
-    <ng-container *ngIf="loggingIn">
-        <span class="loadingText">Loading room</span>
-        <mat-spinner></mat-spinner>
-    </ng-container>
-
     <ng-container *ngIf="!loggingIn">
+        <img src="../../../assets/logo.svg" class="logo" />
         <span>Enter Control Key:</span>
         <mat-form-field (click)="showNumpad()">
             <input matInput inputmode="numeric" [(ngModel)]="key" style="opacity: 0; z-index: -1; position: absolute" maxlength="6" (keyup.enter)="goToRoomControl()" />

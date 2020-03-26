@@ -38,7 +38,7 @@ export class RoomResolver implements Resolve<RoomRef> {
                 observer.complete();
                 unsubscribe.complete();
               } else {
-                roomRef.setPower(true);
+                roomRef.setPower(true, false);
               }
             }
           },

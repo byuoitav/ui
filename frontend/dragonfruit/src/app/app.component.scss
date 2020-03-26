@@ -6,3 +6,41 @@
     overflow: hidden;
     background-color: #ffffff;
 }
+
+.logo {
+    height: 30%;
+    width: 30%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    // filter: invert(100%);
+}
+
+.column {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 22pt;
+    color: #757575;
+    overflow: hidden;
+}
+
+.loadingText {
+    margin: 5vh 0;
+}
+
+@media (min-width: 768px) {
+    .column {
+        max-width: 800px;
+        margin: auto;
+    }
+    .logo {
+        height: 25%;
+        width: 25%;
+        margin: 25px;
+    }
+}
