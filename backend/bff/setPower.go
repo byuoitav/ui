@@ -61,6 +61,25 @@ func (sp SetPower) Do(c *Client, data []byte) {
 				},
 			})
 		}
+
+		// set the media volume to 30 if we are turning it on
+		if msg.PoweredOn {
+			preset, err := c.GetPresetByName(string(group.ID))
+			if err != nil {
+				c.Warn("failed to set volume for media audio", zap.Error(err))
+				c.Out <- ErrorMessage(fmt.Errorf("failed to set volume for media audio: %w", err))
+			}
+
+			// set media audio
+			for i := range preset.AudioDevices {
+				state.AudioDevices = append(state.AudioDevices, structs.AudioDevice{
+					PublicDevice: structs.PublicDevice{
+						Name: preset.AudioDevices[i],
+					},
+					Volume: IntP(30),
+				})
+			}
+		}
 	}
 
 	if msg.All {
