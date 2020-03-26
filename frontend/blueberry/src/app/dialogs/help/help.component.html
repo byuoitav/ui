@@ -1,14 +1,32 @@
 <management [enabled]="true"></management>
 <div class="base">
     <ng-container *ngIf="!cg?.support.helpRequested">
-        <div class="text title">Help</div>
-        <div class="text">Please call AV Support at 801-422-7671 for help, or request help by pressing 'Request Help'.</div>
-        <div mat-dialog-actions class="items secondary-theme">
-            <button mat-raised-button color="warn" (click)="cancel()" press="cancel()">
+      <h1 mat-dialog-title class="text title">Help</h1>
+        
+        
+      <div mat-dialog-content class="text">
+          <p *ngIf="!isAfterHours()">
+              Please call AV Support at 801-422-7671 for help, or request help by pressing <i>Request Help</i> to send support staff to you.
+          </p>
+          <p *ngIf="isAfterHours()">
+              No technicians are currently available. For emergencies please call 801-422-7671.
+          </p>
+      </div>
+
+      <div mat-dialog-actions class="items secondary-theme">
+          <button mat-raised-button
+              color="warn"
+              (click)="cancel()">
               Cancel
-            </button>
-            <button mat-raised-button color="primary" (click)="sendForHelp()">{{cg?.support.helpMessage}}</button>
-          </div>
+          </button>
+          <button mat-raised-button
+              *ngIf="!isAfterHours()"
+              color="primary"
+              (click)="requestHelp()"
+              (press)="requestHelp()">
+              Request Help
+          </button>
+      </div>
         
     </ng-container>
 

@@ -14,7 +14,7 @@
     </div>
     <mat-dialog-actions class="row">
         <button mat-button color="warn" (click)="dialogRef.close()">Cancel</button>
-        <button mat-button color="primary" (click)="startSharing()">Start Sharing</button>
+        <button mat-button color="primary" (click)="startSharing()" [disabled]="chosenOptions.length === 0">Start Sharing</button>
     </mat-dialog-actions>
 </ng-container>
 

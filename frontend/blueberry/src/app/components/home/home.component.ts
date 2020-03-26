@@ -8,6 +8,7 @@ import { HelpComponent } from 'src/app/dialogs/help/help.component';
 import { SharingComponent } from 'src/app/dialogs/sharing/sharing.component';
 import { MinionComponent } from 'src/app/dialogs/minion/minion.component';
 import { MobileComponent } from 'src/app/dialogs/mobile/mobile.component';
+import { PowerOffComponent } from 'src/app/dialogs/power-off/power-off.component';
 
 @Component({
   selector: 'app-home',
@@ -72,17 +73,29 @@ export class HomeComponent implements OnInit {
   }
   
   public turnOff() {
-    console.log("turning off the room");
-    this.bff.locked = true;
-    this.roomRef.setPower(false);
+    if (this.roomRef.room) {
+      var size = Object.keys(this.roomRef.room.controlGroups).length;
+      if (size > 1) {
+        this.dialog.open(PowerOffComponent, {data: this.roomRef, disableClose: true}).afterClosed().subscribe((turnAllOff) => {
+          if (turnAllOff !== "cancel") {
+            console.log("turning off the room");
+            if (turnAllOff === "one") {
+              this.roomRef.setPower(false, false);
+            } else if (turnAllOff === "all") {
+              this.roomRef.setPower(false, true);
+            }
+            this.bff.locked = true;
+          }
+        });
+      } else {
+        this.roomRef.setPower(false, true);
+        this.bff.locked = true;
+      }
+    }
   }
 
   openHelp = () => {
-    this.dialog.open(HelpComponent, {data: this.cg, disableClose: true}).afterClosed().subscribe((helpMe) => {
-      if (helpMe) {
-        this.roomRef.requestHelp("");
-      }
-    });
+    this.dialog.open(HelpComponent, {data: this.roomRef, disableClose: true});
   }
 
   openSharing = () => {
