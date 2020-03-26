@@ -7,16 +7,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// SelectControlGroup .
 type SelectControlGroup struct {
 }
 
-// SelectControlGroupMessage .
 type SelectControlGroupMessage struct {
 	ID ID `json:"id"`
 }
 
-// Do .
 func (s SelectControlGroup) Do(c *Client, data []byte) {
 	var msg SelectControlGroupMessage
 	if err := json.Unmarshal(data, &msg); err != nil {
@@ -25,11 +22,20 @@ func (s SelectControlGroup) Do(c *Client, data []byte) {
 		return
 	}
 
+	if err := s.DoWithMessage(c, msg); err != nil {
+		c.Warn("failed to selectControlGroup", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("failed to selectControlGroup: %w", err))
+	}
+}
+
+func (s SelectControlGroup) DoWithMessage(c *Client, msg SelectControlGroupMessage) error {
 	var id string
 
 	if len(msg.ID) > 0 {
+		room := c.GetRoom()
+
 		// Validate that the control group is real
-		for _, cg := range c.GetRoom().ControlGroups {
+		for _, cg := range room.ControlGroups {
 			if cg.ID == msg.ID {
 				id = string(cg.ID)
 				break
@@ -37,9 +43,22 @@ func (s SelectControlGroup) Do(c *Client, data []byte) {
 		}
 
 		if len(id) == 0 {
-			c.Warn("invalid control group", zap.String("id", string(msg.ID)))
-			c.Out <- ErrorMessage(fmt.Errorf("invalid control group: %s", msg.ID))
-			return
+			return fmt.Errorf("invalid control group %q", msg.ID)
+		}
+
+		// turn on the control group if it's not already on
+		if !room.ControlGroups[id].PoweredOn {
+			preset, err := c.GetPresetByName(id)
+			if err != nil {
+				return fmt.Errorf("no matching preset found: %w", err)
+			}
+
+			err = preset.Actions.SetPower.DoWithMessage(c, SetPowerMessage{
+				PoweredOn: true,
+			})
+			if err != nil {
+				return fmt.Errorf("failed to turn on controlGroup: %w", err)
+			}
 		}
 	}
 
@@ -49,10 +68,9 @@ func (s SelectControlGroup) Do(c *Client, data []byte) {
 	// And send the updated room to the front end
 	roomMsg, err := JSONMessage("room", c.GetRoom())
 	if err != nil {
-		c.Warn("unable to make new room message", zap.Error(err))
-		c.Out <- ErrorMessage(fmt.Errorf("unable to make new room message: %w", err))
-		return
+		return fmt.Errorf("unable to create new room message: %w", err)
 	}
 
 	c.Out <- roomMsg
+	return nil
 }

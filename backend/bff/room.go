@@ -82,38 +82,40 @@ func (c *Client) GetRoom() Room {
 
 			// Add share info
 			shareData, err := c.getShareData(group.ID)
-			/*
-				fmt.Printf("State: %v\n", shareData.State)
-				fmt.Printf("Display Count: %v\n", preset)
-			*/
 			switch {
-			//If you are blueberry and have no shareble displays
+			//If you are blueberry and have no shareable displays
 			case len(preset.ShareableDisplays) == 0 && len(preset.Displays) == 1:
 				group.ShareInfo.State = stateCantShare
+
 			// No shareable data found
 			case err != nil:
 				// if there is no share data (yet), but there are sharable displays
 				// then allow them to share to those options
 				group.ShareInfo.State = stateCanShare
 
-				// blueberry case
 				if len(preset.Displays) == 1 {
+					// blueberry case
 					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
-				} else { // cherry case
+				} else {
+					// cherry case
 					var options []string
 					for _, option := range preset.Displays {
 						if option != name {
 							options = append(options, option)
 						}
 					}
+
 					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, options)
 				}
+
 			case shareData.State == stateIsMaster:
 				group.ShareInfo.State = shareData.State
+				outputIcon = "dynamic_feed"
+
 			case shareData.State == stateIsActiveMinion || shareData.State == stateIsInactiveMinion:
-				//fmt.Printf("We are %v\n", shareData.State)
 				group.ShareInfo.State = shareData.State
 				group.ShareInfo.Master = shareData.Master
+
 			default:
 				group.ShareInfo.State = shareData.State
 				group.ShareInfo.Master = shareData.Master
@@ -214,7 +216,7 @@ func (c *Client) GetRoom() Room {
 			})
 		}
 
-		// create this cg's media audio info
+		// create this control-groups's media audio info
 		// MediaAudio information is tied to the audioDevices array from the preset
 		// MediaAudio.Muted is true if ALL of the devices are muted
 		// MediaAudio.Level is the average level of the devices
@@ -229,17 +231,18 @@ func (c *Client) GetRoom() Room {
 				cg.MediaAudio.Muted = false
 			}
 		}
+
 		if len(preset.AudioDevices) == 0 {
-			c.Out <- ErrorMessage(errors.New("Caleb was actually right and caught a divide-by-zero error"))
+			c.Out <- ErrorMessage(errors.New("caleb was actually right and caught a divide-by-zero error"))
 			cg.MediaAudio.Level = 69
 		} else {
 			cg.MediaAudio.Level /= len(preset.AudioDevices)
 		}
 
-		// create the cg's audio groups.
+		// create the control-groups's audio groups.
 		// if audioGroups are present in the config, then use those.
 		// if not, create a mics audio group with all of the independentAudioDevices in it
-		// if there are no audioGroups or independentAudioDevices, dont't create any groups
+		// if there are no audioGroups or independentAudioDevices, don't create any groups
 		if len(preset.AudioGroups) > 0 {
 			// create a group for each audioGroup in the preset
 			for id, audioDevices := range preset.AudioGroups {
@@ -335,6 +338,11 @@ func (c *Client) GetRoom() Room {
 
 			cg.AudioGroups = append(cg.AudioGroups, group)
 		}
+
+		// order the audiogroups alphabetically
+		sort.Slice(cg.AudioGroups, func(i, j int) bool {
+			return len(cg.AudioGroups[i].ID) < len(cg.AudioGroups[j].ID)
+		})
 
 		// set this cg in the controlgroups map
 		room.ControlGroups[string(cg.ID)] = cg

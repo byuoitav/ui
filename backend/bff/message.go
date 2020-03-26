@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+
+	"go.uber.org/zap"
 )
 
 type Message map[string]json.RawMessage
@@ -33,7 +35,6 @@ func (c *Client) HandleMessage(msg Message) {
 	for k, v := range msg {
 		switch k {
 		case "setInput":
-			//This will also blank and unblank the device
 			c.CurrentPreset().Actions.SetInput.Do(c, v)
 		case "setMuted":
 			c.CurrentPreset().Actions.SetMuted.Do(c, v)
@@ -43,8 +44,6 @@ func (c *Client) HandleMessage(msg Message) {
 			c.CurrentPreset().Actions.SetPower.Do(c, v)
 		case "setBlanked":
 			c.CurrentPreset().Actions.SetBlanked.Do(c, v)
-		//case "turnOffRoom":
-		//	_ = c.CurrentPreset().Actions.SetPower.PowerOffAll(c)
 		case "helpRequest":
 			c.CurrentPreset().Actions.HelpRequest.Do(c, v)
 		case "setSharing":
@@ -52,8 +51,7 @@ func (c *Client) HandleMessage(msg Message) {
 		case "selectControlGroup":
 			c.CurrentPreset().Actions.SelectControlGroup.Do(c, v)
 		default:
-			// c.Warn("received message with unknown key", zap.String("key", k), zap.ByteString("val", v))
-			fmt.Printf("v: %s", v)
+			c.Warn("received message with unknown key", zap.String("key", k), zap.ByteString("val", v))
 			c.Out <- ErrorMessage(fmt.Errorf("unknown key %q", k))
 		}
 	}
