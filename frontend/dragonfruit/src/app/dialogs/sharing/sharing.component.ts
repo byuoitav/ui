@@ -22,6 +22,13 @@ export class SharingComponent implements OnInit {
       this.cg = this.roomRef.room.controlGroups[this.roomRef.room.selectedControlGroup];
       this.selectedDisplay = this.data.display;
 
+      this.chosenOptions = [];
+      for (let i = 0; i < this.selectedDisplay.shareInfo.opts.length; i++) {
+        let g = this.selectedDisplay.shareInfo.opts[i];
+        this.chosenOptions.push(g);
+      }
+      this.chosenOptions.sort();
+
       this.bff.dialogCloser.subscribe((shouldClose) => {
         if (shouldClose === "sharing") {
           this.dialogRef.close();

@@ -135,5 +135,8 @@
       }
     }
   },
-  "defaultProject": "dragonfruit"
+  "defaultProject": "dragonfruit",
+  "cli": {
+    "analytics": "a6025b50-9aad-4867-9b7d-a514d2c41692"
+  }
 }
