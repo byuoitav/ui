@@ -214,7 +214,7 @@ func (c *Client) GetRoom() Room {
 			})
 		}
 
-		// create this cg's media audio info
+		// create this control-groups's media audio info
 		// MediaAudio information is tied to the audioDevices array from the preset
 		// MediaAudio.Muted is true if ALL of the devices are muted
 		// MediaAudio.Level is the average level of the devices
@@ -229,17 +229,18 @@ func (c *Client) GetRoom() Room {
 				cg.MediaAudio.Muted = false
 			}
 		}
+
 		if len(preset.AudioDevices) == 0 {
-			c.Out <- ErrorMessage(errors.New("Caleb was actually right and caught a divide-by-zero error"))
+			c.Out <- ErrorMessage(errors.New("caleb was actually right and caught a divide-by-zero error"))
 			cg.MediaAudio.Level = 69
 		} else {
 			cg.MediaAudio.Level /= len(preset.AudioDevices)
 		}
 
-		// create the cg's audio groups.
+		// create the control-groups's audio groups.
 		// if audioGroups are present in the config, then use those.
 		// if not, create a mics audio group with all of the independentAudioDevices in it
-		// if there are no audioGroups or independentAudioDevices, dont't create any groups
+		// if there are no audioGroups or independentAudioDevices, don't create any groups
 		if len(preset.AudioGroups) > 0 {
 			// create a group for each audioGroup in the preset
 			for id, audioDevices := range preset.AudioGroups {
@@ -288,6 +289,11 @@ func (c *Client) GetRoom() Room {
 
 				cg.AudioGroups = append(cg.AudioGroups, group)
 			}
+
+			// order the audiogroups alphabetically
+			sort.Slice(cg.AudioGroups, func(i, j int) bool {
+				return len(cg.AudioGroups[i].ID) < len(cg.AudioGroups[j].ID)
+			})
 		} else if len(preset.IndependentAudioDevices) > 0 {
 			// create an audio group for all of the independentAudioDevices
 			group := AudioGroup{
