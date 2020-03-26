@@ -82,38 +82,40 @@ func (c *Client) GetRoom() Room {
 
 			// Add share info
 			shareData, err := c.getShareData(group.ID)
-			/*
-				fmt.Printf("State: %v\n", shareData.State)
-				fmt.Printf("Display Count: %v\n", preset)
-			*/
 			switch {
-			//If you are blueberry and have no shareble displays
+			//If you are blueberry and have no shareable displays
 			case len(preset.ShareableDisplays) == 0 && len(preset.Displays) == 1:
 				group.ShareInfo.State = stateCantShare
+
 			// No shareable data found
 			case err != nil:
 				// if there is no share data (yet), but there are sharable displays
 				// then allow them to share to those options
 				group.ShareInfo.State = stateCanShare
 
-				// blueberry case
 				if len(preset.Displays) == 1 {
+					// blueberry case
 					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, preset.ShareableDisplays)
-				} else { // cherry case
+				} else {
+					// cherry case
 					var options []string
 					for _, option := range preset.Displays {
 						if option != name {
 							options = append(options, option)
 						}
 					}
+
 					group.ShareInfo.Options = convertNamesToIDStrings(c.roomID, options)
 				}
+
 			case shareData.State == stateIsMaster:
 				group.ShareInfo.State = shareData.State
+				outputIcon = "dynamic_feed"
+
 			case shareData.State == stateIsActiveMinion || shareData.State == stateIsInactiveMinion:
-				//fmt.Printf("We are %v\n", shareData.State)
 				group.ShareInfo.State = shareData.State
 				group.ShareInfo.Master = shareData.Master
+
 			default:
 				group.ShareInfo.State = shareData.State
 				group.ShareInfo.Master = shareData.Master
