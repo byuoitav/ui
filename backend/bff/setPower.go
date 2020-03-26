@@ -14,7 +14,6 @@ type SetPower struct {
 }
 
 type SetPowerMessage struct {
-	All       bool `json:"all"`
 	PoweredOn bool `json:"poweredOn"`
 }
 
@@ -37,38 +36,20 @@ func (sp SetPower) Do(c *Client, data []byte) {
 	if msg.PoweredOn {
 		status = "on"
 	}
-	room := c.GetRoom()
+
+	cg := c.GetRoom().ControlGroups[c.selectedControlGroupID]
+	c.Info("Setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
+
+	// go through all of the display groups and turn on all of their displays
 	var state structs.PublicRoom
-	if msg.All {
-		for _, cg := range room.ControlGroups {
-			c.Info("Setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
-
-			// go through all of the display groups and turn on all of their displays
-			for _, group := range cg.DisplayGroups {
-				for _, disp := range group.Displays {
-					state.Displays = append(state.Displays, structs.Display{
-						PublicDevice: structs.PublicDevice{
-							Name:  disp.ID.GetName(),
-							Power: status,
-						},
-					})
-				}
-			}
-		}
-	} else {
-		cg := room.ControlGroups[c.selectedControlGroupID]
-		c.Info("Setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
-
-		// go through all of the display groups and turn on all of their displays
-		for _, group := range cg.DisplayGroups {
-			for _, disp := range group.Displays {
-				state.Displays = append(state.Displays, structs.Display{
-					PublicDevice: structs.PublicDevice{
-						Name:  disp.ID.GetName(),
-						Power: status,
-					},
-				})
-			}
+	for _, group := range cg.DisplayGroups {
+		for _, disp := range group.Displays {
+			state.Displays = append(state.Displays, structs.Display{
+				PublicDevice: structs.PublicDevice{
+					Name:  disp.ID.GetName(),
+					Power: status,
+				},
+			})
 		}
 	}
 
@@ -77,7 +58,7 @@ func (sp SetPower) Do(c *Client, data []byte) {
 		c.Out <- ErrorMessage(fmt.Errorf("failed to set power: %s", err))
 	}
 
-	c.Info("Finished setting power", zap.String("to", status), zap.String("room", string(room.ID)))
+	c.Info("Finished setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
 }
 
 // PowerOffAll .
