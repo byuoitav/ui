@@ -18,7 +18,6 @@ type SetPowerMessage struct {
 	All       bool `json:"all"`
 }
 
-// Do .
 func (sp SetPower) Do(c *Client, data []byte) {
 	var msg SetPowerMessage
 	err := json.Unmarshal(data, &msg)
@@ -28,6 +27,13 @@ func (sp SetPower) Do(c *Client, data []byte) {
 		return
 	}
 
+	if err := sp.DoWithMessage(c, msg); err != nil {
+		c.Warn("failed to setPower", zap.Error(err))
+		c.Out <- ErrorMessage(fmt.Errorf("failed to setPower: %w", err))
+	}
+}
+
+func (sp SetPower) DoWithMessage(c *Client, msg SetPowerMessage) error {
 	// this shouldn't take longer than 10 seconds
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -43,7 +49,7 @@ func (sp SetPower) Do(c *Client, data []byte) {
 	// build the state body
 	var state structs.PublicRoom
 
-	addDisplayGroup := func(group DisplayGroup) {
+	addDisplayGroup := func(group DisplayGroup) error {
 		// Dissolve share group it's a master
 		if group.ShareInfo.State == stateIsMaster {
 			// TODO might be better to inline the logic here, but this is easier for now
@@ -66,8 +72,7 @@ func (sp SetPower) Do(c *Client, data []byte) {
 		if msg.PoweredOn {
 			preset, err := c.GetPresetByName(string(group.ID))
 			if err != nil {
-				c.Warn("failed to set volume for media audio", zap.Error(err))
-				c.Out <- ErrorMessage(fmt.Errorf("failed to set volume for media audio: %w", err))
+				return fmt.Errorf("unable to set media audio level: %w", err)
 			}
 
 			// set media audio
@@ -80,6 +85,8 @@ func (sp SetPower) Do(c *Client, data []byte) {
 				})
 			}
 		}
+
+		return nil
 	}
 
 	if msg.All {
@@ -87,7 +94,10 @@ func (sp SetPower) Do(c *Client, data []byte) {
 
 		// set power on everything in the room
 		for _, group := range room.GetAllDisplayGroups() {
-			addDisplayGroup(group)
+			err := addDisplayGroup(group)
+			if err != nil {
+				return err
+			}
 		}
 	} else {
 		// set power on everything in my controlGroup
@@ -95,14 +105,17 @@ func (sp SetPower) Do(c *Client, data []byte) {
 		c.Info("Setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
 
 		for _, group := range cg.fullDisplayGroups {
-			addDisplayGroup(group)
+			err := addDisplayGroup(group)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
 	if err := c.SendAPIRequest(ctx, state); err != nil {
-		c.Warn("failed to set power", zap.Error(err))
-		c.Out <- ErrorMessage(fmt.Errorf("failed to set power: %s", err))
+		return err
 	}
 
 	c.Info("Finished setting power", zap.String("to", status), zap.Bool("entireRoom?", msg.All))
+	return nil
 }
