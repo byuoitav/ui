@@ -6,6 +6,11 @@ import (
 	"sort"
 )
 
+const (
+	defaultDisplayGroupIcon = "tv"
+	sharingIcon             = "subscriptions"
+)
+
 // GetRoom .
 func (c *Client) GetRoom() Room {
 	c.controlKeysMu.RLock()
@@ -42,7 +47,7 @@ func (c *Client) GetRoom() Room {
 		for _, name := range preset.Displays {
 			config := GetDeviceConfigByName(c.room.Devices, name)
 			state := GetDisplayStateByName(c.state.Displays, name)
-			outputIcon := "tv" // default icon
+			outputIcon := defaultDisplayGroupIcon
 
 			// find this icons display
 			for _, IOconfig := range c.uiConfig.OutputConfiguration {
@@ -110,7 +115,7 @@ func (c *Client) GetRoom() Room {
 
 			case shareData.State == stateIsMaster:
 				group.ShareInfo.State = shareData.State
-				outputIcon = "dynamic_feed"
+				outputIcon = sharingIcon
 
 			case shareData.State == stateIsActiveMinion || shareData.State == stateIsInactiveMinion:
 				group.ShareInfo.State = shareData.State
