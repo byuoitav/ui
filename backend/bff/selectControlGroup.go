@@ -54,7 +54,8 @@ func (s SelectControlGroup) DoWithMessage(c *Client, msg SelectControlGroupMessa
 			}
 
 			err = preset.Actions.SetPower.DoWithMessage(c, SetPowerMessage{
-				PoweredOn: true,
+				PoweredOn:    true,
+				controlGroup: msg.ID,
 			})
 			if err != nil {
 				return fmt.Errorf("failed to turn on controlGroup: %w", err)
