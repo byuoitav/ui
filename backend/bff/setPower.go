@@ -16,6 +16,8 @@ type SetPower struct {
 type SetPowerMessage struct {
 	PoweredOn bool `json:"poweredOn"`
 	All       bool `json:"all"`
+
+	controlGroup ID
 }
 
 func (sp SetPower) Do(c *Client, data []byte) {
@@ -101,7 +103,16 @@ func (sp SetPower) DoWithMessage(c *Client, msg SetPowerMessage) error {
 			}
 		}
 	} else {
-		cg := room.ControlGroups[c.selectedControlGroupID]
+		cgID := c.selectedControlGroupID
+		if len(msg.controlGroup) > 0 {
+			cgID = string(msg.controlGroup)
+		}
+
+		cg := room.ControlGroups[cgID]
+		if len(cg.ID) == 0 {
+			return fmt.Errorf("no controlGroup with id %q found", cgID)
+		}
+
 		c.Info("Setting power", zap.String("to", status), zap.String("controlGroup", string(cg.ID)))
 
 		// set power on everything in my controlGroup
