@@ -29,5 +29,6 @@ export class MirrorComponent implements OnInit {
 
   cancel = () => {
     this.data.roomRef.stopSharing(this.cg.displayGroups[0].id);
+    this.dialogRef.close();
   }
 }

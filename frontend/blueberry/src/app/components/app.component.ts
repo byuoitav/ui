@@ -30,6 +30,8 @@ export class AppComponent {
         this.cg = r.controlGroups[r.selectedControlGroup];
         if (this.cg.poweredOn == true) {
           this.bff.locked = false;
+        } else {
+          this.bff.locked = true;
         }
       }
     });
