@@ -43,7 +43,7 @@ export class AppComponent {
 
   unlock = () => {
     this.bff.locked = false;
-    this.roomRef.setPower(true, true);
+    this.roomRef.setPower(true, false);
   }
 
   powerIsOff = ():boolean => {
