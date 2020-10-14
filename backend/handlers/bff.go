@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -48,30 +47,6 @@ func (b *BFF) SetupMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 func (b *BFF) NewClient(c echo.Context) error {
-	// open the websocket
-	ws, err := b.upgrader.Upgrade(c.Response(), c.Request(), nil)
-	if err != nil {
-		log.P.Warn("unable to upgrade connection", zap.Error(err))
-		return c.String(http.StatusBadRequest, "unable to upgrade connection "+err.Error())
-	}
-	defer ws.Close()
-
-	closeWithReason := func(msg string) error {
-		log.P.Warn("unable to create new client", zap.String("error", msg))
-
-		// max control frame size is 125 bytes (https://tools.ietf.org/html/rfc6455#section-5.5)
-		cmsg := websocket.FormatCloseMessage(4000, msg)
-		if len(cmsg) > 125 {
-			cmsg = cmsg[:125]
-		}
-
-		if err := ws.WriteMessage(websocket.CloseMessage, cmsg); err != nil {
-			log.P.Warn("unable to write close message", zap.Error(err))
-		}
-
-		return nil
-	}
-
 	cconfig := bff.ClientConfig{
 		AvAPIAddr:         b.AvAPIAddr,
 		CodeServiceAddr:   b.CodeServiceAddr,
@@ -81,7 +56,6 @@ func (b *BFF) NewClient(c echo.Context) error {
 	}
 
 	// if it is coming from localhost then don't worry about a key
-	hostname := os.Getenv("SYSTEM_ID")
 	if len(hostname) > 0 {
 		log.P.Info("using hostname for localhost")
 
