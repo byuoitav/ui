@@ -1,5 +1,7 @@
 package ui
 
+import avcontrol "github.com/byuoitav/av-control-api"
+
 // Config represents the program for a room that can be used
 // by various UIs to control different states in the room
 type Config struct {
@@ -14,7 +16,7 @@ type ControlGroup struct {
 	Displays     []DisplayControl
 	Audio        AudioControl
 	PowerOff     ControlSet
-	DefaultState ControlSet
+	DefaultState ControlSet // is this basically - poweredOn state? how do i decide if i'm powered on
 }
 
 // DisplayControl represents a Display and its associated controls
@@ -43,7 +45,7 @@ type AudioControl struct {
 // AV Control API and other arbitrary locations) in order to set the room
 // to a given state
 type ControlSet struct {
-	APIRequest []byte
+	APIRequest avcontrol.StateRequest
 	Requests   []GenericControlRequest
 }
 

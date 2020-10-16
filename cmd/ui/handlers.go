@@ -21,7 +21,7 @@ type handlers struct {
 	log         *zap.Logger
 	single      singleflight.Group
 	dataService ui.DataService
-	config      ui.ClientConfig
+	config      ui.ClientBuilder
 	upgrader    websocket.Upgrader
 }
 

@@ -8,29 +8,29 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Config struct {
+type Builder struct {
 	DataService  ui.DataService
 	AVController ui.AVController
 }
 
-func (c *Config) New(ctx context.Context, room, controlGroup string) (ui.Client, error) {
+func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client, error) {
 	client := &client{
 		// TODO validate roomID?
 		roomID:         room,
 		controlGroupID: controlGroup,
+		dataService:    b.DataService,
+		avController:   b.AVController,
 	}
 
 	// get initial state
 	errg, gctx := errgroup.WithContext(ctx)
 
-	// get the config
 	errg.Go(func() error {
-		return nil
+		return client.updateConfig(gctx)
 	})
 
-	// get the room state
 	errg.Go(func() error {
-		return nil
+		return client.updateRoomState(gctx)
 	})
 
 	if err := errg.Wait(); err != nil {

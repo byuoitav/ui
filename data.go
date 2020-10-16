@@ -13,4 +13,7 @@ type DataService interface {
 
 	// RoomAndControlGroup figures out which room and control group is associated with the given key.
 	RoomAndControlGroup(ctx context.Context, key string) (string, string, error)
+
+	// Config returns the config for the given room.
+	Config(ctx context.Context, room string) (Config, error)
 }

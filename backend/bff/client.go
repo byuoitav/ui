@@ -109,51 +109,6 @@ func RegisterClient(ctx context.Context, ws *websocket.Conn, config ClientConfig
 	// create the errgroup for all these setup functions
 	g, gctx := errgroup.WithContext(sctx)
 
-	// get the room state
-	g.Go(func() error {
-		c.stats.Routines++
-		defer c.stats.decRoutines()
-
-		var err error
-		c.state, err = GetRoomState(gctx, c.httpClient, c.config.AvAPIAddr, c.roomID)
-		if err != nil {
-			return fmt.Errorf("unable to get room state: %w", err)
-		}
-
-		c.Debug("Successfully got room state")
-		return nil
-	})
-
-	// get the room config
-	g.Go(func() error {
-		c.stats.Routines++
-		defer c.stats.decRoutines()
-
-		var err error
-		c.room, err = GetRoomConfig(gctx, c.httpClient, c.config.AvAPIAddr, c.roomID)
-		if err != nil {
-			return fmt.Errorf("unable to get room config: %w", err)
-		}
-
-		c.Debug("Successfully got room config")
-		return nil
-	})
-
-	// get the ui config
-	g.Go(func() error {
-		c.stats.Routines++
-		defer c.stats.decRoutines()
-
-		var err error
-		c.uiConfig, err = GetUIConfig(gctx, c.httpClient, c.roomID)
-		if err != nil {
-			return fmt.Errorf("unable to get ui config: %w", err)
-		}
-
-		c.Debug("Successfully got ui config")
-		return nil
-	})
-
 	// connect to lazarette
 	g.Go(func() error {
 		c.stats.Routines++

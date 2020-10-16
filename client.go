@@ -7,6 +7,6 @@ type Client interface {
 	OutgoingMessages() chan []byte
 }
 
-type ClientConfig interface {
+type ClientBuilder interface {
 	New(ctx context.Context, room, controlGroup string) (Client, error)
 }
