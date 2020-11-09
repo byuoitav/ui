@@ -5,6 +5,8 @@ import (
 	"github.com/byuoitav/ui"
 )
 
+var _ ui.Client = client{}
+
 type client struct {
 	// static info about the room
 	roomID         string
@@ -40,9 +42,10 @@ func (c *client) Room() Room {
 				HelpMessage:   "Request Help",
 				HelpEnabled:   true,
 			},
-			PoweredOn: true, // TODO need to add to config, how to decide if poweredOn - or is it just !PoweredOff?
+			PoweredOn: !c.stateMatches(cGroup.PowerOff.APIRequest),
 		}
 
+		// build each display group
 		// TODO sharing
 		for _, cDisplay := range cGroup.Displays {
 			display := DisplayGroup{
@@ -79,7 +82,40 @@ func (c *client) Room() Room {
 			}
 		}
 
+		// build media audio info
+		group.MediaAudio.Level = c.getVolume(cGroup.Audio.Media.APIRequest, c.state)
+		group.MediaAudio.Muted = c.getMuted(cGroup.Audio.Media.APIRequest, c.state)
+
+		// build audio groups
+		for gID, cAudioGroup := range cGroup.Audio.Groups {
+			audioGroup := AudioGroup{
+				ID:    gID,
+				Name:  gID,
+				Muted: true,
+			}
+
+			for aID, cAudio := range cAudioGroup {
+				audio := AudioDevice{
+					// TODO need to get icon (need to change config)
+					ID:    aID,
+					Level: c.getVolume(cAudio.APIRequest, c.state),
+					Muted: c.getMuted(cAudio.APIRequest, c.state),
+				}
+
+				if !audio.Muted {
+					audioGroup.Muted = false
+				}
+
+				audioGroup.AudioDevices = append(audioGroup.AudioDevices, audio)
+			}
+
+			group.AudioGroups = append(group.AudioGroups, audioGroup)
+		}
+
 		room.ControlGroups[id] = group
+
+		// TODO controlInfo
+		// TODO presentGroups
 	}
 
 	return room

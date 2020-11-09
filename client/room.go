@@ -19,9 +19,7 @@ type ControlGroup struct {
 	PoweredOn bool `json:"poweredOn"`
 
 	// fullDisplayGroups DisplayGroups
-	DisplayGroups DisplayGroups `json:"displayGroups,omitempty"`
-	// TODO on uis - a display group now has it's own inputs, not on the controlGroup
-	// Inputs        []Input        `json:"inputs"`
+	DisplayGroups DisplayGroups  `json:"displayGroups,omitempty"`
 	AudioGroups   []AudioGroup   `json:"audioGroups,omitempty"`
 	PresentGroups []PresentGroup `json:"presentGroups,omitempty"`
 
@@ -51,8 +49,7 @@ type DisplayGroup struct {
 
 	Displays []IconPair `json:"displays"`
 	Inputs   []Input    `json:"inputs"`
-	// Blanked  bool       `json:"blanked"`
-	Input string `json:"input"`
+	Input    string     `json:"input"`
 
 	ShareInfo ShareInfo `json:"shareInfo,omitempty"`
 }

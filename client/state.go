@@ -14,6 +14,7 @@ func (c *client) updateRoomState(ctx context.Context) error {
 	}
 
 	// TODO something with the errors...?
+	// TODO probably need to mutex the state...
 
 	state.Errors = nil
 	c.state = state
@@ -74,6 +75,70 @@ func (c *client) stateMatches(req avcontrol.StateRequest) bool {
 			if m != mm {
 				return false
 			}
+		}
+	}
+
+	return true
+}
+
+func (c *client) getVolume(req avcontrol.StateRequest, state avcontrol.StateResponse) int {
+	vols := []int{}
+
+	for id, rDev := range req.Devices {
+		sDev, ok := c.state.Devices[id]
+		if !ok {
+			continue
+		}
+
+		for block, _ := range rDev.Volumes {
+			sVol, ok := sDev.Volumes[block]
+			if !ok {
+				continue
+			}
+
+			vols = append(vols, sVol)
+		}
+	}
+
+	if len(vols) == 0 {
+		return -1
+	}
+
+	avg := vols[0]
+	for i := 1; i < len(vols); i++ {
+		avg += vols[i]
+		avg /= 2
+	}
+
+	return avg
+}
+
+func (c *client) getMuted(req avcontrol.StateRequest, state avcontrol.StateResponse) bool {
+	mutes := []bool{}
+
+	for id, rDev := range req.Devices {
+		sDev, ok := c.state.Devices[id]
+		if !ok {
+			continue
+		}
+
+		for block, _ := range rDev.Mutes {
+			sMute, ok := sDev.Mutes[block]
+			if !ok {
+				continue
+			}
+
+			mutes = append(mutes, sMute)
+		}
+	}
+
+	if len(mutes) == 0 {
+		return false
+	}
+
+	for _, muted := range mutes {
+		if !muted {
+			return false
 		}
 	}
 

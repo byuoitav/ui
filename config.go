@@ -3,7 +3,7 @@ package ui
 import avcontrol "github.com/byuoitav/av-control-api"
 
 // Config represents the program for a room that can be used
-// by various UIs to control different states in the room
+// to control a room
 type Config struct {
 	ID            string
 	ControlPanels map[string]string
@@ -13,32 +13,36 @@ type Config struct {
 // ControlGroup represents a group of Devices and inputs. These groups
 // are used for logical grouping and displaying on different UIs
 type ControlGroup struct {
-	Displays     []DisplayControl
-	Audio        AudioControl
-	PowerOff     ControlSet
-	DefaultState ControlSet // is this basically - poweredOn state? how do i decide if i'm powered on
+	PowerOff ControlSet
+	PowerOn  ControlSet
+
+	Displays map[string]DisplayConfig
+	Audio    AudioConfig
 }
 
-// DisplayControl represents a Display and its associated controls
+// DisplayConfig represents a Display and its associated controls
 // for a given group
-type DisplayControl struct {
-	Name    string
+type DisplayConfig struct {
 	Icon    string
-	Sources []DisplayControlSource
+	Sources map[string]SourceConfig
 }
 
-// DisplayControlSource represents a source and its associated controls
-// in relation to a specific display
-type DisplayControlSource struct {
-	Name    string
+// SourceConfig represents a source and its associated controls
+type SourceConfig struct {
 	Icon    string
 	Visible bool
 	ControlSet
+
+	// Sources represent sub-sources of the parent source
+	Sources map[string]SourceConfig
 }
 
-// AudioControl contains information about audio controls in the room
-type AudioControl struct {
-	MasterVolume ControlSet
+// AudioConfig contains information about audio controls in the room
+type AudioConfig struct {
+	Media ControlSet
+
+	// map of group name -> audio name -> controlSet
+	Groups map[string]map[string]ControlSet
 }
 
 // ControlSet represents the request to be made (both to the
