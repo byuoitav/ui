@@ -41,7 +41,8 @@ type SourceConfig struct {
 type AudioConfig struct {
 	Media ControlSet
 
-	// map of group name -> audio name -> controlSet
+	// TODO do we need icons at any level for these things?
+	// Groups is a map of group name -> audio name -> controlSet
 	Groups map[string]map[string]ControlSet
 }
 
