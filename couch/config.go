@@ -3,14 +3,20 @@ package couch
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	avcontrol "github.com/byuoitav/av-control-api"
 	"github.com/byuoitav/ui"
 )
 
 type config struct {
-	ID            string            `json:"_id"`
-	ControlPanels map[string]string `json:"controlPanels"`
+	ID            string `json:"_id"`
+	ControlPanels map[string]struct {
+		UIType string `json:"uiType"`
+
+		// TODO divider sensors
+		ControlGroup string `json:"controlGroup"`
+	} `json:"controlPanels"`
 	ControlGroups map[string]struct {
 		PowerOff controlSet `json:"powerOff"`
 		PowerOn  controlSet `json:"powerOn"`
@@ -47,15 +53,38 @@ type controlSet struct {
 	} `json:"requests"`
 }
 
+func (d *DataService) config(ctx context.Context, room string) (config, error) {
+	var config config
+
+	db := d.client.DB(ctx, d.database)
+	if err := db.Get(ctx, room).ScanDoc(&config); err != nil {
+		return config, fmt.Errorf("unable to get/scan room: %w", err)
+	}
+
+	return config, nil
+}
+
 func (d *DataService) Config(ctx context.Context, room string) (ui.Config, error) {
-	return ui.Config{}, nil
+	config, err := d.config(ctx, room)
+	if err != nil {
+		return ui.Config{}, err
+	}
+
+	return config.convert(), nil
 }
 
 func (c config) convert() ui.Config {
 	config := ui.Config{
 		ID:            c.ID,
-		ControlPanels: c.ControlPanels,
+		ControlPanels: make(map[string]ui.ControlPanelConfig),
 		ControlGroups: make(map[string]ui.ControlGroup, len(c.ControlGroups)),
+	}
+
+	for k, v := range c.ControlPanels {
+		config.ControlPanels[k] = ui.ControlPanelConfig{
+			UIType:       v.UIType,
+			ControlGroup: v.ControlGroup,
+		}
 	}
 
 	for k, v := range c.ControlGroups {

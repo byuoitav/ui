@@ -1,6 +1,6 @@
 package couch
 
-import "github.com/go-kivik/couchdb"
+import "github.com/go-kivik/couchdb/v3"
 
 const (
 	_defaultDatabase = "ui"

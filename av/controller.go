@@ -14,15 +14,14 @@ import (
 var _ ui.AVController = &Controller{}
 
 type Controller struct {
-	// Address is the host address of the av-control-api server
-	Address string
+	// BaseURL is the base url of the av-control-api server
+	BaseURL string
 }
 
 func (a *Controller) RoomState(ctx context.Context, room string) (avcontrol.StateResponse, error) {
 	var state avcontrol.StateResponse
 
-	// TODO http:// get from somewhere...?
-	url := fmt.Sprintf("http://%s/api/v1/room/%s/state", a.Address, room)
+	url := fmt.Sprintf("%s/api/v1/room/%s/state", a.BaseURL, room)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return state, fmt.Errorf("unable to build request: %w", err)
@@ -49,8 +48,7 @@ func (a *Controller) SetRoomState(ctx context.Context, room string, state avcont
 		return fmt.Errorf("unable to marshal state: %w", err)
 	}
 
-	// TODO http:// get from somewhere...?
-	url := fmt.Sprintf("http://%s/api/v1/room/%s/state", a.Address, room)
+	url := fmt.Sprintf("%s/api/v1/room/%s/state", a.BaseURL, room)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, bytes.NewBuffer(reqBody))
 	if err != nil {
 		return fmt.Errorf("unable to build request: %w", err)

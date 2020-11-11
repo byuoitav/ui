@@ -1,11 +1,29 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/byuoitav/ui"
+	"github.com/byuoitav/ui/couch"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
+
+func dataService(ctx context.Context, config dataServiceConfig) ui.DataService {
+	var opts []couch.Option
+
+	if len(config.Username) > 0 {
+		opts = append(opts, couch.WithBasicAuth(config.Username, config.Password))
+	}
+
+	ds, err := couch.New(ctx, config.Addr, opts...)
+	if err != nil {
+		panic(fmt.Sprintf("unable to setup couch: %s", err))
+	}
+
+	return ds
+}
 
 func logger(logLevel string) (zap.Config, *zap.Logger) {
 	var level zapcore.Level

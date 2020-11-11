@@ -22,7 +22,7 @@ const (
 
 	// pingPeriod is how often we'll send a ping to the client
 	//	3/4 of the pongWait time
-	pingPeriod = pongWait * (3 / 4)
+	pingPeriod = (pongWait * 3) / 4
 
 	// time allowed to send a message to the client
 	writeWait = 10 * time.Second
@@ -42,7 +42,7 @@ func (h *handlers) Websocket(c *gin.Context) {
 	defer ws.Close() // nolint:errcheck
 
 	closeWith := func(msg string) {
-		h.log.Warn("unable to create new client", zap.String("error", msg))
+		h.log.Warn(msg)
 
 		// max control frame size is 125 bytes (https://tools.ietf.org/html/rfc6455#section-5.5)
 		cmsg := websocket.FormatCloseMessage(4000, msg)
@@ -73,6 +73,7 @@ func (h *handlers) Websocket(c *gin.Context) {
 	} else {
 		// we get the control group based on how this service was configured
 		var err error
+		room = h.roomID
 
 		controlGroup, err = h.dataService.ControlGroup(ctx, h.roomID, h.deviceID)
 		if err != nil {
@@ -82,7 +83,11 @@ func (h *handlers) Websocket(c *gin.Context) {
 	}
 
 	// TODO save client in some sort of cache so we can send refresh messages/get stats
-	client := h.config.New(room, controlGroup)
+	client, err := h.config.New(ctx, room, controlGroup)
+	if err != nil {
+		closeWith(fmt.Sprintf("unable to build client: %s", err))
+		return
+	}
 
 	errg, gctx := errgroup.WithContext(c.Request.Context())
 

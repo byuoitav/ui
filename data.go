@@ -12,6 +12,7 @@ type DataService interface {
 	ControlGroup(ctx context.Context, room, id string) (string, error)
 
 	// RoomAndControlGroup figures out which room and control group is associated with the given key.
+	// TODO this function will have to get the room, device -> call ControlGroup
 	RoomAndControlGroup(ctx context.Context, key string) (string, string, error)
 
 	// Config returns the config for the given room.

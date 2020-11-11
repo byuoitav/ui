@@ -5,7 +5,7 @@ import (
 	"github.com/byuoitav/ui"
 )
 
-var _ ui.Client = client{}
+var _ ui.Client = &client{}
 
 type client struct {
 	// static info about the room
@@ -47,12 +47,12 @@ func (c *client) Room() Room {
 
 		// build each display group
 		// TODO sharing
-		for _, cDisplay := range cGroup.Displays {
+		for dispName, cDisplay := range cGroup.Displays {
 			display := DisplayGroup{
-				ID: cDisplay.Name,
+				ID: dispName,
 				Displays: []IconPair{
 					{
-						Name: cDisplay.Name,
+						Name: dispName,
 						Icon: cDisplay.Icon,
 					},
 				},
@@ -60,10 +60,10 @@ func (c *client) Room() Room {
 
 			// build each of the sources
 			// TODO subinputs
-			for _, cSource := range cDisplay.Sources {
+			for sourceName, cSource := range cDisplay.Sources {
 				input := Input{
 					IconPair: IconPair{
-						Name: cSource.Name,
+						Name: sourceName,
 						Icon: cSource.Icon,
 					},
 				}
@@ -72,7 +72,7 @@ func (c *client) Room() Room {
 				if display.Input == "" {
 					curInput = c.stateMatches(cSource.APIRequest)
 					if curInput {
-						display.Input = cSource.Name
+						display.Input = sourceName
 					}
 				}
 
