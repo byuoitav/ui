@@ -2,8 +2,7 @@ package client
 
 // Room .
 type Room struct {
-	ID   string `json:"id"`
-	Name string `json:"name"` // TODO remove? what does the ui use this for
+	Name string `json:"name"`
 
 	ControlGroups        map[string]ControlGroup `json:"controlGroups"`
 	SelectedControlGroup string                  `json:"selectedControlGroup"`
@@ -13,16 +12,14 @@ type DisplayGroups []DisplayGroup
 
 // ControlGroup .
 type ControlGroup struct {
-	ID   string `json:"id"`
-	Name string `json:"name"` // TODO do we need both?
-
-	PoweredOn bool `json:"poweredOn"`
+	Name string `json:"name"`
 
 	// fullDisplayGroups DisplayGroups
 	DisplayGroups DisplayGroups  `json:"displayGroups,omitempty"`
 	AudioGroups   []AudioGroup   `json:"audioGroups,omitempty"`
 	PresentGroups []PresentGroup `json:"presentGroups,omitempty"`
 
+	PoweredOn  bool `json:"poweredOn"`
 	MediaAudio struct {
 		Level int  `json:"level"`
 		Muted bool `json:"muted"`
@@ -68,7 +65,7 @@ type Support struct {
 
 // DisplayGroup .
 type DisplayGroup struct {
-	ID string `json:"id"`
+	Name string `json:"name"`
 
 	Displays []IconPair `json:"displays"`
 	Inputs   []Input    `json:"inputs"`
@@ -86,7 +83,7 @@ type ShareInfo struct {
 
 // Input .
 type Input struct {
-	ID string `json:"id"`
+	Name string `json:"name"`
 	IconPair
 
 	SubInputs []Input `json:"subInputs,omitempty"`
@@ -94,7 +91,6 @@ type Input struct {
 
 // AudioGroup .
 type AudioGroup struct {
-	ID   string `json:"id"`
 	Name string `json:"name"`
 
 	AudioDevices []AudioDevice `json:"audioDevices"`
@@ -103,7 +99,6 @@ type AudioGroup struct {
 
 // AudioDevice .
 type AudioDevice struct {
-	ID string `json:"id"`
 	IconPair
 
 	Level int  `json:"level"`
@@ -112,7 +107,6 @@ type AudioDevice struct {
 
 // PresentGroup .
 type PresentGroup struct {
-	ID   string `json:"id"`
 	Name string `json:"name"`
 
 	Items []PresentItem `json:"items"`
@@ -120,13 +114,11 @@ type PresentGroup struct {
 
 // PresentItem .
 type PresentItem struct {
-	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
 // IconPair .
 type IconPair struct {
-	ID   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 	Icon string `json:"icon"`
 }

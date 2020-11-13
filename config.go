@@ -18,8 +18,10 @@ type ControlPanelConfig struct {
 // ControlGroup represents a group of Devices and inputs. These groups
 // are used for logical grouping and displaying on different UIs
 type ControlGroup struct {
+	// PowerOff represents the state the room needs to be in to be considered "off"
 	PowerOff ControlSet
-	PowerOn  ControlSet
+	// PowerOn is the state we set to turn on the room
+	PowerOn ControlSet
 
 	Displays map[string]DisplayConfig
 	Audio    AudioConfig

@@ -2,15 +2,24 @@ package client
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 func (c *client) HandleMessage(msg []byte) {
-	b, _ := json.Marshal(c.state)
-	fmt.Printf("state: %s\n", b)
-	fmt.Printf("room: %v\n", c.Room())
 }
 
 func (c *client) OutgoingMessages() chan []byte {
-	return make(chan []byte)
+	// TODO this should probably return a 'copy' of this channel...
+	return c.outgoing
+}
+
+func (c *client) sendJSONMsg(v interface{}) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO log error
+	}
+
+	select {
+	case c.outgoing <- b:
+	default:
+	}
 }
