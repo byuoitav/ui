@@ -41,7 +41,27 @@ type config struct {
 			Media  controlSet                       `json:"media"`
 			Groups map[string]map[string]controlSet `json:"groups"`
 		} `json:"audio"`
+		Cameras struct {
+			DisplayName string         `json:"displayName"`
+			TiltUp      string         `json:"tiltUp"`
+			TiltDown    string         `json:"tiltDown"`
+			PanLeft     string         `json:"panLeft"`
+			PanRight    string         `json:"panRight"`
+			PanTiltStop string         `json:"panTiltStop"`
+			ZoomIn      string         `json:"zoomIn"`
+			ZoomOut     string         `json:"zoomOut"`
+			ZoomStop    string         `json:"zoomStop"`
+			Stream      string         `json:"stream"`
+			Reboot      string         `json:"reboot"`
+			Presets     []CameraPreset `json:"presets"`
+		} `json:"cameras,omitempty"`
 	} `json:"controlGroups"`
+}
+
+type CameraPreset struct {
+	DisplayName string `json:"displayName"`
+	SetPreset   string `json:"setPreset"`
+	SavePreset  string `json:"savePreset"`
 }
 
 type controlSet struct {

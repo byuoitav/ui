@@ -1,0 +1,321 @@
+$d-pad-radius: 17%;
+$d-pad-radius-in: 20%;
+$d-pad-fg: #ddd;
+$d-pad-fg-hover: #eee;
+$d-pad-bg: #263238;
+$arrowColor: #777;
+$tri-sml-a: 13px;
+$tri-sml-b: 19px;
+$tri-lrg-a: 13px;
+$tri-lrg-b: 19px;
+$d-pad-arrow-shift: 5px;
+$d-pad-arrow-move: 35%;
+
+.camera-container {
+	display: flex;
+	height: 100%;
+	width: 100%;
+}
+
+.movement-container {
+	height: 100%;
+	width: 50%;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.zoom-without-code {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+
+	height: 30%; 
+
+	button {
+		width: 28%;
+		height: 67%;
+		background-color: #ddd;
+
+		mat-icon {
+			color: #777;
+			transform: scale(3);
+			height: unset;
+			width: unset;
+			font-size: unset;
+		}
+	}
+}
+
+.zoom-with-code {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+
+	height: 20%; 
+
+	button {
+		width: 28%;
+		height: 100%;
+		background-color: #ddd;
+
+		mat-icon {
+			color: #777;
+			transform: scale(3);
+			height: unset;
+			width: unset;
+			font-size: unset;
+		}
+	}
+}
+
+.presets-container {
+	height: 100%;
+	width: 50%;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: start;
+	align-items: space-evenly;
+	
+	h2 {
+		width: 100%;
+		text-align: center;
+	}
+
+	.presets {
+		height: 75vh;
+	}
+}
+
+.preset {
+	button {
+		height: 87%;
+		width: 57%;
+		white-space: normal;
+		line-height: unset;
+
+		max-height: 5em;
+		font-size: .8em;
+	}
+}
+
+.d-pad-container {
+	overflow: hidden;
+	text-align: center;
+	height: 50vh;
+	padding-top: 7vh;
+	margin-bottom: 5vh;
+
+	.d-pad {
+		display: inline-block;
+		transform: scale(1.1);
+	}
+}
+
+.d-pad {
+	position: relative;
+	width: 200px;
+	height: 200px;
+	border-radius: 48%;
+	overflow: hidden;
+
+	&:before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		border-radius: 5%;
+		transform: translate(-50%, -50%);
+		width: 66.6%;
+		height: 66.6%;
+		background: $d-pad-fg;
+	}
+
+	&:after {
+		content: '';
+		position: absolute;
+		display: none;
+		z-index:2;
+		width: 20%;
+		height: 20%;
+		top: 50%;
+		left: 50%;
+		background: $d-pad-fg;
+		border-radius: 50%;
+		transform: translate(-50%, -50%);
+		transition: all .25s;
+		cursor: pointer;
+	}
+
+	&:hover:after {
+		width: 30%;
+		height: 30%;
+	}
+
+	a {
+	display:block;
+	position: absolute;
+	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
+	width: 33.3%;
+    height: 43%;
+    line-height: 40%;
+    color: #fff;
+    background: $d-pad-fg;
+    text-align: center;
+    &:hover {
+      background: $d-pad-fg-hover;
+    }
+    &:before {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-radius: 5px;
+      border-style: solid;
+      transition: all .25s;
+    }
+    &:after {
+      content: '';
+      position: absolute;
+      width: 102%;
+      height: 78%;
+      background: $d-pad-bg;
+      border-radius: $d-pad-radius-in;
+    }
+  }
+  a.left, a.right {
+    width: 43%;
+    height: 33%;
+    &:after {
+      width: 78%;
+      height: 102%;
+    }
+  }
+
+  a.up {
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    border-radius: $d-pad-radius $d-pad-radius 50% 50%;
+    &:hover {
+      background: linear-gradient(0deg, $d-pad-fg 0%, $d-pad-fg-hover 50%);
+    }
+    &:after {
+      left: 0;
+      top: 0;
+      transform: translate(-100%, 0);
+      border-top-left-radius: 50%;
+      pointer-events: none;
+    }
+    &:before {
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-width: 0 $tri-sml-a $tri-sml-b $tri-sml-a;
+      border-color: transparent transparent $arrowColor transparent;
+    }
+    &:active:before {
+      border-bottom-color: #333;
+      top: $d-pad-arrow-move;
+    }
+  }
+
+  a.down {
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    border-radius: 50% 50% $d-pad-radius $d-pad-radius;
+    &:hover {
+      background: linear-gradient(180deg, $d-pad-fg 0%, $d-pad-fg-hover 50%);
+    }
+    &:after {
+      right: 0;
+      bottom: 0;
+      transform: translate(100%, 0);
+      border-bottom-right-radius: 50%;
+      pointer-events: none;
+    }
+    &:before {
+      bottom: 40%;
+      left: 50%;
+      transform: translate(-50%, 50%);
+      border-width: $tri-sml-b $tri-sml-a 0px $tri-sml-a;
+      border-color: $arrowColor transparent transparent transparent;
+    }
+    &:active:before {
+      border-top-color: #333;
+      bottom: $d-pad-arrow-move;
+    }
+  }
+
+  a.left {
+    top: 50%;
+    left: 0;
+    transform: translate(0, -50%);
+    border-radius: $d-pad-radius 50% 50% $d-pad-radius;
+    &:hover {
+      background: linear-gradient(-90deg, $d-pad-fg 0%, $d-pad-fg-hover 50%);
+    }
+    &:after {
+      left: 0;
+      bottom: 0;
+      transform: translate(0, 100%);
+      border-bottom-left-radius: 50%;
+      pointer-events: none;
+    }
+    &:before {
+      left: 40%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      border-width: $tri-sml-a $tri-sml-b $tri-sml-a 0;
+      border-color: transparent $arrowColor transparent transparent;
+    }
+    &:active:before {
+      border-right-color: #333;
+      left: $d-pad-arrow-move; 
+    }
+  }
+
+  a.right {
+    top: 50%;
+    right: 0;
+    transform: translate(0, -50%);
+    border-radius: 50% $d-pad-radius $d-pad-radius 50%;
+    &:hover {
+      background: linear-gradient(90deg, $d-pad-fg 0%, $d-pad-fg-hover 50%);
+    }
+    &:after {
+      right: 0;
+      top: 0;
+      transform: translate(0, -100%);
+      border-top-right-radius: 50%;
+      pointer-events: none;
+    }
+    &:before {
+      right: 40%;
+      top: 50%;
+      transform: translate(50%, -50%);
+      border-width: $tri-sml-a 0 $tri-sml-a $tri-sml-b;
+      border-color: transparent transparent transparent $arrowColor;
+    }
+    &:active:before {
+      border-left-color: #333;
+      right: $d-pad-arrow-move;
+    }
+  }
+}
+.d-pad.up a.up:before { border-bottom-color: #333; }
+.d-pad.down a.down:before { border-top-color: #333; }
+.d-pad.left a.left:before { border-right-color: #333; }
+.d-pad.right a.right:before { border-left-color: #333; }
+
+.code-text {
+  display: flex;
+  text-align: center;
+  margin-bottom: 1%;
+  margin-top: 1%;
+  justify-content: center;
+  font-size: .9em;
+}

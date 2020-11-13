@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/byuoitav/av-control-api/client"
 	"github.com/byuoitav/common/structs"
 	"go.uber.org/zap"
 )
@@ -14,8 +15,8 @@ type SetMuted struct {
 }
 
 type SetMutedMessage struct {
-	AudioDevice ID   `json:"audioDevice"`
-	Muted       bool `json:"muted"`
+	AudioDevice client.ID `json:"audioDevice"`
+	Muted       bool      `json:"muted"`
 }
 
 func (sm SetMuted) Do(c *Client, data []byte) {

@@ -95,6 +95,9 @@
               <audiocontrol *ngIf="selectedTabIndex == 1" [roomRef]="roomRef"></audiocontrol>
             </mat-tab>
       </ng-container>
+      <mat-tab *ngIf="cg?.cameras?.length > 0" label="Camera Control">
+        <camera-control [roomRef]="roomRef"></camera-control>
+      </mat-tab>
       <mat-tab *ngIf="cg?.screens?.length > 0" label="Screen Control">
         <screencontrol></screencontrol>
       </mat-tab>

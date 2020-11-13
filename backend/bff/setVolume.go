@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/byuoitav/av-control-api/client"
 	"github.com/byuoitav/common/structs"
 	"go.uber.org/zap"
 )
@@ -14,8 +15,8 @@ type SetVolume struct {
 }
 
 type SetVolumeMessage struct {
-	AudioDevice ID  `json:"audioDevice"`
-	Level       int `json:"level"`
+	AudioDevice client.ID `json:"audioDevice"`
+	Level       int       `json:"level"`
 }
 
 func (sv SetVolume) Do(c *Client, data []byte) {
@@ -62,7 +63,7 @@ func (sv SetVolume) Do(c *Client, data []byte) {
 				Name: msg.AudioDevice.GetName(),
 			},
 			Volume: &msg.Level,
-			Muted:  BoolP(false),
+			Muted:  client.BoolP(false),
 		})
 	}
 

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/byuoitav/av-control-api/client"
 	"github.com/byuoitav/common/structs"
 	"go.uber.org/zap"
 )
@@ -31,12 +32,12 @@ type lazShareData struct {
 	State shareState `json:"state"`
 
 	// if they are in a group, this is who that leader is
-	Master ID `json:"master,omitempty"`
+	Master client.ID `json:"master,omitempty"`
 }
 
-func (c *Client) getActiveAndInactiveForDisplayGroup(group ID) ([]ID, []ID) {
-	var active []ID
-	var inactive []ID
+func (c *Client) getActiveAndInactiveForDisplayGroup(group client.ID) ([]client.ID, []client.ID) {
+	var active []client.ID
+	var inactive []client.ID
 
 	c.lazs.Range(func(key, value interface{}) bool {
 		skey, ok := key.(string)
@@ -60,9 +61,9 @@ func (c *Client) getActiveAndInactiveForDisplayGroup(group ID) ([]ID, []ID) {
 		// add it to active/inactive list
 		switch shareData.State {
 		case stateIsActiveMinion:
-			active = append(active, ID(id))
+			active = append(active, client.ID(id))
 		case stateIsInactiveMinion:
-			inactive = append(inactive, ID(id))
+			inactive = append(inactive, client.ID(id))
 		}
 
 		return true
@@ -71,7 +72,7 @@ func (c *Client) getActiveAndInactiveForDisplayGroup(group ID) ([]ID, []ID) {
 	return active, inactive
 }
 
-func (c *Client) getShareData(group ID) (lazShareData, error) {
+func (c *Client) getShareData(group client.ID) (lazShareData, error) {
 	var data lazShareData
 
 	idata, ok := c.lazs.Load(lazSharing + string(group))
@@ -93,8 +94,8 @@ type SetSharing struct {
 
 // SetSharingMessage is a message enabling or disabling sharing
 type SetSharingMessage struct {
-	Group   ID       `json:"group,omitempty"`
-	Options []string `json:"opts,omitempty"`
+	Group   client.ID `json:"group,omitempty"`
+	Options []string  `json:"opts,omitempty"`
 }
 
 // Do .
@@ -144,7 +145,7 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 	dgroups := room.GetAllDisplayGroups()
 
 	// Find all of the display group names
-	disps := make(map[ID]int)
+	disps := make(map[client.ID]int)
 	for i, name := range dgroups {
 		fmt.Printf("\n%s\n", name.ID)
 		disps[name.ID] = i
@@ -188,7 +189,7 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 	*/
 	for _, id := range msg.Options {
 		// validate that options exist in the room's display groups
-		if _, ok := disps[ID(id)]; !ok {
+		if _, ok := disps[client.ID(id)]; !ok {
 			c.Warn("failed to start share", zap.Error(errors.New("sharing: option "+id+" not found in cg.DisplayGroups")))
 			c.Out <- ErrorMessage(errors.New("sharing: option " + id + " not found in cg.DisplayGroups"))
 			return
@@ -215,7 +216,7 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 			},
 		}
 
-		mgroup, err := GetDisplayGroupByID(dgroups, ID(minion))
+		mgroup, err := GetDisplayGroupByID(dgroups, client.ID(minion))
 		if err != nil {
 			c.Warn("failed to start share", zap.Error(err))
 			c.Out <- ErrorMessage(fmt.Errorf("sharing: could not get display group by ID: %w", err))
@@ -247,14 +248,14 @@ func (ss SetSharing) Share(c *Client, msg SetSharingMessage) {
 			return
 		}
 		for _, audio := range preset.AudioDevices {
-			if ID(audio) == msg.Group {
+			if client.ID(audio) == msg.Group {
 				continue
 			}
 			toMute[audio] = structs.AudioDevice{
 				PublicDevice: structs.PublicDevice{
 					Name: audio,
 				},
-				Muted: BoolP(true),
+				Muted: client.BoolP(true),
 			}
 		}
 	}
@@ -323,7 +324,7 @@ func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 				Name:  active[i].GetName(),
 				Input: cg.Inputs[0].ID.GetName(),
 			},
-			Blanked: BoolP(false),
+			Blanked: client.BoolP(false),
 		})
 
 		mgroup, err := GetDisplayGroupByID(dgroups, active[i])
@@ -348,14 +349,14 @@ func (ss SetSharing) Unshare(c *Client, msg SetSharingMessage) {
 		}
 
 		for _, audio := range preset.AudioDevices {
-			if ID(audio) == msg.Group {
+			if client.ID(audio) == msg.Group {
 				continue
 			}
 			toUnmute[audio] = structs.AudioDevice{
 				PublicDevice: structs.PublicDevice{
 					Name: audio,
 				},
-				Muted: BoolP(false),
+				Muted: client.BoolP(false),
 			}
 
 		}
@@ -439,7 +440,7 @@ func (ss SetSharing) becomeInactiveMinion(c *Client, msg SetSharingMessage) {
 				Name:  group.Displays[i].ID.GetName(),
 				Input: cg.Inputs[0].ID.GetName(),
 			},
-			Blanked: BoolP(false),
+			Blanked: client.BoolP(false),
 		})
 	}
 
@@ -456,7 +457,7 @@ func (ss SetSharing) becomeInactiveMinion(c *Client, msg SetSharingMessage) {
 			PublicDevice: structs.PublicDevice{
 				Name: group.Displays[i].ID.GetName(),
 			},
-			Muted: BoolP(false),
+			Muted: client.BoolP(false),
 		})
 	}
 

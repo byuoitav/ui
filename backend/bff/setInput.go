@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/byuoitav/av-control-api/client"
 	"github.com/byuoitav/common/structs"
 	"go.uber.org/zap"
 )
@@ -29,8 +30,8 @@ type SetInput struct {
 
 // SetInputMessage .
 type SetInputMessage struct {
-	DisplayGroup ID `json:"displayGroup"`
-	Input        ID `json:"input"`
+	DisplayGroup client.ID `json:"displayGroup"`
+	Input        client.ID `json:"input"`
 }
 
 // Do .
@@ -88,7 +89,7 @@ func (si SetInput) Do(c *Client, data []byte) {
 						Name:  disp.ID.GetName(),
 						Input: input,
 					},
-					Blanked: BoolP(false),
+					Blanked: client.BoolP(false),
 				})
 			}
 		}
@@ -131,7 +132,7 @@ func (si SetInput) Do(c *Client, data []byte) {
 				PublicDevice: structs.PublicDevice{
 					Name: audioDevices[i].GetName(),
 				},
-				Muted: BoolP(true),
+				Muted: client.BoolP(true),
 			})
 		}
 
@@ -154,7 +155,7 @@ func (si SetInput) Do(c *Client, data []byte) {
 				Name:  disp.ID.GetName(),
 				Input: input,
 			},
-			Blanked: BoolP(false),
+			Blanked: client.BoolP(false),
 		})
 	}
 

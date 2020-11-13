@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+
+	"github.com/byuoitav/av-control-api/client"
 )
 
 const (
@@ -12,23 +14,23 @@ const (
 )
 
 // GetRoom .
-func (c *Client) GetRoom() Room {
+func (c *Client) GetRoom() client.Room {
 	c.controlKeysMu.RLock()
 	defer c.controlKeysMu.RUnlock()
 
-	room := Room{
-		ID:                   ID(c.roomID),
+	room := client.Room{
+		ID:                   client.ID(c.roomID),
 		Name:                 c.room.Name,
-		ControlGroups:        make(map[string]ControlGroup),
-		SelectedControlGroup: ID(c.selectedControlGroupID),
+		ControlGroups:        make(map[string]client.ControlGroup),
+		SelectedControlGroup: client.ID(c.selectedControlGroupID),
 	}
 
 	// create all of the presets for this room
 	for _, preset := range c.uiConfig.Presets {
-		cg := ControlGroup{
-			ID:   ID(preset.Name),
+		cg := client.ControlGroup{
+			ID:   client.ID(preset.Name),
 			Name: preset.Name,
-			Support: Support{
+			Support: client.clientSupport{
 				HelpRequested: false, // TODO this info should be pulled from lazarette
 				HelpMessage:   "Request Help",
 				HelpEnabled:   true,
@@ -76,11 +78,11 @@ func (c *Client) GetRoom() Room {
 				blanked = true
 			}
 
-			group := DisplayGroup{
-				ID:      ID(config.ID),
+			group := client.DisplayGroup{
+				ID:      client.ID(config.ID),
 				Blanked: blanked,
-				Input:   ID(curInput),
-				ShareInfo: ShareInfo{
+				Input:   client.ID(curInput),
+				ShareInfo: client.ShareInfo{
 					State: stateCantShare,
 				},
 			}
@@ -152,7 +154,7 @@ func (c *Client) GetRoom() Room {
 
 		// check displays groups that i need to get rid of (cherry)
 		if len(cg.DisplayGroups) > 1 {
-			var keep DisplayGroups
+			var keep client.DisplayGroups
 
 			for i := range cg.DisplayGroups {
 				if cg.DisplayGroups[i].ShareInfo.State == stateCanShare || cg.DisplayGroups[i].ShareInfo.State == stateIsMaster {
@@ -251,8 +253,8 @@ func (c *Client) GetRoom() Room {
 		if len(preset.AudioGroups) > 0 {
 			// create a group for each audioGroup in the preset
 			for id, audioDevices := range preset.AudioGroups {
-				group := AudioGroup{
-					ID:    ID(id),
+				group := client.AudioGroup{
+					ID:    client.ID(id),
 					Name:  id,
 					Muted: true,
 				}
@@ -271,9 +273,9 @@ func (c *Client) GetRoom() Room {
 						icon = IOconfig.Icon
 					}
 
-					dev := AudioDevice{
-						ID: ID(config.ID),
-						IconPair: IconPair{
+					dev := client.AudioDevice{
+						ID: client.ID(config.ID),
+						IconPair: client.IconPair{
 							Name: config.DisplayName,
 							Icon: icon,
 						},
@@ -298,7 +300,7 @@ func (c *Client) GetRoom() Room {
 			}
 		} else if len(preset.IndependentAudioDevices) > 0 {
 			// create an audio group for all of the independentAudioDevices
-			group := AudioGroup{
+			group := client.AudioGroup{
 				ID:    "micsAG",
 				Name:  "Microphones",
 				Muted: true,
@@ -318,9 +320,9 @@ func (c *Client) GetRoom() Room {
 					icon = IOconfig.Icon
 				}
 
-				dev := AudioDevice{
-					ID: ID(config.ID),
-					IconPair: IconPair{
+				dev := client.AudioDevice{
+					ID: client.ID(config.ID),
+					IconPair: client.IconPair{
 						Name: config.DisplayName,
 						Icon: icon,
 					},

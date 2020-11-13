@@ -31,6 +31,8 @@ export interface ControlGroup {
   muted: boolean;
   screens: string[];
 
+  cameras: Camera[];
+
   // public getAudioDevice(cg: ControlGroup, id: string): AudioDevice {
   //     for (const g of cg.audioGroups) {
   //         for (const device of g.audioDevices) {
@@ -40,6 +42,29 @@ export interface ControlGroup {
   //         }
   //     }
   // }
+}
+
+export interface Camera {
+  displayName: string;
+
+  tiltUp: string;
+  tiltDown: string;
+  panLeft: string;
+  panRight: string;
+  panTiltStop: string;
+
+  zoomIn: string;
+  zoomOut: string;
+  zoomStop: string;
+
+  memoryRecall: string;
+
+  presets: CameraPreset[];
+}
+
+export interface CameraPreset {
+  displayName: string;
+  setPreset: string;
 }
 
 export interface ControlInfo {

@@ -21,6 +21,7 @@ import { ConfirmHelpDialog } from './dialogs/confirmhelp.dialog'
 import { LockScreenAudioComponent } from './components/lockscreenaudio/lockscreenaudio.component';
 import { LockScreenScreenControlComponent } from './components/lockscreenscreencontrol/lockscreenscreencontrol.component';
 import { ManagementComponent } from './components/management/management.component';
+import { CameraControlComponent } from './components/camera-control/camera-control.component';
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import { ManagementComponent } from './components/management/management.componen
     LockScreenAudioComponent,
     LockScreenScreenControlComponent,
     ManagementComponent,
-    ConfirmHelpDialog
+    ConfirmHelpDialog,
+    CameraControlComponent
   ],
   imports: [
     BrowserModule,

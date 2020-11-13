@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/byuoitav/av-control-api/client"
 	"github.com/byuoitav/common/structs"
 	"go.uber.org/zap"
 )
@@ -17,7 +18,7 @@ type SetPowerMessage struct {
 	PoweredOn bool `json:"poweredOn"`
 	All       bool `json:"all"`
 
-	controlGroup ID
+	controlGroup client.ID
 }
 
 func (sp SetPower) Do(c *Client, data []byte) {
@@ -51,7 +52,7 @@ func (sp SetPower) DoWithMessage(c *Client, msg SetPowerMessage) error {
 	// build the state body
 	var state structs.PublicRoom
 
-	addControlGroup := func(cg ControlGroup) error {
+	addControlGroup := func(cg client.ControlGroup) error {
 		for _, dg := range cg.fullDisplayGroups {
 			// Dissolve share group it's a master
 			if dg.ShareInfo.State == stateIsMaster {
@@ -85,7 +86,7 @@ func (sp SetPower) DoWithMessage(c *Client, msg SetPowerMessage) error {
 					PublicDevice: structs.PublicDevice{
 						Name: preset.AudioDevices[i],
 					},
-					Volume: IntP(30),
+					Volume: client.IntP(30),
 				})
 			}
 		}
