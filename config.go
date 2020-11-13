@@ -23,6 +23,30 @@ type ControlGroup struct {
 
 	Displays map[string]DisplayConfig
 	Audio    AudioConfig
+	Cameras  []CameraConfig
+}
+
+// CameraConfig represents a Camera and its associated control endpoints
+type CameraConfig struct {
+	DisplayName string
+	TiltUp      string
+	TiltDown    string
+	PanLeft     string
+	PanRight    string
+	PanTiltStop string
+	ZoomIn      string
+	ZoomOut     string
+	ZoomStop    string
+	Stream      string
+	Reboot      string
+	Presets     []CameraPresetConfig
+}
+
+// CameraPresetConfig represents a preset on a camera
+type CameraPresetConfig struct {
+	DisplayName string
+	SetPreset   string
+	SavePreset  string
 }
 
 // DisplayConfig represents a Display and its associated controls

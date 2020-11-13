@@ -33,7 +33,30 @@ type ControlGroup struct {
 		URL string `json:"url,omitempty"`
 	} `json:"controlInfo,omitempty"`
 
+	Cameras []Camera `json:"cameras,omitempty"`
+
 	Support Support `json:"support"`
+}
+
+type Camera struct {
+	DisplayName string         `json:"displayName"`
+	TiltUp      string         `json:"tiltUp"`
+	TiltDown    string         `json:"tiltDown"`
+	PanLeft     string         `json:"panLeft"`
+	PanRight    string         `json:"panRight"`
+	PanTiltStop string         `json:"panTiltStop"`
+	ZoomIn      string         `json:"zoomIn"`
+	ZoomOut     string         `json:"zoomOut"`
+	ZoomStop    string         `json:"zoomStop"`
+	Stream      string         `json:"stream"`
+	Reboot      string         `json:"reboot,omitempty"`
+	Presets     []CameraPreset `json:"presets"`
+}
+
+type CameraPreset struct {
+	DisplayName string `json:"displayName"`
+	SetPreset   string `json:"setPreset"`
+	SavePreset  string `json:"savePreset,omitempty"`
 }
 
 // Support .
