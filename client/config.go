@@ -20,6 +20,7 @@ func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client
 		controlGroupID: controlGroup,
 		dataService:    b.DataService,
 		avController:   b.AVController,
+		outgoing:       make(chan []byte, 1),
 	}
 
 	// get initial state
@@ -36,6 +37,10 @@ func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client
 	if err := errg.Wait(); err != nil {
 		return nil, fmt.Errorf("unable to get data for client: %w", err)
 	}
+
+	// TODO start update routines
+
+	client.sendJSONMsg(client.Room())
 
 	return client, nil
 }

@@ -20,15 +20,18 @@ type client struct {
 	state  avcontrol.StateResponse
 	config ui.Config
 
+	outgoing chan []byte
+
 	// TODO controlKey/url
 }
 
 // TODO
 // Things we need:
 // A list of controlGroups they are allowed to switch to
+// switch back to lists instead of maps for order
 func (c *client) Room() Room {
 	room := Room{
-		ID:                   c.roomID,
+		Name:                 c.roomID,
 		ControlGroups:        make(map[string]ControlGroup),
 		SelectedControlGroup: c.controlGroupID,
 	}
@@ -36,7 +39,7 @@ func (c *client) Room() Room {
 	// build all of the controlGroups
 	for id, cGroup := range c.config.ControlGroups {
 		group := ControlGroup{
-			ID: id,
+			Name: id,
 			Support: Support{ // TODO this should be pulled from cache
 				HelpRequested: false,
 				HelpMessage:   "Request Help",
@@ -49,7 +52,7 @@ func (c *client) Room() Room {
 		// TODO sharing
 		for dispName, cDisplay := range cGroup.Displays {
 			display := DisplayGroup{
-				ID: dispName,
+				Name: dispName,
 				Displays: []IconPair{
 					{
 						Name: dispName,
@@ -87,17 +90,18 @@ func (c *client) Room() Room {
 		group.MediaAudio.Muted = c.getMuted(cGroup.Audio.Media.APIRequest, c.state)
 
 		// build audio groups
-		for gID, cAudioGroup := range cGroup.Audio.Groups {
+		for agName, cAudioGroup := range cGroup.Audio.Groups {
 			audioGroup := AudioGroup{
-				ID:    gID,
-				Name:  gID,
+				Name:  agName,
 				Muted: true,
 			}
 
-			for aID, cAudio := range cAudioGroup {
+			for aName, cAudio := range cAudioGroup {
 				audio := AudioDevice{
 					// TODO need to get icon (need to change config)
-					ID:    aID,
+					IconPair: IconPair{
+						Name: aName,
+					},
 					Level: c.getVolume(cAudio.APIRequest, c.state),
 					Muted: c.getMuted(cAudio.APIRequest, c.state),
 				}
