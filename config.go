@@ -20,10 +20,11 @@ type ControlPanelConfig struct {
 type ControlGroup struct {
 	// PowerOff represents the state the room needs to be in to be considered "off"
 	PowerOff ControlSet
+
 	// PowerOn is the state we set to turn on the room
 	PowerOn ControlSet
 
-	Displays map[string]DisplayConfig
+	Displays []DisplayConfig
 	Audio    AudioConfig
 	Cameras  []CameraConfig
 }
@@ -54,27 +55,37 @@ type CameraPresetConfig struct {
 // DisplayConfig represents a Display and its associated controls
 // for a given group
 type DisplayConfig struct {
+	Name    string
 	Icon    string
-	Sources map[string]SourceConfig
+	Sources []SourceConfig
 }
 
 // SourceConfig represents a source and its associated controls
 type SourceConfig struct {
+	Name    string
 	Icon    string
 	Visible bool
 	ControlSet
 
 	// Sources represent sub-sources of the parent source
-	Sources map[string]SourceConfig
+	Sources []SourceConfig
 }
 
 // AudioConfig contains information about audio controls in the room
 type AudioConfig struct {
 	Media ControlSet
 
-	// TODO do we need icons at any level for these things?
-	// Groups is a map of group name -> audio name -> controlSet
-	Groups map[string]map[string]ControlSet
+	Groups []AudioGroupConfig
+}
+
+type AudioGroupConfig struct {
+	Name         string
+	AudioDevices []AudioDeviceConfig
+}
+
+type AudioDeviceConfig struct {
+	Name string
+	ControlSet
 }
 
 // ControlSet represents the request to be made (both to the

@@ -40,7 +40,6 @@ func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client
 
 	// TODO start update routines
 
-	client.sendJSONMsg(client.Room())
-
+	client.sendJSONMsg("room", client.Room())
 	return client, nil
 }

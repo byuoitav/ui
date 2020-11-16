@@ -14,7 +14,6 @@ type DisplayGroups []DisplayGroup
 type ControlGroup struct {
 	Name string `json:"name"`
 
-	// fullDisplayGroups DisplayGroups
 	DisplayGroups DisplayGroups  `json:"displayGroups,omitempty"`
 	AudioGroups   []AudioGroup   `json:"audioGroups,omitempty"`
 	PresentGroups []PresentGroup `json:"presentGroups,omitempty"`
@@ -83,7 +82,6 @@ type ShareInfo struct {
 
 // Input .
 type Input struct {
-	Name string `json:"name"`
 	IconPair
 
 	SubInputs []Input `json:"subInputs,omitempty"`

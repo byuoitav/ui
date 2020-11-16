@@ -10,37 +10,49 @@ import (
 )
 
 type config struct {
-	ID            string `json:"_id"`
+	ID string `json:"_id"`
+
 	ControlPanels map[string]struct {
 		UIType string `json:"uiType"`
 
 		// TODO divider sensors
 		ControlGroup string `json:"controlGroup"`
 	} `json:"controlPanels"`
+
 	ControlGroups map[string]struct {
 		PowerOff controlSet `json:"powerOff"`
 		PowerOn  controlSet `json:"powerOn"`
-		Displays map[string]struct {
-			Icon    string `json:"icon"`
-			Visible bool   `json:"visible"`
-			controlSet
 
-			Sources map[string]struct {
+		Displays []struct {
+			Name string `json:"name"`
+			Icon string `json:"icon"`
+
+			Sources []struct {
+				Name    string `json:"name"`
 				Icon    string `json:"icon"`
 				Visible bool   `json:"visible"`
 				controlSet
 
-				Sources map[string]struct {
+				Sources []struct {
+					Name    string `json:"name"`
 					Icon    string `json:"icon"`
 					Visible bool   `json:"visible"`
 					controlSet
 				} `json:"sources"`
 			} `json:"sources"`
 		} `json:"displays"`
+
 		Audio struct {
-			Media  controlSet                       `json:"media"`
-			Groups map[string]map[string]controlSet `json:"groups"`
+			Media  controlSet `json:"media"`
+			Groups []struct {
+				Name         string `json:"name"`
+				AudioDevices []struct {
+					Name string `json:"name"`
+					controlSet
+				} `json:"audioDevices"`
+			} `json:"groups"`
 		} `json:"audio"`
+
 		Cameras struct {
 			DisplayName string         `json:"displayName"`
 			TiltUp      string         `json:"tiltUp"`
@@ -54,7 +66,7 @@ type config struct {
 			Stream      string         `json:"stream"`
 			Reboot      string         `json:"reboot"`
 			Presets     []CameraPreset `json:"presets"`
-		} `json:"cameras,omitempty"`
+		} `json:"cameras"`
 	} `json:"controlGroups"`
 }
 
@@ -93,6 +105,7 @@ func (d *DataService) Config(ctx context.Context, room string) (ui.Config, error
 	return config.convert(), nil
 }
 
+// TODO camera stuff
 func (c config) convert() ui.Config {
 	config := ui.Config{
 		ID:            c.ID,
@@ -111,45 +124,52 @@ func (c config) convert() ui.Config {
 		controlGroup := ui.ControlGroup{
 			PowerOff: v.PowerOff.convert(),
 			PowerOn:  v.PowerOn.convert(),
-			Displays: make(map[string]ui.DisplayConfig, len(v.Displays)),
 		}
 
 		controlGroup.Audio.Media = v.Audio.Media.convert()
-		controlGroup.Audio.Groups = make(map[string]map[string]ui.ControlSet, len(v.Audio.Groups))
 
-		for id, disp := range v.Displays {
+		for _, disp := range v.Displays {
 			uiDisp := ui.DisplayConfig{
-				Icon:    disp.Icon,
-				Sources: make(map[string]ui.SourceConfig, len(disp.Sources)),
+				Name: disp.Name,
+				Icon: disp.Icon,
 			}
 
-			for name, source := range disp.Sources {
-				uiDisp.Sources[name] = ui.SourceConfig{
+			for _, source := range disp.Sources {
+				sourceConfig := ui.SourceConfig{
+					Name:       source.Name,
 					Icon:       source.Icon,
 					Visible:    source.Visible,
 					ControlSet: source.controlSet.convert(),
-					Sources:    make(map[string]ui.SourceConfig, len(source.Sources)),
 				}
 
-				for subName, subSource := range source.Sources {
-					uiDisp.Sources[name].Sources[subName] = ui.SourceConfig{
+				for _, subSource := range source.Sources {
+					sourceConfig.Sources = append(sourceConfig.Sources, ui.SourceConfig{
+						Name:       subSource.Name,
 						Icon:       subSource.Icon,
 						Visible:    subSource.Visible,
 						ControlSet: subSource.controlSet.convert(),
-					}
+					})
 				}
+
+				uiDisp.Sources = append(uiDisp.Sources, sourceConfig)
 			}
 
-			controlGroup.Displays[id] = uiDisp
+			controlGroup.Displays = append(controlGroup.Displays, uiDisp)
 		}
 
-		for gName, g := range v.Audio.Groups {
-			group := make(map[string]ui.ControlSet)
-			for name, set := range g {
-				group[name] = set.convert()
+		for _, ag := range v.Audio.Groups {
+			audioGroup := ui.AudioGroupConfig{
+				Name: ag.Name,
 			}
 
-			controlGroup.Audio.Groups[gName] = group
+			for _, ad := range ag.AudioDevices {
+				audioGroup.AudioDevices = append(audioGroup.AudioDevices, ui.AudioDeviceConfig{
+					Name:       ad.Name,
+					ControlSet: ad.convert(),
+				})
+			}
+
+			controlGroup.Audio.Groups = append(controlGroup.Audio.Groups, audioGroup)
 		}
 
 		config.ControlGroups[k] = controlGroup
