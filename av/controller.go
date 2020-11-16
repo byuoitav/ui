@@ -49,10 +49,12 @@ func (a *Controller) SetRoomState(ctx context.Context, room string, state avcont
 	}
 
 	url := fmt.Sprintf("%s/api/v1/room/%s/state", a.BaseURL, room)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, bytes.NewBuffer(reqBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, url, bytes.NewBuffer(reqBody))
 	if err != nil {
 		return fmt.Errorf("unable to build request: %w", err)
 	}
+
+	req.Header.Add("content-type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

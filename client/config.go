@@ -23,6 +23,10 @@ func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client
 		outgoing:       make(chan []byte, 1),
 	}
 
+	client.handlers = map[string]messageHandler{
+		"setPower": client.setPower,
+	}
+
 	// get initial state
 	errg, gctx := errgroup.WithContext(ctx)
 

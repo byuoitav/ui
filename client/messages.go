@@ -8,6 +8,8 @@ import (
 
 type message map[string]json.RawMessage
 
+type messageHandler func(b []byte)
+
 func (c *client) HandleMessage(b []byte) {
 	var msg message
 	if err := json.Unmarshal(b, &msg); err != nil {
@@ -16,18 +18,9 @@ func (c *client) HandleMessage(b []byte) {
 	}
 
 	for k, v := range msg {
-		fmt.Printf("%v\n", v)
-		switch k {
-		case "setInput":
-		case "setMuted":
-		case "setVolume":
-		case "setPower":
-			c.setPower(v)
-		case "setBlanked":
-		case "helpRequest":
-		case "setSharing":
-		case "selectControlGroup":
-		default:
+		if handler, ok := c.handlers[k]; ok {
+			handler(v)
+		} else {
 			// c.Warn("received message with unknown key", zap.String("key", k), zap.ByteString("val", v))
 			// c.Out <- ErrorMessage(fmt.Errorf("unknown key %q", k))
 		}

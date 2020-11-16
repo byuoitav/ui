@@ -20,6 +20,8 @@ type client struct {
 	state  avcontrol.StateResponse
 	config ui.Config
 
+	handlers map[string]messageHandler
+
 	outgoing chan []byte
 
 	// TODO controlKey/url
