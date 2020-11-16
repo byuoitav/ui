@@ -24,7 +24,9 @@ func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client
 	}
 
 	client.handlers = map[string]messageHandler{
-		"setPower": client.setPower,
+		"setPower":  client.setPower,
+		"setVolume": client.setVolume,
+		"setMute":   client.setMute,
 	}
 
 	// get initial state

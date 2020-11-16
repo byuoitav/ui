@@ -8,5 +8,5 @@ import (
 
 type AVController interface {
 	RoomState(context.Context, string) (avcontrol.StateResponse, error)
-	SetRoomState(context.Context, string, avcontrol.StateRequest) error
+	SetRoomState(context.Context, string, avcontrol.StateRequest) (avcontrol.StateResponse, error)
 }

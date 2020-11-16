@@ -103,3 +103,79 @@ type GenericControlRequest struct {
 	Method string
 	Body   []byte
 }
+
+func (cs *ControlSet) Copy() *ControlSet {
+	if cs == nil {
+		return nil
+	}
+
+	n := &ControlSet{}
+
+	if cs.APIRequest.Devices != nil {
+		n.APIRequest.Devices = make(map[avcontrol.DeviceID]avcontrol.DeviceState, len(cs.APIRequest.Devices))
+
+		for id, state := range cs.APIRequest.Devices {
+			nState := avcontrol.DeviceState{}
+
+			if state.PoweredOn != nil {
+				b := *state.PoweredOn
+				nState.PoweredOn = &b
+			}
+
+			if state.Blanked != nil {
+				b := *state.Blanked
+				nState.Blanked = &b
+			}
+
+			if state.Inputs != nil {
+				nState.Inputs = make(map[string]avcontrol.Input, len(state.Inputs))
+
+				for out, in := range state.Inputs {
+					input := avcontrol.Input{}
+
+					if in.Audio != nil {
+						c := *in.Audio
+						input.Audio = &c
+					}
+
+					if in.Video != nil {
+						c := *in.Video
+						input.Video = &c
+					}
+
+					if in.AudioVideo != nil {
+						c := *in.AudioVideo
+						input.AudioVideo = &c
+					}
+
+					nState.Inputs[out] = input
+				}
+			}
+
+			if state.Volumes != nil {
+				nState.Volumes = make(map[string]int, len(state.Volumes))
+
+				for block, vol := range state.Volumes {
+					nState.Volumes[block] = vol
+				}
+			}
+
+			if state.Mutes != nil {
+				nState.Mutes = make(map[string]bool, len(state.Mutes))
+
+				for block, m := range state.Mutes {
+					nState.Mutes[block] = m
+				}
+			}
+
+			n.APIRequest.Devices[id] = nState
+		}
+	}
+
+	if cs.Requests != nil {
+		n.Requests = make([]GenericControlRequest, len(cs.Requests))
+		copy(n.Requests, cs.Requests)
+	}
+
+	return n
+}

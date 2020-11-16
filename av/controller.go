@@ -42,34 +42,33 @@ func (a *Controller) RoomState(ctx context.Context, room string) (avcontrol.Stat
 	return state, err
 }
 
-func (a *Controller) SetRoomState(ctx context.Context, room string, state avcontrol.StateRequest) error {
+func (a *Controller) SetRoomState(ctx context.Context, room string, state avcontrol.StateRequest) (avcontrol.StateResponse, error) {
+	var sresp avcontrol.StateResponse
+
 	reqBody, err := json.Marshal(state)
 	if err != nil {
-		return fmt.Errorf("unable to marshal state: %w", err)
+		return sresp, fmt.Errorf("unable to marshal state: %w", err)
 	}
 
 	url := fmt.Sprintf("%s/api/v1/room/%s/state", a.BaseURL, room)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPut, url, bytes.NewBuffer(reqBody))
 	if err != nil {
-		return fmt.Errorf("unable to build request: %w", err)
+		return sresp, fmt.Errorf("unable to build request: %w", err)
 	}
 
 	req.Header.Add("content-type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("unable to do request: %w", err)
+		return sresp, fmt.Errorf("unable to do request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	// TODO check response status code?
 
-	// TODO what should this function return...?
-	/*
-		if err := json.NewDecoder(resp.Body).Decode(&state); err != nil {
-			return fmt.Errorf("unable to decode response: %w", err)
-		}
-	*/
+	if err := json.NewDecoder(resp.Body).Decode(&sresp); err != nil {
+		return sresp, fmt.Errorf("unable to decode response: %w", err)
+	}
 
-	return nil
+	return sresp, nil
 }

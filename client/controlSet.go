@@ -12,7 +12,8 @@ import (
 // TODO make sure APIRequest actually exists
 func (c *client) doControlSet(ctx context.Context, cs ui.ControlSet) error {
 	fmt.Printf("doing control set\n")
-	if err := c.avController.SetRoomState(ctx, c.roomID, cs.APIRequest); err != nil {
+	_, err := c.avController.SetRoomState(ctx, c.roomID, cs.APIRequest)
+	if err != nil {
 		fmt.Printf("error: %s\n", err)
 	}
 

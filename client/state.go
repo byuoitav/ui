@@ -113,6 +113,26 @@ func (c *client) getVolume(req avcontrol.StateRequest, state avcontrol.StateResp
 	return avg
 }
 
+func fillVolumeRequest(req avcontrol.StateRequest, vol int) avcontrol.StateRequest {
+	for _, rDev := range req.Devices {
+		for block, _ := range rDev.Volumes {
+			rDev.Volumes[block] = vol
+		}
+	}
+
+	return req
+}
+
+func fillMuteRequest(req avcontrol.StateRequest, mute bool) avcontrol.StateRequest {
+	for _, rDev := range req.Devices {
+		for block, _ := range rDev.Mutes {
+			rDev.Mutes[block] = mute
+		}
+	}
+
+	return req
+}
+
 func (c *client) getMuted(req avcontrol.StateRequest, state avcontrol.StateResponse) bool {
 	mutes := []bool{}
 
