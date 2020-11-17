@@ -43,12 +43,18 @@ type config struct {
 		} `json:"displays"`
 
 		Audio struct {
-			Media  controlSet `json:"media"`
+			Media struct {
+				Volume controlSet `json:"volume"`
+				Mute   controlSet `json:"mute"`
+				Unmute controlSet `json:"unmute"`
+			} `json:"media"`
 			Groups []struct {
 				Name         string `json:"name"`
 				AudioDevices []struct {
-					Name string `json:"name"`
-					controlSet
+					Name   string     `json:"name"`
+					Volume controlSet `json:"volume"`
+					Mute   controlSet `json:"mute"`
+					Unmute controlSet `json:"unmute"`
 				} `json:"audioDevices"`
 			} `json:"groups"`
 		} `json:"audio"`
@@ -126,7 +132,9 @@ func (c config) convert() ui.Config {
 			PowerOn:  v.PowerOn.convert(),
 		}
 
-		controlGroup.Audio.Media = v.Audio.Media.convert()
+		controlGroup.Audio.Media.Volume = v.Audio.Media.Volume.convert()
+		controlGroup.Audio.Media.Mute = v.Audio.Media.Mute.convert()
+		controlGroup.Audio.Media.Unmute = v.Audio.Media.Unmute.convert()
 
 		for _, disp := range v.Displays {
 			uiDisp := ui.DisplayConfig{
@@ -164,8 +172,10 @@ func (c config) convert() ui.Config {
 
 			for _, ad := range ag.AudioDevices {
 				audioGroup.AudioDevices = append(audioGroup.AudioDevices, ui.AudioDeviceConfig{
-					Name:       ad.Name,
-					ControlSet: ad.convert(),
+					Name:   ad.Name,
+					Volume: ad.Volume.convert(),
+					Mute:   ad.Mute.convert(),
+					Unmute: ad.Unmute.convert(),
 				})
 			}
 

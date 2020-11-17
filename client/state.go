@@ -81,7 +81,7 @@ func (c *client) stateMatches(req avcontrol.StateRequest) bool {
 	return true
 }
 
-func (c *client) getVolume(req avcontrol.StateRequest, state avcontrol.StateResponse) int {
+func (c *client) getVolume(req avcontrol.StateRequest) int {
 	vols := []int{}
 
 	for id, rDev := range req.Devices {
@@ -90,7 +90,12 @@ func (c *client) getVolume(req avcontrol.StateRequest, state avcontrol.StateResp
 			continue
 		}
 
-		for block, _ := range rDev.Volumes {
+		for block, rDevVol := range rDev.Volumes {
+			// only count devices who's request is configured with -1
+			if rDevVol != -1 {
+				continue
+			}
+
 			sVol, ok := sDev.Volumes[block]
 			if !ok {
 				continue
@@ -115,54 +120,16 @@ func (c *client) getVolume(req avcontrol.StateRequest, state avcontrol.StateResp
 
 func fillVolumeRequest(req avcontrol.StateRequest, vol int) avcontrol.StateRequest {
 	for _, rDev := range req.Devices {
-		for block, _ := range rDev.Volumes {
+		for block, rDevVol := range rDev.Volumes {
+			if rDevVol != -1 {
+				continue
+			}
+
 			rDev.Volumes[block] = vol
 		}
 	}
 
 	return req
-}
-
-func fillMuteRequest(req avcontrol.StateRequest, mute bool) avcontrol.StateRequest {
-	for _, rDev := range req.Devices {
-		for block, _ := range rDev.Mutes {
-			rDev.Mutes[block] = mute
-		}
-	}
-
-	return req
-}
-
-func (c *client) getMuted(req avcontrol.StateRequest, state avcontrol.StateResponse) bool {
-	mutes := []bool{}
-
-	for id, rDev := range req.Devices {
-		sDev, ok := c.state.Devices[id]
-		if !ok {
-			continue
-		}
-
-		for block, _ := range rDev.Mutes {
-			sMute, ok := sDev.Mutes[block]
-			if !ok {
-				continue
-			}
-
-			mutes = append(mutes, sMute)
-		}
-	}
-
-	if len(mutes) == 0 {
-		return false
-	}
-
-	for _, muted := range mutes {
-		if !muted {
-			return false
-		}
-	}
-
-	return true
 }
 
 // stringMatches returns true if:

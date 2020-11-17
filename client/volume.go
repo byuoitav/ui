@@ -39,7 +39,7 @@ func (c *client) setVolume(data []byte) {
 	}
 
 	if msg.AudioGroup == "" && msg.AudioDevice == "" {
-		cs := cg.Audio.Media.Copy()
+		cs := cg.Audio.Media.Volume.Copy()
 		cs.APIRequest = fillVolumeRequest(cs.APIRequest, msg.Volume)
 		c.doControlSet(ctx, *cs)
 		return
@@ -55,7 +55,7 @@ func (c *client) setVolume(data []byte) {
 				continue
 			}
 
-			cs := ad.Copy()
+			cs := ad.Volume.Copy()
 			cs.APIRequest = fillVolumeRequest(cs.APIRequest, msg.Volume)
 			c.doControlSet(ctx, *cs)
 			return

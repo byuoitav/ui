@@ -36,9 +36,12 @@ func (c *client) setMute(data []byte) {
 	}
 
 	if msg.AudioGroup == "" && msg.AudioDevice == "" {
-		cs := cg.Audio.Media.Copy()
-		cs.APIRequest = fillMuteRequest(cs.APIRequest, msg.Mute)
-		c.doControlSet(ctx, *cs)
+		if msg.Mute {
+			c.doControlSet(ctx, cg.Audio.Media.Mute)
+		} else {
+			c.doControlSet(ctx, cg.Audio.Media.Unmute)
+		}
+
 		return
 	}
 
@@ -52,9 +55,12 @@ func (c *client) setMute(data []byte) {
 				continue
 			}
 
-			cs := ad.Copy()
-			cs.APIRequest = fillMuteRequest(cs.APIRequest, msg.Mute)
-			c.doControlSet(ctx, *cs)
+			if msg.Mute {
+				c.doControlSet(ctx, ad.Mute)
+			} else {
+				c.doControlSet(ctx, ad.Unmute)
+			}
+
 			return
 		}
 	}

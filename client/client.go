@@ -88,13 +88,15 @@ func (c *client) Room() Room {
 		}
 
 		// build media audio info
-		group.MediaAudio.Level = c.getVolume(cg.Audio.Media.APIRequest, c.state)
-		group.MediaAudio.Muted = c.getMuted(cg.Audio.Media.APIRequest, c.state)
+		group.MediaAudio.Level = c.getVolume(cg.Audio.Media.Volume.APIRequest)
+		group.MediaAudio.Muted = c.stateMatches(cg.Audio.Media.Mute.APIRequest)
 
 		// build audio groups
 		for _, ag := range cg.Audio.Groups {
 			audioGroup := AudioGroup{
-				Name:  ag.Name,
+				Name: ag.Name,
+				// Muted is true if all of the audio devices in this group
+				// are muted
 				Muted: true,
 			}
 
@@ -103,8 +105,8 @@ func (c *client) Room() Room {
 					IconPair: IconPair{
 						Name: ad.Name,
 					},
-					Level: c.getVolume(ad.APIRequest, c.state),
-					Muted: c.getMuted(ad.APIRequest, c.state),
+					Level: c.getVolume(ad.Volume.APIRequest),
+					Muted: c.stateMatches(ad.Mute.APIRequest),
 				}
 
 				if !audioDevice.Muted {

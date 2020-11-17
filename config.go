@@ -73,7 +73,7 @@ type SourceConfig struct {
 
 // AudioConfig contains information about audio controls in the room
 type AudioConfig struct {
-	Media ControlSet
+	Media AudioDeviceConfig
 
 	Groups []AudioGroupConfig
 }
@@ -84,8 +84,10 @@ type AudioGroupConfig struct {
 }
 
 type AudioDeviceConfig struct {
-	Name string
-	ControlSet
+	Name   string
+	Volume ControlSet `json:"volume"`
+	Mute   ControlSet `json:"mute"`
+	Unmute ControlSet `json:"unmute"`
 }
 
 // ControlSet represents the request to be made (both to the
