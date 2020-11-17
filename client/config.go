@@ -27,6 +27,7 @@ func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client
 		"setPower":  client.setPower,
 		"setVolume": client.setVolume,
 		"setMute":   client.setMute,
+		"setInput":  client.setInput,
 	}
 
 	// get initial state

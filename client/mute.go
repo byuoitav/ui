@@ -9,10 +9,9 @@ import (
 
 func (c *client) setMute(data []byte) {
 	var msg struct {
-		ControlGroup string `json:"controlGroup"`
-		Mute         bool   `json:"mute"`
-		AudioGroup   string `json:"audioGroup"`
-		AudioDevice  string `json:"audioDevice"`
+		Mute        bool   `json:"mute"`
+		AudioGroup  string `json:"audioGroup"`
+		AudioDevice string `json:"audioDevice"`
 	}
 
 	if err := json.Unmarshal(data, &msg); err != nil {
@@ -23,13 +22,7 @@ func (c *client) setMute(data []byte) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	cgID := c.controlGroupID
-	if msg.ControlGroup != "" {
-		cgID = msg.ControlGroup
-	}
-
-	// make sure control group exists
-	cg, ok := c.config.ControlGroups[cgID]
+	cg, ok := c.config.ControlGroups[c.controlGroupID]
 	if !ok {
 		// TODO log/send invalid control group error
 		return

@@ -12,10 +12,9 @@ import (
 // i'm thinking we may have to separate the controlSets into a `setVolume` controlSet *and* and `setMute` controlSet
 func (c *client) setVolume(data []byte) {
 	var msg struct {
-		ControlGroup string `json:"controlGroup"`
-		Volume       int    `json:"volume"`
-		AudioGroup   string `json:"audioGroup"`
-		AudioDevice  string `json:"audioDevice"`
+		Volume      int    `json:"volume"`
+		AudioGroup  string `json:"audioGroup"`
+		AudioDevice string `json:"audioDevice"`
 	}
 
 	if err := json.Unmarshal(data, &msg); err != nil {
@@ -26,13 +25,8 @@ func (c *client) setVolume(data []byte) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	cgID := c.controlGroupID
-	if msg.ControlGroup != "" {
-		cgID = msg.ControlGroup
-	}
-
 	// make sure control group exists
-	cg, ok := c.config.ControlGroups[cgID]
+	cg, ok := c.config.ControlGroups[c.controlGroupID]
 	if !ok {
 		// TODO log/send invalid control group error
 		return
