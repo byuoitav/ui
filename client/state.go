@@ -14,13 +14,62 @@ func (c *client) updateRoomState(ctx context.Context) error {
 	}
 
 	// TODO something with the errors...?
-	// TODO probably need to mutex the state...
-
 	state.Errors = nil
+
+	c.stateMu.Lock()
+	defer c.stateMu.Unlock()
+
 	c.state = state
 	return nil
 }
 
+// TODO this should (i think?) send events for the things that have changed
+func (c *client) updateRoomStateFromState(state avcontrol.StateResponse) {
+	c.stateMu.Lock()
+	defer c.stateMu.Unlock()
+
+	for dID, d := range state.Devices {
+		cur := c.state.Devices[dID]
+
+		if d.PoweredOn != nil {
+			cur.PoweredOn = d.PoweredOn
+		}
+
+		if d.Blanked != nil {
+			cur.Blanked = d.Blanked
+		}
+
+		for iID, i := range d.Inputs {
+			curInput := cur.Inputs[iID]
+
+			if i.Audio != nil {
+				curInput.Audio = i.Audio
+			}
+
+			if i.Video != nil {
+				curInput.Video = i.Video
+			}
+
+			if i.AudioVideo != nil {
+				curInput.AudioVideo = i.AudioVideo
+			}
+
+			cur.Inputs[iID] = curInput
+		}
+
+		for block, v := range d.Volumes {
+			cur.Volumes[block] = v
+		}
+
+		for block, m := range d.Mutes {
+			cur.Mutes[block] = m
+		}
+
+		c.state.Devices[dID] = cur
+	}
+}
+
+// stateMatches assumes that (*client).stateMu has already been at least read locked.
 func (c *client) stateMatches(req avcontrol.StateRequest) bool {
 	for dID, d := range req.Devices {
 		dd, ok := c.state.Devices[dID]
@@ -82,6 +131,9 @@ func (c *client) stateMatches(req avcontrol.StateRequest) bool {
 }
 
 func (c *client) getVolume(req avcontrol.StateRequest) int {
+	c.stateMu.RLock()
+	defer c.stateMu.RUnlock()
+
 	vols := []int{}
 
 	for id, rDev := range req.Devices {

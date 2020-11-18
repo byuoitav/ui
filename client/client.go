@@ -1,6 +1,8 @@
 package client
 
 import (
+	"sync"
+
 	avcontrol "github.com/byuoitav/av-control-api"
 	"github.com/byuoitav/ui"
 )
@@ -16,9 +18,11 @@ type client struct {
 	dataService  ui.DataService
 	avController ui.AVController
 
-	// info that we update occasionally
-	state  avcontrol.StateResponse
-	config ui.Config
+	state   avcontrol.StateResponse
+	stateMu sync.RWMutex
+
+	config   ui.Config
+	configMu sync.RWMutex
 
 	handlers map[string]messageHandler
 
@@ -32,6 +36,12 @@ type client struct {
 // A list of controlGroups they are allowed to switch to
 // switch back to lists instead of maps for order
 func (c *client) Room() Room {
+	c.stateMu.RLock()
+	defer c.stateMu.RUnlock()
+
+	c.configMu.RLock()
+	defer c.configMu.RUnlock()
+
 	room := Room{
 		Name:                 c.roomID,
 		ControlGroups:        make(map[string]ControlGroup),

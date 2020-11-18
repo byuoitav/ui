@@ -7,15 +7,23 @@ import (
 	"github.com/byuoitav/ui"
 )
 
-// TODO need to reconcile state coming back and update our current state
 // TODO need to make these things happen in parallel (?)
 // TODO make sure APIRequest actually exists
 func (c *client) doControlSet(ctx context.Context, cs ui.ControlSet) error {
 	fmt.Printf("doing control set\n")
-	_, err := c.avController.SetRoomState(ctx, c.roomID, cs.APIRequest)
+	state, err := c.avController.SetRoomState(ctx, c.roomID, cs.APIRequest)
 	if err != nil {
-		fmt.Printf("error: %s\n", err)
+		return fmt.Errorf("unable to set room state: %w", err)
 	}
+
+	for range state.Errors {
+		// send these errors to the frontend?
+		// or just log them? idk
+	}
+
+	// update room state, send update room to frontend
+	c.updateRoomStateFromState(state)
+	c.sendJSONMsg("room", c.Room())
 
 	for _, req := range cs.Requests {
 		c.doGenericRequest(ctx, req)
