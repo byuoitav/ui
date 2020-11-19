@@ -5,15 +5,15 @@ import avcontrol "github.com/byuoitav/av-control-api"
 // Config represents the program for a room that can be used
 // to control a room
 type Config struct {
-	ID            string
-	ControlPanels map[string]ControlPanelConfig
+	ID string
+	// ControlPanels map[string]ControlPanelConfig
 	ControlGroups map[string]ControlGroup
 }
 
-type ControlPanelConfig struct {
-	UIType       string `json:"uiType"`
-	ControlGroup string `json:"controlGroup"`
-}
+//type ControlPanelConfig struct {
+//	UIType       string `json:"uiType"`
+//	ControlGroup string `json:"controlGroup"`
+//}
 
 // ControlGroup represents a group of Devices and inputs. These groups
 // are used for logical grouping and displaying on different UIs

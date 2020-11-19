@@ -12,13 +12,6 @@ import (
 type config struct {
 	ID string `json:"_id"`
 
-	ControlPanels map[string]struct {
-		UIType string `json:"uiType"`
-
-		// TODO divider sensors
-		ControlGroup string `json:"controlGroup"`
-	} `json:"controlPanels"`
-
 	ControlGroups map[string]struct {
 		PowerOff controlSet `json:"powerOff"`
 		PowerOn  controlSet `json:"powerOn"`
@@ -114,17 +107,19 @@ func (d *DataService) Config(ctx context.Context, room string) (ui.Config, error
 // TODO camera stuff
 func (c config) convert() ui.Config {
 	config := ui.Config{
-		ID:            c.ID,
-		ControlPanels: make(map[string]ui.ControlPanelConfig),
+		ID: c.ID,
+		// ControlPanels: make(map[string]ui.ControlPanelConfig),
 		ControlGroups: make(map[string]ui.ControlGroup, len(c.ControlGroups)),
 	}
 
-	for k, v := range c.ControlPanels {
-		config.ControlPanels[k] = ui.ControlPanelConfig{
-			UIType:       v.UIType,
-			ControlGroup: v.ControlGroup,
+	/*
+		for k, v := range c.ControlPanels {
+			config.ControlPanels[k] = ui.ControlPanelConfig{
+				UIType:       v.UIType,
+				ControlGroup: v.ControlGroup,
+			}
 		}
-	}
+	*/
 
 	for k, v := range c.ControlGroups {
 		controlGroup := ui.ControlGroup{
