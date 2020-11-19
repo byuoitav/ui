@@ -1,19 +1,17 @@
 package ui
 
-import avcontrol "github.com/byuoitav/av-control-api"
+import (
+	"net/url"
+
+	avcontrol "github.com/byuoitav/av-control-api"
+)
 
 // Config represents the program for a room that can be used
 // to control a room
 type Config struct {
-	ID string
-	// ControlPanels map[string]ControlPanelConfig
+	ID            string
 	ControlGroups map[string]ControlGroup
 }
-
-//type ControlPanelConfig struct {
-//	UIType       string `json:"uiType"`
-//	ControlGroup string `json:"controlGroup"`
-//}
 
 // ControlGroup represents a group of Devices and inputs. These groups
 // are used for logical grouping and displaying on different UIs
@@ -31,25 +29,22 @@ type ControlGroup struct {
 
 // CameraConfig represents a Camera and its associated control endpoints
 type CameraConfig struct {
-	DisplayName string
-	TiltUp      string
-	TiltDown    string
-	PanLeft     string
-	PanRight    string
-	PanTiltStop string
-	ZoomIn      string
-	ZoomOut     string
-	ZoomStop    string
-	Stream      string
-	Reboot      string
+	Name        string
+	TiltUp      ControlSet
+	TiltDown    ControlSet
+	PanLeft     ControlSet
+	PanRight    ControlSet
+	PanTiltStop ControlSet
+	ZoomIn      ControlSet
+	ZoomOut     ControlSet
+	ZoomStop    ControlSet
 	Presets     []CameraPresetConfig
 }
 
 // CameraPresetConfig represents a preset on a camera
 type CameraPresetConfig struct {
-	DisplayName string
-	SetPreset   string
-	SavePreset  string
+	Name      string
+	SetPreset ControlSet
 }
 
 // DisplayConfig represents a Display and its associated controls
@@ -101,7 +96,7 @@ type ControlSet struct {
 // GenericControlRequest contains the information necessary to make a generic
 // HTTP request in association with making state changes in a room
 type GenericControlRequest struct {
-	URL    string
+	URL    *url.URL
 	Method string
 	Body   []byte
 }
@@ -176,7 +171,15 @@ func (cs *ControlSet) Copy() *ControlSet {
 
 	if cs.Requests != nil {
 		n.Requests = make([]GenericControlRequest, len(cs.Requests))
-		copy(n.Requests, cs.Requests)
+
+		for i, req := range cs.Requests {
+			u := *req.URL
+			n.Requests[i].URL = &u
+			n.Requests[i].Method = req.Method
+
+			n.Requests[i].Body = make([]byte, len(req.Body))
+			copy(n.Requests[i].Body, req.Body)
+		}
 	}
 
 	return n
