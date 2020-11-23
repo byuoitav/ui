@@ -54,7 +54,10 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     if (this.roomRef) {
       this.roomRef.subject().subscribe((r) => {
+        console.log(r)
+
         if (r) {
+
           if (this.cg) {
             if ((this.cg.poweredOn == false && r.controlGroups[r.selectedControlGroup].poweredOn == true)
             || (this.cg.poweredOn == true && r.controlGroups[r.selectedControlGroup].poweredOn == false)) {

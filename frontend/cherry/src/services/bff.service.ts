@@ -51,11 +51,12 @@ export class RoomRef {
   };
 
   /* control functions */
-  setInput = (displayID: string, inputID: string) => {
+  setInput = (displayID: string, sourceName: string, subSourceName?: string) => {
     const kv = {
       setInput: {
         displayGroup: displayID,
-        input: inputID
+        source: sourceName,
+        subSource: subSourceName
       }
     };
 
@@ -63,35 +64,27 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  setBlanked = (displayID: string, blanked: boolean) => {
-    const kv = {
-      setBlanked: {
-        displayGroup: displayID,
-        blanked: blanked
-      }
-    };
-
-    this.commandInProgress = true;
-    this._ws.send(JSON.stringify(kv));
-  }
-
-  setVolume = (level: number, audioDeviceID?: string) => {
+  setVolume = (level: number, audioGroupdID?: string, audioDeviceID?: string) => {
     const kv = {
       setVolume: {
+        volume: level,
+        audioGroup: audioGroupdID,
         audioDevice: audioDeviceID,
-        level: level
       }
     };
+
+    console.log(kv)
 
     this.commandInProgress = true;
     this._ws.send(JSON.stringify(kv));
   };
 
-  setMuted = (muted: boolean, audioDeviceID?: string) => {
+  setMuted = (muted: boolean, audioGroupID?: string, audioDeviceID?: string) => {
     const kv = {
-      setMuted: {
-        audioDevice: audioDeviceID,
-        muted: muted
+      setMute: {
+        mute: muted,
+        audioGroup: audioGroupID,
+        audioDevice: audioDeviceID
       }
     };
     console.log(kv)
@@ -99,10 +92,11 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  setPower = (power: boolean) => {
+  setPower = (power: boolean, all?: string) => {
     const kv = {
       setPower: {
-        poweredOn: power
+        on: power,
+        all: all
       }
     };
 
@@ -196,16 +190,19 @@ export class BFFService {
       protocol = "wss:";
     }
 
-    const endpoint = protocol + "//" + window.location.host + "/ws";
+    const endpoint = protocol + "//" + window.location.host + "/api/v1/ws";
     const ws = new WebSocket(endpoint);
 
     this.roomRef = new RoomRef(room, ws, () => {
       console.log("closing room connection", room.value.id);
     });
 
+    console.log("websocket", ws)
+
     // handle incoming messages from bff
     ws.onmessage = msg => {
       const data = JSON.parse(msg.data);
+      console.log("data:", data)
 
       for (const k in data) {
         switch (k) {

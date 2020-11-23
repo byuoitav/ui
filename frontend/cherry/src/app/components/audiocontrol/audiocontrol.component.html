@@ -12,15 +12,15 @@
 
                 <!-- If there aren't enough to make 2 pages -->
                 <div class="devices less" *ngIf="i?.audioDevices.length <= 3">
-                    <div class="device slider-container" *ngFor="let a of i?.audioDevices; let idx = index" [id]="i.id + idx">
+                    <div class="device slider-container" *ngFor="let a of i?.audioDevices; let idx = index" [id]="i.name + idx">
                         <span class="volume-label">{{ a.name }}</span>
                         <i class="material-icons">{{ a.icon }}</i>
                         <volume
                             class="volume display"
                             [mute]="a?.muted"
                             [level]="a?.level"
-                            (levelChange)="roomRef.setVolume($event, a?.id)"
-                            (muteChange)="roomRef.setMuted($event, a?.id)"
+                            (levelChange)="roomRef.setVolume($event, i.name, a?.name)"
+                            (muteChange)="roomRef.setMuted($event, i.name, a?.name)"
                         >
                         </volume>
                     </div>
@@ -30,22 +30,22 @@
                 <div class="devices displays" *ngIf="i?.audioDevices.length > 3">
                     <div
                         class="button left display"
-                        (click)=groupPageLeft(i?.id)
-                        [class.blank]="!groupCanPageLeft(i?.id)"
+                        (click)=groupPageLeft(i?.name)
+                        [class.blank]="!groupCanPageLeft(i?.name)"
                     >
                         <mat-icon style="transform: scale(3)">keyboard_arrow_left</mat-icon>
                     </div>
                     <div class="mixers">
                         <div class="sliders">
-                            <div class="device slider-container" *ngFor="let a of i?.audioDevices; let idx = index" [id]="i.id + idx">
+                            <div class="device slider-container" *ngFor="let a of i?.audioDevices; let idx = index" [id]="i.name + idx">
                                 <span>{{ a.name }}</span>
                                 <i class="material-icons">{{ a.icon }}</i>
                                 <volume
                                     class="volume display"
                                     [mute]="a?.muted"
                                     [level]="a?.level"
-                                    (levelChange)="roomRef.setVolume($event, a?.id)"
-                                    (muteChange)="roomRef.setMuted($event, a?.id)">
+                                    (levelChange)="roomRef.setVolume($event, i.name, a?.name)"
+                                    (muteChange)="roomRef.setMuted($event, i.name, a?.name)">
                                 </volume>
                             </div>
                             <div
@@ -79,8 +79,8 @@
                     </div>
                     <div
                         class="button right"
-                        (click)="groupPageRight(i?.id)"
-                        [class.blank]="!groupCanPageRight(i?.id)"
+                        (click)="groupPageRight(i?.name)"
+                        [class.blank]="!groupCanPageRight(i?.name)"
                     >
                         <mat-icon style="transform: scale(3)">keyboard_arrow_right</mat-icon>
                     </div>

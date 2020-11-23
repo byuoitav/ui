@@ -18,45 +18,45 @@ export class DisplayComponent implements OnInit {
   cg: ControlGroup;
   selectedOutput: number;
   selectedInput: Input;
-  blank: Input;
+  curDisplayGroup: DisplayGroup;
   constructor(
     private dialog: MatDialog
   ) { }
 
   ngOnInit() {
-    this.blank = {
-      id: "blank",
-      icon: "crop_landscape",
-      name: "Blank",
-      subInputs: null,
-    }
     this.roomRef.subject().subscribe((r) => {
       if (r) {
         this.cg = r.controlGroups[r.selectedControlGroup];
+        // console.log("cg", this.cg)
         if (this.cg.displayGroups.length > 0) {
           if (this.selectedOutput == undefined) {
             this.selectedOutput = 0;
           }
-          if (this.cg.displayGroups[this.selectedOutput].blanked == true) {
-            this.selectedInput = this.blank;
-            
-            // for some reason the spinny edge of blank doesn't work the same as the inputs
-            // so we need to do this...
-            let btn = document.getElementById("input" + this.blank.id);
-            btn.classList.remove("feedback")
-          } else {
-            this.selectedInput = this.cg.inputs.find((i) => i.id === this.cg.displayGroups[this.selectedOutput].input)
-          }
+          this.curDisplayGroup = this.cg.displayGroups[this.selectedOutput]
+          // for (let i = 0; i < this.cg.displayGroups.length; i++) {
+            this.selectedInput = this.cg.displayGroups[this.selectedOutput].inputs.find((input) => input.name === this.cg.displayGroups[this.selectedOutput].input)
+            // this.selectedInput = this.cg.inputs.find((i) => i.id === this.cg.displayGroups[this.selectedOutput].input)
+            // if (this.selectedInput != undefined) {
+            //   break
+            // }
+          // } 
+          this.selectedInput = this.cg.displayGroups[this.selectedOutput].inputs[0]
+          // console.log("selected", this.selectedInput)
         }
       }
     })
   }
 
   public changeInput(display: DisplayGroup, input: Input) {
-    if (display.input != input.id) {
-      document.getElementById("input" + input.id).classList.toggle("feedback");
-      this.roomRef.setInput(display.id, input.id);
+    if (display.input != input.name) {
+      document.getElementById("input" + input.name).classList.toggle("feedback");
+      this.roomRef.setInput(display.name, input.name);
     }
+    
+    // if (display.input != input.id) {
+    //   document.getElementById("input" + input.id).classList.toggle("feedback");
+    //   this.roomRef.setInput(display.name, input.id);
+    // }
   }
 
   public openMobileControlDialog() {
@@ -71,44 +71,26 @@ export class DisplayComponent implements OnInit {
   }
 
   public getInputForOutput(d: DisplayGroup) {
-    if (d.blanked == true) {
-      this.selectedInput = this.blank;
-    } else {
-      this.selectedInput = this.cg.inputs.find((i) => i.id === d.input)
-      if (this.selectedInput == undefined) {
-        this.selectedInput = this.blank;
-      }
-    }
-  }
-
-  public setBlank(d: DisplayGroup) {
-    if (!d.blanked) {
-      document.getElementById("input" + this.blank.id).classList.toggle("feedback");
-      this.roomRef.setBlanked(d.id, true);
-    }
+    this.selectedInput = d.inputs.find((i) => i.name === d.input)
+    // this.selectedInput = this.cg.inputs.find((i) => i.id === d.input)
+    // if (this.selectedInput == undefined) {
+    //   this.selectedInput = this.blank;
+    // }
   }
 
   public getInputIcon(d: DisplayGroup) {
-    if (d.blanked == true) {
-      return this.blank.icon;
-    } else {
-      const input = this.cg.inputs.find((i) => i.id === d.input);
-      if (input == undefined) {
-        return "crop_landscape";
-      }
-      return input.icon;
+    const input = d.inputs.find((i) => i.name === d.input);
+    if (input == undefined) {
+      return "crop_landscape";
     }
+    return input.icon;
   }
 
   public getInputName(d: DisplayGroup) {
-    if (d.blanked == true) {
-      return this.blank.name;
-    } else {
-      const input = this.cg.inputs.find((i) => i.id === d.input);
-      if (input == undefined) {
-        return "unknown";
-      }
-      return input.name;
+    const input = d.inputs.find((i) => i.name === d.input);
+    if (input == undefined) {
+      return "unknown";
     }
+    return input.name;
   }
 }

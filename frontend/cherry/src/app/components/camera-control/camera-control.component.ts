@@ -15,7 +15,7 @@ export class CameraControlComponent implements OnInit, AfterViewInit {
   roomRef: RoomRef;
 
 
-  @ViewChild(MatTabGroup)
+  // @ViewChild(MatTabGroup)
   // @ViewChild(MatTabGroup, null)
 
   private _tabs: MatTabGroup;
@@ -35,10 +35,10 @@ export class CameraControlComponent implements OnInit, AfterViewInit {
         this.cg = r.controlGroups[r.selectedControlGroup];
       }
     })
-    this.getControlKey();
-    setInterval(() => {
-      this.getControlKey();
-    }, 120000)
+    // this.getControlKey();
+    // setInterval(() => {
+    //   this.getControlKey();
+    // }, 120000)
   }
 
   ngAfterViewInit() {
@@ -166,13 +166,13 @@ export class CameraControlComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getControlKey = () => {
-    this.http
-    .get(window.location.protocol + "//" + window.location.host +"/control-key/" + this.room + "/" + this.cg.name)
-    .map(response => response.json()).subscribe(
-      data => {
-        this.code = data.ControlKey;
-      }
-    )
-  }
+  // getControlKey = () => {
+  //   this.http
+  //   .get(window.location.protocol + "//" + window.location.host +"/control-key/" + this.room + "/" + this.cg.name)
+  //   .map(response => response.json()).subscribe(
+  //     data => {
+  //       this.code = data.ControlKey;
+  //     }
+  //   )
+  // }
 }

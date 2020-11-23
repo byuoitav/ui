@@ -28,22 +28,10 @@
     <!-- </ng-container> -->
     
     <div>
-        <button mat-button class="input mat-elevation-z7"
-            [class.selected]="selectedInput == blank"
-            [id]="'input' + blank.id"
-            [class.mat-raised-button]="selectedInput == blank"
-            (click)="setBlank(cg?.displayGroups[selectedOutput])"
-            (press)="setBlank(cg?.displayGroups[selectedOutput])"
-        >
-            <div class="icon">
-                <i class="material-icons">{{ blank?.icon }}</i>
-                <span>{{ blank?.name }}</span>
-            </div>
-        </button>
-        <ng-container *ngFor="let i of cg?.inputs">
+        <ng-container *ngFor="let i of curDisplayGroup?.inputs">
             <button mat-button class="input mat-elevation-z7"
                 [class.selected]="selectedInput == i"
-                [id]="'input' + i.id"
+                [id]="'input' + i.name"
                 [class.mat-raised-button]="selectedInput == i"
                 (click)="changeInput(cg?.displayGroups[selectedOutput], i)"
                 (press)="changeInput(cg?.displayGroups[selectedOutput], i)"
