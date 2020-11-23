@@ -4,49 +4,23 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/byuoitav/ui"
-	"golang.org/x/sync/errgroup"
+	"go.uber.org/zap"
 )
 
-type Builder struct {
-	DataService  ui.DataService
-	AVController ui.AVController
-}
+func (c *client) updateConfig(ctx context.Context) error {
+	c.log.Debug("Updating room state")
 
-func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client, error) {
-	client := &client{
-		// TODO validate roomID?
-		roomID:         room,
-		controlGroupID: controlGroup,
-		dataService:    b.DataService,
-		avController:   b.AVController,
-		outgoing:       make(chan []byte, 1),
+	config, err := c.dataService.Config(ctx, c.roomID)
+	if err != nil {
+		c.log.Error("unable to update room config", zap.Error(err))
+		return fmt.Errorf("unable to get config: %w", err)
 	}
 
-	client.handlers = map[string]messageHandler{
-		"setPower":  client.setPower,
-		"setVolume": client.setVolume,
-		"setMute":   client.setMute,
-		"setInput":  client.setInput,
-	}
+	c.log.Debug("Successfully updated room config")
 
-	// get initial state
-	errg, gctx := errgroup.WithContext(ctx)
+	c.configMu.Lock()
+	defer c.configMu.Unlock()
 
-	errg.Go(func() error {
-		return client.updateConfig(gctx)
-	})
-
-	errg.Go(func() error {
-		return client.updateRoomState(gctx)
-	})
-
-	if err := errg.Wait(); err != nil {
-		return nil, fmt.Errorf("unable to get data for client: %w", err)
-	}
-
-	// TODO start update routines
-
-	client.sendJSONMsg("room", client.Room())
-	return client, nil
+	c.config = config
+	return nil
 }

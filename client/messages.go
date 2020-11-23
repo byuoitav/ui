@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+
+	"go.uber.org/zap"
 )
 
 type message map[string]json.RawMessage
@@ -13,16 +15,16 @@ type messageHandler func(b []byte)
 func (c *client) HandleMessage(b []byte) {
 	var msg message
 	if err := json.Unmarshal(b, &msg); err != nil {
-		// TODO log error/return error?
+		c.log.Warn("unable to parse message", zap.Error(err), zap.ByteString("msg", b))
 		return
 	}
 
 	for k, v := range msg {
 		if handler, ok := c.handlers[k]; ok {
+			c.log.Debug("Calling handler for message", zap.String("key", k), zap.ByteString("val", v))
 			handler(v)
 		} else {
-			// c.Warn("received message with unknown key", zap.String("key", k), zap.ByteString("val", v))
-			// c.Out <- ErrorMessage(fmt.Errorf("unknown key %q", k))
+			c.log.Warn("no handler registered", zap.String("key", k), zap.ByteString("val", v))
 		}
 	}
 }

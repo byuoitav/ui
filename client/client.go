@@ -5,6 +5,7 @@ import (
 
 	avcontrol "github.com/byuoitav/av-control-api"
 	"github.com/byuoitav/ui"
+	"go.uber.org/zap"
 )
 
 var _ ui.Client = &client{}
@@ -17,6 +18,7 @@ type client struct {
 	// structs to ~do stuff~ with
 	dataService  ui.DataService
 	avController ui.AVController
+	log          *zap.Logger
 
 	state   avcontrol.StateResponse
 	stateMu sync.RWMutex

@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/byuoitav/ui"
 )
 
-// TODO displayGroups
 func (c *client) setInput(data []byte) {
 	var msg struct {
-		Display   string `json:"display"`
-		Source    string `json:"source"`
-		SubSource string `json:"subSource"`
+		DisplayGroup string `json:"displayGroup"`
+		Source       string `json:"source"`
+		SubSource    string `json:"subSource"`
 	}
 
 	if err := json.Unmarshal(data, &msg); err != nil {
@@ -23,39 +24,58 @@ func (c *client) setInput(data []byte) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	cg, ok := c.config.ControlGroups[c.controlGroupID]
-	if !ok {
-		// TODO log/send invalid control group error
-		return
-	}
+	room := c.Room()
 
-	for _, disp := range cg.Displays {
-		if msg.Display != disp.Name {
+	// find all of the controlSets for the affected displays
+	var controlSets []ui.ControlSet
+	for _, dg := range room.ControlGroups[c.controlGroupID].DisplayGroups {
+		if msg.DisplayGroup != dg.Name {
 			continue
 		}
 
-		for _, src := range disp.Sources {
-			if msg.Source != src.Name {
-				continue
-			}
-
-			if msg.SubSource == "" {
-				c.doControlSet(ctx, src.ControlSet)
+		for _, d := range dg.Displays {
+			// find the matching controlSet in the config
+			cfg, ok := c.getSourceConfig(d.Name, msg.Source, msg.SubSource)
+			if !ok {
+				// error
 				return
 			}
 
-			for _, subSrc := range src.Sources {
-				if msg.SubSource == subSrc.Name {
-					c.doControlSet(ctx, subSrc.ControlSet)
-					return
-				}
-			}
-
-			// error about subsource
+			controlSets = append(controlSets, cfg.ControlSet)
 		}
-
-		// error about source
 	}
 
-	// error about display
+	if len(controlSets) == 0 {
+		// some error
+	}
+
+	// TODO parallelize this?
+	for _, set := range controlSets {
+		c.doControlSet(ctx, set)
+	}
+}
+
+func (c *client) getSourceConfig(disp, src, subSrc string) (ui.SourceConfig, bool) {
+	c.configMu.RLock()
+	defer c.configMu.RUnlock()
+
+	for _, cDisp := range c.config.ControlGroups[c.controlGroupID].Displays {
+		if cDisp.Name == disp {
+			for _, cSrc := range cDisp.Sources {
+				if cSrc.Name == src {
+					if subSrc == "" {
+						return cSrc, true
+					}
+
+					for _, cSubSrc := range cSrc.Sources {
+						if cSubSrc.Name == subSrc {
+							return cSubSrc, true
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return ui.SourceConfig{}, false
 }

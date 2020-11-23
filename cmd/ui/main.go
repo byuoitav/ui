@@ -38,7 +38,7 @@ func main() {
 	)
 
 	pflag.IntVarP(&port, "port", "P", 8080, "port to run the server on")
-	pflag.StringVarP(&logLevel, "log-level", "L", "", "level to log at. refer to https://godoc.org/go.uber.org/zap/zapcore#Level for options")
+	pflag.StringVarP(&logLevel, "log-level", "L", "info", "level to log at. refer to https://godoc.org/go.uber.org/zap/zapcore#Level for options")
 	pflag.StringVarP(&host, "host", "", "rooms.av.byu.edu", "host of this server to display")
 	pflag.StringVarP(&avAPIURL, "control-api", "", "http://localhost:8000", "base url of the av-control-api server to use")
 	pflag.StringVarP(&keyServiceAddr, "key-service", "", "control-keys.avs.byu.edu", "address of the code service to use")
@@ -69,6 +69,7 @@ func main() {
 			AVController: &av.Controller{
 				BaseURL: avAPIURL,
 			},
+			Log: log,
 		},
 		upgrader: websocket.Upgrader{
 			EnableCompression: true,

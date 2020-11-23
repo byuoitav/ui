@@ -5,13 +5,19 @@ import (
 	"fmt"
 
 	avcontrol "github.com/byuoitav/av-control-api"
+	"go.uber.org/zap"
 )
 
 func (c *client) updateRoomState(ctx context.Context) error {
+	c.log.Debug("Updating room state")
+
 	state, err := c.avController.RoomState(ctx, c.roomID)
 	if err != nil {
+		c.log.Error("unable to update room state", zap.Error(err))
 		return fmt.Errorf("unable to get state: %w", err)
 	}
+
+	c.log.Debug("Successfully updated room state")
 
 	// TODO something with the errors...?
 	state.Errors = nil
