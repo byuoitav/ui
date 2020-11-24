@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/byuoitav/ui"
+	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 )
 
 func (c *client) setInput(data []byte) {
@@ -15,7 +17,6 @@ func (c *client) setInput(data []byte) {
 		Source       string `json:"source"`
 		SubSource    string `json:"subSource"`
 	}
-
 	if err := json.Unmarshal(data, &msg); err != nil {
 		fmt.Printf("error: %s\n", err)
 		return
@@ -47,12 +48,39 @@ func (c *client) setInput(data []byte) {
 
 	if len(controlSets) == 0 {
 		// some error
+		return
 	}
 
-	// TODO parallelize this?
-	for _, set := range controlSets {
-		c.doControlSet(ctx, set)
+	// could we combine these requests into a single request somehow?
+	errg := &errgroup.Group{}
+	for i := range controlSets {
+		errg.Go(func() error {
+			return c.doControlSet(ctx, controlSets[i])
+		})
 	}
+
+	if err := errg.Wait(); err != nil {
+		c.log.Error("unable to set input", zap.Error(err))
+	}
+
+	/*
+		// ugh. what should the device be for this
+		// i guess we need to have a general discussion about this - what should be the devices for our events
+		event := ui.Event{
+			Room:   c.roomID,
+			Device: msg.DisplayGroup,
+			Tags:   []string{"core-state"},
+			Key:    "input",
+			Value:  msg.Source,
+			// get ip from client
+		}
+
+		if msg.SubSource != "" {
+			event.Value = fmt.Sprintf("%s.%s", msg.Source, msg.SubSource)
+		}
+
+		c.publisher.Publish(context.Background(), event)
+	*/
 }
 
 func (c *client) getSourceConfig(disp, src, subSrc string) (ui.SourceConfig, bool) {

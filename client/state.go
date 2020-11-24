@@ -17,9 +17,11 @@ func (c *client) updateRoomState(ctx context.Context) error {
 		return fmt.Errorf("unable to get state: %w", err)
 	}
 
-	c.log.Debug("Successfully updated room state")
+	for i := range state.Errors {
+		c.log.Warn("error in API response", zap.Any("stateError", state.Errors[i]))
+	}
 
-	// TODO something with the errors...?
+	c.log.Debug("Successfully updated room state")
 	state.Errors = nil
 
 	c.stateMu.Lock()

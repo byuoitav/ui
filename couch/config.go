@@ -118,7 +118,7 @@ func (c config) convert() (ui.Config, error) {
 			return config, fmt.Errorf("invalid control set 'powerOff': %w", err)
 		}
 
-		controlGroup.PowerOn, err = v.PowerOff.convert()
+		controlGroup.PowerOn, err = v.PowerOn.convert()
 		if err != nil {
 			return config, fmt.Errorf("invalid control set 'powerOn': %w", err)
 		}

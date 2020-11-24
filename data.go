@@ -18,3 +18,19 @@ type DataService interface {
 	// Config returns the config for the given room.
 	Config(ctx context.Context, room string) (Config, error)
 }
+
+// Event - i'm holding off on events for a few days
+type Event struct {
+	Tags   []string
+	Room   string
+	Device string
+
+	IP string
+
+	Key   string
+	Value string
+}
+
+type EventPublisher interface {
+	Publish(context.Context, Event) error
+}

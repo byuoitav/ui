@@ -14,15 +14,15 @@ import (
 // TODO make sure APIRequest actually exists
 func (c *client) doControlSet(ctx context.Context, cs ui.ControlSet) error {
 	if len(cs.APIRequest.Devices) > 0 {
+		c.log.Debug("Setting room state", zap.Any("req", cs.APIRequest))
+
 		state, err := c.avController.SetRoomState(ctx, c.roomID, cs.APIRequest)
 		if err != nil {
-			c.log.Error("unable to set room state", zap.Error(err))
 			return fmt.Errorf("unable to set room state: %w", err)
 		}
 
-		for range state.Errors {
-			// send these errors to the frontend?
-			c.log.Warn("error in API response", zap.Error(err))
+		for i := range state.Errors {
+			c.log.Warn("error in set room response", zap.Any("stateError", state.Errors[i]))
 		}
 
 		// update room state, send update room to frontend
@@ -32,7 +32,7 @@ func (c *client) doControlSet(ctx context.Context, cs ui.ControlSet) error {
 
 	for _, req := range cs.Requests {
 		if err := c.doGenericRequest(ctx, req); err != nil {
-			c.log.Error("error from generic request", zap.Error(err), zap.String("url", req.URL.String()))
+			c.log.Error("unable to do generic request", zap.Error(err), zap.String("url", req.URL.String()))
 		}
 	}
 

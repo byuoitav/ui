@@ -37,27 +37,33 @@ func (c *client) OutgoingMessages() chan []byte {
 func (c *client) sendMessage(msg message) {
 	b, err := json.Marshal(msg)
 	if err != nil {
-		// TODO log error
+		c.log.Warn("unable to send message", zap.Error(err))
 		return
 	}
 
 	select {
 	case c.outgoing <- b:
 	default:
+		c.log.Warn("outgoing channel was full; not sending message to client")
 	}
 }
 
 func (c *client) sendStringMessage(key string, format string, a ...interface{}) {
+	str := fmt.Sprintf(format, a...)
+	c.log.Debug("Sending string message", zap.String("key", key), zap.String("val", str))
+
 	m := make(map[string]json.RawMessage)
-	m[key] = []byte(strconv.Quote(fmt.Sprintf(format, a...)))
+	m[key] = []byte(strconv.Quote(str))
 
 	c.sendMessage(m)
 }
 
 func (c *client) sendJSONMsg(k string, v interface{}) {
+	c.log.Debug("Sending json message", zap.String("key", k), zap.Any("val", v))
+
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO log error
+		c.log.Warn("unable to send json message", zap.Error(err))
 		return
 	}
 

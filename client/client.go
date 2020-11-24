@@ -18,6 +18,7 @@ type client struct {
 	// structs to ~do stuff~ with
 	dataService  ui.DataService
 	avController ui.AVController
+	publisher    ui.EventPublisher
 	log          *zap.Logger
 
 	state   avcontrol.StateResponse
