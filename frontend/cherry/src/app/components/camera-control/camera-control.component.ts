@@ -15,10 +15,8 @@ export class CameraControlComponent implements OnInit, AfterViewInit {
   roomRef: RoomRef;
 
 
-  // @ViewChild(MatTabGroup)
-  // @ViewChild(MatTabGroup, null)
-
-  private _tabs: MatTabGroup;
+  @ViewChild("tabs", {static: true})
+  tabs: MatTabGroup;
   code: string;
   cg: ControlGroup;
   room: Room
@@ -28,13 +26,14 @@ export class CameraControlComponent implements OnInit, AfterViewInit {
   constructor(private http: Http) {}
 
   ngOnInit() {
-    console.log("cameras", this.cg.cameras);
     this.roomRef.subject().subscribe((r) => {
       if (r) {
         this.room = r
         this.cg = r.controlGroups[r.selectedControlGroup];
       }
     })
+    console.log("cameras", this.cg.cameras);
+
     // this.getControlKey();
     // setInterval(() => {
     //   this.getControlKey();
@@ -44,7 +43,7 @@ export class CameraControlComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     // this is disgusting. :(
     // but, it moves the second line of tabs to be left aligned
-    this._tabs._elementRef.nativeElement.getElementsByClassName(
+    this.tabs._elementRef.nativeElement.getElementsByClassName(
       "mat-tab-labels"
     )[0].style.justifyContent = "flex-start";
   }
