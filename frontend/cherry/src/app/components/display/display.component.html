@@ -3,8 +3,8 @@
         <button mat-button class="output mat-elevation-z15"
             [color]="cg?.displayGroups[selectedOutput] == d ? 'accent' : ''"
             [class.mat-raised-button]="cg?.displayGroups[selectedOutput] == d"
-            (click)="selectedOutput = i; getInputForOutput(d)"
-            (press)="selectedOutput = i; getInputForOutput(d)"
+            (click)="selectedOutput = i; getInputForOutput(d); curDisplayGroup = d"
+            (press)="selectedOutput = i; getInputForOutput(d); curDisplayGroup = d"
         >
             <span>{{ d?.displays[0]?.name }}</span>
 
@@ -20,17 +20,17 @@
 <div class="inputs">
   
     <!-- to open up the mobile control qr code -->
-    <!-- <ng-container *ngIf=room control exists> -->
+    <ng-container *ngIf="cg?.controlInfo?.url != undefined">
         <div class="room-control-info" (click)="openMobileControlDialog()" (press)="openMobileControlDialog()">
             <div>{{ cg?.controlInfo?.url }}</div>
             <div>Key: {{ cg?.controlInfo?.key }}</div>
         </div>
-    <!-- </ng-container> -->
+    </ng-container>
     
     <div>
         <ng-container *ngFor="let i of curDisplayGroup?.inputs">
             <button mat-button class="input mat-elevation-z7"
-                [class.selected]="selectedInput == i"
+                [class.selected]="curDisplayGroup?.input == i.name"
                 [id]="'input' + i.name"
                 [class.mat-raised-button]="selectedInput == i"
                 (click)="changeInput(cg?.displayGroups[selectedOutput], i)"

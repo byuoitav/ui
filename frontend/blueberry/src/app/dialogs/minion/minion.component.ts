@@ -29,7 +29,7 @@ export class MinionComponent implements OnInit {
   }
 
   cancel = () => {
-    this.data.roomRef.stopSharing(this.cg.displayGroups[0].id);
+    this.data.roomRef.stopSharing(this.cg.displayGroups[0].name);
   }
 
 }

@@ -26,14 +26,14 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0
 	gobot.io/x/gobot v1.14.0 // indirect
-	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
+	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9 // indirect
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
-	golang.org/x/sys v0.0.0-20201110211018-35f3e6cf4a65 // indirect
+	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 // indirect
 	golang.org/x/text v0.3.4 // indirect
 	golang.org/x/tools v0.0.0-20201110201400-7099162a900a // indirect
-	google.golang.org/genproto v0.0.0-20201111145450-ac7456db90a6 // indirect
+	google.golang.org/genproto v0.0.0-20201119123407-9b1e624d6bc4 // indirect
 	google.golang.org/grpc v1.33.2
 	gopkg.in/oleiade/reflections.v1 v1.0.0 // indirect
 	honnef.co/go/tools v0.0.1-2020.1.6 // indirect

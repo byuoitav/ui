@@ -197,12 +197,10 @@ export class BFFService {
       console.log("closing room connection", room.value.id);
     });
 
-    console.log("websocket", ws)
 
     // handle incoming messages from bff
     ws.onmessage = msg => {
       const data = JSON.parse(msg.data);
-      console.log("data:", data)
 
       for (const k in data) {
         switch (k) {

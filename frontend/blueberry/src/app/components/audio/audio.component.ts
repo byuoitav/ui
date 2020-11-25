@@ -30,65 +30,13 @@ export class AudioComponent implements OnInit {
       }
     })
 
-    // this.cg.audioGroups.push(
-    //   {
-    //     id: "micsAG",
-    //     name: "Microphone Volume Mixing",
-    //     muted: false,
-    //     audioDevices: [
-    //       {
-    //         id: "ITB-1106B-MIC1",
-    //         name: "MIC1",
-    //         icon: "mic",
-    //         level: 30,
-    //         muted: false
-    //       },
-    //       {
-    //         id: "ITB-1106B-MIC2",
-    //         name: "MIC2",
-    //         icon: "mic",
-    //         level: 30,
-    //         muted: false
-    //       },
-    //       {
-    //         id: "ITB-1106B-MIC3",
-    //         name: "MIC3",
-    //         icon: "mic",
-    //         level: 30,
-    //         muted: false
-    //       },
-    //       {
-    //         id: "ITB-1106B-MIC4",
-    //         name: "MIC4",
-    //         icon: "mic",
-    //         level: 30,
-    //         muted: false
-    //       },
-    //       {
-    //         id: "ITB-1106B-MIC5",
-    //         name: "MIC5",
-    //         icon: "mic",
-    //         level: 30,
-    //         muted: false
-    //       },
-    //       {
-    //         id: "ITB-1106B-MIC6",
-    //         name: "MIC6",
-    //         icon: "mic",
-    //         level: 30,
-    //         muted: false
-    //       }
-    //     ]
-    //   }
-    // )
-
     this.pages = new Map();
     this.curPageNumbers = new Map();
 
     for (const ag of this.cg.audioGroups) {
       const pages = Math.ceil(ag.audioDevices.length / 4);
-      this.pages.set(ag.id, new Array(pages).fill(undefined).map((x, i) => i));
-      this.curPageNumbers.set(ag.id, 0);
+      this.pages.set(ag.name, new Array(pages).fill(undefined).map((x, i) => i));
+      this.curPageNumbers.set(ag.name, 0);
     }
 
     this._show = true;
@@ -114,12 +62,12 @@ export class AudioComponent implements OnInit {
 
   pageLeft = (ag: AudioGroup) => {
     if (this.canPageLeft(ag)) {
-      let n = this.curPageNumbers.get(ag.id);
+      let n = this.curPageNumbers.get(ag.name);
       let newN = --n
-      this.curPageNumbers.set(ag.id, newN);
+      this.curPageNumbers.set(ag.name, newN);
 
-      const idx = 4 * this.curPageNumbers.get(ag.id);
-      document.querySelector("#" + ag.id + idx).scrollIntoView({
+      const idx = 4 * this.curPageNumbers.get(ag.name);
+      document.querySelector("#" + ag.name + idx).scrollIntoView({
         behavior: "smooth",
         block: "nearest",
         inline: "start"
@@ -129,12 +77,12 @@ export class AudioComponent implements OnInit {
 
   pageRight = (ag: AudioGroup) => {
     if (this.canPageRight(ag)) {
-      let n = this.curPageNumbers.get(ag.id);
+      let n = this.curPageNumbers.get(ag.name);
       let newN = ++n
-      this.curPageNumbers.set(ag.id, newN);
+      this.curPageNumbers.set(ag.name, newN);
 
-      const idx = 4 * this.curPageNumbers.get(ag.id);
-      document.querySelector("#" + ag.id + idx).scrollIntoView({
+      const idx = 4 * this.curPageNumbers.get(ag.name);
+      document.querySelector("#" + ag.name + idx).scrollIntoView({
         behavior: "smooth",
         block: "nearest",
         inline: "start"
@@ -143,15 +91,15 @@ export class AudioComponent implements OnInit {
   }
 
   canPageLeft = (ag: AudioGroup):boolean => {
-    return this.curPageNumbers.get(ag.id) > 0
+    return this.curPageNumbers.get(ag.name) > 0
   }
 
   canPageRight = (ag: AudioGroup):boolean => {
-    return this.curPageNumbers.get(ag.id) + 1 < this.pages.get(ag.id).length
+    return this.curPageNumbers.get(ag.name) + 1 < this.pages.get(ag.name).length
   }
 
   selectPage = (ag: AudioGroup, pageNum: number) => {
-    this.curPageNumbers.set(ag.id, pageNum);
+    this.curPageNumbers.set(ag.name, pageNum);
   }
 
   setMute(mute: boolean, id: string) {

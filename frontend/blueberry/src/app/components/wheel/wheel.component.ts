@@ -38,6 +38,9 @@ export class WheelComponent {
   circleOpen = true;
   thumbLabel = true;
   mirrorMaster: Input;
+  blank: Input;
+  // we need this because of how we chose to do blanking
+  lastInputName: string;
 
 
   @ViewChild("wheel", {static: false}) wheel: ElementRef;
@@ -52,30 +55,40 @@ export class WheelComponent {
     if (this.roomRef) {
       this.roomRef.subject().subscribe((r) => {
         if (r) {
-          if (!this.cg || this.cg.inputs.length != r.controlGroups[r.selectedControlGroup].inputs.length) {
+          console.log("r", r)
+          // if (!this.cg || this.cg.displayGroups[0].inputs.length != r.controlGroups[r.selectedControlGroup].inputs.length) {
+            // get the blank input from the bff
+            this.blank = r.controlGroups[r.selectedControlGroup].displayGroups[0].inputs.find((input) => input.name === "Blank")
             this.cg = r.controlGroups[r.selectedControlGroup];
+
+            // remove the blank input from the wheel
+            this.cg.displayGroups[0].inputs.forEach((input, index) =>{
+              if (input.name == "Blank") this.cg.displayGroups[0].inputs.splice(index, 1)
+            })
+
             setTimeout(() => {
               this.render();
             }, 0);
-          } else {
-            this._applyChanges(r.controlGroups[r.selectedControlGroup]);
-          }
+          // } else {
+          //   console.log("hello")
+          //   this._applyChanges(r.controlGroups[r.selectedControlGroup]);
+          // }
         }
       })
     }
   }
 
-  private _applyChanges(tempCG: ControlGroup) {
-    this.cg.displayGroups[0].input = tempCG.displayGroups[0].input;
-    this.cg.displayGroups[0].blanked = tempCG.displayGroups[0].blanked;
-    this.cg.mediaAudio = tempCG.mediaAudio; 
-    // this.cg.audioGroups[0].audioDevices[0] = tempCG.audioGroups[0].audioDevices[0];
-  }
+  // private _applyChanges(tempCG: ControlGroup) {
+  //   this.cg.displayGroups[0].input = tempCG.displayGroups[0].input;
+  //   // this.cg.displayGroups[0].blanked = tempCG.displayGroups[0].blanked;
+  //   this.cg.mediaAudio = tempCG.mediaAudio; 
+  //   // this.cg.audioGroups[0].audioDevices[0] = tempCG.audioGroups[0].audioDevices[0];
+  // }
 
   public render() {
     this.setTranslate();
 
-    const numOfChildren = this.cg.inputs.length;
+    const numOfChildren = this.cg.displayGroups[0].inputs.length;
     const children = this.wheel.nativeElement.children;
     const angle = (360 - WheelComponent.TITLE_ANGLE) / numOfChildren;
 
@@ -127,7 +140,7 @@ export class WheelComponent {
     let top: number;
     let right: number;
 
-    switch (this.cg.inputs.length) {
+    switch (this.cg.displayGroups[0].inputs.length) {
       case 7:
         top = -0.6;
         right = 25.4;
@@ -208,8 +221,8 @@ export class WheelComponent {
   }
 
   setInput = (input: string) => {
-    console.log("setting input...", this.cg.displayGroups[0].id)
-    this.roomRef.setInput(this.cg.displayGroups[0].id, input);
+    console.log("setting input...", this.cg.displayGroups[0].name)
+    this.roomRef.setInput(this.cg.displayGroups[0].name, input);
   }
 
   setVolume(level: number) {
@@ -221,6 +234,14 @@ export class WheelComponent {
   }
 
   switchBlanked() {
-    this.roomRef.setBlanked(this.cg.displayGroups[0].id, !this.cg.displayGroups[0].blanked);
+    if (this.cg.displayGroups[0].input == this.blank.name) {
+      // we need to go back to the old input
+      this.roomRef.setInput(this.cg.displayGroups[0].name, this.lastInputName);
+    } else {
+      // we need to save the old input and set the current to blank
+      this.lastInputName = this.cg.displayGroups[0].input;
+      this.roomRef.setInput(this.cg.displayGroups[0].name, this.blank.name)
+    }
+    this.roomRef.setBlanked(this.cg.displayGroups[0].name, !this.cg.displayGroups[0].blanked);
   }
 }

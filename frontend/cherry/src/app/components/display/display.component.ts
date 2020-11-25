@@ -27,7 +27,7 @@ export class DisplayComponent implements OnInit {
     this.roomRef.subject().subscribe((r) => {
       if (r) {
         this.cg = r.controlGroups[r.selectedControlGroup];
-        // console.log("cg", this.cg)
+        console.log("cg", this.cg)
         if (this.cg.displayGroups.length > 0) {
           if (this.selectedOutput == undefined) {
             this.selectedOutput = 0;
@@ -40,7 +40,7 @@ export class DisplayComponent implements OnInit {
             //   break
             // }
           // } 
-          this.selectedInput = this.cg.displayGroups[this.selectedOutput].inputs[0]
+          // this.selectedInput = this.cg.displayGroups[this.selectedOutput].input
           // console.log("selected", this.selectedInput)
         }
       }
@@ -72,6 +72,11 @@ export class DisplayComponent implements OnInit {
 
   public getInputForOutput(d: DisplayGroup) {
     this.selectedInput = d.inputs.find((i) => i.name === d.input)
+    console.log("input", this.selectedInput)
+    // setTimeout(() => {
+    //   this.selectedInput = d.inputs.find((i) => i.name === d.input)
+    //   console.log(this.selectedInput)
+    // }, 2000);
     // this.selectedInput = this.cg.inputs.find((i) => i.id === d.input)
     // if (this.selectedInput == undefined) {
     //   this.selectedInput = this.blank;

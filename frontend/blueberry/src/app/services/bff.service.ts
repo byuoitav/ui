@@ -49,11 +49,12 @@ export class RoomRef {
   };
 
   /* control functions */
-  setInput = (displayID: string, inputID: string) => {
+  setInput = (displayID: string, sourceName: string, subSourceName?: string) => {
     const kv = {
       setInput: {
         displayGroup: displayID,
-        input: inputID
+        source: sourceName,
+        subSource: subSourceName
       }
     };
 
@@ -61,11 +62,12 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  setVolume = (level: number, audioDeviceID?: string) => {
+  setVolume = (level: number, audioGroupName?: string, audioDeviceName?: string) => {
     const kv = {
       setVolume: {
-        audioDevice: audioDeviceID,
-        level: level
+        volume: level,
+        audioGroup: audioGroupName,
+        audioDevice: audioDeviceName
       }
     };
 
@@ -73,11 +75,12 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  setMuted = (muted: boolean, audioDeviceID?: string) => {
+  setMuted = (muted: boolean, audioGroupName?: string, audioDeviceName?: string) => {
     const kv = {
-      setMuted: {
-        audioDevice: audioDeviceID,
-        muted: muted
+      setMute: {
+        mute: muted,
+        audioGroup: audioGroupName,
+        audioDevice: audioDeviceName
       }
     };
 
@@ -100,7 +103,7 @@ export class RoomRef {
   setPower = (power: boolean, doAll: boolean) => {
     const kv = {
       setPower: {
-        poweredOn: power,
+        on: power,
         all: doAll
       }
     };
@@ -220,18 +223,20 @@ export class BFFService {
       protocol = "wss:";
     }
 
-    const endpoint = protocol + "//" + window.location.host + "/ws";
+    const endpoint = protocol + "//" + window.location.host + "/api/v1/ws";
     const ws = new WebSocket(endpoint);
 
     const roomRef = new RoomRef(room, ws, () => {
       console.log('closing room connection', room.value.id);
     });
 
+
     this.loaded = false;
 
     // handle incoming messages from bff
     ws.onmessage = msg => {
       const data = JSON.parse(msg.data);
+      console.log("data", data)
 
       for (const k in data) {
         switch (k) {
