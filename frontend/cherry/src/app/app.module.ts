@@ -22,6 +22,7 @@ import { LockScreenAudioComponent } from './components/lockscreenaudio/lockscree
 import { LockScreenScreenControlComponent } from './components/lockscreenscreencontrol/lockscreenscreencontrol.component';
 import { ManagementComponent } from './components/management/management.component';
 import { CameraControlComponent } from './components/camera-control/camera-control.component';
+import { MatGridListModule } from '@angular/material';
 
 
 @NgModule({
@@ -51,7 +52,9 @@ import { CameraControlComponent } from './components/camera-control/camera-contr
     AppRoutingModule,
     MatDialogModule,
     MatTabsModule,
-    MatButtonModule
+    MatButtonModule,
+    MatGridListModule,
+
   ],
   providers: [
     BFFService
