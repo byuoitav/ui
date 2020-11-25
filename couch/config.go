@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	avcontrol "github.com/byuoitav/av-control-api"
@@ -284,6 +285,10 @@ func (c controlSet) convert() (ui.ControlSet, error) {
 	for i := range c.Requests {
 		cs.Requests[i].Body = c.Requests[i].Body
 		cs.Requests[i].Method = c.Requests[i].Method
+
+		if cs.Requests[i].Method == "" {
+			cs.Requests[i].Method = http.MethodGet
+		}
 
 		u, err := url.Parse(c.Requests[i].URL)
 		if err != nil {

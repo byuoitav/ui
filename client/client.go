@@ -132,35 +132,17 @@ func (c *client) Room() Room {
 			group.AudioGroups = append(group.AudioGroups, audioGroup)
 		}
 
-		/*
-			for _, cam := range cGroup.Cameras {
-				camera := Camera{
-					DisplayName: cam.DisplayName,
-					TiltUp:      cam.TiltUp,
-					TiltDown:    cam.TiltDown,
-					PanLeft:     cam.PanLeft,
-					PanRight:    cam.PanRight,
-					PanTiltStop: cam.PanTiltStop,
-					ZoomIn:      cam.ZoomIn,
-					ZoomOut:     cam.ZoomOut,
-					ZoomStop:    cam.ZoomStop,
-					Stream:      cam.Stream,
-					Reboot:      cam.Reboot,
-				}
-
-				for _, preset := range cam.Presets {
-					pre := CameraPreset{
-						DisplayName: preset.DisplayName,
-						SetPreset:   preset.SetPreset,
-						SavePreset:  preset.SavePreset,
-					}
-
-					camera.Presets = append(camera.Presets, pre)
-				}
-
-				group.Cameras = append(group.Cameras, camera)
+		for _, cam := range cg.Cameras {
+			camera := Camera{
+				Name: cam.Name,
 			}
-		*/
+
+			for _, pre := range cam.Presets {
+				camera.Presets = append(camera.Presets, pre.Name)
+			}
+
+			group.Cameras = append(group.Cameras, camera)
+		}
 
 		room.ControlGroups[cgName] = group
 	}
