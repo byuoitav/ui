@@ -39,13 +39,13 @@
 
 				<mat-grid-list *ngIf="cam?.presets?.length == 1" class="presets" cols="1" rowHeight="fit">
 					<mat-grid-tile class="preset">
-						<button style="max-width: 115px" (pointerup)="selectPreset(cam?.presets[0])" mat-flat-button>{{cam?.presets[0]}}</button>
+						<button style="max-width: 115px" (pointerup)="selectPreset(cam, cam?.presets[0])" mat-flat-button>{{cam?.presets[0]}}</button>
 					</mat-grid-tile>
 				</mat-grid-list>
 
 				<mat-grid-list *ngIf="cam?.presets?.length > 1" class="presets" cols="2" rowHeight="fit">
 					<mat-grid-tile class="preset" *ngFor="let preset of cam?.presets">
-						<button (pointerup)="selectPreset(preset)" mat-flat-button>{{preset}}</button>
+						<button (pointerup)="selectPreset(cam, preset)" mat-flat-button>{{preset}}</button>
 					</mat-grid-tile>
 				</mat-grid-list>
 			</div>

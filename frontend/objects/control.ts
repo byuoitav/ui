@@ -45,26 +45,8 @@ export interface ControlGroup {
 }
 
 export interface Camera {
-  displayName: string;
-
-  tiltUp: string;
-  tiltDown: string;
-  panLeft: string;
-  panRight: string;
-  panTiltStop: string;
-
-  zoomIn: string;
-  zoomOut: string;
-  zoomStop: string;
-
-  memoryRecall: string;
-
-  presets: CameraPreset[];
-}
-
-export interface CameraPreset {
-  displayName: string;
-  setPreset: string;
+  name: string;
+  presets: string[];
 }
 
 export interface ControlInfo {

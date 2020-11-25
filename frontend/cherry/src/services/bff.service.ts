@@ -152,6 +152,97 @@ export class RoomRef {
 
     this._ws.send(JSON.stringify(kv));
   }
+
+  tiltUp = (cam: string) => {
+    const kv = {
+      tiltUp: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  tiltDown = (cam: string) => {
+    const kv = {
+      tiltDown: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  panLeft = (cam: string) => {
+    const kv = {
+      panLeft: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  panRight = (cam: string) => {
+    const kv = {
+      panRight: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  panTiltStop = (cam: string) => {
+    const kv = {
+      panTiltStop: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  zoomIn = (cam: string) => {
+    const kv = {
+      zoomIn: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  zoomOut = (cam: string) => {
+    const kv = {
+      zoomOut: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  zoomStop = (cam: string) => {
+    const kv = {
+      zoomStop: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  setPreset = (cam: string, preset: string) => {
+    const kv = {
+      setPreset: {
+        camera: cam,
+        preset: preset
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
 }
 
 @Injectable({

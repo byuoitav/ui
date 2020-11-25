@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, Input as AngularInput, ViewChild } fr
 import {MatTabGroup} from "@angular/material/tabs";
 import {Http} from "@angular/http";
 
-import { ControlGroup, Camera, CameraPreset, Room } from '../../../../../objects/control';
+import { ControlGroup, Camera, Room } from '../../../../../objects/control';
 import { RoomRef } from '../../../services/bff.service';
 
 @Component({
@@ -19,16 +19,12 @@ export class CameraControlComponent implements OnInit, AfterViewInit {
   tabs: MatTabGroup;
   code: string;
   cg: ControlGroup;
-  room: Room
-  // I think we can get this from a roomRef?
-  // room = APIService.building + "-" + APIService.roomName;
 
   constructor(private http: Http) {}
 
   ngOnInit() {
     this.roomRef.subject().subscribe((r) => {
       if (r) {
-        this.room = r
         this.cg = r.controlGroups[r.selectedControlGroup];
       }
     })
@@ -49,120 +45,48 @@ export class CameraControlComponent implements OnInit, AfterViewInit {
   }
 
   tiltUp = (cam: Camera) => {
-    console.log("tilting up", cam.tiltUp);
-    if (!cam.tiltUp) {
-      return;
-    }
-
-    this.http.get(cam.tiltUp).subscribe(resp => {
-      console.log("resp", resp);
-    }, err => {
-      console.warn("err", err);
-    });
+    console.log("tilting up");
+    this.roomRef.tiltUp(cam.name)
   }
 
   tiltDown = (cam: Camera) => {
-    console.log("tilting down", cam.tiltDown);
-    if (!cam.tiltDown) {
-      return;
-    }
-
-    this.http.get(cam.tiltDown).subscribe(resp => {
-      console.log("resp", resp);
-    }, err => {
-      console.warn("err", err);
-    });
+    console.log("tilting down");
+    this.roomRef.tiltDown(cam.name)
   }
 
   panLeft = (cam: Camera) => {
-    console.log("panning left", cam.panLeft);
-    if (!cam.panLeft) {
-      return;
-    }
-
-    this.http.get(cam.panLeft).subscribe(resp => {
-      console.log("resp", resp);
-    }, err => {
-      console.warn("err", err);
-    });
+    console.log("panning left");
+    this.roomRef.panLeft(cam.name)
   }
 
   panRight = (cam: Camera) => {
-    console.log("panning right", cam.panRight);
-    if (!cam.panRight) {
-      return;
-    }
-
-    this.http.get(cam.panRight).subscribe(resp => {
-      console.log("resp", resp);
-    }, err => {
-      console.warn("err", err);
-    });
+    console.log("panning right");
+    this.roomRef.panRight(cam.name)
   }
 
   panTiltStop = (cam: Camera) => {
-    console.log("stopping pan", cam.panTiltStop);
-    if (!cam.panTiltStop) {
-      return;
-    }
-
-    this.http.get(cam.panTiltStop).subscribe(resp => {
-      console.log("resp", resp);
-    }, err => {
-      console.warn("err", err);
-    });
+    console.log("stopping tilt");
+    this.roomRef.panTiltStop(cam.name)
   }
 
   zoomIn = (cam: Camera) => {
-    console.log("zooming in", cam.zoomIn);
-    if (!cam.zoomIn) {
-      return;
-    }
-
-    this.http.get(cam.zoomIn).subscribe(resp => {
-      console.log("resp", resp);
-    }, err => {
-      console.warn("err", err);
-    });
+    console.log("zooming in");
+    this.roomRef.zoomIn(cam.name)
   }
 
   zoomOut = (cam: Camera) => {
-    console.log("zooming out", cam.zoomOut);
-    if (!cam.zoomOut) {
-      return;
-    }
-
-    this.http.get(cam.zoomOut).subscribe(resp => {
-      console.log("resp", resp);
-    }, err => {
-      console.warn("err", err);
-    });
+    console.log("zooming out");
+    this.roomRef.zoomOut(cam.name)
   }
 
   zoomStop = (cam: Camera) => {
-    console.log("stopping zoom", cam.zoomStop);
-    if (!cam.zoomStop) {
-      return;
-    }
-
-    this.http.get(cam.zoomStop).subscribe(resp => {
-      console.log("resp", resp);
-    }, err => {
-      console.warn("err", err);
-    });
+    console.log("stopping zoom");
+    this.roomRef.zoomStop(cam.name)
   }
 
-  selectPreset = (preset: CameraPreset) => {
-    console.log("selecting preset", preset.displayName, preset.setPreset);
-    if (!preset.setPreset) {
-      return;
-    }
-
-    this.http.get(preset.setPreset).subscribe(resp => {
-      console.log("resp", resp);
-    }, err => {
-      console.warn("err", err);
-    });
+  selectPreset = (cam: Camera, preset: string) => {
+    console.log("selecting preset", preset);
+    this.roomRef.setPreset(cam.name, preset)
   }
 
   // getControlKey = () => {
