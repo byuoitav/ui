@@ -32,6 +32,8 @@ func main() {
 		avAPIURL          string
 		keyServiceAddr    string
 		host              string
+		roomID            string
+		deviceID          string
 		lazaretteAddr     string
 		lazaretteSSL      bool
 		dataServiceConfig dataServiceConfig
@@ -40,6 +42,8 @@ func main() {
 	pflag.IntVarP(&port, "port", "P", 8080, "port to run the server on")
 	pflag.StringVarP(&logLevel, "log-level", "L", "info", "level to log at. refer to https://godoc.org/go.uber.org/zap/zapcore#Level for options")
 	pflag.StringVarP(&host, "host", "", "rooms.av.byu.edu", "host of this server to display")
+	pflag.StringVarP(&roomID, "room", "", "", "room this device is in")
+	pflag.StringVarP(&deviceID, "device", "", "", "id of this device")
 	pflag.StringVarP(&avAPIURL, "control-api", "", "http://localhost:8000", "base url of the av-control-api server to use")
 	pflag.StringVarP(&keyServiceAddr, "key-service", "", "control-keys.avs.byu.edu", "address of the code service to use")
 	pflag.StringVarP(&lazaretteAddr, "lazarette", "l", "localhost:7777", "address of the lazarette cache to use")
@@ -59,8 +63,8 @@ func main() {
 	ds := dataService(ctx, dataServiceConfig)
 
 	handlers := &handlers{
-		roomID:      "ITB-1006",
-		deviceID:    "ITB-1006-CP1",
+		roomID:      roomID,
+		deviceID:    deviceID,
 		log:         log,
 		single:      singleflight.Group{},
 		dataService: ds,

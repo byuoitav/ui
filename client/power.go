@@ -10,7 +10,7 @@ import (
 func (c *client) setPower(data []byte) {
 	var msg struct {
 		On  bool `json:"on"`
-		All bool `json:"all"` // TODO
+		All bool `json:"all"` // TODO...still something we want?
 	}
 
 	if err := json.Unmarshal(data, &msg); err != nil {

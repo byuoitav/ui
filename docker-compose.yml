@@ -1,16 +1,16 @@
 version: "3"
 services:
-  ui:
-    image: docker.pkg.github.com/byuoitav/ui/amd64:v0.2.1
-    ports:
-      - "80:8080"
-    environment:
-      - SYSTEM_ID=$HOST
-      - DB_ADDRESS=$DB_ADDRESS
-      - DB_USERNAME=$DB_USERNAME
-      - DB_PASSWORD=$DB_PASSWORD
-      - CODE_SERVICE_URL=$CODE_SERVICE_URL
-      - HUB_ADDRESS=$HUB_ADDRESS
-    network_mode: "host"
-    restart: always
-    tty: true
+    ui:
+        image: docker.pkg.github.com/byuoitav/ui/amd64:v0.2.1
+        ports:
+            - "80:8080"
+        environment:
+            - SYSTEM_ID=$HOST
+            - DB_ADDRESS=$DB_ADDRESS
+            - DB_USERNAME=$DB_USERNAME
+            - DB_PASSWORD=$DB_PASSWORD
+            - CODE_SERVICE_URL=$CODE_SERVICE_URL
+            - HUB_ADDRESS=$HUB_ADDRESS
+        network_mode: "host"
+        restart: always
+        tty: true
