@@ -48,8 +48,9 @@
 <div class="volume-label">Master Display Volume</div>
 <div class="volume">
     <volume
-        [mute] = "cg?.mediaAudio?.muted"
-        [level] = "cg?.mediaAudio?.level"
+        [roomRef]="roomRef"
+        [audioGroupName]="'MediaAudio'"
+        [level]="cg?.mediaAudio?.level"
         (muteChange)="roomRef.setMuted($event)"
         (levelChange)="roomRef.setVolume($event)"></volume>
 </div>

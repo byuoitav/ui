@@ -27,7 +27,6 @@ export class DisplayComponent implements OnInit {
     this.roomRef.subject().subscribe((r) => {
       if (r) {
         this.cg = r.controlGroups[r.selectedControlGroup];
-        console.log("cg", this.cg)
         if (this.cg.displayGroups.length > 0) {
           if (this.selectedOutput == undefined) {
             this.selectedOutput = 0;

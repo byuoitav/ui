@@ -23,7 +23,9 @@
                     <i class="material-icons">{{ a.icon }}</i>
                     <volume
                         class="volume display"
-                        [mute]="a?.muted"
+                        [roomRef]="roomRef"
+                        [audioGroupName]="i?.name"
+                        [audioDevice]="a"
                         [level]="a?.level"
                         (levelChange)="roomRef.setVolume($event, i.name, a?.name)"
                         (muteChange)="roomRef.setMuted($event, i.name, a?.name)"
@@ -48,7 +50,9 @@
                             <i class="material-icons">{{ a.icon }}</i>
                             <volume
                                 class="volume display"
-                                [mute]="a?.muted"
+                                [roomRef]="roomRef"
+                                [audioGroupName]="i?.name"
+                                [audioDevice]="a"
                                 [level]="a?.level"
                                 (levelChange)="roomRef.setVolume($event, i.name, a?.name)"
                                 (muteChange)="roomRef.setMuted($event, i.name, a?.name)"

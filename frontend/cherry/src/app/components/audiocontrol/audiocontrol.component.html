@@ -17,10 +17,12 @@
                         <i class="material-icons">{{ a.icon }}</i>
                         <volume
                             class="volume display"
-                            [mute]="a?.muted"
+                            [audioGroupName]="i?.name"
+                            [audioDevice]="a"
+                            [roomRef]="roomRef"
                             [level]="a?.level"
-                            (levelChange)="roomRef.setVolume($event, i.name, a?.name)"
-                            (muteChange)="roomRef.setMuted($event, i.name, a?.name)"
+                            (levelChange)="roomRef.setVolume($event, i.name, a?.name)">
+                            <!-- (muteChange)="roomRef.setMuted($event, i.name, a?.name)" -->
                         >
                         </volume>
                     </div>
@@ -42,10 +44,12 @@
                                 <i class="material-icons">{{ a.icon }}</i>
                                 <volume
                                     class="volume display"
-                                    [mute]="a?.muted"
+                                    [audioGroupName]="i?.name"
+                                    [audioDevice]="a"
+                                    [roomRef]="roomRef"
                                     [level]="a?.level"
-                                    (levelChange)="roomRef.setVolume($event, i.name, a?.name)"
-                                    (muteChange)="roomRef.setMuted($event, i.name, a?.name)">
+                                    (levelChange)="roomRef.setVolume($event, i.name, a?.name)">
+                                    <!-- (muteChange)="roomRef.setMuted($event, i.name, a?.name)"> -->
                                 </volume>
                             </div>
                             <div
