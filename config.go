@@ -6,21 +6,24 @@ import (
 	avcontrol "github.com/byuoitav/av-control-api"
 )
 
+type State avcontrol.StateRequest
+
 // Config represents the program for a room that can be used
 // to control a room
 type Config struct {
 	ID            string
 	ControlGroups map[string]ControlGroup
+	States        map[string]State
 }
 
 // ControlGroup represents a group of Devices and inputs. These groups
 // are used for logical grouping and displaying on different UIs
 type ControlGroup struct {
 	// PowerOff represents the state the room needs to be in to be considered "off"
-	PowerOff ControlSet
+	PowerOff StateControlConfig
 
 	// PowerOn is the state we set to turn on the room
-	PowerOn ControlSet
+	PowerOn StateControlConfig
 
 	Displays []DisplayConfig
 	Audio    AudioConfig
@@ -30,21 +33,21 @@ type ControlGroup struct {
 // CameraConfig represents a Camera and its associated control endpoints
 type CameraConfig struct {
 	Name        string
-	TiltUp      ControlSet
-	TiltDown    ControlSet
-	PanLeft     ControlSet
-	PanRight    ControlSet
-	PanTiltStop ControlSet
-	ZoomIn      ControlSet
-	ZoomOut     ControlSet
-	ZoomStop    ControlSet
+	TiltUp      StateControlConfig
+	TiltDown    StateControlConfig
+	PanLeft     StateControlConfig
+	PanRight    StateControlConfig
+	PanTiltStop StateControlConfig
+	ZoomIn      StateControlConfig
+	ZoomOut     StateControlConfig
+	ZoomStop    StateControlConfig
 	Presets     []CameraPresetConfig
 }
 
 // CameraPresetConfig represents a preset on a camera
 type CameraPresetConfig struct {
 	Name      string
-	SetPreset ControlSet
+	SetPreset StateControlConfig
 }
 
 // DisplayConfig represents a Display and its associated controls
@@ -60,7 +63,7 @@ type SourceConfig struct {
 	Name    string
 	Icon    string
 	Visible bool
-	ControlSet
+	StateControlConfig
 
 	// Sources represent sub-sources of the parent source
 	Sources []SourceConfig
@@ -68,8 +71,7 @@ type SourceConfig struct {
 
 // AudioConfig contains information about audio controls in the room
 type AudioConfig struct {
-	Media AudioDeviceConfig
-
+	Media  AudioDeviceConfig
 	Groups []AudioGroupConfig
 }
 
@@ -80,27 +82,43 @@ type AudioGroupConfig struct {
 
 type AudioDeviceConfig struct {
 	Name   string
-	Volume ControlSet `json:"volume"`
-	Mute   ControlSet `json:"mute"`
-	Unmute ControlSet `json:"unmute"`
+	Volume StateControlConfig `json:"volume"`
+	Mute   StateControlConfig `json:"mute"`
+	Unmute StateControlConfig `json:"unmute"`
 }
 
-// ControlSet represents the request to be made (both to the
-// AV Control API and other arbitrary locations) in order to set the room
-// to a given state
-type ControlSet struct {
-	APIRequest avcontrol.StateRequest
-	Requests   []GenericControlRequest
+type StateControlConfig struct {
+	MatchStates      []string
+	StateTransitions []StateTransition
 }
 
-// GenericControlRequest contains the information necessary to make a generic
+type StateTransition struct {
+	MatchStates []string
+	Action      StateTransitionAction
+}
+
+type StateTransitionAction struct {
+	SetStates []string
+	Requests  []GenericRequest
+}
+
+// GenericRequest contains the information necessary to make a generic
 // HTTP request in association with making state changes in a room
-type GenericControlRequest struct {
+type GenericRequest struct {
 	URL    *url.URL
 	Method string
 	Body   []byte
 }
 
+func (s *State) Copy() *State {
+	if s == nil {
+		return nil
+	}
+
+	return nil
+}
+
+/*
 func (cs *ControlSet) Copy() *ControlSet {
 	if cs == nil {
 		return nil
@@ -170,7 +188,7 @@ func (cs *ControlSet) Copy() *ControlSet {
 	}
 
 	if cs.Requests != nil {
-		n.Requests = make([]GenericControlRequest, len(cs.Requests))
+		n.Requests = make([]GenericRequest, len(cs.Requests))
 
 		for i, req := range cs.Requests {
 			u := *req.URL
@@ -184,3 +202,4 @@ func (cs *ControlSet) Copy() *ControlSet {
 
 	return n
 }
+*/

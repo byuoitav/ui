@@ -34,7 +34,7 @@ func (c *client) tiltUp(data []byte) {
 	for _, cam := range cg.Cameras {
 		if cam.Name == msg.Camera {
 			log.Info("Tilting up", zap.String("camera", msg.Camera))
-			c.doControlSet(ctx, cam.TiltUp)
+			c.doStateTransition(ctx, cam.TiltUp, nil)
 			return
 		}
 	}
@@ -64,7 +64,7 @@ func (c *client) tiltDown(data []byte) {
 	for _, cam := range cg.Cameras {
 		if cam.Name == msg.Camera {
 			log.Info("Tilting down", zap.String("camera", msg.Camera))
-			c.doControlSet(ctx, cam.TiltDown)
+			c.doStateTransition(ctx, cam.TiltDown, nil)
 			return
 		}
 	}
@@ -94,7 +94,7 @@ func (c *client) panLeft(data []byte) {
 	for _, cam := range cg.Cameras {
 		if cam.Name == msg.Camera {
 			log.Info("Panning left", zap.String("camera", msg.Camera))
-			c.doControlSet(ctx, cam.PanLeft)
+			c.doStateTransition(ctx, cam.PanLeft, nil)
 			return
 		}
 	}
@@ -124,7 +124,7 @@ func (c *client) panRight(data []byte) {
 	for _, cam := range cg.Cameras {
 		if cam.Name == msg.Camera {
 			log.Info("Panning right", zap.String("camera", msg.Camera))
-			c.doControlSet(ctx, cam.PanRight)
+			c.doStateTransition(ctx, cam.PanRight, nil)
 			return
 		}
 	}
@@ -154,7 +154,7 @@ func (c *client) panTiltStop(data []byte) {
 	for _, cam := range cg.Cameras {
 		if cam.Name == msg.Camera {
 			log.Info("Stopping pan/tilt", zap.String("camera", msg.Camera))
-			c.doControlSet(ctx, cam.PanTiltStop)
+			c.doStateTransition(ctx, cam.PanTiltStop, nil)
 			return
 		}
 	}
@@ -184,7 +184,7 @@ func (c *client) zoomIn(data []byte) {
 	for _, cam := range cg.Cameras {
 		if cam.Name == msg.Camera {
 			log.Info("Zooming in", zap.String("camera", msg.Camera))
-			c.doControlSet(ctx, cam.ZoomIn)
+			c.doStateTransition(ctx, cam.ZoomIn, nil)
 			return
 		}
 	}
@@ -214,7 +214,7 @@ func (c *client) zoomOut(data []byte) {
 	for _, cam := range cg.Cameras {
 		if cam.Name == msg.Camera {
 			log.Info("Zooming out", zap.String("camera", msg.Camera))
-			c.doControlSet(ctx, cam.ZoomOut)
+			c.doStateTransition(ctx, cam.ZoomOut, nil)
 			return
 		}
 	}
@@ -244,7 +244,7 @@ func (c *client) zoomStop(data []byte) {
 	for _, cam := range cg.Cameras {
 		if cam.Name == msg.Camera {
 			log.Info("Stopping zoom", zap.String("camera", msg.Camera))
-			c.doControlSet(ctx, cam.ZoomStop)
+			c.doStateTransition(ctx, cam.ZoomStop, nil)
 			return
 		}
 	}
@@ -279,7 +279,7 @@ func (c *client) setPreset(data []byte) {
 			for _, preset := range cam.Presets {
 				if preset.Name == msg.Preset {
 					log.Info("Setting preset", zap.String("camera", msg.Camera), zap.String("preset", msg.Preset))
-					c.doControlSet(ctx, preset.SetPreset)
+					c.doStateTransition(ctx, preset.SetPreset, nil)
 					return
 				}
 			}

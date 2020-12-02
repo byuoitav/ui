@@ -1,10 +1,8 @@
 package client
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 )
 
 // ok so the question for both volume/mute:
@@ -22,8 +20,8 @@ func (c *client) setVolume(data []byte) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// defer cancel()
 
 	// make sure control group exists
 	cg, ok := c.config.ControlGroups[c.controlGroupID]
@@ -32,10 +30,11 @@ func (c *client) setVolume(data []byte) {
 		return
 	}
 
+	// TODO fix
 	if msg.AudioGroup == "" && msg.AudioDevice == "" {
-		cs := cg.Audio.Media.Volume.Copy()
-		cs.APIRequest = fillVolumeRequest(cs.APIRequest, msg.Volume)
-		c.doControlSet(ctx, *cs)
+		// cs := cg.Audio.Media.Volume.Copy()
+		// cs.APIRequest = fillVolumeRequest(cs.APIRequest, msg.Volume)
+		// c.doStateTransition(ctx, *cs, nil)
 		return
 	}
 
@@ -49,9 +48,10 @@ func (c *client) setVolume(data []byte) {
 				continue
 			}
 
-			cs := ad.Volume.Copy()
-			cs.APIRequest = fillVolumeRequest(cs.APIRequest, msg.Volume)
-			c.doControlSet(ctx, *cs)
+			// TODO fix
+			// cs := ad.Volume.Copy()
+			// cs.APIRequest = fillVolumeRequest(cs.APIRequest, msg.Volume)
+			// c.doStateTransition(ctx, *cs)
 			return
 		}
 	}

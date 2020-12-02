@@ -59,7 +59,7 @@ func (c *client) Room() Room {
 				HelpMessage:   "Request Help",
 				HelpEnabled:   true,
 			},
-			PoweredOn: !c.stateMatches(cg.PowerOff.APIRequest),
+			PoweredOn: !c.doesStateMatch(cg.PowerOff.MatchStates...),
 		}
 
 		// build each display group
@@ -86,7 +86,7 @@ func (c *client) Room() Room {
 
 				var curInput bool
 				if display.Input == "" {
-					curInput = c.stateMatches(source.APIRequest)
+					curInput = c.doesStateMatch(source.MatchStates...)
 					if curInput {
 						display.Input = source.Name
 					}
@@ -101,8 +101,8 @@ func (c *client) Room() Room {
 		}
 
 		// build media audio info
-		group.MediaAudio.Level = c.getVolume(cg.Audio.Media.Volume.APIRequest)
-		group.MediaAudio.Muted = c.stateMatches(cg.Audio.Media.Mute.APIRequest)
+		group.MediaAudio.Level = c.getVolume(cg.Audio.Media.Volume.MatchStates...)
+		group.MediaAudio.Muted = c.doesStateMatch(cg.Audio.Media.Mute.MatchStates...)
 
 		// build audio groups
 		for _, ag := range cg.Audio.Groups {
@@ -118,8 +118,8 @@ func (c *client) Room() Room {
 					IconPair: IconPair{
 						Name: ad.Name,
 					},
-					Level: c.getVolume(ad.Volume.APIRequest),
-					Muted: c.stateMatches(ad.Mute.APIRequest),
+					Level: c.getVolume(ad.Volume.MatchStates...),
+					Muted: c.doesStateMatch(ad.Mute.MatchStates...),
 				}
 
 				if !audioDevice.Muted {

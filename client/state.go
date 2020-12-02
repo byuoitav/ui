@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	avcontrol "github.com/byuoitav/av-control-api"
+	"github.com/byuoitav/ui"
 	"go.uber.org/zap"
 )
 
@@ -77,92 +78,184 @@ func (c *client) updateRoomStateFromState(state avcontrol.StateResponse) {
 	}
 }
 
-// stateMatches assumes that (*client).stateMu has already been at least read locked.
-func (c *client) stateMatches(req avcontrol.StateRequest) bool {
-	for dID, d := range req.Devices {
-		dd, ok := c.state.Devices[dID]
+// inState assumes that (*client).stateMu and (*client).configMu have already been read locked.
+func (c *client) doesStateMatch(states ...string) bool {
+	check := func(s string) bool {
+		state, ok := c.config.States[s]
 		if !ok {
 			return false
 		}
 
-		if !boolMatches(d.PoweredOn, dd.PoweredOn) {
+		for dID, d := range state.Devices {
+			dd, ok := c.state.Devices[dID]
+			if !ok {
+				return false
+			}
+
+			if !boolMatches(d.PoweredOn, dd.PoweredOn) {
+				return false
+			}
+
+			if !boolMatches(d.Blanked, dd.Blanked) {
+				return false
+			}
+
+			for iID, i := range d.Inputs {
+				ii, ok := dd.Inputs[iID]
+				if !ok {
+					return false
+				}
+
+				if !stringMatches(i.Audio, ii.Audio) {
+					return false
+				}
+
+				if !stringMatches(i.Video, ii.Video) {
+					return false
+				}
+
+				if !stringMatches(i.AudioVideo, ii.AudioVideo) {
+					return false
+				}
+			}
+
+			for block, v := range d.Volumes {
+				vv, ok := dd.Volumes[block]
+				if !ok {
+					return false
+				}
+
+				if v != vv {
+					return false
+				}
+			}
+
+			for block, m := range d.Mutes {
+				mm, ok := dd.Mutes[block]
+				if !ok {
+					return false
+				}
+
+				if m != mm {
+					return false
+				}
+			}
+		}
+
+		return false
+	}
+
+	for _, state := range states {
+		if !check(state) {
 			return false
-		}
-
-		if !boolMatches(d.Blanked, dd.Blanked) {
-			return false
-		}
-
-		for iID, i := range d.Inputs {
-			ii, ok := dd.Inputs[iID]
-			if !ok {
-				return false
-			}
-
-			if !stringMatches(i.Audio, ii.Audio) {
-				return false
-			}
-
-			if !stringMatches(i.Video, ii.Video) {
-				return false
-			}
-
-			if !stringMatches(i.AudioVideo, ii.AudioVideo) {
-				return false
-			}
-		}
-
-		for block, v := range d.Volumes {
-			vv, ok := dd.Volumes[block]
-			if !ok {
-				return false
-			}
-
-			if v != vv {
-				return false
-			}
-		}
-
-		for block, m := range d.Mutes {
-			mm, ok := dd.Mutes[block]
-			if !ok {
-				return false
-			}
-
-			if m != mm {
-				return false
-			}
 		}
 	}
 
 	return true
 }
 
-func (c *client) getVolume(req avcontrol.StateRequest) int {
+func (c *client) mergeStates(states ...string) ui.State {
+	if len(states) == 0 {
+		return ui.State{}
+	}
+
 	c.stateMu.RLock()
 	defer c.stateMu.RUnlock()
 
-	vols := []int{}
+	c.configMu.RLock()
+	defer c.configMu.RUnlock()
 
-	for id, rDev := range req.Devices {
-		sDev, ok := c.state.Devices[id]
+	base := ui.State{
+		Devices: make(map[avcontrol.DeviceID]avcontrol.DeviceState),
+	}
+
+	for _, s := range states {
+		state, ok := c.config.States[s]
 		if !ok {
 			continue
 		}
 
-		for block, rDevVol := range rDev.Volumes {
-			// only count devices who's request is configured with -1
-			if rDevVol != -1 {
-				continue
+		for dID, d := range state.Devices {
+			cur := base.Devices[dID]
+
+			if d.PoweredOn != nil {
+				cur.PoweredOn = d.PoweredOn
 			}
 
-			sVol, ok := sDev.Volumes[block]
+			if d.Blanked != nil {
+				cur.Blanked = d.Blanked
+			}
+
+			for iID, i := range d.Inputs {
+				curInput := cur.Inputs[iID]
+
+				if i.Audio != nil {
+					curInput.Audio = i.Audio
+				}
+
+				if i.Video != nil {
+					curInput.Video = i.Video
+				}
+
+				if i.AudioVideo != nil {
+					curInput.AudioVideo = i.AudioVideo
+				}
+
+				cur.Inputs[iID] = curInput
+			}
+
+			for block, v := range d.Volumes {
+				cur.Volumes[block] = v
+			}
+
+			for block, m := range d.Mutes {
+				cur.Mutes[block] = m
+			}
+
+			base.Devices[dID] = cur
+		}
+	}
+
+	return base
+}
+
+// getVolumes assumes that (*client).stateMu and (*client).configMu have already been read locked.
+func (c *client) getVolume(states ...string) int {
+	getVols := func(s string) []int {
+		state, ok := c.config.States[s]
+		if !ok {
+			return []int{}
+		}
+
+		var vols []int
+
+		for id, dev := range state.Devices {
+			sDev, ok := c.state.Devices[id]
 			if !ok {
 				continue
 			}
 
-			vols = append(vols, sVol)
+			for block, tmpl := range dev.Volumes {
+				// only count devices who's request is configured with -1
+				if tmpl != -1 {
+					continue
+				}
+
+				vol, ok := sDev.Volumes[block]
+				if !ok {
+					continue
+				}
+
+				vols = append(vols, vol)
+			}
 		}
+
+		return vols
+	}
+
+	var vols []int
+	for _, state := range states {
+		vols = append(vols, getVols(state)...)
 	}
 
 	if len(vols) == 0 {

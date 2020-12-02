@@ -30,9 +30,9 @@ func (c *client) setPower(data []byte) {
 	}
 
 	if !msg.On {
-		c.doControlSet(ctx, cg.PowerOff)
+		c.doStateTransition(ctx, cg.PowerOff, nil)
 		return
 	}
 
-	c.doControlSet(ctx, cg.PowerOn)
+	c.doStateTransition(ctx, cg.PowerOn, nil)
 }

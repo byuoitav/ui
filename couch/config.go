@@ -11,85 +11,12 @@ import (
 	"github.com/byuoitav/ui"
 )
 
-type config struct {
-	ID string `json:"_id"`
-
-	ControlGroups map[string]struct {
-		PowerOff controlSet `json:"powerOff"`
-		PowerOn  controlSet `json:"powerOn"`
-
-		Displays []struct {
-			Name string `json:"name"`
-			Icon string `json:"icon"`
-
-			Sources []struct {
-				Name    string `json:"name"`
-				Icon    string `json:"icon"`
-				Visible bool   `json:"visible"`
-				controlSet
-
-				Sources []struct {
-					Name    string `json:"name"`
-					Icon    string `json:"icon"`
-					Visible bool   `json:"visible"`
-					controlSet
-				} `json:"sources"`
-			} `json:"sources"`
-		} `json:"displays"`
-
-		Audio struct {
-			Media struct {
-				Volume controlSet `json:"volume"`
-				Mute   controlSet `json:"mute"`
-				Unmute controlSet `json:"unmute"`
-			} `json:"media"`
-			Groups []struct {
-				Name         string `json:"name"`
-				AudioDevices []struct {
-					Name   string     `json:"name"`
-					Volume controlSet `json:"volume"`
-					Mute   controlSet `json:"mute"`
-					Unmute controlSet `json:"unmute"`
-				} `json:"audioDevices"`
-			} `json:"groups"`
-		} `json:"audio"`
-
-		Cameras []struct {
-			Name        string     `json:"name"`
-			TiltUp      controlSet `json:"tiltUp"`
-			TiltDown    controlSet `json:"tiltDown"`
-			PanLeft     controlSet `json:"panLeft"`
-			PanRight    controlSet `json:"panRight"`
-			PanTiltStop controlSet `json:"panTiltStop"`
-			ZoomIn      controlSet `json:"zoomIn"`
-			ZoomOut     controlSet `json:"zoomOut"`
-			ZoomStop    controlSet `json:"zoomStop"`
-			// Stream      controlSet `json:"stream"`
-			// Reboot      string         `json:"reboot"` // this service doesn't care about this, savePreset, and stream
-			Presets []struct {
-				Name      string     `json:"name"`
-				SetPreset controlSet `json:"setPreset"`
-				// SavePreset string `json:"savePreset"`
-			} `json:"presets"`
-		} `json:"cameras"`
-	} `json:"controlGroups"`
-}
-
-type controlSet struct {
-	APIRequest avcontrol.StateRequest
-	Requests   []struct {
-		URL    string          `json:"url"`
-		Method string          `json:"method"`
-		Body   json.RawMessage `json:"body"`
-	} `json:"requests"`
-}
-
-func (d *DataService) config(ctx context.Context, room string) (config, error) {
-	var config config
+func (d *DataService) config(ctx context.Context, room string) (Config, error) {
+	var config Config
 
 	db := d.client.DB(ctx, d.database)
 	if err := db.Get(ctx, room).ScanDoc(&config); err != nil {
-		return config, fmt.Errorf("unable to get/scan room: %w", err)
+		return Config{}, fmt.Errorf("unable to get/scan room: %w", err)
 	}
 
 	return config, nil
@@ -104,199 +31,365 @@ func (d *DataService) Config(ctx context.Context, room string) (ui.Config, error
 	return config.convert()
 }
 
-func (c config) convert() (ui.Config, error) {
-	var err error
+type Config struct {
+	ID            string                  `json:"_id"`
+	ControlGroups map[string]ControlGroup `json:"controlGroups"`
+	States        map[string]State        `json:"states"`
+}
+
+type State avcontrol.StateRequest
+
+func (c Config) convert() (ui.Config, error) {
 	config := ui.Config{
 		ID:            c.ID,
 		ControlGroups: make(map[string]ui.ControlGroup, len(c.ControlGroups)),
+		States:        make(map[string]ui.State, len(c.States)),
 	}
 
-	for k, v := range c.ControlGroups {
-		var controlGroup ui.ControlGroup
+	for k, state := range c.States {
+		config.States[k] = ui.State(state)
+	}
 
-		controlGroup.PowerOff, err = v.PowerOff.convert()
+	for k, cg := range c.ControlGroups {
+		group, err := cg.convert()
 		if err != nil {
-			return config, fmt.Errorf("invalid control set 'powerOff': %w", err)
+			return config, fmt.Errorf("unable to convert controlGroup %q: %w", k, err)
 		}
 
-		controlGroup.PowerOn, err = v.PowerOn.convert()
-		if err != nil {
-			return config, fmt.Errorf("invalid control set 'powerOn': %w", err)
-		}
-
-		controlGroup.Audio.Media.Volume, err = v.Audio.Media.Volume.convert()
-		if err != nil {
-			return config, fmt.Errorf("invalid control set 'volume': %w", err)
-		}
-
-		controlGroup.Audio.Media.Mute, err = v.Audio.Media.Mute.convert()
-		if err != nil {
-			return config, fmt.Errorf("invalid control set 'mute': %w", err)
-		}
-
-		controlGroup.Audio.Media.Unmute, err = v.Audio.Media.Unmute.convert()
-		if err != nil {
-			return config, fmt.Errorf("invalid control set 'unmute': %w", err)
-		}
-
-		for _, disp := range v.Displays {
-			uiDisp := ui.DisplayConfig{
-				Name: disp.Name,
-				Icon: disp.Icon,
-			}
-
-			for _, source := range disp.Sources {
-				sourceConfig := ui.SourceConfig{
-					Name:    source.Name,
-					Icon:    source.Icon,
-					Visible: source.Visible,
-				}
-
-				sourceConfig.ControlSet, err = source.controlSet.convert()
-				if err != nil {
-					return config, fmt.Errorf("invalid control set '%s.%s': %w", disp.Name, source.Name, err)
-				}
-
-				for _, subSource := range source.Sources {
-					subSourceConfig := ui.SourceConfig{
-						Name:    subSource.Name,
-						Icon:    subSource.Icon,
-						Visible: subSource.Visible,
-					}
-
-					subSourceConfig.ControlSet, err = subSource.controlSet.convert()
-					if err != nil {
-						return config, fmt.Errorf("invalid control set '%s.%s.%s': %w", disp.Name, source.Name, subSource.Name, err)
-					}
-
-					sourceConfig.Sources = append(sourceConfig.Sources, subSourceConfig)
-				}
-
-				uiDisp.Sources = append(uiDisp.Sources, sourceConfig)
-			}
-
-			controlGroup.Displays = append(controlGroup.Displays, uiDisp)
-		}
-
-		for _, ag := range v.Audio.Groups {
-			audioGroup := ui.AudioGroupConfig{
-				Name: ag.Name,
-			}
-
-			for _, ad := range ag.AudioDevices {
-				audioDeviceConfig := ui.AudioDeviceConfig{
-					Name: ad.Name,
-				}
-
-				audioDeviceConfig.Volume, err = ad.Volume.convert()
-				if err != nil {
-					return config, fmt.Errorf("invalid control set '%s.%s.volume': %w", ag.Name, ad.Name, err)
-				}
-
-				audioDeviceConfig.Mute, err = ad.Mute.convert()
-				if err != nil {
-					return config, fmt.Errorf("invalid control set '%s.%s.mute': %w", ag.Name, ad.Name, err)
-				}
-
-				audioDeviceConfig.Unmute, err = ad.Unmute.convert()
-				if err != nil {
-					return config, fmt.Errorf("invalid control set '%s.%s.unmute': %w", ag.Name, ad.Name, err)
-				}
-
-				audioGroup.AudioDevices = append(audioGroup.AudioDevices, audioDeviceConfig)
-			}
-
-			controlGroup.Audio.Groups = append(controlGroup.Audio.Groups, audioGroup)
-		}
-
-		for _, cam := range v.Cameras {
-			camera := ui.CameraConfig{
-				Name: cam.Name,
-			}
-
-			camera.TiltUp, err = cam.TiltUp.convert()
-			if err != nil {
-				return config, fmt.Errorf("invalid control set '%s.tiltUp': %w", cam.Name, err)
-			}
-
-			camera.TiltDown, err = cam.TiltDown.convert()
-			if err != nil {
-				return config, fmt.Errorf("invalid control set '%s.tiltDown': %w", cam.Name, err)
-			}
-
-			camera.PanLeft, err = cam.PanLeft.convert()
-			if err != nil {
-				return config, fmt.Errorf("invalid control set '%s.panLeft': %w", cam.Name, err)
-			}
-
-			camera.PanRight, err = cam.PanRight.convert()
-			if err != nil {
-				return config, fmt.Errorf("invalid control set '%s.panRight': %w", cam.Name, err)
-			}
-
-			camera.PanTiltStop, err = cam.PanTiltStop.convert()
-			if err != nil {
-				return config, fmt.Errorf("invalid control set '%s.panTiltStop': %w", cam.Name, err)
-			}
-
-			camera.ZoomIn, err = cam.ZoomIn.convert()
-			if err != nil {
-				return config, fmt.Errorf("invalid control set '%s.zoomIn': %w", cam.Name, err)
-			}
-
-			camera.ZoomOut, err = cam.ZoomOut.convert()
-			if err != nil {
-				return config, fmt.Errorf("invalid control set '%s.zoomOut': %w", cam.Name, err)
-			}
-
-			camera.ZoomStop, err = cam.ZoomStop.convert()
-			if err != nil {
-				return config, fmt.Errorf("invalid control set '%s.zoomStop': %w", cam.Name, err)
-			}
-
-			for _, pre := range cam.Presets {
-				preset := ui.CameraPresetConfig{
-					Name: pre.Name,
-				}
-
-				preset.SetPreset, err = pre.SetPreset.convert()
-				if err != nil {
-					return config, fmt.Errorf("invalid control set '%s.%s.zoomStop': %w", cam.Name, pre.Name, err)
-				}
-
-				camera.Presets = append(camera.Presets, preset)
-			}
-
-			controlGroup.Cameras = append(controlGroup.Cameras, camera)
-		}
-
-		config.ControlGroups[k] = controlGroup
+		config.ControlGroups[k] = group
 	}
 
 	return config, nil
 }
 
-func (c controlSet) convert() (ui.ControlSet, error) {
-	cs := ui.ControlSet{
-		APIRequest: c.APIRequest,
-		Requests:   make([]ui.GenericControlRequest, len(c.Requests)),
+type ControlGroup struct {
+	PowerOff StateControlConfig `json:"powerOff"`
+	PowerOn  StateControlConfig `json:"powerOn"`
+
+	Displays []Display      `json:"displays"`
+	Audio    AudioConfig    `json:"audio"`
+	Cameras  []CameraConfig `json:"cameras"`
+}
+
+func (cg ControlGroup) convert() (ui.ControlGroup, error) {
+	var err error
+	res := ui.ControlGroup{
+		Displays: make([]ui.DisplayConfig, len(cg.Displays)),
+		Audio: ui.AudioConfig{
+			Groups: make([]ui.AudioGroupConfig, len(cg.Audio.Groups)),
+		},
+		Cameras: make([]ui.CameraConfig, len(cg.Cameras)),
 	}
 
-	for i := range c.Requests {
-		cs.Requests[i].Body = c.Requests[i].Body
-		cs.Requests[i].Method = c.Requests[i].Method
+	res.PowerOff, err = cg.PowerOff.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert powerOff: %w", err)
+	}
 
-		if cs.Requests[i].Method == "" {
-			cs.Requests[i].Method = http.MethodGet
-		}
+	res.PowerOn, err = cg.PowerOn.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert powerOn: %w", err)
+	}
 
-		u, err := url.Parse(c.Requests[i].URL)
+	for i := range cg.Displays {
+		res.Displays[i], err = cg.Displays[i].convert()
 		if err != nil {
-			return cs, err
+			return res, fmt.Errorf("unable to convert display %d: %w", i, err)
 		}
-
-		cs.Requests[i].URL = u
 	}
 
-	return cs, nil
+	res.Audio.Media, err = cg.Audio.Media.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert audio.media: %w", err)
+	}
+
+	for i := range cg.Audio.Groups {
+		res.Audio.Groups[i], err = cg.Audio.Groups[i].convert()
+		if err != nil {
+			return res, fmt.Errorf("unable to convert audio group %d: %w", i, err)
+		}
+	}
+
+	for i := range cg.Cameras {
+		res.Cameras[i], err = cg.Cameras[i].convert()
+		if err != nil {
+			return res, fmt.Errorf("unable to convert camera %d: %w", i, err)
+		}
+	}
+
+	return res, nil
+}
+
+type Display struct {
+	Name string `json:"name"`
+	Icon string `json:"icon"`
+
+	Sources []Source `json:"sources"`
+}
+
+func (d Display) convert() (ui.DisplayConfig, error) {
+	var err error
+	res := ui.DisplayConfig{
+		Name:    d.Name,
+		Icon:    d.Icon,
+		Sources: make([]ui.SourceConfig, len(d.Sources)),
+	}
+
+	for i := range d.Sources {
+		res.Sources[i], err = d.Sources[i].convert()
+		if err != nil {
+			return res, fmt.Errorf("unable to convert source %d: %w", i, err)
+		}
+	}
+
+	return res, err
+}
+
+type Source struct {
+	Name    string `json:"name"`
+	Icon    string `json:"icon"`
+	Visible bool   `json:"visible"`
+	StateControlConfig
+
+	Sources []Source `json:"sources"`
+}
+
+func (s Source) convert() (ui.SourceConfig, error) {
+	var err error
+	res := ui.SourceConfig{
+		Name:    s.Name,
+		Icon:    s.Icon,
+		Visible: s.Visible,
+		Sources: make([]ui.SourceConfig, len(s.Sources)),
+	}
+
+	res.StateControlConfig, err = s.StateControlConfig.convert()
+	if err != nil {
+		return res, err
+	}
+
+	for i := range s.Sources {
+		res.Sources[i], err = s.Sources[i].convert()
+		if err != nil {
+			return res, fmt.Errorf("unable to convert subsource %d: %w", i, err)
+		}
+	}
+
+	return res, nil
+}
+
+type AudioConfig struct {
+	Media  AudioDevice  `json:"media"`
+	Groups []AudioGroup `json:"groups"`
+}
+
+type AudioGroup struct {
+	Name         string        `json:"name"`
+	AudioDevices []AudioDevice `json:"audioDevices"`
+}
+
+func (a AudioGroup) convert() (ui.AudioGroupConfig, error) {
+	var err error
+	res := ui.AudioGroupConfig{
+		Name:         a.Name,
+		AudioDevices: make([]ui.AudioDeviceConfig, len(a.AudioDevices)),
+	}
+
+	for i := range a.AudioDevices {
+		res.AudioDevices[i], err = a.AudioDevices[i].convert()
+		if err != nil {
+			return res, fmt.Errorf("unable to convert audio device %d: %w", i, err)
+		}
+	}
+
+	return res, nil
+}
+
+type AudioDevice struct {
+	Name   string             `json:"name"`
+	Volume StateControlConfig `json:"volume"`
+	Mute   StateControlConfig `json:"mute"`
+	Unmute StateControlConfig `json:"unmute"`
+}
+
+func (a AudioDevice) convert() (ui.AudioDeviceConfig, error) {
+	var err error
+	res := ui.AudioDeviceConfig{
+		Name: a.Name,
+	}
+
+	res.Volume, err = a.Volume.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert volume: %w", err)
+	}
+
+	res.Mute, err = a.Mute.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert mute: %w", err)
+	}
+
+	res.Unmute, err = a.Unmute.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert unmute: %w", err)
+	}
+
+	return res, nil
+}
+
+type CameraConfig struct {
+	Name        string             `json:"name"`
+	TiltUp      StateControlConfig `json:"tiltUp"`
+	TiltDown    StateControlConfig `json:"tiltDown"`
+	PanLeft     StateControlConfig `json:"panLeft"`
+	PanRight    StateControlConfig `json:"panRight"`
+	PanTiltStop StateControlConfig `json:"panTiltStop"`
+	ZoomIn      StateControlConfig `json:"zoomIn"`
+	ZoomOut     StateControlConfig `json:"zoomOut"`
+	ZoomStop    StateControlConfig `json:"zoomStop"`
+	// Reboot      string         `json:"reboot"` // this service doesn't care about this, savePreset, and stream
+	// Stream      controlSet `json:"stream"` // left in for shipyard memory
+
+	Presets []CameraPresetConfig `json:"presets"`
+}
+
+func (c CameraConfig) convert() (ui.CameraConfig, error) {
+	var err error
+	res := ui.CameraConfig{
+		Name:    c.Name,
+		Presets: make([]ui.CameraPresetConfig, len(c.Presets)),
+	}
+
+	res.TiltUp, err = c.TiltUp.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert tiltUp: %w", err)
+	}
+
+	res.TiltDown, err = c.TiltDown.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert tiltDown: %w", err)
+	}
+
+	res.PanLeft, err = c.PanLeft.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert panLeft: %w", err)
+	}
+
+	res.PanRight, err = c.PanRight.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert panRight: %w", err)
+	}
+
+	res.PanTiltStop, err = c.PanTiltStop.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert panTiltStop: %w", err)
+	}
+
+	res.ZoomIn, err = c.ZoomIn.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert zoomIn: %w", err)
+	}
+
+	res.ZoomOut, err = c.ZoomOut.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert zoomOut: %w", err)
+	}
+
+	res.ZoomStop, err = c.ZoomStop.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert zoomStop: %w", err)
+	}
+
+	for i := range c.Presets {
+		res.Presets[i], err = c.Presets[i].convert()
+		if err != nil {
+			return res, fmt.Errorf("unable to convert preset %d: %w", i, err)
+		}
+	}
+
+	return res, nil
+}
+
+type CameraPresetConfig struct {
+	Name      string             `json:"name"`
+	SetPreset StateControlConfig `json:"setPreset"`
+	// SavePreset string `json:"savePreset"`
+}
+
+func (c CameraPresetConfig) convert() (ui.CameraPresetConfig, error) {
+	var err error
+	res := ui.CameraPresetConfig{
+		Name: c.Name,
+	}
+
+	res.SetPreset, err = c.SetPreset.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert setPreset: %w", err)
+	}
+
+	return res, nil
+}
+
+type StateControlConfig struct {
+	MatchStates      []string          `json:"matchStates"`
+	StateTransitions []StateTransition `json:"stateTransitions"`
+}
+
+func (c StateControlConfig) convert() (ui.StateControlConfig, error) {
+	var err error
+	res := ui.StateControlConfig{
+		StateTransitions: make([]ui.StateTransition, len(c.StateTransitions)),
+		MatchStates:      c.MatchStates,
+	}
+
+	for i := range c.StateTransitions {
+		res.StateTransitions[i].MatchStates = c.StateTransitions[i].MatchStates
+
+		res.StateTransitions[i].Action, err = c.StateTransitions[i].Action.convert()
+		if err != nil {
+			return res, fmt.Errorf("unable to convert action: %w", err)
+		}
+	}
+
+	return res, nil
+}
+
+type StateTransition struct {
+	MatchStates []string              `json:"matchStates"`
+	Action      StateTransitionAction `json:"action"`
+}
+
+type StateTransitionAction struct {
+	SetStates []string         `json:"setStates"`
+	Requests  []GenericRequest `json:"requests"`
+}
+
+func (a StateTransitionAction) convert() (ui.StateTransitionAction, error) {
+	res := ui.StateTransitionAction{
+		Requests:  make([]ui.GenericRequest, len(a.Requests)),
+		SetStates: a.SetStates,
+	}
+
+	for i := range a.Requests {
+		res.Requests[i].Body = a.Requests[i].Body
+		res.Requests[i].Method = a.Requests[i].Method
+
+		if res.Requests[i].Method == "" {
+			res.Requests[i].Method = http.MethodGet
+		}
+
+		u, err := url.Parse(a.Requests[i].URL)
+		if err != nil {
+			return res, err
+		}
+
+		res.Requests[i].URL = u
+	}
+
+	return res, nil
+}
+
+type GenericRequest struct {
+	URL    string          `json:"url"`
+	Method string          `json:"method"`
+	Body   json.RawMessage `json:"body"`
 }
