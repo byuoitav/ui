@@ -30,10 +30,10 @@ export class HelpComponent implements OnInit {
 }
 
 public requestHelp() {
-  this.roomRef.requestHelp(location.hostname + " needs help");
   const dialogRef = this.dialog.open(ConfirmHelpDialog, {
     width: "70vw",
-    disableClose: true
+    disableClose: true,
+    data: this.roomRef,
   });
   this.cancel();
 }
