@@ -1,8 +1,12 @@
 package client
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
+	"github.com/byuoitav/ui"
 )
 
 // ok so the question for both volume/mute:
@@ -20,8 +24,8 @@ func (c *client) setVolume(data []byte) {
 		return
 	}
 
-	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	// defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	// make sure control group exists
 	cg, ok := c.config.ControlGroups[c.controlGroupID]
@@ -30,11 +34,22 @@ func (c *client) setVolume(data []byte) {
 		return
 	}
 
-	// TODO fix
+	modify := func(state ui.State) ui.State {
+		for _, dev := range state.Devices {
+			for block, vol := range dev.Volumes {
+				if vol != -1 {
+					continue
+				}
+
+				dev.Volumes[block] = msg.Volume
+			}
+		}
+
+		return state
+	}
+
 	if msg.AudioGroup == "" && msg.AudioDevice == "" {
-		// cs := cg.Audio.Media.Volume.Copy()
-		// cs.APIRequest = fillVolumeRequest(cs.APIRequest, msg.Volume)
-		// c.doStateTransition(ctx, *cs, nil)
+		c.doStateTransition(ctx, cg.Audio.Media.Volume, modify)
 		return
 	}
 
@@ -48,10 +63,7 @@ func (c *client) setVolume(data []byte) {
 				continue
 			}
 
-			// TODO fix
-			// cs := ad.Volume.Copy()
-			// cs.APIRequest = fillVolumeRequest(cs.APIRequest, msg.Volume)
-			// c.doStateTransition(ctx, *cs)
+			c.doStateTransition(ctx, ad.Volume, modify)
 			return
 		}
 	}

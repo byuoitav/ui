@@ -19,7 +19,7 @@ func (c *client) doStateTransition(ctx context.Context, cs ui.StateControlConfig
 
 	state := c.mergeStates(transition.Action.SetStates...)
 	if modify != nil {
-		state = modify(state)
+		state = modify(state.Copy())
 	}
 
 	if len(state.Devices) > 0 {

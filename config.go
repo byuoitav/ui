@@ -110,96 +110,71 @@ type GenericRequest struct {
 	Body   []byte
 }
 
-func (s *State) Copy() *State {
-	if s == nil {
-		return nil
+func (s State) Copy() State {
+	if s.Devices == nil {
+		return State{}
 	}
 
-	return nil
-}
-
-/*
-func (cs *ControlSet) Copy() *ControlSet {
-	if cs == nil {
-		return nil
+	res := State{
+		Devices: make(map[avcontrol.DeviceID]avcontrol.DeviceState, len(s.Devices)),
 	}
 
-	n := &ControlSet{}
+	for id, dev := range s.Devices {
+		newDev := avcontrol.DeviceState{}
 
-	if cs.APIRequest.Devices != nil {
-		n.APIRequest.Devices = make(map[avcontrol.DeviceID]avcontrol.DeviceState, len(cs.APIRequest.Devices))
-
-		for id, state := range cs.APIRequest.Devices {
-			nState := avcontrol.DeviceState{}
-
-			if state.PoweredOn != nil {
-				b := *state.PoweredOn
-				nState.PoweredOn = &b
-			}
-
-			if state.Blanked != nil {
-				b := *state.Blanked
-				nState.Blanked = &b
-			}
-
-			if state.Inputs != nil {
-				nState.Inputs = make(map[string]avcontrol.Input, len(state.Inputs))
-
-				for out, in := range state.Inputs {
-					input := avcontrol.Input{}
-
-					if in.Audio != nil {
-						c := *in.Audio
-						input.Audio = &c
-					}
-
-					if in.Video != nil {
-						c := *in.Video
-						input.Video = &c
-					}
-
-					if in.AudioVideo != nil {
-						c := *in.AudioVideo
-						input.AudioVideo = &c
-					}
-
-					nState.Inputs[out] = input
-				}
-			}
-
-			if state.Volumes != nil {
-				nState.Volumes = make(map[string]int, len(state.Volumes))
-
-				for block, vol := range state.Volumes {
-					nState.Volumes[block] = vol
-				}
-			}
-
-			if state.Mutes != nil {
-				nState.Mutes = make(map[string]bool, len(state.Mutes))
-
-				for block, m := range state.Mutes {
-					nState.Mutes[block] = m
-				}
-			}
-
-			n.APIRequest.Devices[id] = nState
+		if dev.PoweredOn != nil {
+			t := *dev.PoweredOn
+			newDev.PoweredOn = &t
 		}
-	}
 
-	if cs.Requests != nil {
-		n.Requests = make([]GenericRequest, len(cs.Requests))
-
-		for i, req := range cs.Requests {
-			u := *req.URL
-			n.Requests[i].URL = &u
-			n.Requests[i].Method = req.Method
-
-			n.Requests[i].Body = make([]byte, len(req.Body))
-			copy(n.Requests[i].Body, req.Body)
+		if dev.Blanked != nil {
+			t := *dev.Blanked
+			newDev.Blanked = &t
 		}
+
+		if dev.Inputs != nil {
+			newDev.Inputs = make(map[string]avcontrol.Input, len(dev.Inputs))
+
+			for out, in := range dev.Inputs {
+				newInput := avcontrol.Input{}
+
+				if in.Audio != nil {
+					t := *in.Audio
+					newInput.Audio = &t
+				}
+
+				if in.Video != nil {
+					t := *in.Video
+					newInput.Video = &t
+				}
+
+				if in.AudioVideo != nil {
+					t := *in.AudioVideo
+					newInput.AudioVideo = &t
+				}
+
+				newDev.Inputs[out] = newInput
+			}
+		}
+
+		if dev.Volumes != nil {
+			newDev.Volumes = make(map[string]int, len(dev.Volumes))
+
+			for block, vol := range dev.Volumes {
+				newDev.Volumes[block] = vol
+			}
+		}
+
+		if dev.Mutes != nil {
+			newDev.Mutes = make(map[string]bool, len(dev.Mutes))
+
+			for block, muted := range dev.Mutes {
+				newDev.Mutes[block] = muted
+			}
+		}
+
+		res.Devices[id] = newDev
 	}
 
-	return n
+	return res
 }
-*/
