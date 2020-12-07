@@ -142,7 +142,7 @@ func (c *client) doesStateMatch(states ...string) bool {
 			}
 		}
 
-		return false
+		return true
 	}
 
 	for _, state := range states {
@@ -184,6 +184,18 @@ func (c *client) mergeStates(states ...string) ui.State {
 
 			if d.Blanked != nil {
 				cur.Blanked = d.Blanked
+			}
+
+			if d.Inputs != nil && cur.Inputs == nil {
+				cur.Inputs = make(map[string]avcontrol.Input)
+			}
+
+			if d.Volumes != nil && cur.Volumes == nil {
+				cur.Volumes = make(map[string]int)
+			}
+
+			if d.Mutes != nil && cur.Mutes == nil {
+				cur.Mutes = make(map[string]bool)
 			}
 
 			for iID, i := range d.Inputs {
