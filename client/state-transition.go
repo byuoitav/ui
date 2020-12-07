@@ -11,13 +11,23 @@ import (
 	"go.uber.org/zap"
 )
 
-func (c *client) doStateTransition(ctx context.Context, cs ui.StateControlConfig, modify func(ui.State) ui.State) error {
-	transition, ok := c.matchStateTransition(cs.StateTransitions)
-	if !ok {
-		return fmt.Errorf("no transition matched the current state")
+func (c *client) doStateTransition(ctx context.Context, modify func(ui.State) ui.State, stateControls ...ui.StateControlConfig) error {
+	var transitions []ui.StateTransition
+	for i, stateControl := range stateControls {
+		transition, ok := c.matchStateTransition(stateControl.StateTransitions)
+		if !ok {
+			return fmt.Errorf("no transition matched the current state for stateControl %d", i)
+		}
+
+		transitions = append(transitions, transition)
 	}
 
-	state := c.mergeStates(transition.Action.SetStates...)
+	var setStates []string
+	for _, transition := range transitions {
+		setStates = append(setStates, transition.Action.SetStates...)
+	}
+
+	state := c.mergeStates(setStates...)
 	if modify != nil {
 		state = modify(state.Copy())
 	}
@@ -39,9 +49,11 @@ func (c *client) doStateTransition(ctx context.Context, cs ui.StateControlConfig
 		c.sendJSONMsg("room", c.Room())
 	}
 
-	for _, req := range transition.Action.Requests {
-		if err := c.doGenericRequest(ctx, req); err != nil {
-			c.log.Error("unable to do generic request", zap.Error(err), zap.String("url", req.URL.String()))
+	for _, transition := range transitions {
+		for _, req := range transition.Action.Requests {
+			if err := c.doGenericRequest(ctx, req); err != nil {
+				c.log.Error("unable to do generic request", zap.Error(err), zap.String("url", req.URL.String()))
+			}
 		}
 	}
 

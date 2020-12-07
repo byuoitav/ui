@@ -30,9 +30,9 @@ func (c *client) setMute(data []byte) {
 
 	if msg.AudioGroup == "" && msg.AudioDevice == "" {
 		if msg.Mute {
-			c.doStateTransition(ctx, cg.Audio.Media.Mute, nil)
+			c.doStateTransition(ctx, nil, cg.Audio.Media.Mute)
 		} else {
-			c.doStateTransition(ctx, cg.Audio.Media.Unmute, nil)
+			c.doStateTransition(ctx, nil, cg.Audio.Media.Unmute)
 		}
 
 		return
@@ -49,9 +49,9 @@ func (c *client) setMute(data []byte) {
 			}
 
 			if msg.Mute {
-				c.doStateTransition(ctx, ad.Mute, nil)
+				c.doStateTransition(ctx, nil, ad.Mute)
 			} else {
-				c.doStateTransition(ctx, ad.Unmute, nil)
+				c.doStateTransition(ctx, nil, ad.Unmute)
 			}
 
 			return
