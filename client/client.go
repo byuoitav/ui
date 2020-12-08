@@ -66,7 +66,8 @@ func (c *client) Room() Room {
 		// TODO sharing
 		for _, disp := range cg.Displays {
 			display := DisplayGroup{
-				Name: disp.Name,
+				Name:    disp.Name,
+				Blanked: c.doesStateMatch(disp.Blank.MatchStates...),
 				Displays: []IconPair{
 					{
 						Name: disp.Name,
@@ -101,11 +102,11 @@ func (c *client) Room() Room {
 		}
 
 		// build media audio info
-		group.MediaAudio.Level = c.getVolume(cg.Audio.Media.Volume.MatchStates...)
-		group.MediaAudio.Muted = c.doesStateMatch(cg.Audio.Media.Mute.MatchStates...)
+		group.MediaAudio.Level = c.getVolume(cg.MediaAudio.Volume.MatchStates...)
+		group.MediaAudio.Muted = c.doesStateMatch(cg.MediaAudio.Mute.MatchStates...)
 
 		// build audio groups
-		for _, ag := range cg.Audio.Groups {
+		for _, ag := range cg.AudioGroups {
 			audioGroup := AudioGroup{
 				Name: ag.Name,
 				// Muted is true if all of the audio devices in this group

@@ -42,6 +42,8 @@ func (c *client) setInput(data []byte) {
 
 			stateControls = append(stateControls, cfg.StateControlConfig)
 		}
+
+		break
 	}
 
 	if len(stateControls) == 0 {

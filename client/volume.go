@@ -49,11 +49,11 @@ func (c *client) setVolume(data []byte) {
 	}
 
 	if msg.AudioGroup == "" && msg.AudioDevice == "" {
-		c.doStateTransition(ctx, modify, cg.Audio.Media.Volume)
+		c.doStateTransition(ctx, modify, cg.MediaAudio.Volume)
 		return
 	}
 
-	for _, ag := range cg.Audio.Groups {
+	for _, ag := range cg.AudioGroups {
 		if ag.Name != msg.AudioGroup {
 			continue
 		}

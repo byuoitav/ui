@@ -12,7 +12,6 @@ func (c *client) setPower(data []byte) {
 		On  bool `json:"on"`
 		All bool `json:"all"` // TODO...still something we want?
 	}
-
 	if err := json.Unmarshal(data, &msg); err != nil {
 		fmt.Printf("error: %s\n", err)
 		// TODO log/send error

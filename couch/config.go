@@ -66,19 +66,18 @@ type ControlGroup struct {
 	PowerOff StateControlConfig `json:"powerOff"`
 	PowerOn  StateControlConfig `json:"powerOn"`
 
-	Displays []Display      `json:"displays"`
-	Audio    AudioConfig    `json:"audio"`
-	Cameras  []CameraConfig `json:"cameras"`
+	Displays    []Display      `json:"displays"`
+	MediaAudio  AudioDevice    `json:"mediaAudio"`
+	AudioGroups []AudioGroup   `json:"audioGroups"`
+	Cameras     []CameraConfig `json:"cameras"`
 }
 
 func (cg ControlGroup) convert() (ui.ControlGroup, error) {
 	var err error
 	res := ui.ControlGroup{
-		Displays: make([]ui.DisplayConfig, len(cg.Displays)),
-		Audio: ui.AudioConfig{
-			Groups: make([]ui.AudioGroupConfig, len(cg.Audio.Groups)),
-		},
-		Cameras: make([]ui.CameraConfig, len(cg.Cameras)),
+		Displays:    make([]ui.DisplayConfig, len(cg.Displays)),
+		AudioGroups: make([]ui.AudioGroupConfig, len(cg.AudioGroups)),
+		Cameras:     make([]ui.CameraConfig, len(cg.Cameras)),
 	}
 
 	res.PowerOff, err = cg.PowerOff.convert()
@@ -98,13 +97,13 @@ func (cg ControlGroup) convert() (ui.ControlGroup, error) {
 		}
 	}
 
-	res.Audio.Media, err = cg.Audio.Media.convert()
+	res.MediaAudio, err = cg.MediaAudio.convert()
 	if err != nil {
 		return res, fmt.Errorf("unable to convert audio.media: %w", err)
 	}
 
-	for i := range cg.Audio.Groups {
-		res.Audio.Groups[i], err = cg.Audio.Groups[i].convert()
+	for i := range cg.AudioGroups {
+		res.AudioGroups[i], err = cg.AudioGroups[i].convert()
 		if err != nil {
 			return res, fmt.Errorf("unable to convert audio group %d: %w", i, err)
 		}
@@ -121,8 +120,10 @@ func (cg ControlGroup) convert() (ui.ControlGroup, error) {
 }
 
 type Display struct {
-	Name string `json:"name"`
-	Icon string `json:"icon"`
+	Name    string             `json:"name"`
+	Icon    string             `json:"icon"`
+	Blank   StateControlConfig `json:"blank"`
+	Unblank StateControlConfig `json:"unblank"`
 
 	Sources []Source `json:"sources"`
 }
@@ -133,6 +134,16 @@ func (d Display) convert() (ui.DisplayConfig, error) {
 		Name:    d.Name,
 		Icon:    d.Icon,
 		Sources: make([]ui.SourceConfig, len(d.Sources)),
+	}
+
+	res.Blank, err = d.Blank.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert blank: %w", err)
+	}
+
+	res.Unblank, err = d.Unblank.convert()
+	if err != nil {
+		return res, fmt.Errorf("unable to convert blank: %w", err)
 	}
 
 	for i := range d.Sources {
@@ -179,8 +190,6 @@ func (s Source) convert() (ui.SourceConfig, error) {
 }
 
 type AudioConfig struct {
-	Media  AudioDevice  `json:"media"`
-	Groups []AudioGroup `json:"groups"`
 }
 
 type AudioGroup struct {

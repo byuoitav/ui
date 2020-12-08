@@ -51,6 +51,7 @@ type DisplayGroup struct {
 	Name string `json:"name"`
 
 	Displays []IconPair `json:"displays"`
+	Blanked  bool       `json:"blanked"`
 	Inputs   []Input    `json:"inputs"`
 	Input    string     `json:"input"`
 

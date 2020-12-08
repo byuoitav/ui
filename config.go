@@ -25,9 +25,10 @@ type ControlGroup struct {
 	// PowerOn is the state we set to turn on the room
 	PowerOn StateControlConfig
 
-	Displays []DisplayConfig
-	Audio    AudioConfig
-	Cameras  []CameraConfig
+	Displays    []DisplayConfig
+	MediaAudio  AudioDeviceConfig
+	AudioGroups []AudioGroupConfig
+	Cameras     []CameraConfig
 }
 
 // CameraConfig represents a Camera and its associated control endpoints
@@ -53,8 +54,12 @@ type CameraPresetConfig struct {
 // DisplayConfig represents a Display and its associated controls
 // for a given group
 type DisplayConfig struct {
-	Name    string
-	Icon    string
+	Name string
+	Icon string
+
+	Blank   StateControlConfig
+	Unblank StateControlConfig
+
 	Sources []SourceConfig
 }
 
@@ -67,12 +72,6 @@ type SourceConfig struct {
 
 	// Sources represent sub-sources of the parent source
 	Sources []SourceConfig
-}
-
-// AudioConfig contains information about audio controls in the room
-type AudioConfig struct {
-	Media  AudioDeviceConfig
-	Groups []AudioGroupConfig
 }
 
 type AudioGroupConfig struct {

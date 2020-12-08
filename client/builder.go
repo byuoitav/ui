@@ -35,6 +35,7 @@ func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client
 		"setPower":    client.setPower,
 		"setVolume":   client.setVolume,
 		"setMute":     client.setMute,
+		"setBlank":    client.setBlank,
 		"setInput":    client.setInput,
 		"tiltUp":      client.tiltUp,
 		"tiltDown":    client.tiltDown,
