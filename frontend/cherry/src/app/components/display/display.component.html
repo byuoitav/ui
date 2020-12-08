@@ -3,8 +3,8 @@
         <button mat-button class="output mat-elevation-z15"
             [color]="cg?.displayGroups[selectedOutput] == d ? 'accent' : ''"
             [class.mat-raised-button]="cg?.displayGroups[selectedOutput] == d"
-            (click)="selectedOutput = i; getInputForOutput(d); curDisplayGroup = d"
-            (press)="selectedOutput = i; getInputForOutput(d); curDisplayGroup = d"
+            (click)="selectedOutput = i; getInputForOutput(d);"
+            (press)="selectedOutput = i; getInputForOutput(d);"
         >
             <span>{{ d?.displays[0]?.name }}</span>
 
@@ -28,9 +28,9 @@
     </ng-container>
 
     <button mat-button class="input mat-elevation-z7"
-        [class.selected]="curDisplayGroup?.blanked == true"
-        [id]="'blank'"
-        [class.mat-raised-button]="curDisplayGroup?.blanked"
+        [class.selected]="cg?.displayGroups[selectedOutput]?.blanked == true"
+        id="blank"
+        [class.mat-raised-button]="cg?.displayGroups[selectedOutput]?.blanked == true"
         (click)="setBlank(cg?.displayGroups[selectedOutput], true)"
         (press)="setBlank(cg?.displayGroups[selectedOutput], true)">
         <div class="icon">
@@ -40,11 +40,11 @@
     </button>
     
     <div>
-        <ng-container *ngFor="let i of curDisplayGroup?.inputs">
+        <ng-container *ngFor="let i of cg?.displayGroups[selectedOutput]?.inputs">
             <button mat-button class="input mat-elevation-z7"
-                [class.selected]="curDisplayGroup?.input == i.name"
+                [class.selected]="cg?.displayGroups[selectedOutput]?.input == i.name && !cg?.displayGroups[selectedOutput]?.blanked"
                 [id]="'input' + i.name"
-                [class.mat-raised-button]="selectedInput == i"
+                [class.mat-raised-button]="selectedInput == i && !cg?.displayGroups[selectedOutput]?.blanked"
                 (click)="changeInput(cg?.displayGroups[selectedOutput], i)"
                 (press)="changeInput(cg?.displayGroups[selectedOutput], i)"
             >
@@ -66,9 +66,5 @@
         (muteChange)="roomRef.setMuted($event)"
         (levelChange)="roomRef.setVolume($event)"></volume>
 </div>
-
-<ng-template #blankicon>
-    <i class="material-icons">crop_landscape</i>
-</ng-template>
 
 <!-- <mat-progress-bar *ngIf="command.commandInProgress" [mode]="'indeterminate'" color="primary" class="mpb"></mat-progress-bar> -->

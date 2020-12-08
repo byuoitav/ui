@@ -54,7 +54,6 @@ func (c *client) setBlank(data []byte) {
 		// some error
 		return
 	}
-
 	c.doStateTransition(ctx, nil, stateControls...)
 }
 
