@@ -26,6 +26,18 @@
             <div>Key: {{ cg?.controlInfo?.key }}</div>
         </div>
     </ng-container>
+
+    <button mat-button class="input mat-elevation-z7"
+        [class.selected]="curDisplayGroup?.blanked == true"
+        [id]="'blank'"
+        [class.mat-raised-button]="curDisplayGroup?.blanked"
+        (click)="setBlank(cg?.displayGroups[selectedOutput], true)"
+        (press)="setBlank(cg?.displayGroups[selectedOutput], true)">
+        <div class="icon">
+            <i class="material-icons">crop_landscape</i>
+            <span>Blank</span>
+        </div>
+    </button>
     
     <div>
         <ng-container *ngFor="let i of curDisplayGroup?.inputs">

@@ -60,9 +60,25 @@ export class RoomRef {
       }
     };
 
+    console.log(kv)
+
     this.commandInProgress = true;
     this._ws.send(JSON.stringify(kv));
   };
+
+  setBlank = (displayID: string, blanked: boolean) => {
+    const kv = {
+      setBlank: {
+        displayGroup: displayID,
+        blanked: blanked,
+      }
+    };
+
+    console.log(kv)
+
+    this.commandInProgress = true;
+    this._ws.send(JSON.stringify(kv))
+  }
 
   setVolume = (level: number, audioGroupdID?: string, audioDeviceID?: string) => {
     const kv = {
@@ -105,6 +121,8 @@ export class RoomRef {
     } else {
       this.loadingLock = true;
     }
+    console.log(kv)
+
     this._ws.send(JSON.stringify(kv));
   };
 

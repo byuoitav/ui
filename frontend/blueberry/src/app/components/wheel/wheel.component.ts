@@ -40,7 +40,7 @@ export class WheelComponent {
   mirrorMaster: Input;
   blank: Input;
   // we need this because of how we chose to do blanking
-  lastInputName: string;
+  // lastInputName: string;
 
 
   @ViewChild("wheel", {static: false}) wheel: ElementRef;
@@ -234,14 +234,19 @@ export class WheelComponent {
   }
 
   switchBlanked() {
-    if (this.cg.displayGroups[0].input == this.blank.name) {
-      // we need to go back to the old input
-      this.roomRef.setInput(this.cg.displayGroups[0].name, this.lastInputName);
+    // if (this.cg.displayGroups[0].input == this.blank.name) {
+    //   // we need to go back to the old input
+    //   this.roomRef.setInput(this.cg.displayGroups[0].name, this.lastInputName);
+    // } else {
+    //   // we need to save the old input and set the current to blank
+    //   this.lastInputName = this.cg.displayGroups[0].input;
+    //   this.roomRef.setInput(this.cg.displayGroups[0].name, this.blank.name)
+    // }
+    // this.roomRef.setBlanked(this.cg.displayGroups[0].name, !this.cg.displayGroups[0].blanked);
+    if (this.cg.displayGroups[0].blanked) {
+      this.roomRef.setBlank(this.cg.displayGroups[0].name, false);
     } else {
-      // we need to save the old input and set the current to blank
-      this.lastInputName = this.cg.displayGroups[0].input;
-      this.roomRef.setInput(this.cg.displayGroups[0].name, this.blank.name)
+      this.roomRef.setBlank(this.cg.displayGroups[0].name, true);
     }
-    this.roomRef.setBlanked(this.cg.displayGroups[0].name, !this.cg.displayGroups[0].blanked);
   }
 }

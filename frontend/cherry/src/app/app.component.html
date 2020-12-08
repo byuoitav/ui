@@ -35,14 +35,16 @@
 
           
             <!-- Mobile Control -->
-            <button mat-stroked-button
-              class="lock-screen-button mobile-control"
-              (click)="openMobileControlDialog()"
-              (press)="openMobileControlDialog()"
-            >
-              <mat-icon class="screen-control-icon">phone_iphone</mat-icon>
-              <div class="button-text">Key: {{ cg?.controlInfo?.key }}</div>
-            </button>
+            <ng-container *ngIf="cg?.controlInfo?.key != undefined">
+              <button mat-stroked-button
+                class="lock-screen-button mobile-control"
+                (click)="openMobileControlDialog()"
+                (press)="openMobileControlDialog()"
+              >
+                <mat-icon class="screen-control-icon">phone_iphone</mat-icon>
+                <div class="button-text">Key: {{ cg?.controlInfo?.key }}</div>
+              </button>
+            </ng-container>
             
             <!-- Audio Control -->
             <ng-container *ngIf="cg?.audioGroups != null">

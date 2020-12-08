@@ -62,6 +62,20 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
+  setBlank = (displayID: string, blanked: boolean) => {
+    const kv = {
+      setBlank: {
+        displayGroup: displayID,
+        blanked: blanked,
+      }
+    }
+
+    console.log(kv)
+
+    this.loading = true;
+    this._ws.send(JSON.stringify(kv))
+  }
+
   setVolume = (level: number, audioGroupName?: string, audioDeviceName?: string) => {
     const kv = {
       setVolume: {

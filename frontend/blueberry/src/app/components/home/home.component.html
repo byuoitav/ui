@@ -4,7 +4,7 @@
 <div class="buttons top">
     <button mat-fab class="power button" (click)="turnOff()"><mat-icon>power_settings_new</mat-icon></button>
     <button mat-fab class="help button" (click)="openHelp()"><mat-icon>help</mat-icon></button>
-    <div *ngIf="cg?.controlInfo" class="control-key-button">
+    <div *ngIf="cg?.controlInfo?.key" class="control-key-button">
         <button
         mat-button
         disableRipple

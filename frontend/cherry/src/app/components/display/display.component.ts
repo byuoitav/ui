@@ -91,10 +91,19 @@ export class DisplayComponent implements OnInit {
   }
 
   public getInputName(d: DisplayGroup) {
+    if (d.blanked) {
+      return "Blank"
+    }
     const input = d.inputs.find((i) => i.name === d.input);
     if (input == undefined) {
       return "unknown";
     }
     return input.name;
+  }
+
+  public setBlank(d: DisplayGroup) {
+    if (!d.blanked) {
+      this.roomRef.setBlank(d.name, true)
+    }
   }
 }

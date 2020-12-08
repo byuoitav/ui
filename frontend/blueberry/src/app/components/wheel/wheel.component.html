@@ -10,7 +10,7 @@
         <div></div>
       </li>
 
-      <ng-container *ngIf="cg?.displayGroups[0]?.input == blank.name">
+      <ng-container *ngIf="cg?.displayGroups[0]?.blanked">
         <li *ngFor="let i of cg?.displayGroups[0]?.inputs" class="input-slice" [class.selected-input]="i?.name === lastInputName" (click)="setInput(i?.name)" (press)="setInput(i?.name)">
           <div class="input" [style.top]="topoffset" [style.right]="rightoffset">
             <i class="material-icons">{{i?.icon}}</i>
@@ -19,7 +19,7 @@
         </li>
       </ng-container>
       
-      <ng-container *ngIf="cg?.displayGroups[0]?.input != blank.name">
+      <ng-container *ngIf="!cg?.displayGroups[0]?.blanked">
         <li *ngFor="let i of cg?.displayGroups[0]?.inputs" class="input-slice" [class.selected-input]="i?.name === cg?.displayGroups[0]?.input" (click)="setInput(i?.name)" (press)="setInput(i?.name)">
           <div class="input" [style.top]="topoffset" [style.right]="rightoffset">
             <i class="material-icons">{{i?.icon}}</i>
@@ -44,13 +44,13 @@
       <i class="center-item material-icons icon" [class.open]="circleOpen">{{cg?.displayGroups[0]?.displays[0]?.icon}}</i>
 
       <span
-      *ngIf="cg?.displayGroups[0]?.input != blank.name1"
+      *ngIf="!cg?.displayGroups[0]?.blanked"
       class="center-item picture"
       [class.open]="circleOpen"
       >picture on</span
     >
     <span
-      *ngIf="cg?.displayGroups[0]?.input == blank.name"
+      *ngIf="cg?.displayGroups[0]?.blanked"
       class="center-item picture"
       [class.open]="circleOpen"
       >picture off</span
@@ -61,7 +61,7 @@
       (click)="$event.stopPropagation()"
       (press)="$event.stopPropagation()"
     >
-      <mat-slide-toggle class="switch" (click)="switchBlanked()" (press)="switchBlanked()" [disableRipple]=true [checked]="cg?.displayGroups[0]?.input == 'Blank'" color="warn"></mat-slide-toggle>
+      <mat-slide-toggle class="switch" (click)="switchBlanked()" (press)="switchBlanked()" [disableRipple]=true [checked]="cg?.displayGroups[0]?.blanked" color="warn"></mat-slide-toggle>
     </div>
     </div>
   </div>
