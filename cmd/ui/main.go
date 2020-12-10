@@ -68,7 +68,7 @@ func main() {
 		log:         log,
 		single:      singleflight.Group{},
 		dataService: ds,
-		config: &client.Builder{
+		builder: &client.Builder{
 			DataService: ds,
 			AVController: &av.Controller{
 				BaseURL: avAPIURL,

@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// TODO add timeout
 func (c *client) updateRoomState(ctx context.Context) error {
 	c.log.Debug("Updating room state")
 

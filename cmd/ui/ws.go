@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -26,9 +25,6 @@ const (
 
 	// time allowed to send a message to the client
 	writeWait = 10 * time.Second
-
-	// duration after getting an initial room message to wait for more
-	roomDebounceDuration = 400 * time.Millisecond
 )
 
 func (h *handlers) Websocket(c *gin.Context) {
@@ -39,6 +35,7 @@ func (h *handlers) Websocket(c *gin.Context) {
 		c.String(http.StatusBadRequest, "unable to upgrade connection %s", err)
 		return
 	}
+	// TODO attempt graceful shutdown of the connection?
 	defer ws.Close() // nolint:errcheck
 
 	closeWith := func(msg string) {
@@ -53,55 +50,80 @@ func (h *handlers) Websocket(c *gin.Context) {
 		_ = ws.WriteMessage(websocket.CloseMessage, cmsg)
 	}
 
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	ctx, cancel := context.WithCancel(c.Request.Context())
 	defer cancel()
 
-	var room, controlGroup string
-	if h.deviceID == "" {
-		// we get the control group using the key
-		key := c.Param("key")
-		h.log.Info("Getting room/preset from control key", zap.String("key", key))
-
-		var err error
-
-		room, controlGroup, err = h.dataService.RoomAndControlGroup(ctx, key)
-		// TODO switch on different kinds of errors
-		if err != nil {
-			closeWith(fmt.Sprintf("unable to get room and control group: %s", err))
-			return
-		}
-	} else {
-		// we get the control group based on how this service was configured
-		var err error
-		room = h.roomID
-
-		controlGroup, err = h.dataService.ControlGroup(ctx, h.roomID, h.deviceID)
-		if err != nil {
-			closeWith(fmt.Sprintf("unable to get control group: %s", err))
-			return
-		}
+	room, controlGroup, err := h.roomAndControlGroup(ctx, c.Param("key"))
+	if err != nil {
+		closeWith(err.Error())
+		return
 	}
 
 	// TODO save client in some sort of cache so we can send refresh messages/get stats
-	client, err := h.config.New(ctx, room, controlGroup)
+	client, err := h.builder.New(ctx, room, controlGroup)
 	if err != nil {
 		closeWith(fmt.Sprintf("unable to build client: %s", err))
 		return
 	}
+	defer client.Close()
 
-	errg, gctx := errgroup.WithContext(c.Request.Context())
+	errCh := make(chan error)
 
-	errg.Go(func() error {
-		return h.writePump(gctx, client, ws)
-	})
+	go func() {
+		err := h.writePump(ctx, client, ws)
+		select {
+		case errCh <- err:
+		default:
+		}
+	}()
 
-	errg.Go(func() error {
-		return h.readPump(gctx, client, ws)
-	})
+	go func() {
+		err := h.readPump(ctx, client, ws)
+		select {
+		case errCh <- err:
+		default:
+		}
+	}()
 
-	if err := errg.Wait(); err != nil {
-		h.log.Warn("something went wrong in the pumps", zap.Error(err))
+	select {
+	case err := <-errCh:
+		if err != nil {
+			h.log.Warn("something went wrong in the pumps", zap.Error(err))
+			return
+		}
+
+		h.log.Info("Closing client due to websocket close")
+	case <-ctx.Done():
+		h.log.Info("Closing client & websocket due to context", zap.String("reason", ctx.Err().Error()))
+	case <-client.Done():
+		h.log.Info("Closing websocket due to client close")
 	}
+}
+
+func (h *handlers) roomAndControlGroup(ctx context.Context, key string) (room, controlGroup string, err error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	if h.deviceID == "" {
+		// we get the control group using the key
+		h.log.Info("Getting room/preset from control key", zap.String("key", key))
+
+		room, controlGroup, err = h.dataService.RoomAndControlGroup(ctx, key)
+		// TODO switch on different kinds of errors
+		if err != nil {
+			return "", "", fmt.Errorf("unable to get room/controlGroup using key: %w", err)
+		}
+
+		return room, controlGroup, nil
+	}
+
+	// we get the control group based on how this service was configured
+	controlGroup, err = h.dataService.ControlGroup(ctx, h.roomID, h.deviceID)
+	if err != nil {
+		return "", "", fmt.Errorf("unable to get controlGroup: %w", err)
+	}
+
+	return h.roomID, controlGroup, nil
 }
 
 // readPump receives messages on a websocket and passes them to the associated client
@@ -112,9 +134,7 @@ func (h *handlers) readPump(ctx context.Context, client ui.Client, ws *websocket
 	// define what to do when we get a pong
 	_ = ws.SetReadDeadline(time.Now().Add(pongWait))
 	ws.SetPongHandler(func(string) error {
-		// TODO why not just return this?
-		_ = ws.SetReadDeadline(time.Now().Add(pongWait))
-		return nil
+		return ws.SetReadDeadline(time.Now().Add(pongWait))
 	})
 
 	// read messages from websocket
@@ -126,7 +146,6 @@ func (h *handlers) readPump(ctx context.Context, client ui.Client, ws *websocket
 			_, msg, err := ws.ReadMessage()
 			switch {
 			case websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway):
-				// not really an error? the websocket was just closed by the client
 				return nil
 			case err != nil:
 				return fmt.Errorf("unable to read message: %w", err)

@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/byuoitav/ui"
 	"go.uber.org/zap"
@@ -24,6 +25,7 @@ func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client
 		avController:   b.AVController,
 		log:            b.Log,
 		outgoing:       make(chan []byte, 1),
+		kill:           make(chan struct{}),
 	}
 
 	id := ui.RequestID(ctx)
@@ -64,7 +66,25 @@ func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client
 		return nil, fmt.Errorf("unable to get data for client: %w", err)
 	}
 
-	// TODO start update routines
+	go func() {
+		ticker := time.NewTicker(5 * time.Minute)
+		defer ticker.Stop()
+		defer client.Close()
+
+		// need a way to stop this
+		for {
+			select {
+			case <-client.Done():
+				return
+			case <-ticker.C:
+				if err := client.updateRoomState(ctx); err != nil {
+					return
+				}
+
+				client.sendJSONMsg("room", client.Room())
+			}
+		}
+	}()
 
 	client.sendJSONMsg("room", client.Room())
 	return client, nil

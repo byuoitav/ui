@@ -29,7 +29,7 @@ func (c *client) HandleMessage(b []byte) {
 	}
 }
 
-func (c *client) OutgoingMessages() chan []byte {
+func (c *client) OutgoingMessages() <-chan []byte {
 	// TODO this should probably return a 'copy' of this channel...
 	return c.outgoing
 }
@@ -44,7 +44,7 @@ func (c *client) sendMessage(msg message) {
 	select {
 	case c.outgoing <- b:
 	default:
-		c.log.Warn("outgoing channel was full; not sending message to client")
+		c.log.Warn("outgoing channel was full/closed; not sending message to client")
 	}
 }
 

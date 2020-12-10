@@ -30,14 +30,31 @@ type client struct {
 	handlers map[string]messageHandler
 
 	outgoing chan []byte
+	kill     chan struct{}
+	killOnce sync.Once
 
 	// TODO controlKey/url
+}
+
+func (c *client) Close() {
+	c.killOnce.Do(func() {
+		c.log.Info("Closing client")
+
+		// close the kill chan to clean up all resources
+		close(c.kill)
+
+		// close outgoing chan to make sure no more messages are sent
+		close(c.outgoing)
+	})
+}
+
+func (c *client) Done() <-chan struct{} {
+	return c.kill
 }
 
 // TODO
 // Things we need:
 // A list of controlGroups they are allowed to switch to
-// switch back to lists instead of maps for order
 func (c *client) Room() Room {
 	c.stateMu.RLock()
 	defer c.stateMu.RUnlock()
