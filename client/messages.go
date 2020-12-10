@@ -37,7 +37,7 @@ func (c *client) OutgoingMessages() <-chan []byte {
 func (c *client) sendMessage(msg message) {
 	b, err := json.Marshal(msg)
 	if err != nil {
-		c.log.Warn("unable to send message", zap.Error(err))
+		c.log.Warn("unable to marshal message", zap.Error(err))
 		return
 	}
 
@@ -63,7 +63,7 @@ func (c *client) sendJSONMsg(k string, v interface{}) {
 
 	b, err := json.Marshal(v)
 	if err != nil {
-		c.log.Warn("unable to send json message", zap.Error(err))
+		c.log.Warn("unable to marshal json message", zap.Error(err))
 		return
 	}
 

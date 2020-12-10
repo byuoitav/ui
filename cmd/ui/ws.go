@@ -59,7 +59,6 @@ func (h *handlers) Websocket(c *gin.Context) {
 		return
 	}
 
-	// TODO save client in some sort of cache so we can send refresh messages/get stats
 	client, err := h.builder.New(ctx, room, controlGroup)
 	if err != nil {
 		closeWith(fmt.Sprintf("unable to build client: %s", err))
@@ -67,8 +66,20 @@ func (h *handlers) Websocket(c *gin.Context) {
 	}
 	defer client.Close()
 
-	errCh := make(chan error)
+	// add to clients so we can get stats/refresh it
+	h.clientsMu.Lock()
+	h.clients[c.Request.RemoteAddr] = client
+	h.clientsMu.Unlock()
 
+	// remove it from the map when we're done
+	defer func() {
+		h.clientsMu.Lock()
+		delete(h.clients, c.Request.RemoteAddr)
+		h.clientsMu.Unlock()
+	}()
+
+	// start the read/write pumps
+	errCh := make(chan error)
 	go func() {
 		err := h.writePump(ctx, client, ws)
 		select {
@@ -76,7 +87,6 @@ func (h *handlers) Websocket(c *gin.Context) {
 		default:
 		}
 	}()
-
 	go func() {
 		err := h.readPump(ctx, client, ws)
 		select {
@@ -85,6 +95,7 @@ func (h *handlers) Websocket(c *gin.Context) {
 		}
 	}()
 
+	// wait for something to be done
 	select {
 	case err := <-errCh:
 		if err != nil {

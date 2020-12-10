@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/byuoitav/ui"
 	"github.com/byuoitav/ui/av"
 	"github.com/byuoitav/ui/client"
 	"github.com/gin-gonic/gin"
@@ -68,6 +69,7 @@ func main() {
 		log:         log,
 		single:      singleflight.Group{},
 		dataService: ds,
+		clients:     make(map[string]ui.Client),
 		builder: &client.Builder{
 			DataService: ds,
 			AVController: &av.Controller{
@@ -106,6 +108,7 @@ func main() {
 	})
 
 	api := r.Group("/api/v1/")
+	api.GET("/refresh", handlers.RefreshClients)
 	api.GET("/ws", handlers.Websocket)
 	api.GET("/ws/:key", handlers.Websocket)
 

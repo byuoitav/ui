@@ -7,6 +7,7 @@ type Client interface {
 	OutgoingMessages() <-chan []byte
 	Done() <-chan struct{}
 	Close()
+	Refresh()
 }
 
 type ClientBuilder interface {

@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"path"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/byuoitav/ui"
@@ -23,6 +25,9 @@ type handlers struct {
 	dataService ui.DataService
 	builder     ui.ClientBuilder
 	upgrader    websocket.Upgrader
+
+	clientsMu sync.Mutex
+	clients   map[string]ui.Client
 }
 
 func (h *handlers) ServeUI(c *gin.Context) {
@@ -78,4 +83,17 @@ func (h *handlers) ServeUI(c *gin.Context) {
 	} else {
 		c.File(root + path.Join(dir, file))
 	}
+}
+
+func (h *handlers) RefreshClients(c *gin.Context) {
+	h.clientsMu.Lock()
+	defer h.clientsMu.Unlock()
+
+	count := len(h.clients)
+
+	for _, client := range h.clients {
+		client.Refresh()
+	}
+
+	c.String(http.StatusOK, fmt.Sprintf("Refreshed %d clients", count))
 }
