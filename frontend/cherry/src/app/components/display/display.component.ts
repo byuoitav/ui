@@ -18,7 +18,7 @@ export class DisplayComponent implements OnInit {
   cg: ControlGroup;
   selectedOutput: number;
   selectedInput: Input;
-  curDisplayGroup: DisplayGroup;
+  // blanked: boolean;
   constructor(
     private dialog: MatDialog
   ) { }
@@ -31,16 +31,7 @@ export class DisplayComponent implements OnInit {
           if (this.selectedOutput == undefined) {
             this.selectedOutput = 0;
           }
-          this.curDisplayGroup = this.cg.displayGroups[this.selectedOutput]
-          // for (let i = 0; i < this.cg.displayGroups.length; i++) {
-            this.selectedInput = this.cg.displayGroups[this.selectedOutput].inputs.find((input) => input.name === this.cg.displayGroups[this.selectedOutput].input)
-            // this.selectedInput = this.cg.inputs.find((i) => i.id === this.cg.displayGroups[this.selectedOutput].input)
-            // if (this.selectedInput != undefined) {
-            //   break
-            // }
-          // } 
-          // this.selectedInput = this.cg.displayGroups[this.selectedOutput].input
-          // console.log("selected", this.selectedInput)
+          this.selectedInput = this.cg.displayGroups[this.selectedOutput].inputs.find((input) => input.name === this.cg.displayGroups[this.selectedOutput].input)
         }
       }
     })
@@ -51,11 +42,11 @@ export class DisplayComponent implements OnInit {
       document.getElementById("input" + input.name).classList.toggle("feedback");
       this.roomRef.setInput(display.name, input.name);
     }
-    
-    // if (display.input != input.id) {
-    //   document.getElementById("input" + input.id).classList.toggle("feedback");
-    //   this.roomRef.setInput(display.name, input.id);
-    // }
+
+    if (display.blanked) {
+      document.getElementById("input" + input.name).classList.toggle("feedback");
+      this.setBlank(display, false);
+    }
   }
 
   public openMobileControlDialog() {
@@ -72,19 +63,11 @@ export class DisplayComponent implements OnInit {
   public getInputForOutput(d: DisplayGroup) {
     this.selectedInput = d.inputs.find((i) => i.name === d.input)
     console.log("input", this.selectedInput)
-    // setTimeout(() => {
-    //   this.selectedInput = d.inputs.find((i) => i.name === d.input)
-    //   console.log(this.selectedInput)
-    // }, 2000);
-    // this.selectedInput = this.cg.inputs.find((i) => i.id === d.input)
-    // if (this.selectedInput == undefined) {
-    //   this.selectedInput = this.blank;
-    // }
   }
 
   public getInputIcon(d: DisplayGroup) {
     const input = d.inputs.find((i) => i.name === d.input);
-    if (input == undefined) {
+    if (input == undefined || d.blanked) {
       return "crop_landscape";
     }
     return input.icon;
@@ -101,9 +84,15 @@ export class DisplayComponent implements OnInit {
     return input.name;
   }
 
-  public setBlank(d: DisplayGroup) {
-    if (!d.blanked) {
-      this.roomRef.setBlank(d.name, true)
+  public setBlank(d: DisplayGroup, blanked: boolean) {
+    if (blanked) {
+      document.getElementById("blank").classList.toggle("feedback");
+      this.roomRef.setBlank(d.name, blanked);
+      setTimeout(() => {
+        console.log(this.cg.displayGroups[this.selectedOutput].blanked)
+      }, 2000);
+    } else {
+      this.roomRef.setBlank(d.name, blanked)
     }
   }
 }
