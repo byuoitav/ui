@@ -1,5 +1,7 @@
 import { Component, OnInit, ViewEncapsulation, Input as AngularInput, Output as AngularOutput, EventEmitter, ViewChild } from '@angular/core';
 import { MatSlider } from '@angular/material';
+import { AudioDevice, AudioGroup, ControlGroup } from '../../../../../objects/control';
+import { RoomRef } from '../../../services/bff.service';
 
 @Component({
   selector: 'volume',
@@ -9,10 +11,18 @@ import { MatSlider } from '@angular/material';
 
 })
 export class VolumeComponent implements OnInit {
-  @AngularInput()
   mute: boolean;
   @AngularInput()
   level: number;
+
+  @AngularInput()
+  roomRef: RoomRef;
+
+  @AngularInput()
+  audioGroupName: string;
+
+  @AngularInput()
+  audioDevice: AudioDevice;
 
   @AngularOutput()
   levelChange: EventEmitter<number> = new EventEmitter();
@@ -21,20 +31,40 @@ export class VolumeComponent implements OnInit {
 
   @ViewChild("slider", {static: true})
   slider: MatSlider;
+
+  cg: ControlGroup
   constructor() { }
 
   ngOnInit() {
+    if (this.audioDevice) {
+      this.mute = this.audioDevice.muted
+    }
+    if (this.audioGroupName) {
+      this.roomRef.subject().subscribe((r) => {
+        if (r) {
+          this.cg = r.controlGroups[r.selectedControlGroup]
+          if (this.audioGroupName == "MediaAudio") {
+            //do it for media audio
+            this.mute = this.cg.mediaAudio.muted;
+          } else {
+            //do it for the audiodevice
+            //find the group
+            let ag = this.cg.audioGroups.find((ag) => ag.name === this.audioGroupName)
+            //find the actual device and get the mute state
+            let dev = ag.audioDevices.find((dev) => dev.name === this.audioDevice.name)
+            this.mute = dev.muted
+          }
+        }
+      })
+    }
   }
 
   toggleMute() {
-    let emit: boolean;
-    if (this.mute) {
-      emit = false;
+    if (this.audioGroupName == "MediaAudio") {
+      this.roomRef.setMuted(!this.mute)
     } else {
-      emit = true;
+      this.roomRef.setMuted(!this.mute, this.audioGroupName, this.audioDevice.name)
     }
-    this.muteChange.emit(emit);
-    this.mute = !this.mute;
   }
 
   public closeThumb() {

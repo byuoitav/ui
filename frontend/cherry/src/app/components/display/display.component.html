@@ -1,73 +1,59 @@
 <div class="outputs">
-    <div *ngFor="let d of cg?.displayGroups; index as i">
-        <button mat-button class="output mat-elevation-z15"
-            [color]="cg?.displayGroups[selectedOutput] == d ? 'accent' : ''"
-            [class.mat-raised-button]="cg?.displayGroups[selectedOutput] == d"
-            (click)="selectedOutput = i; getInputForOutput(d)"
-            (press)="selectedOutput = i; getInputForOutput(d)"
-        >
-            <span>{{ d?.displays[0]?.name }}</span>
+	<div *ngFor="let d of cg?.displayGroups; index as i">
+		<button mat-button class="output mat-elevation-z15"
+			[color]="cg?.displayGroups[selectedOutput] == d ? 'accent' : ''"
+			[class.mat-raised-button]="cg?.displayGroups[selectedOutput] == d"
+			(click)="selectedOutput = i; getInputForOutput(d);" (press)="selectedOutput = i; getInputForOutput(d);">
+			<span>{{ d?.displays[0]?.name }}</span>
 
-            <div class="icon">
-                <i class="material-icons">{{ getInputIcon(d) }}</i>
-            </div>
+			<div class="icon">
+				<i class="material-icons">{{ getInputIcon(d) }}</i>
+			</div>
 
-            <span>{{ getInputName(d) }}</span>
-        </button>
-    </div>
+			<span>{{ getInputName(d) }}</span>
+		</button>
+	</div>
 </div>
 
 <div class="inputs">
-  
-    <!-- to open up the mobile control qr code -->
-    <!-- <ng-container *ngIf=room control exists> -->
-        <div class="room-control-info" (click)="openMobileControlDialog()" (press)="openMobileControlDialog()">
-            <div>{{ cg?.controlInfo?.url }}</div>
-            <div>Key: {{ cg?.controlInfo?.key }}</div>
-        </div>
-    <!-- </ng-container> -->
-    
-    <div>
-        <button mat-button class="input mat-elevation-z7"
-            [class.selected]="selectedInput == blank"
-            [id]="'input' + blank.id"
-            [class.mat-raised-button]="selectedInput == blank"
-            (click)="setBlank(cg?.displayGroups[selectedOutput])"
-            (press)="setBlank(cg?.displayGroups[selectedOutput])"
-        >
-            <div class="icon">
-                <i class="material-icons">{{ blank?.icon }}</i>
-                <span>{{ blank?.name }}</span>
-            </div>
-        </button>
-        <ng-container *ngFor="let i of cg?.inputs">
-            <button mat-button class="input mat-elevation-z7"
-                [class.selected]="selectedInput == i"
-                [id]="'input' + i.id"
-                [class.mat-raised-button]="selectedInput == i"
-                (click)="changeInput(cg?.displayGroups[selectedOutput], i)"
-                (press)="changeInput(cg?.displayGroups[selectedOutput], i)"
-            >
-                <div class="icon">
-                    <i class="material-icons">{{ i?.icon }}</i>
-                    <span>{{ i?.name }}</span>
-                </div>
-            </button>
-        </ng-container>
-    </div>
+	<!-- to open up the mobile control qr code -->
+	<ng-container *ngIf="cg?.controlInfo?.url != undefined">
+		<div class="room-control-info" (click)="openMobileControlDialog()" (press)="openMobileControlDialog()">
+			<div>{{ cg?.controlInfo?.url }}</div>
+			<div>Key: {{ cg?.controlInfo?.key }}</div>
+		</div>
+	</ng-container>
+
+	<button mat-button class="input mat-elevation-z7"
+		[class.selected]="cg?.displayGroups[selectedOutput]?.blanked == true" id="blank"
+		[class.mat-raised-button]="cg?.displayGroups[selectedOutput]?.blanked == true"
+		(click)="setBlank(cg?.displayGroups[selectedOutput], true)"
+		(press)="setBlank(cg?.displayGroups[selectedOutput], true)">
+		<div class="icon">
+			<i class="material-icons">crop_landscape</i>
+			<span>Blank</span>
+		</div>
+	</button>
+
+	<ng-container *ngFor="let i of cg?.displayGroups[selectedOutput]?.inputs">
+		<button mat-button class="input mat-elevation-z7"
+			[class.selected]="cg?.displayGroups[selectedOutput]?.input == i.name && !cg?.displayGroups[selectedOutput]?.blanked"
+			[id]="'input' + i.name"
+			[class.mat-raised-button]="cg?.displayGroups[selectedOutput].input == i && !cg?.displayGroups[selectedOutput]?.blanked"
+			(click)="changeInput(cg?.displayGroups[selectedOutput], i)"
+			(press)="changeInput(cg?.displayGroups[selectedOutput], i)">
+			<div class="icon">
+				<i class="material-icons">{{ i?.icon }}</i>
+				<span>{{ i?.name }}</span>
+			</div>
+		</button>
+	</ng-container>
 </div>
 
 <div class="volume-label">Master Display Volume</div>
 <div class="volume">
-    <volume
-        [mute] = "cg?.mediaAudio?.muted"
-        [level] = "cg?.mediaAudio?.level"
-        (muteChange)="roomRef.setMuted($event)"
-        (levelChange)="roomRef.setVolume($event)"></volume>
+	<volume [roomRef]="roomRef" [audioGroupName]="'MediaAudio'" [level]="cg?.mediaAudio?.level"
+		(muteChange)="roomRef.setMuted($event)" (levelChange)="roomRef.setVolume($event)"></volume>
 </div>
-
-<ng-template #blankicon>
-    <i class="material-icons">crop_landscape</i>
-</ng-template>
 
 <!-- <mat-progress-bar *ngIf="command.commandInProgress" [mode]="'indeterminate'" color="primary" class="mpb"></mat-progress-bar> -->

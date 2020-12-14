@@ -38,7 +38,7 @@ export class SharingComponent implements OnInit {
   getSelectedInput() {
     if (this.cg) {
       const x = this.cg.inputs.find((i) => {
-        return i.id === this.cg.displayGroups[0].input;
+        return i.name === this.cg.displayGroups[0].input;
       });
       return x.name;
     } else {
@@ -60,7 +60,7 @@ export class SharingComponent implements OnInit {
   }
 
   startShare = () => {
-    this.roomRef.startSharing(this.cg.displayGroups[0].id, this.chosenOptions);
+    this.roomRef.startSharing(this.cg.displayGroups[0].name, this.chosenOptions);
     this.sharingSpin = true;
     this.ref.disableClose = true;
   }

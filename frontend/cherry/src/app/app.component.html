@@ -35,14 +35,16 @@
 
           
             <!-- Mobile Control -->
-            <button mat-stroked-button
-              class="lock-screen-button mobile-control"
-              (click)="openMobileControlDialog()"
-              (press)="openMobileControlDialog()"
-            >
-              <mat-icon class="screen-control-icon">phone_iphone</mat-icon>
-              <div class="button-text">Key: {{ cg?.controlInfo?.key }}</div>
-            </button>
+            <ng-container *ngIf="cg?.controlInfo?.key != undefined">
+              <button mat-stroked-button
+                class="lock-screen-button mobile-control"
+                (click)="openMobileControlDialog()"
+                (press)="openMobileControlDialog()"
+              >
+                <mat-icon class="screen-control-icon">phone_iphone</mat-icon>
+                <div class="button-text">Key: {{ cg?.controlInfo?.key }}</div>
+              </button>
+            </ng-container>
             
             <!-- Audio Control -->
             <ng-container *ngIf="cg?.audioGroups != null">
@@ -95,6 +97,9 @@
               <audiocontrol *ngIf="selectedTabIndex == 1" [roomRef]="roomRef"></audiocontrol>
             </mat-tab>
       </ng-container>
+      <mat-tab *ngIf="cg?.cameras?.length > 0" label="Camera Control">
+        <camera-control [roomRef]="roomRef"></camera-control>
+      </mat-tab>
       <mat-tab *ngIf="cg?.screens?.length > 0" label="Screen Control">
         <screencontrol></screencontrol>
       </mat-tab>

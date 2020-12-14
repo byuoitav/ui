@@ -38,6 +38,8 @@ export class WheelComponent {
   circleOpen = true;
   thumbLabel = true;
   mirrorMaster: Input;
+  blank: Input;
+
 
 
   @ViewChild("wheel", {static: false}) wheel: ElementRef;
@@ -52,30 +54,20 @@ export class WheelComponent {
     if (this.roomRef) {
       this.roomRef.subject().subscribe((r) => {
         if (r) {
-          if (!this.cg || this.cg.inputs.length != r.controlGroups[r.selectedControlGroup].inputs.length) {
-            this.cg = r.controlGroups[r.selectedControlGroup];
-            setTimeout(() => {
-              this.render();
-            }, 0);
-          } else {
-            this._applyChanges(r.controlGroups[r.selectedControlGroup]);
-          }
+          this.cg = r.controlGroups[r.selectedControlGroup];
+
+          setTimeout(() => {
+            this.render();
+          }, 0);
         }
       })
     }
   }
 
-  private _applyChanges(tempCG: ControlGroup) {
-    this.cg.displayGroups[0].input = tempCG.displayGroups[0].input;
-    this.cg.displayGroups[0].blanked = tempCG.displayGroups[0].blanked;
-    this.cg.mediaAudio = tempCG.mediaAudio; 
-    // this.cg.audioGroups[0].audioDevices[0] = tempCG.audioGroups[0].audioDevices[0];
-  }
-
   public render() {
     this.setTranslate();
 
-    const numOfChildren = this.cg.inputs.length;
+    const numOfChildren = this.cg.displayGroups[0].inputs.length;
     const children = this.wheel.nativeElement.children;
     const angle = (360 - WheelComponent.TITLE_ANGLE) / numOfChildren;
 
@@ -127,7 +119,7 @@ export class WheelComponent {
     let top: number;
     let right: number;
 
-    switch (this.cg.inputs.length) {
+    switch (this.cg.displayGroups[0].inputs.length) {
       case 7:
         top = -0.6;
         right = 25.4;
@@ -208,8 +200,8 @@ export class WheelComponent {
   }
 
   setInput = (input: string) => {
-    console.log("setting input...", this.cg.displayGroups[0].id)
-    this.roomRef.setInput(this.cg.displayGroups[0].id, input);
+    console.log("setting input...", this.cg.displayGroups[0].name)
+    this.roomRef.setInput(this.cg.displayGroups[0].name, input);
   }
 
   setVolume(level: number) {
@@ -221,6 +213,10 @@ export class WheelComponent {
   }
 
   switchBlanked() {
-    this.roomRef.setBlanked(this.cg.displayGroups[0].id, !this.cg.displayGroups[0].blanked);
+    if (this.cg.displayGroups[0].blanked) {
+      this.roomRef.setBlank(this.cg.displayGroups[0].name, false);
+    } else {
+      this.roomRef.setBlank(this.cg.displayGroups[0].name, true);
+    }
   }
 }

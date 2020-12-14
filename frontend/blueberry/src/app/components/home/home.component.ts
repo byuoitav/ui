@@ -120,7 +120,7 @@ export class HomeComponent implements OnInit {
 
   stopSharing = () => {
     if (this.roomRef) {
-      this.roomRef.stopSharing(this.cg.displayGroups[0].id);
+      this.roomRef.stopSharing(this.cg.displayGroups[0].name);
     }
   }
 

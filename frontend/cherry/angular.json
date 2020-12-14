@@ -124,6 +124,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "cherry"
+    }
+  },
+  "defaultProject": "cherry",
+  "cli": {
+    "analytics": "aa1edd20-7251-43a9-a3fa-aab99ad5f3b3"
+  }
 }

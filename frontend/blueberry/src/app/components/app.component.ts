@@ -67,7 +67,7 @@ export class AppComponent {
   }
 
   haveControlKey() {
-    if (this.cg && this.cg.controlInfo) {
+    if (this.cg && this.cg.controlInfo && this.cg.controlInfo.key) {
       return true;
     }
   }

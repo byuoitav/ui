@@ -51,47 +51,56 @@ export class RoomRef {
   };
 
   /* control functions */
-  setInput = (displayID: string, inputID: string) => {
+  setInput = (displayID: string, sourceName: string, subSourceName?: string) => {
     const kv = {
       setInput: {
         displayGroup: displayID,
-        input: inputID
+        source: sourceName,
+        subSource: subSourceName
       }
     };
+
+    console.log(kv)
 
     this.commandInProgress = true;
     this._ws.send(JSON.stringify(kv));
   };
 
-  setBlanked = (displayID: string, blanked: boolean) => {
+  setBlank = (displayID: string, blanked: boolean) => {
     const kv = {
-      setBlanked: {
+      setBlank: {
         displayGroup: displayID,
-        blanked: blanked
+        blanked: blanked,
       }
     };
 
+    console.log(kv)
+
     this.commandInProgress = true;
-    this._ws.send(JSON.stringify(kv));
+    this._ws.send(JSON.stringify(kv))
   }
 
-  setVolume = (level: number, audioDeviceID?: string) => {
+  setVolume = (level: number, audioGroupdID?: string, audioDeviceID?: string) => {
     const kv = {
       setVolume: {
+        volume: level,
+        audioGroup: audioGroupdID,
         audioDevice: audioDeviceID,
-        level: level
       }
     };
+
+    console.log(kv)
 
     this.commandInProgress = true;
     this._ws.send(JSON.stringify(kv));
   };
 
-  setMuted = (muted: boolean, audioDeviceID?: string) => {
+  setMuted = (muted: boolean, audioGroupID?: string, audioDeviceID?: string) => {
     const kv = {
-      setMuted: {
-        audioDevice: audioDeviceID,
-        muted: muted
+      setMute: {
+        mute: muted,
+        audioGroup: audioGroupID,
+        audioDevice: audioDeviceID
       }
     };
     console.log(kv)
@@ -99,10 +108,11 @@ export class RoomRef {
     this._ws.send(JSON.stringify(kv));
   };
 
-  setPower = (power: boolean) => {
+  setPower = (power: boolean, all?: string) => {
     const kv = {
       setPower: {
-        poweredOn: power
+        on: power,
+        all: all
       }
     };
 
@@ -111,6 +121,8 @@ export class RoomRef {
     } else {
       this.loadingLock = true;
     }
+    console.log(kv)
+
     this._ws.send(JSON.stringify(kv));
   };
 
@@ -158,6 +170,97 @@ export class RoomRef {
 
     this._ws.send(JSON.stringify(kv));
   }
+
+  tiltUp = (cam: string) => {
+    const kv = {
+      tiltUp: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  tiltDown = (cam: string) => {
+    const kv = {
+      tiltDown: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  panLeft = (cam: string) => {
+    const kv = {
+      panLeft: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  panRight = (cam: string) => {
+    const kv = {
+      panRight: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  panTiltStop = (cam: string) => {
+    const kv = {
+      panTiltStop: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  zoomIn = (cam: string) => {
+    const kv = {
+      zoomIn: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  zoomOut = (cam: string) => {
+    const kv = {
+      zoomOut: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  zoomStop = (cam: string) => {
+    const kv = {
+      zoomStop: {
+        camera: cam
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
+
+  setPreset = (cam: string, preset: string) => {
+    const kv = {
+      setPreset: {
+        camera: cam,
+        preset: preset
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv))
+  }
 }
 
 @Injectable({
@@ -196,12 +299,13 @@ export class BFFService {
       protocol = "wss:";
     }
 
-    const endpoint = protocol + "//" + window.location.host + "/ws";
+    const endpoint = protocol + "//" + window.location.host + "/api/v1/ws";
     const ws = new WebSocket(endpoint);
 
     this.roomRef = new RoomRef(room, ws, () => {
       console.log("closing room connection", room.value.id);
     });
+
 
     // handle incoming messages from bff
     ws.onmessage = msg => {

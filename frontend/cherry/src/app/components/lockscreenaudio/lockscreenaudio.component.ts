@@ -33,19 +33,19 @@ export class LockScreenAudioComponent implements OnInit {
           if (this.cg.audioGroups.length > 0) {
             if (this.groupPages.size != this.cg.audioGroups.length) {
               this.cg.audioGroups.forEach(group => {
-                if (!this.groupPages.get(group.id)) {
+                if (!this.groupPages.get(group.name)) {
                   const numPages = Math.ceil(group.audioDevices.length / 4);
                   const tempPages = new Array(numPages).fill(undefined).map((x, i) => i);
-                  this.groupPages.set(group.id, tempPages);
+                  this.groupPages.set(group.name, tempPages);
                 }
-                if (!this.groupCurPage.get(group.id)) {
-                  this.groupCurPage.set(group.id, 0);
+                if (!this.groupCurPage.get(group.name)) {
+                  this.groupCurPage.set(group.name, 0);
                 }
                 console.log(
-                  group.id, ":",
+                  group.name, ":",
                   group.audioDevices.length,
                   "pages:",
-                  this.groupPages.get(group.id)
+                  this.groupPages.get(group.name)
                 )
               });
             }
@@ -63,46 +63,46 @@ export class LockScreenAudioComponent implements OnInit {
     return this._show;
   }
 
-  groupPageLeft(groupID: string) {
-    if (this.groupCanPageLeft(groupID)) {
-      let pageNum = this.groupCurPage.get(groupID);
+  groupPageLeft(groupName: string) {
+    if (this.groupCanPageLeft(groupName)) {
+      let pageNum = this.groupCurPage.get(groupName);
       pageNum--;
-      this.groupCurPage.set(groupID, pageNum);
+      this.groupCurPage.set(groupName, pageNum);
     }
 
-    const idx = 4 * this.groupCurPage.get(groupID);
+    const idx = 4 * this.groupCurPage.get(groupName);
     // probably have to look at exactly what needs to be selected
-    document.querySelector("#" + groupID + idx).scrollIntoView({ 
+    document.querySelector("#" + groupName + idx).scrollIntoView({ 
       behavior: "smooth",
       block: "nearest",
       inline: "start"
     });
   }
 
-  groupPageRight(groupID: string) {
-    if (this.groupCanPageRight(groupID)) {
-      let pageNum = this.groupCurPage.get(groupID);
+  groupPageRight(groupName: string) {
+    if (this.groupCanPageRight(groupName)) {
+      let pageNum = this.groupCurPage.get(groupName);
       pageNum++;
-      this.groupCurPage.set(groupID, pageNum);
+      this.groupCurPage.set(groupName, pageNum);
     }
 
-    const idx = 4 * this.groupCurPage.get(groupID);
-    document.querySelector("#" + groupID + idx).scrollIntoView({
+    const idx = 4 * this.groupCurPage.get(groupName);
+    document.querySelector("#" + groupName + idx).scrollIntoView({
       behavior: "smooth",
       block: "nearest",
       inline: "start"
     });
   }
 
-  groupCanPageLeft(groupID: string) {
-    if (this.groupCurPage.get(groupID) <= 0) {
+  groupCanPageLeft(groupName: string) {
+    if (this.groupCurPage.get(groupName) <= 0) {
       return false;
     }
     return true;
   }
 
-  groupCanPageRight(groupID: string) {
-    if (this.groupCurPage.get(groupID) + 1 >= this.groupPages.get(groupID).length) {
+  groupCanPageRight(groupName: string) {
+    if (this.groupCurPage.get(groupName) + 1 >= this.groupPages.get(groupName).length) {
       return false;
     }
     return true;

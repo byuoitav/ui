@@ -24,8 +24,8 @@
                             <div class="content">
                                 <div class="mixers">
                                     <div class="sliders single-page">
-                                        <div *ngFor="let a of ag?.audioDevices; let i = index" [id]="ag?.id + i" class="slider-container">
-                                            <volume class="slider" [level]="a?.level" [mute]="a?.muted" [name]="a?.name" (levelChange)="bff.roomRef.setVolume($event, a?.id)" (muteChange)="bff.roomRef.setMuted($event, a?.id)"></volume>
+                                        <div *ngFor="let a of ag?.audioDevices; let i = index" [id]="ag?.name + i" class="slider-container">
+                                            <volume class="slider" [level]="a?.level" [mute]="a?.muted" [name]="a?.name" (levelChange)="bff.roomRef.setVolume($event, ag?.name, a?.name)" (muteChange)="bff.roomRef.setMuted($event, ag?.name, a?.name)"></volume>
                                         </div>
                                     </div>
                                 </div>
@@ -50,7 +50,7 @@
                             <div class="sliders">
                               <div
                                 *ngFor="let a of ag?.audioDevices; let i = index"
-                                [id]="ag?.id + i"
+                                [id]="ag?.name + i"
                                 class="slider-container"
                               >
                                 <volume
@@ -58,32 +58,32 @@
                                   [level]="a?.volume"
                                   [mute]="a?.muted"
                                   [name]="a?.name"
-                                  (levelChange)="bff.roomRef.setVolume(a?.id, $event)"
-                                  (muteChange)="bff.roomRef.setMuted(a?.id, $event)"
+                                  (levelChange)="bff.roomRef.setVolume($event, ag?.name, a?.name)"
+                                  (muteChange)="bff.roomRef.setMuted($event, ag?.name, a?.name)"
                                 >
                                 </volume>
                               </div>
                 
                               <!-- fake sliders -->
                               <div
-                                [id]="ag?.id + ag?.audioDevices?.length"
+                                [id]="ag?.name + ag?.audioDevices?.length"
                                 class="slider-container"
                               ></div>
                               <div
-                                [id]="ag?.id + (ag?.audioDevices?.length + 1)"
+                                [id]="ag?.name + (ag?.audioDevices?.length + 1)"
                                 class="slider-container"
                               ></div>
                               <div
-                                [id]="ag?.id + (ag?.audioDevices?.length + 2)"
+                                [id]="ag?.name + (ag?.audioDevices?.length + 2)"
                                 class="slider-container"
                               ></div>
                             </div>
                 
                             <div class="page-indicator fake">
                               <span
-                                *ngFor="let i of pages.get(ag?.id)"
+                                *ngFor="let i of pages.get(ag?.name)"
                                 class="dot"
-                                [class.selected]="i === curPageNumbers.get(ag?.id)"
+                                [class.selected]="i === curPageNumbers.get(ag?.name)"
                               ></span>
                             </div>
                           </div>
@@ -116,14 +116,14 @@
                     <div class="content">
                         <div class="mixers">
                             <div class="sliders single-page">
-                                <div *ngFor="let a of cg?.audioGroups[0]?.audioDevices; let i = index" [id]="cg?.audioGroups[0]?.id + i" class="slider-container">
+                                <div *ngFor="let a of cg?.audioGroups[0]?.audioDevices; let i = index" [id]="cg?.audioGroups[0]?.name + i" class="slider-container">
                                     <volume 
                                       class="slider" 
                                       [level]="a?.level" 
                                       [mute]="a?.muted" 
                                       [name]="a?.name"
-                                      (levelChange)="bff.roomRef.setVolume($event, a?.id)"
-                                      (muteChange)="bff.roomRef.setMuted($event, a?.id)"></volume>
+                                      (levelChange)="bff.roomRef.setVolume($event, cg?.audioGroups[0]?.name, a?.name)"
+                                      (muteChange)="bff.roomRef.setMuted($event, cg?.audioGroups[0]?.name, a?.name)"></volume>
                                 </div>
                             </div>
                         </div>
@@ -147,7 +147,7 @@
                     <div class="sliders">
                       <div
                         *ngFor="let a of cg?.audioGroups[0]?.audioDevices; let i = index"
-                        [id]="cg?.audioGroups[0]?.id + i"
+                        [id]="cg?.audioGroups[0]?.name + i"
                         class="slider-container"
                       >
                         <volume
@@ -155,31 +155,31 @@
                           [level]="a?.volume"
                           [mute]="a?.muted"
                           [name]="a?.name"
-                          (levelChange)="bff.roomRef.setVolume($event, a?.id)"
-                          (muteChange)="bff.roomRef.setMuted($event, a?.id)"
+                          (levelChange)="bff.roomRef.setVolume($event, cg?.audioGroups[0]?.name, a?.name)"
+                          (muteChange)="bff.roomRef.setMuted($event, cg?.audioGroups[0]?.name, a?.name)"
                         >
                         </volume>
                       </div>
         
                       <div
-                        [id]="cg?.audioGroups[0]?.id + cg?.audioGroups[0]?.audioDevices?.length"
+                        [id]="cg?.audioGroups[0]?.name + cg?.audioGroups[0]?.audioDevices?.length"
                         class="slider-container"
                       ></div>
                       <div
-                        [id]="cg?.audioGroups[0]?.id + (cg?.audioGroups[0]?.audioDevices?.length + 1)"
+                        [id]="cg?.audioGroups[0]?.name + (cg?.audioGroups[0]?.audioDevices?.length + 1)"
                         class="slider-container"
                       ></div>
                       <div
-                        [id]="cg?.audioGroups[0]?.id + (cg?.audioGroups[0]?.audioDevices?.length + 2)"
+                        [id]="cg?.audioGroups[0]?.name + (cg?.audioGroups[0]?.audioDevices?.length + 2)"
                         class="slider-container"
                       ></div>
                     </div>
         
                     <div class="page-indicator fake">
                       <span
-                        *ngFor="let i of pages.get(cg?.audioGroups[0]?.id)"
+                        *ngFor="let i of pages.get(cg?.audioGroups[0]?.name)"
                         class="dot"
-                        [class.selected]="i === curPageNumbers.get(cg?.audioGroups[0]?.id)"
+                        [class.selected]="i === curPageNumbers.get(cg?.audioGroups[0]?.name)"
                       ></span>
                     </div>
                   </div>

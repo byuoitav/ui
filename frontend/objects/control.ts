@@ -31,6 +31,8 @@ export interface ControlGroup {
   muted: boolean;
   screens: string[];
 
+  cameras: Camera[];
+
   // public getAudioDevice(cg: ControlGroup, id: string): AudioDevice {
   //     for (const g of cg.audioGroups) {
   //         for (const device of g.audioDevices) {
@@ -40,6 +42,11 @@ export interface ControlGroup {
   //         }
   //     }
   // }
+}
+
+export interface Camera {
+  name: string;
+  presets: string[];
 }
 
 export interface ControlInfo {
@@ -58,9 +65,10 @@ export interface Support {
   helpEnabled: boolean;
 }
 export interface DisplayGroup {
-  id: string;
+  name: string;
   displays: IconPair[];
   input: string;
+  inputs: Input[];
   blanked: boolean;
   shareInfo: ShareInfo;
 }
@@ -72,21 +80,18 @@ export interface ShareInfo {
 }
 
 export interface Input {
-  id: string;
   name: string;
   icon: string;
   subInputs: Input[];
 }
 
 export interface AudioGroup {
-  id: string;
   name: string;
   audioDevices: AudioDevice[];
   muted: boolean;
 }
 
 export interface AudioDevice {
-  id: string;
   name: string;
   icon: string;
   level: number;

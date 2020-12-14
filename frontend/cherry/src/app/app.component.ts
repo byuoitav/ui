@@ -58,10 +58,10 @@ export class AppComponent implements OnInit {
           if (this.cg) {
             if ((this.cg.poweredOn == false && r.controlGroups[r.selectedControlGroup].poweredOn == true)
             || (this.cg.poweredOn == true && r.controlGroups[r.selectedControlGroup].poweredOn == false)) {
-            if (this.dialog.openDialogs.includes(this.mobileRef)) {
-              this.mobileRef.close();
+              if (this.dialog.openDialogs.includes(this.mobileRef)) {
+                this.mobileRef.close();
+              }
             }
-          }
           }
           this.cg = r.controlGroups[r.selectedControlGroup];
         }

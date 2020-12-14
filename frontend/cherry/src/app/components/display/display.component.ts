@@ -1,8 +1,8 @@
-import { Component, OnInit, Input as AngularInput, Output, ɵConsole } from '@angular/core';
-import { MobileControlComponent } from "../../dialogs/mobilecontrol/mobilecontrol.component";
-import { MatDialog } from "@angular/material";
-import { RoomRef, BFFService } from '../../../services/bff.service';
-import { ControlGroup, DisplayGroup, Input, Room } from '../../../../../objects/control';
+import {Component, OnInit, Input as AngularInput, Output, ɵConsole} from '@angular/core';
+import {MobileControlComponent} from "../../dialogs/mobilecontrol/mobilecontrol.component";
+import {MatDialog} from "@angular/material";
+import {RoomRef, BFFService} from '../../../services/bff.service';
+import {ControlGroup, DisplayGroup, Input, Room} from '../../../../../objects/control';
 
 
 
@@ -18,44 +18,38 @@ export class DisplayComponent implements OnInit {
   cg: ControlGroup;
   selectedOutput: number;
   selectedInput: Input;
-  blank: Input;
+  // blanked: boolean;
   constructor(
     private dialog: MatDialog
-  ) { }
+  ) {}
 
   ngOnInit() {
-    this.blank = {
-      id: "blank",
-      icon: "crop_landscape",
-      name: "Blank",
-      subInputs: null,
-    }
     this.roomRef.subject().subscribe((r) => {
       if (r) {
         this.cg = r.controlGroups[r.selectedControlGroup];
-        if (this.cg.displayGroups.length > 0) {
-          if (this.selectedOutput == undefined) {
+
+        if (this.selectedOutput == undefined) {
+          if (this.cg && this.cg.displayGroups && this.cg.displayGroups.length > 0) {
             this.selectedOutput = 0;
           }
-          if (this.cg.displayGroups[this.selectedOutput].blanked == true) {
-            this.selectedInput = this.blank;
-            
-            // for some reason the spinny edge of blank doesn't work the same as the inputs
-            // so we need to do this...
-            let btn = document.getElementById("input" + this.blank.id);
-            btn.classList.remove("feedback")
-          } else {
-            this.selectedInput = this.cg.inputs.find((i) => i.id === this.cg.displayGroups[this.selectedOutput].input)
-          }
+        }
+
+        const ele = document.getElementById("blank")
+        if (ele) {
+          ele.classList.remove("feedback");
         }
       }
     })
   }
 
   public changeInput(display: DisplayGroup, input: Input) {
-    if (display.input != input.id) {
-      document.getElementById("input" + input.id).classList.toggle("feedback");
-      this.roomRef.setInput(display.id, input.id);
+    if (display.input != input.name) {
+      document.getElementById("input" + input.name).classList.toggle("feedback");
+      this.roomRef.setInput(display.name, input.name);
+    }
+
+    if (display.blanked) {
+      this.setBlank(display, false);
     }
   }
 
@@ -71,44 +65,35 @@ export class DisplayComponent implements OnInit {
   }
 
   public getInputForOutput(d: DisplayGroup) {
-    if (d.blanked == true) {
-      this.selectedInput = this.blank;
-    } else {
-      this.selectedInput = this.cg.inputs.find((i) => i.id === d.input)
-      if (this.selectedInput == undefined) {
-        this.selectedInput = this.blank;
-      }
-    }
-  }
-
-  public setBlank(d: DisplayGroup) {
-    if (!d.blanked) {
-      document.getElementById("input" + this.blank.id).classList.toggle("feedback");
-      this.roomRef.setBlanked(d.id, true);
-    }
+    this.selectedInput = d.inputs.find((i) => i.name === d.input)
+    console.log("input", this.selectedInput)
   }
 
   public getInputIcon(d: DisplayGroup) {
-    if (d.blanked == true) {
-      return this.blank.icon;
-    } else {
-      const input = this.cg.inputs.find((i) => i.id === d.input);
-      if (input == undefined) {
-        return "crop_landscape";
-      }
-      return input.icon;
+    const input = d.inputs.find((i) => i.name === d.input);
+    if (input == undefined || d.blanked) {
+      return "crop_landscape";
     }
+    return input.icon;
   }
 
   public getInputName(d: DisplayGroup) {
-    if (d.blanked == true) {
-      return this.blank.name;
+    if (d.blanked) {
+      return "Blank"
+    }
+    const input = d.inputs.find((i) => i.name === d.input);
+    if (input == undefined) {
+      return "unknown";
+    }
+    return input.name;
+  }
+
+  public setBlank(d: DisplayGroup, blanked: boolean) {
+    if (blanked) {
+      document.getElementById("blank").classList.toggle("feedback");
+      this.roomRef.setBlank(d.name, blanked);
     } else {
-      const input = this.cg.inputs.find((i) => i.id === d.input);
-      if (input == undefined) {
-        return "unknown";
-      }
-      return input.name;
+      this.roomRef.setBlank(d.name, blanked)
     }
   }
 }

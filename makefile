@@ -2,38 +2,42 @@ NAME := ui
 OWNER := byuoitav
 PKG := github.com/${OWNER}/${NAME}
 DOCKER_URL := docker.pkg.github.com
+DOCKER_PKG := ${DOCKER_URL}/${OWNER}/${NAME}
 
 # version:
 # use the git tag, if this commit
 # doesn't have a tag, use the git hash
 COMMIT_HASH := $(shell git rev-parse --short HEAD)
-VERSION := $(shell git rev-parse --short HEAD)
+TAG := $(shell git rev-parse --short HEAD)
 ifneq ($(shell git describe --exact-match --tags HEAD 2> /dev/null),)
-	VERSION = $(shell git describe --exact-match --tags HEAD)
+	TAG = $(shell git describe --exact-match --tags HEAD)
 endif
 
+PRD_TAG_REGEX := "v[0-9]+\.[0-9]+\.[0-9]+"
+DEV_TAG_REGEX := "v[0-9]+\.[0-9]+\.[0-9]+-.+"
+
 # go stuff
-PKG_LIST := $(shell cd backend && go list ${PKG}/...)
+PKG_LIST := $(shell go list ${PKG}/...)
 
 .PHONY: all deps build test test-cov clean
 
 all: clean build
 
 test:
-	@cd backend && go test -v ${PKG_LIST}
+	@go test -v ${PKG_LIST}
 
 test-cov:
-	@cd backend && go test -coverprofile=coverage.txt -covermode=atomic ${PKG_LIST}
+	@go test -coverprofile=coverage.txt -covermode=atomic ${PKG_LIST}
 
 lint:
-	@cd backend && golangci-lint run --tests=false
+	@golangci-lint run --tests=false
 
 deps:
 	@echo Downloading backend dependencies...
-	@cd backend && go mod download
+	@go mod download
 
-	@echo Downloading frontend dependencies for dragonfruit...
-	@cd frontend/dragonfruit && npm install
+	#@echo Downloading frontend dependencies for dragonfruit...
+	#@cd frontend/dragonfruit && npm install
 
 	@echo Downloading frontend dependencies for blueberry...
 	@cd frontend/blueberry && npm install
@@ -43,17 +47,18 @@ deps:
 
 build: deps
 	@mkdir -p dist
-	@echo
-	@echo Building backend for linux-amd64...
-	@cd backend && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o ../dist/${NAME}-linux-amd64 ${PKG}
 
 	@echo
-	@echo Building backend for linux-arm...
-	@cd backend && env CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -v -o ../dist/${NAME}-linux-arm ${PKG}
+	@echo Building ui for linux-amd64...
+	@cd cmd/ui && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o ../../dist/ui-linux-amd64
 
 	@echo
-	@echo Building dragonfruit...
-	@cd frontend/dragonfruit && npm run-script build && mv ./dist/dragonfruit ../../dist/ && rmdir ./dist
+	@echo Building ui for linux-arm...
+	@cd cmd/ui && env CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -v -o ../../dist/ui-linux-arm
+
+	#@echo
+	#@echo Building dragonfruit...
+	#@cd frontend/dragonfruit && npm run-script build && mv ./dist/dragonfruit ../../dist/ && rmdir ./dist
 
 	@echo
 	@echo Building blueberry...
@@ -67,42 +72,65 @@ build: deps
 	@echo Build output is located in ./dist/.
 
 docker: clean build
-ifneq (${COMMIT_HASH},${VERSION})
-	@echo Building container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}:${VERSION}
-	@docker build -f dockerfile --build-arg NAME=${NAME}-linux-amd64 -t ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}:${VERSION} dist
+ifeq (${COMMIT_HASH}, ${TAG})
+	@echo Building dev container with tag ${COMMIT_HASH}
 
-	@echo Building container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm:${VERSION}
-	@docker build -f dockerfile --build-arg NAME=${NAME}-linux-arm -t ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm:${VERSION} dist
-else
-	@echo Building container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-dev:${COMMIT_HASH}
-	@docker build -f dockerfile --build-arg NAME=${NAME}-linux-amd64 -t ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-dev:${COMMIT_HASH} dist
+	@echo Building container ${DOCKER_PKG}/ui-dev:${COMMIT_HASH}
+	@docker build -f dockerfile --build-arg NAME=ui-linux-amd64 -t ${DOCKER_PKG}/ui-dev:${COMMIT_HASH} dist
 
-	@echo Building container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm-dev:${COMMIT_HASH}
-	@docker build -f dockerfile --build-arg NAME=${NAME}-linux-arm -t ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm-dev:${COMMIT_HASH} dist
+	@echo Building container ${DOCKER_PKG}/ui-arm-dev:${COMMIT_HASH}
+	@docker build -f dockerfile --build-arg NAME=ui-linux-arm -t ${DOCKER_PKG}/ui-arm-dev:${COMMIT_HASH} dist
+else ifneq ($(shell echo ${TAG} | grep -x -E ${DEV_TAG_REGEX}),)
+	@echo Building dev container with tag ${TAG}
+
+	@echo Building container ${DOCKER_PKG}/ui-dev:${TAG}
+	@docker build -f dockerfile --build-arg NAME=ui-linux-amd64 -t ${DOCKER_PKG}/ui-dev:${TAG} dist
+
+	@echo Building container ${DOCKER_PKG}/ui-arm-dev:${TAG}
+	@docker build -f dockerfile --build-arg NAME=ui-linux-arm -t ${DOCKER_PKG}/ui-arm-dev:${TAG} dist
+else ifneq ($(shell echo ${TAG} | grep -x -E ${PRD_TAG_REGEX}),)
+	@echo Building prd container with tag ${TAG}
+
+	@echo Building container ${DOCKER_PKG}/ui:${TAG}
+	@docker build -f dockerfile --build-arg NAME=ui-linux-amd64 -t ${DOCKER_PKG}/ui:${TAG} dist
+
+	@echo Building container ${DOCKER_PKG}/ui-arm:${TAG}
+	@docker build -f dockerfile --build-arg NAME=ui-linux-arm -t ${DOCKER_PKG}/ui-arm:${TAG} dist
 endif
 
 deploy: docker
 	@echo Logging into Github Package Registry
 	@docker login ${DOCKER_URL} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
 
-# if the commit hash and release are different, this is a tagged build and we should build the tagged version
-ifneq (${COMMIT_HASH},${VERSION})
-	@echo Pushing container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}:${VERSION}
-	@docker push ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}:${VERSION}
+ifeq (${COMMIT_HASH}, ${TAG})
+	@echo Pushing dev container with tag ${COMMIT_HASH}
 
-	@echo Pushing container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm:${VERSION}
-	@docker push ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm:${VERSION}
-else
-	@echo Pushing container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-dev:${COMMIT_HASH}
-	@docker push ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-dev:${COMMIT_HASH}
+	@echo Pushing container ${DOCKER_PKG}/ui-dev:${COMMIT_HASH}
+	@docker push ${DOCKER_PKG}/ui-dev:${COMMIT_HASH}
 
-	@echo Pushing container ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm-dev:${COMMIT_HASH}
-	@docker push ${DOCKER_URL}/${OWNER}/${NAME}/${NAME}-arm-dev:${COMMIT_HASH}
+	@echo Pushing container ${DOCKER_PKG}/ui-arm-dev:${COMMIT_HASH}
+	@docker push ${DOCKER_PKG}/ui-arm-dev:${COMMIT_HASH}
+else ifneq ($(shell echo ${TAG} | grep -x -E ${DEV_TAG_REGEX}),)
+	@echo Pushing dev container with tag ${TAG}
+
+	@echo Pushing container ${DOCKER_PKG}/ui-dev:${TAG}
+	@docker push ${DOCKER_PKG}/ui-dev:${TAG}
+
+	@echo Pushing container ${DOCKER_PKG}/ui-arm-dev:${TAG}
+	@docker push ${DOCKER_PKG}/ui-arm-dev:${TAG}
+else ifneq ($(shell echo ${TAG} | grep -x -E ${PRD_TAG_REGEX}),)
+	@echo Pushing prd container with tag ${TAG}
+
+	@echo Pushing container ${DOCKER_PKG}/ui:${TAG}
+	@docker push ${DOCKER_PKG}/ui:${TAG}
+
+	@echo Pushing container ${DOCKER_PKG}/ui-arm:${TAG}
+	@docker push ${DOCKER_PKG}/ui-arm:${TAG}
 endif
 
 clean:
-	@cd backend && go clean
-	@cd frontend/dragonfruit && rm -rf dist node_modules
+	@go clean
+	#@cd frontend/dragonfruit && rm -rf dist node_modules
 	@cd frontend/blueberry && rm -rf dist node_modules
 	@cd frontend/cherry && rm -rf dist node_modules
 	@rm -rf dist/

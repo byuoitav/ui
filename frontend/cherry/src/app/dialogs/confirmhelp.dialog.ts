@@ -46,7 +46,7 @@ export class ConfirmHelpDialog {
     ) {}
     
     public confirmHelp() {
-      this.data.requestHelp(location.hostname + " needs help");
+      this.data.requestHelp(location.hostname + " confirm");
       this.dialogRef.close();
     }
 

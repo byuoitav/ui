@@ -10,7 +10,7 @@
         <div></div>
       </li>
       
-      <li *ngFor="let i of cg?.inputs" class="input-slice" [class.selected-input]="i?.id === cg?.displayGroups[0]?.input" (click)="setInput(i?.id)" (press)="setInput(i?.id)">
+      <li *ngFor="let i of cg?.displayGroups[0]?.inputs" class="input-slice" [class.selected-input]="i?.name === cg?.displayGroups[0]?.input" (click)="setInput(i?.name)" (press)="setInput(i?.name)">
         <div class="input" [style.top]="topoffset" [style.right]="rightoffset">
           <i class="material-icons">{{i?.icon}}</i>
           <span class="name">{{i?.name}}</span>
@@ -21,7 +21,7 @@
         <div class="line"></div>
       </li>
 
-      <li *ngFor="let i of cg?.inputs" class="thin">
+      <li *ngFor="let i of cg?.displayGroups[0]?.inputs" class="thin">
         <div class="line"></div>
       </li>
     </ul>

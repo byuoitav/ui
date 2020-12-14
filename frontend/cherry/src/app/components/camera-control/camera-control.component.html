@@ -1,0 +1,54 @@
+<mat-tab-group #tabs color="accent" class="mat-tab-label-darker">
+	<mat-tab *ngFor="let cam of cg?.cameras" [label]="cam?.name">
+		<div class="camera-container" (pointercancel)="panTiltStop(cam); zoomStop(cam)">
+			<!-- d pad on left -->
+			<div class="movement-container">
+				<div class="d-pad-container">
+					<nav class="d-pad">
+						<a class="up" (pointerdown)="tiltUp(cam)" (pointerup)="panTiltStop(cam)"></a>
+						<a class="right" (pointerdown)="panRight(cam)" (pointerup)="panTiltStop(cam)"></a>
+						<a class="down" (pointerdown)="tiltDown(cam)" (pointerup)="panTiltStop(cam)"></a>
+						<a class="left" (pointerdown)="panLeft(cam)" (pointerup)="panTiltStop(cam)"></a>
+					</nav>
+				</div>
+
+				<div *ngIf="code?.length < 1" class="zoom-without-code">
+					<button (pointerdown)="zoomOut(cam)" (pointerup)="zoomStop(cam)" mat-flat-button>
+						<mat-icon>zoom_out</mat-icon>
+					</button>
+					<button (pointerdown)="zoomIn(cam)" (pointerup)="zoomStop(cam)" mat-flat-button>
+						<mat-icon>zoom_in</mat-icon>
+					</button>
+				</div>
+
+				<div *ngIf="code?.length > 0" class="zoom-with-code">
+					<button (pointerdown)="zoomOut(cam)" (pointerup)="zoomStop(cam)" mat-flat-button>
+						<mat-icon>zoom_out</mat-icon>
+					</button>
+					<button (pointerdown)="zoomIn(cam)" (pointerup)="zoomStop(cam)" mat-flat-button>
+						<mat-icon>zoom_in</mat-icon>
+					</button>
+				</div>
+
+				<div *ngIf="code?.length > 0" class="code-text">For room control, go to cameras.av.byu.edu <br> Enter code: {{code}}</div>
+			</div>
+
+			<!-- presets on right -->
+			<div class="presets-container">
+				<h2>Presets</h2>
+
+				<mat-grid-list *ngIf="cam?.presets?.length == 1" class="presets" cols="1" rowHeight="fit">
+					<mat-grid-tile class="preset">
+						<button style="max-width: 115px" (pointerup)="selectPreset(cam, cam?.presets[0])" mat-flat-button>{{cam?.presets[0]}}</button>
+					</mat-grid-tile>
+				</mat-grid-list>
+
+				<mat-grid-list *ngIf="cam?.presets?.length > 1" class="presets" cols="2" rowHeight="fit">
+					<mat-grid-tile class="preset" *ngFor="let preset of cam?.presets">
+						<button (pointerup)="selectPreset(cam, preset)" mat-flat-button>{{preset}}</button>
+					</mat-grid-tile>
+				</mat-grid-list>
+			</div>
+		</div>
+	</mat-tab>
+</mat-tab-group>
