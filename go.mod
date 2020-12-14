@@ -3,7 +3,7 @@ module github.com/byuoitav/ui
 go 1.15
 
 require (
-	github.com/byuoitav/av-control-api v0.1.0
+	github.com/byuoitav/av-control-api v0.5.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-kivik/couchdb/v3 v3.2.1
 	github.com/go-kivik/kivik/v3 v3.2.0
@@ -13,5 +13,3 @@ require (
 	go.uber.org/zap v1.16.0
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
 )
-
-replace github.com/byuoitav/av-control-api => ../av-control-api

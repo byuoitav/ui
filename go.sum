@@ -3,6 +3,8 @@ cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/byuoitav/atlona v0.1.4/go.mod h1:nEjmVQBSMk8ouqjW8Amexo2vE2lJmimcy8dTsSGG+as=
+github.com/byuoitav/av-control-api v0.5.0 h1:3BehBcWJaxyJH9QEgVnTpH9YE7IJr+Zuqktb46nHlec=
+github.com/byuoitav/av-control-api v0.5.0/go.mod h1:vloXxUSE6/FVpjyptDY2+jtEn6mrI+ZqAf7gayDqgqs=
 github.com/byuoitav/central-event-system v0.0.0-20200121172633-64fd9d467249/go.mod h1:+KCvx75wISCCkCrgIWRdlJxRXlA2yxQvR4HHgU/TdpU=
 github.com/byuoitav/common v0.0.0-20191210190714-e9b411b3cc0d/go.mod h1:YTDTFEmez7HU3oyCIWjU3RfQ/P6v24LEzH5YUebph7I=
 github.com/byuoitav/common v0.0.0-20200521193927-1fdf4e0a4271/go.mod h1:YTDTFEmez7HU3oyCIWjU3RfQ/P6v24LEzH5YUebph7I=
