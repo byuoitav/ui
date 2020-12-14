@@ -88,6 +88,8 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 
+	r.NoRoute(handlers.ServeUI)
+
 	debug := r.Group("/debug")
 	debug.GET("/healthz", func(c *gin.Context) {
 		c.String(http.StatusOK, "healthy")
