@@ -1,8 +1,8 @@
-import { Component, OnInit, Input as AngularInput, Output, ɵConsole } from '@angular/core';
-import { MobileControlComponent } from "../../dialogs/mobilecontrol/mobilecontrol.component";
-import { MatDialog } from "@angular/material";
-import { RoomRef, BFFService } from '../../../services/bff.service';
-import { ControlGroup, DisplayGroup, Input, Room } from '../../../../../objects/control';
+import {Component, OnInit, Input as AngularInput, Output, ɵConsole} from '@angular/core';
+import {MobileControlComponent} from "../../dialogs/mobilecontrol/mobilecontrol.component";
+import {MatDialog} from "@angular/material";
+import {RoomRef, BFFService} from '../../../services/bff.service';
+import {ControlGroup, DisplayGroup, Input, Room} from '../../../../../objects/control';
 
 
 
@@ -21,17 +21,22 @@ export class DisplayComponent implements OnInit {
   // blanked: boolean;
   constructor(
     private dialog: MatDialog
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.roomRef.subject().subscribe((r) => {
       if (r) {
         this.cg = r.controlGroups[r.selectedControlGroup];
-        if (this.cg.displayGroups.length > 0) {
-          if (this.selectedOutput == undefined) {
+
+        if (this.selectedOutput == undefined) {
+          if (this.cg && this.cg.displayGroups && this.cg.displayGroups.length > 0) {
             this.selectedOutput = 0;
           }
-          this.selectedInput = this.cg.displayGroups[this.selectedOutput].inputs.find((input) => input.name === this.cg.displayGroups[this.selectedOutput].input)
+        }
+
+        const ele = document.getElementById("blank")
+        if (ele) {
+          ele.classList.remove("feedback");
         }
       }
     })
@@ -44,7 +49,6 @@ export class DisplayComponent implements OnInit {
     }
 
     if (display.blanked) {
-      document.getElementById("input" + input.name).classList.toggle("feedback");
       this.setBlank(display, false);
     }
   }
@@ -88,9 +92,6 @@ export class DisplayComponent implements OnInit {
     if (blanked) {
       document.getElementById("blank").classList.toggle("feedback");
       this.roomRef.setBlank(d.name, blanked);
-      setTimeout(() => {
-        console.log(this.cg.displayGroups[this.selectedOutput].blanked)
-      }, 2000);
     } else {
       this.roomRef.setBlank(d.name, blanked)
     }
