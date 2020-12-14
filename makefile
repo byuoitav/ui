@@ -36,8 +36,8 @@ deps:
 	@echo Downloading backend dependencies...
 	@go mod download
 
-	@echo Downloading frontend dependencies for dragonfruit...
-	@cd frontend/dragonfruit && npm install
+	#@echo Downloading frontend dependencies for dragonfruit...
+	#@cd frontend/dragonfruit && npm install
 
 	@echo Downloading frontend dependencies for blueberry...
 	@cd frontend/blueberry && npm install
@@ -56,9 +56,9 @@ build: deps
 	@echo Building ui for linux-arm...
 	@cd cmd/ui && env CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -v -o ../../dist/ui-linux-arm
 
-	@echo
-	@echo Building dragonfruit...
-	@cd frontend/dragonfruit && npm run-script build && mv ./dist/dragonfruit ../../dist/ && rmdir ./dist
+	#@echo
+	#@echo Building dragonfruit...
+	#@cd frontend/dragonfruit && npm run-script build && mv ./dist/dragonfruit ../../dist/ && rmdir ./dist
 
 	@echo
 	@echo Building blueberry...
@@ -130,7 +130,7 @@ endif
 
 clean:
 	@go clean
-	@cd frontend/dragonfruit && rm -rf dist node_modules
+	#@cd frontend/dragonfruit && rm -rf dist node_modules
 	@cd frontend/blueberry && rm -rf dist node_modules
 	@cd frontend/cherry && rm -rf dist node_modules
 	@rm -rf dist/
