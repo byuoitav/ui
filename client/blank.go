@@ -54,7 +54,8 @@ func (c *client) setBlank(data []byte) {
 		// some error
 		return
 	}
-	c.doStateTransition(ctx, nil, stateControls...)
+
+	_ = c.doStateTransition(ctx, nil, stateControls...)
 }
 
 func (c *client) getDisplayConfig(disp string) (ui.DisplayConfig, bool) {

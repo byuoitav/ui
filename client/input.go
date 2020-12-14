@@ -51,7 +51,7 @@ func (c *client) setInput(data []byte) {
 		return
 	}
 
-	c.doStateTransition(ctx, nil, stateControls...)
+	_ = c.doStateTransition(ctx, nil, stateControls...)
 
 	/*
 		// ugh. what should the device be for this

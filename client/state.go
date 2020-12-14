@@ -284,20 +284,6 @@ func (c *client) getVolume(states ...string) int {
 	return avg
 }
 
-func fillVolumeRequest(req avcontrol.StateRequest, vol int) avcontrol.StateRequest {
-	for _, rDev := range req.Devices {
-		for block, rDevVol := range rDev.Volumes {
-			if rDevVol != -1 {
-				continue
-			}
-
-			rDev.Volumes[block] = vol
-		}
-	}
-
-	return req
-}
-
 // stringMatches returns true if:
 // - a is nil
 // - a is not nil, b is not nil, and their values are the same

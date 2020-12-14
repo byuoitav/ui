@@ -29,9 +29,9 @@ func (c *client) setPower(data []byte) {
 	}
 
 	if !msg.On {
-		c.doStateTransition(ctx, nil, cg.PowerOff)
+		_ = c.doStateTransition(ctx, nil, cg.PowerOff)
 		return
 	}
 
-	c.doStateTransition(ctx, nil, cg.PowerOn)
+	_ = c.doStateTransition(ctx, nil, cg.PowerOn)
 }
