@@ -21,7 +21,8 @@
                             [audioDevice]="a"
                             [roomRef]="roomRef"
                             [level]="a?.level"
-                            (levelChange)="roomRef.setVolume($event, i.name, a?.name)">
+                            (levelChange)="roomRef.setVolume($event, i?.name, a?.name);
+                             roomRef.buttonPress('volume level set on ' + i?.name, i?.level)">
                         >
                         </volume>
                     </div>
@@ -47,7 +48,8 @@
                                     [audioDevice]="a"
                                     [roomRef]="roomRef"
                                     [level]="a?.level"
-                                    (levelChange)="roomRef.setVolume($event, i.name, a?.name)">
+                                    (levelChange)="roomRef.setVolume($event, i?.name, a?.name);
+                                    roomRef.buttonPress('volume level set on ' + i?.name, i?.level)">
                                 </volume>
                             </div>
                             <div

@@ -3,7 +3,12 @@
 		<button mat-button class="output mat-elevation-z15"
 			[color]="cg?.displayGroups[selectedOutput] == d ? 'accent' : ''"
 			[class.mat-raised-button]="cg?.displayGroups[selectedOutput] == d"
-			(click)="selectedOutput = i; getInputForOutput(d);" (press)="selectedOutput = i; getInputForOutput(d);">
+            (click)="selectedOutput = i;
+             getInputForOutput(d);
+             roomRef.buttonPress('selected display', d?.name);" 
+            (press)="selectedOutput = i;
+             getInputForOutput(d);
+             roomRef.buttonPress('long press selected display', d?.name)">
 			<span>{{ d?.displays[0]?.name }}</span>
 
 			<div class="icon">
@@ -27,8 +32,10 @@
 	<button mat-button class="input mat-elevation-z7"
 		[class.selected]="cg?.displayGroups[selectedOutput]?.blanked == true" id="blank"
 		[class.mat-raised-button]="cg?.displayGroups[selectedOutput]?.blanked == true"
-		(click)="setBlank(cg?.displayGroups[selectedOutput], true)"
-		(press)="setBlank(cg?.displayGroups[selectedOutput], true)">
+        (click)="setBlank(cg?.displayGroups[selectedOutput], true);
+         roomRef.buttonPress('selected blank', 'blank')"
+        (press)="setBlank(cg?.displayGroups[selectedOutput], true);
+         roomRef.buttonPress('long press selected blank', 'blank')">
 		<div class="icon">
 			<i class="material-icons">crop_landscape</i>
 			<span>Blank</span>
@@ -40,8 +47,10 @@
 			[class.selected]="cg?.displayGroups[selectedOutput]?.input == i.name && !cg?.displayGroups[selectedOutput]?.blanked"
 			[id]="'input' + i.name"
 			[class.mat-raised-button]="cg?.displayGroups[selectedOutput].input == i && !cg?.displayGroups[selectedOutput]?.blanked"
-			(click)="changeInput(cg?.displayGroups[selectedOutput], i)"
-			(press)="changeInput(cg?.displayGroups[selectedOutput], i)">
+            (click)="changeInput(cg?.displayGroups[selectedOutput], i);
+             roomRef.buttonPress('selected input', i?.name)"
+            (press)="changeInput(cg?.displayGroups[selectedOutput], i);
+             roomRef.buttonPress('long press selected input', i?.name)">
 			<div class="icon">
 				<i class="material-icons">{{ i?.icon }}</i>
 				<span>{{ i?.name }}</span>
@@ -53,7 +62,10 @@
 <div class="volume-label">Master Display Volume</div>
 <div class="volume">
 	<volume [roomRef]="roomRef" [audioGroupName]="'MediaAudio'" [level]="cg?.mediaAudio?.level"
-		(muteChange)="roomRef.setMuted($event)" (levelChange)="roomRef.setVolume($event)"></volume>
+        (muteChange)="roomRef.setMuted($event);
+         roomRef.buttonPress('master volume mute', roomRef?.mediaAudio?.muted)"
+        (levelChange)="roomRef.setVolume($event);
+         roomRef.buttonPress('master volume change', roomRef?.mediaAudio?.level)"></volume>
 </div>
 
 <!-- <mat-progress-bar *ngIf="command.commandInProgress" [mode]="'indeterminate'" color="primary" class="mpb"></mat-progress-bar> -->

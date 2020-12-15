@@ -38,6 +38,7 @@ func main() {
 		lazaretteAddr     string
 		lazaretteSSL      bool
 		dataServiceConfig dataServiceConfig
+		cachePath         string
 	)
 
 	pflag.IntVarP(&port, "port", "P", 8080, "port to run the server on")
@@ -52,6 +53,7 @@ func main() {
 	pflag.StringVar(&dataServiceConfig.Addr, "db-address", "", "database address")
 	pflag.StringVar(&dataServiceConfig.Username, "db-username", "", "database username")
 	pflag.StringVar(&dataServiceConfig.Password, "db-password", "", "database password")
+	pflag.StringVar(&cachePath, "cache-path", "", "path to file for couch caching")
 	pflag.Parse()
 
 	// ctx for setup
@@ -61,7 +63,7 @@ func main() {
 	config, log := logger(logLevel)
 	defer log.Sync() // nolint:errcheck
 
-	ds := dataService(ctx, dataServiceConfig)
+	ds := dataService(ctx, dataServiceConfig, cachePath)
 
 	handlers := &handlers{
 		roomID:      roomID,

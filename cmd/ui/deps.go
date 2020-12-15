@@ -5,12 +5,13 @@ import (
 	"fmt"
 
 	"github.com/byuoitav/ui"
+	"github.com/byuoitav/ui/cache"
 	"github.com/byuoitav/ui/couch"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-func dataService(ctx context.Context, config dataServiceConfig) ui.DataService {
+func dataService(ctx context.Context, config dataServiceConfig, cachePath string) ui.DataService {
 	var opts []couch.Option
 
 	if len(config.Username) > 0 {
@@ -20,6 +21,13 @@ func dataService(ctx context.Context, config dataServiceConfig) ui.DataService {
 	ds, err := couch.New(ctx, config.Addr, opts...)
 	if err != nil {
 		panic(fmt.Sprintf("unable to setup couch: %s", err))
+	}
+
+	cachedDS, _ := cache.New(ds, cachePath)
+	// we can maybe do something if it doesn't work but I don't think it needs to panic so idk what
+
+	if cachedDS != nil {
+		return cachedDS
 	}
 
 	return ds

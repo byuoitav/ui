@@ -49,6 +49,7 @@ func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client
 		"zoomStop":    client.zoomStop,
 		"setPreset":   client.setPreset,
 		"helpRequest": client.helpRequest,
+		"event":       client.event,
 	}
 
 	// get initial state
