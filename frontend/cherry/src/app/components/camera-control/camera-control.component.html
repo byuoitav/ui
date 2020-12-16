@@ -5,27 +5,43 @@
 			<div class="movement-container">
 				<div class="d-pad-container">
 					<nav class="d-pad">
-						<a class="up" (pointerdown)="tiltUp(cam)" (pointerup)="panTiltStop(cam)"></a>
-						<a class="right" (pointerdown)="panRight(cam)" (pointerup)="panTiltStop(cam)"></a>
-						<a class="down" (pointerdown)="tiltDown(cam)" (pointerup)="panTiltStop(cam)"></a>
-						<a class="left" (pointerdown)="panLeft(cam)" (pointerup)="panTiltStop(cam)"></a>
+						<a class="up"
+						 (pointerdown)="tiltUp(cam); roomRef.buttonPress('cam tilt up', cam?.name);" 
+						 (pointerup)="panTiltStop(cam)"></a>
+						<a class="right" 
+						 (pointerdown)="panRight(cam); roomRef.buttonPress('cam pan right', cam?.name);"
+						 (pointerup)="panTiltStop(cam)"></a>
+						<a class="down"
+						 (pointerdown)="tiltDown(cam); roomRef.buttonPress('cam tilt down', cam?.name);"
+						 (pointerup)="panTiltStop(cam)"></a>
+						<a class="left"
+						 (pointerdown)="panLeft(cam); roomRef.buttonPress('cam pan left', cam?.name);"
+						 (pointerup)="panTiltStop(cam)"></a>
 					</nav>
 				</div>
 
 				<div *ngIf="code?.length < 1" class="zoom-without-code">
-					<button (pointerdown)="zoomOut(cam)" (pointerup)="zoomStop(cam)" mat-flat-button>
+					<button 
+					 (pointerdown)="zoomOut(cam); roomRef.buttonPress('cam zoom out', cam?.name);"
+					 (pointerup)="zoomStop(cam)" mat-flat-button>
 						<mat-icon>zoom_out</mat-icon>
 					</button>
-					<button (pointerdown)="zoomIn(cam)" (pointerup)="zoomStop(cam)" mat-flat-button>
+					<button
+					 (pointerdown)="zoomIn(cam); roomRef.buttonPress('cam zoom in', cam?.name);"
+					 (pointerup)="zoomStop(cam)" mat-flat-button>
 						<mat-icon>zoom_in</mat-icon>
 					</button>
 				</div>
 
 				<div *ngIf="code?.length > 0" class="zoom-with-code">
-					<button (pointerdown)="zoomOut(cam)" (pointerup)="zoomStop(cam)" mat-flat-button>
+					<button
+					 (pointerdown)="zoomOut(cam); roomRef.buttonPress('cam zoom out', cam?.name);"
+					 (pointerup)="zoomStop(cam)" mat-flat-button>
 						<mat-icon>zoom_out</mat-icon>
 					</button>
-					<button (pointerdown)="zoomIn(cam)" (pointerup)="zoomStop(cam)" mat-flat-button>
+					<button
+					 (pointerdown)="zoomIn(cam); roomRef.buttonPress('cam zoom in', cam?.name);"
+					 (pointerup)="zoomStop(cam)" mat-flat-button>
 						<mat-icon>zoom_in</mat-icon>
 					</button>
 				</div>
@@ -39,13 +55,18 @@
 
 				<mat-grid-list *ngIf="cam?.presets?.length == 1" class="presets" cols="1" rowHeight="fit">
 					<mat-grid-tile class="preset">
-						<button style="max-width: 115px" (pointerup)="selectPreset(cam, cam?.presets[0])" mat-flat-button>{{cam?.presets[0]}}</button>
+						<button style="max-width: 115px"
+						 (pointerup)="selectPreset(cam, cam?.presets[0]); roomRef.buttonPress('preset selected', cam?.presets[0]);" mat-flat-button>
+							{{cam?.presets[0]}}
+						</button>
 					</mat-grid-tile>
 				</mat-grid-list>
 
 				<mat-grid-list *ngIf="cam?.presets?.length > 1" class="presets" cols="2" rowHeight="fit">
 					<mat-grid-tile class="preset" *ngFor="let preset of cam?.presets">
-						<button (pointerup)="selectPreset(cam, preset)" mat-flat-button>{{preset}}</button>
+						<button (pointerup)="selectPreset(cam, preset); roomRef.buttonPress('preset selected', preset);" mat-flat-button>
+							{{preset}}
+						</button>
 					</mat-grid-tile>
 				</mat-grid-list>
 			</div>

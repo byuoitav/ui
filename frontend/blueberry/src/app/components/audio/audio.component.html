@@ -3,8 +3,8 @@
         <button
         color="warn"
         class="exit"
-        (click)="hide()"
-        (press)="hide()"
+        (click)="hide(); bff?.roomRef?.buttonPress('closing audio control');"
+        (press)="hide(); bff?.roomRef?.buttonPress('long press closing audio control');"
         mat-button
       >
         <mat-icon>keyboard_backspace</mat-icon>
@@ -25,7 +25,9 @@
                                 <div class="mixers">
                                     <div class="sliders single-page">
                                         <div *ngFor="let a of ag?.audioDevices; let i = index" [id]="ag?.name + i" class="slider-container">
-                                            <volume class="slider" [level]="a?.level" [mute]="a?.muted" [name]="a?.name" (levelChange)="bff.roomRef.setVolume($event, ag?.name, a?.name)" (muteChange)="bff.roomRef.setMuted($event, ag?.name, a?.name)"></volume>
+                                            <volume class="slider" [level]="a?.level" [mute]="a?.muted" [name]="a?.name"
+                                              (levelChange)="bff.roomRef.setVolume($event, ag?.name, a?.name); bff?.roomRef?.buttonPress('volume level set on ' + a?.name, a?.level);"
+                                              (muteChange)="bff.roomRef.setMuted($event, ag?.name, a?.name); bff?.roomRef?.buttonPress('mute set on ' + a?.name + ' to', String(!a?.muted));"></volume>
                                         </div>
                                     </div>
                                 </div>
@@ -58,8 +60,8 @@
                                   [level]="a?.volume"
                                   [mute]="a?.muted"
                                   [name]="a?.name"
-                                  (levelChange)="bff.roomRef.setVolume($event, ag?.name, a?.name)"
-                                  (muteChange)="bff.roomRef.setMuted($event, ag?.name, a?.name)"
+                                  (levelChange)="bff.roomRef.setVolume($event, ag?.name, a?.name); bff?.roomRef?.buttonPress('volume level set on ' + a?.name, a?.level);"
+                                  (muteChange)="bff.roomRef.setMuted($event, ag?.name, a?.name); bff?.roomRef?.buttonPress('mute set on ' + a?.name + ' to', String(!a?.muted));"
                                 >
                                 </volume>
                               </div>
@@ -122,8 +124,8 @@
                                       [level]="a?.level" 
                                       [mute]="a?.muted" 
                                       [name]="a?.name"
-                                      (levelChange)="bff.roomRef.setVolume($event, cg?.audioGroups[0]?.name, a?.name)"
-                                      (muteChange)="bff.roomRef.setMuted($event, cg?.audioGroups[0]?.name, a?.name)"></volume>
+                                      (levelChange)="bff.roomRef.setVolume($event, cg?.audioGroups[0]?.name, a?.name); bff?.roomRef?.buttonPress('volume level set on ' + a?.name, a?.level);"
+                                      (muteChange)="bff.roomRef.setMuted($event, cg?.audioGroups[0]?.name, a?.name); bff?.roomRef?.buttonPress('mute set on ' + a?.name + ' to', String(!a?.muted));"></volume>
                                 </div>
                             </div>
                         </div>
@@ -155,8 +157,8 @@
                           [level]="a?.volume"
                           [mute]="a?.muted"
                           [name]="a?.name"
-                          (levelChange)="bff.roomRef.setVolume($event, cg?.audioGroups[0]?.name, a?.name)"
-                          (muteChange)="bff.roomRef.setMuted($event, cg?.audioGroups[0]?.name, a?.name)"
+                          (levelChange)="bff.roomRef.setVolume($event, cg?.audioGroups[0]?.name, a?.name); bff?.roomRef?.buttonPress('volume level set on ' + a?.name, a?.level);"
+                          (muteChange)="bff.roomRef.setMuted($event, cg?.audioGroups[0]?.name, a?.name); bff?.roomRef?.buttonPress('mute set on ' + a?.name + ' to', String(!a?.muted));"
                         >
                         </volume>
                       </div>

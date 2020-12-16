@@ -13,8 +13,8 @@
           <div class="text">
             <button mat-stroked-button
               class="lock-screen-button start-button"
-              (click)="togglePower()"
-              (press)="togglePower()"
+              (click)="togglePower(); roomRef.buttonPress('power on');"
+              (press)="togglePower(); roomRef.buttonPress('long press power on');"
             >
               Start
             </button>
@@ -25,8 +25,8 @@
             <ng-container *ngIf="cg?.screens?.length > 0">
               <button mat-stroked-button
                 class="lock-screen-button screen-button"
-                (click)="screen.show()"
-                (press)="screen.show()"
+                (click)="screen.show(); roomRef.buttonPress('screen control');"
+                (press)="screen.show(); roomRef.buttonPress('long press screen control');"
               >
                 <mat-icon class="screen-control-icon">unfold_more</mat-icon>
                 <div class="button-text">Screen Control</div>
@@ -38,8 +38,8 @@
             <ng-container *ngIf="cg?.controlInfo?.key != undefined">
               <button mat-stroked-button
                 class="lock-screen-button mobile-control"
-                (click)="openMobileControlDialog()"
-                (press)="openMobileControlDialog()"
+                (click)="openMobileControlDialog(); roomRef.buttonPress('mobile control');"
+                (press)="openMobileControlDialog(); roomRef.buttonPress('long press mobile control');"
               >
                 <mat-icon class="screen-control-icon">phone_iphone</mat-icon>
                 <div class="button-text">Key: {{ cg?.controlInfo?.key }}</div>
@@ -51,8 +51,8 @@
               <ng-container *ngIf="cg?.audioGroups?.length > 1 || cg?.audioGroups[0]?.name != 'Display Volume Mixing'">
                 <button mat-stroked-button
                   class="lock-screen-button audio-button"
-                  (click)="audio.show(roomRef)"
-                  (press)="audio.show(roomRef)"
+                  (click)="audio.show(roomRef); roomRef.buttonPress('audio control');"
+                  (press)="audio.show(roomRef); roomRef.buttonPress('long press audio control');"
                 >
                   <mat-icon class="rotate-90">tune</mat-icon>
                   <div class="button-text">Audio Control</div>
@@ -69,8 +69,8 @@
     <button mat-raised-button
       class="power"
       color="warn"
-      (click)="togglePower()"
-      (press)="togglePower()"
+      (click)="togglePower(); roomRef.buttonPress('power off');"
+      (press)="togglePower(); roomRef.buttonPress('long press power off');"
     >
       Power Off
     </button>
@@ -79,14 +79,15 @@
       <button mat-raised-button
         class="help"
         color="accent"
-        (click)="openHelpDialog()"
-        (press)="openHelpDialog()"
+        (click)="openHelpDialog(); roomRef.buttonPress('open help request dialog');"
+        (press)="openHelpDialog(); roomRef.buttonPress('long press open help request dialog');"
       >
         Help
       </button>
     </div>
 
-    <mat-tab-group backgroundColor="primary" color="accent" [(selectedIndex)]="selectedTabIndex">
+    <mat-tab-group backgroundColor="primary" color="accent" [(selectedIndex)]="selectedTabIndex"
+      (selectedTabChange)="roomRef.buttonPress('tab changed to ' + $event.tab.textLabel);">
       <ng-container *ngIf="cg?.displayGroups.length > 0">
         <mat-tab label="Display">
           <display [roomRef]="roomRef"></display>

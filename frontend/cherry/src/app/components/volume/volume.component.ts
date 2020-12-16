@@ -61,9 +61,11 @@ export class VolumeComponent implements OnInit {
 
   toggleMute() {
     if (this.audioGroupName == "MediaAudio") {
-      this.roomRef.setMuted(!this.mute)
+      this.roomRef.setMuted(!this.mute);
+      this.roomRef.buttonPress("master mute set to", String(!this.cg.mediaAudio.muted));
     } else {
       this.roomRef.setMuted(!this.mute, this.audioGroupName, this.audioDevice.name)
+      this.roomRef.buttonPress("mute set on " + this.audioDevice.name + " to", String(!this.audioDevice.muted))
     }
   }
 
@@ -72,4 +74,6 @@ export class VolumeComponent implements OnInit {
       this.slider._elementRef.nativeElement.blur();
     }, 2000);
   }
+
+  
 }

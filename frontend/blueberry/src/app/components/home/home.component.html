@@ -2,14 +2,14 @@
 <app-projector #screen class="hidden-page"></app-projector>
 
 <div class="buttons top">
-    <button mat-fab class="power button" (click)="turnOff()"><mat-icon>power_settings_new</mat-icon></button>
-    <button mat-fab class="help button" (click)="openHelp()"><mat-icon>help</mat-icon></button>
+    <button mat-fab class="power button" (click)="turnOff(); roomRef?.buttonPress('powering off');"><mat-icon>power_settings_new</mat-icon></button>
+    <button mat-fab class="help button" (click)="openHelp(); roomRef?.buttonPress('opening help dialog');"><mat-icon>help</mat-icon></button>
     <div *ngIf="cg?.controlInfo?.key" class="control-key-button">
         <button
         mat-button
         disableRipple
         class="control-key-info"
-        (click)="openMobileControl()"
+        (click)="openMobileControl(); roomRef?.buttonPress('opening mobile control dialog');"
       >
       {{cg.controlInfo.url}}<br/>
       Key: {{cg.controlInfo.key}}
@@ -23,21 +23,27 @@
 
 
 <div class="buttons bottom">
-  <button mat-fab class="dta button" (click)="openSharing()" *ngIf="canShare()">
+  <button mat-fab class="dta button" (click)="openSharing(); roomRef?.buttonPress('open share dialog');" *ngIf="canShare()">
     <mat-icon>screen_share</mat-icon>
   </button>
 
-  <button mat-fab class="dta button" (click)="stopSharing()" *ngIf="currentlySharing()">
+  <button mat-fab class="dta button" (click)="stopSharing()" *ngIf="currentlySharing(); roomRef?.buttonPress('unshare');">
     <mat-icon>stop_screen_share</mat-icon>
   </button>
 
-  <button mat-fab class="dta button" (click)="screen.show(cg)" (press)="screen.show(cg)" *ngIf="hasScreens()">
+  <button mat-fab class="dta button" *ngIf="hasScreens()"
+    (click)="screen.show(cg); roomRef?.buttonPress('open screen dialog');"
+    (press)="screen.show(cg); roomRef?.buttonPress('long press open screen dialog');"
+  >
     <mat-icon>unfold_more</mat-icon>
   </button>
 </div>
 
 <div class="buttons bottom right">
-  <button *ngIf="cg?.audioGroups" mat-fab class="independentAudio button" (click)="audio.show(cg)" (press)="audio.show(cg)">
+  <button *ngIf="cg?.audioGroups" mat-fab class="independentAudio button"
+    (click)="audio.show(cg); roomRef?.buttonPress('open audio dialog');"
+    (press)="audio.show(cg); roomRef?.buttonPress('long press open audio dialog');"
+  >
     <mat-icon class="rotate-90">tune</mat-icon>
   </button>
 </div>

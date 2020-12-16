@@ -196,6 +196,17 @@ export class RoomRef {
     this.loading = true;
     this._ws.send(JSON.stringify(kv));
   }
+
+  buttonPress = (key: string, value?: string) => {    
+    const kv = {
+      event: {
+        key: key,
+        value: value
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv));
+  }
 }
 
 @Injectable({

@@ -10,7 +10,9 @@
         <div></div>
       </li>
       
-      <li *ngFor="let i of cg?.displayGroups[0]?.inputs" class="input-slice" [class.selected-input]="i?.name === cg?.displayGroups[0]?.input" (click)="setInput(i?.name)" (press)="setInput(i?.name)">
+      <li *ngFor="let i of cg?.displayGroups[0]?.inputs" class="input-slice" [class.selected-input]="i?.name === cg?.displayGroups[0]?.input"
+        (click)="setInput(i?.name); roomRef?.buttonPress('setting input', i?.name);"
+        (press)="setInput(i?.name); roomRef?.buttonPress('long press setting input', i?.name);">
         <div class="input" [style.top]="topoffset" [style.right]="rightoffset">
           <i class="material-icons">{{i?.icon}}</i>
           <span class="name">{{i?.name}}</span>
@@ -33,25 +35,32 @@
       <i class="center-item material-icons icon" [class.open]="circleOpen">{{cg?.displayGroups[0]?.displays[0]?.icon}}</i>
 
       <span
-      *ngIf="!cg?.displayGroups[0]?.blanked"
-      class="center-item picture"
-      [class.open]="circleOpen"
-      >picture on</span
-    >
-    <span
-      *ngIf="cg?.displayGroups[0]?.blanked"
-      class="center-item picture"
-      [class.open]="circleOpen"
-      >picture off</span
-    >
-    <div
-      class="center-item switch"
-      [class.open]="circleOpen"
-      (click)="$event.stopPropagation()"
-      (press)="$event.stopPropagation()"
-    >
-      <mat-slide-toggle class="switch" (click)="switchBlanked()" (press)="switchBlanked()" [disableRipple]=true [checked]="cg?.displayGroups[0]?.blanked" color="warn"></mat-slide-toggle>
-    </div>
+        *ngIf="!cg?.displayGroups[0]?.blanked"
+        class="center-item picture"
+        [class.open]="circleOpen"
+        >picture on</span
+      >
+      <span
+        *ngIf="cg?.displayGroups[0]?.blanked"
+        class="center-item picture"
+        [class.open]="circleOpen"
+        >picture off</span
+      >
+      <div
+        class="center-item switch"
+        [class.open]="circleOpen"
+        (click)="$event.stopPropagation()"
+        (press)="$event.stopPropagation()"
+      >
+        <mat-slide-toggle class="switch"
+          (click)="switchBlanked(); roomRef?.buttonPress('setting blank to ', !cg.displayGroups[0]?.blanked);"
+          (press)="switchBlanked(); roomRef?.buttonPress('long press setting blank to ' !cg.displayGroups[0]?.blanked);"
+          [disableRipple]=true
+          [checked]="cg?.displayGroups[0]?.blanked"
+          color="warn"
+        >
+        </mat-slide-toggle>
+      </div>
     </div>
   </div>
 </div>
@@ -63,8 +72,8 @@
   [level]="cg?.mediaAudio?.level"
   name="Display Volume"
   [mute]="cg?.mediaAudio?.muted"
-  (levelChange)="setVolume($event)"
-  (muteChange)="setMute($event)"
+  (levelChange)="setVolume($event); roomRef?.buttonPress('master volume set to ', String($event));"
+  (muteChange)="setMute($event); roomRef?.buttonPress('master mute set to ', String($event)"
 >
 </volume>
 

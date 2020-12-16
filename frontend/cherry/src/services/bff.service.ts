@@ -1,7 +1,7 @@
 import { Injectable, EventEmitter } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { BehaviorSubject, Observable, throwError } from "rxjs";
-import { Router, Event, ActivationEnd } from "@angular/router";
+import { Router, ActivationEnd } from "@angular/router";
 import { MatDialog } from "@angular/material";
 
 import {
@@ -260,6 +260,17 @@ export class RoomRef {
     }
 
     this._ws.send(JSON.stringify(kv))
+  }
+
+  buttonPress = (key: string, value?: string) => {    
+    const kv = {
+      event: {
+        key: key,
+        value: value
+      }
+    }
+
+    this._ws.send(JSON.stringify(kv));
   }
 }
 

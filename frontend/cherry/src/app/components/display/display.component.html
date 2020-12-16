@@ -63,7 +63,7 @@
 <div class="volume">
 	<volume [roomRef]="roomRef" [audioGroupName]="'MediaAudio'" [level]="cg?.mediaAudio?.level"
         (muteChange)="roomRef.setMuted($event);
-         roomRef.buttonPress('master volume mute', roomRef?.mediaAudio?.muted)"
+         roomRef.buttonPress('master mute set', roomRef?.mediaAudio?.muted)"
         (levelChange)="roomRef.setVolume($event);
          roomRef.buttonPress('master volume change', roomRef?.mediaAudio?.level)"></volume>
 </div>

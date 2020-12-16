@@ -27,8 +27,10 @@
                         [audioGroupName]="i?.name"
                         [audioDevice]="a"
                         [level]="a?.level"
-                        (levelChange)="roomRef.setVolume($event, i.name, a?.name)"
-                        (muteChange)="roomRef.setMuted($event, i.name, a?.name)"
+                        (levelChange)="roomRef.setVolume($event, i.name, a?.name);
+                         roomRef.buttonPress('volume level set on ' + i?.name, i?.level);"
+                        (muteChange)="roomRef.setMuted($event, i.name, a?.name);
+                         roomRef.buttonPress('mute set on ' + i?.name, i?.muted);"
                     >
                     </volume>
                 </div>
@@ -54,8 +56,10 @@
                                 [audioGroupName]="i?.name"
                                 [audioDevice]="a"
                                 [level]="a?.level"
-                                (levelChange)="roomRef.setVolume($event, i.name, a?.name)"
-                                (muteChange)="roomRef.setMuted($event, i.name, a?.name)"
+                                (levelChange)="roomRef.setVolume($event, i.name, a?.name);
+                                 roomRef.buttonPress('volume level set on ' + i?.name, i?.level);"
+                                (muteChange)="roomRef.setMuted($event, i.name, a?.name);
+                                 roomRef.buttonPress('muted set on ' + i?.name, i?.muted);"
                             >
                             </volume>
                         </div>
