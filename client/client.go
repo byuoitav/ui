@@ -68,6 +68,8 @@ func (c *client) Room() Room {
 		SelectedControlGroup: c.controlGroupID,
 	}
 
+	states := c.curStates(false)
+
 	for cgName, cg := range c.config.ControlGroups {
 		group := ControlGroup{
 			Name: cgName,
@@ -76,7 +78,7 @@ func (c *client) Room() Room {
 				HelpMessage:   "Request Help",
 				HelpEnabled:   true,
 			},
-			PoweredOn: !c.doesStateMatch(cg.PowerOff.MatchStates...),
+			PoweredOn: !c.matchStates(states, cg.PowerOff.MatchStates),
 		}
 
 		// build each display group
@@ -84,7 +86,7 @@ func (c *client) Room() Room {
 		for _, disp := range cg.Displays {
 			display := DisplayGroup{
 				Name:    disp.Name,
-				Blanked: c.doesStateMatch(disp.Blank.MatchStates...),
+				Blanked: c.matchStates(states, disp.Blank.MatchStates),
 				Displays: []IconPair{
 					{
 						Name: disp.Name,
@@ -104,7 +106,7 @@ func (c *client) Room() Room {
 
 				var curInput bool
 				if display.Input == "" {
-					curInput = c.doesStateMatch(source.MatchStates...)
+					curInput = c.matchStates(states, source.MatchStates)
 					if curInput {
 						display.Input = source.Name
 					}
@@ -119,8 +121,8 @@ func (c *client) Room() Room {
 		}
 
 		// build media audio info
-		group.MediaAudio.Level = c.getVolume(cg.MediaAudio.Volume.MatchStates...)
-		group.MediaAudio.Muted = c.doesStateMatch(cg.MediaAudio.Mute.MatchStates...)
+		group.MediaAudio.Level = c.getVolume(cg.MediaAudio.Volume.MatchStates)
+		group.MediaAudio.Muted = c.matchStates(states, cg.MediaAudio.Mute.MatchStates)
 
 		// build audio groups
 		for _, ag := range cg.AudioGroups {
@@ -136,8 +138,8 @@ func (c *client) Room() Room {
 					IconPair: IconPair{
 						Name: ad.Name,
 					},
-					Level: c.getVolume(ad.Volume.MatchStates...),
-					Muted: c.doesStateMatch(ad.Mute.MatchStates...),
+					Level: c.getVolume(ad.Volume.MatchStates),
+					Muted: c.matchStates(states, ad.Mute.MatchStates),
 				}
 
 				if !audioDevice.Muted {

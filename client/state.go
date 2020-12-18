@@ -79,14 +79,19 @@ func (c *client) updateRoomStateFromState(state avcontrol.StateResponse) {
 	}
 }
 
-// inState assumes that (*client).stateMu and (*client).configMu have already been read locked.
-func (c *client) doesStateMatch(states ...string) bool {
-	check := func(s string) bool {
-		state, ok := c.config.States[s]
-		if !ok {
-			return false
-		}
+// curStates returns a map of all the current states to whether or not the room is in that state.
+// If lock is true, curStates() will read lock (*client).configMu and (*client.stateMu) before
+// matching states. If it's false, the caller must have a read or write lock on those.
+func (c *client) curStates(lock bool) map[string]bool {
+	if lock {
+		c.stateMu.RLock()
+		defer c.stateMu.RUnlock()
 
+		c.configMu.RLock()
+		defer c.configMu.RUnlock()
+	}
+
+	check := func(state ui.State) bool {
 		for dID, d := range state.Devices {
 			dd, ok := c.state.Devices[dID]
 			if !ok {
@@ -146,8 +151,18 @@ func (c *client) doesStateMatch(states ...string) bool {
 		return true
 	}
 
-	for _, state := range states {
-		if !check(state) {
+	states := make(map[string]bool, len(c.config.States))
+	for name, state := range c.config.States {
+		states[name] = check(state)
+	}
+
+	return states
+}
+
+// matchStates returns true if all of matchStates is true in states.
+func (c *client) matchStates(states map[string]bool, matchStates []string) bool {
+	for _, match := range matchStates {
+		if !states[match] {
 			return false
 		}
 	}
@@ -233,7 +248,7 @@ func (c *client) mergeStates(states ...string) ui.State {
 }
 
 // getVolumes assumes that (*client).stateMu and (*client).configMu have already been read locked.
-func (c *client) getVolume(states ...string) int {
+func (c *client) getVolume(matchStates []string) int {
 	getVols := func(s string) []int {
 		state, ok := c.config.States[s]
 		if !ok {
@@ -267,7 +282,7 @@ func (c *client) getVolume(states ...string) int {
 	}
 
 	var vols []int
-	for _, state := range states {
+	for _, state := range matchStates {
 		vols = append(vols, getVols(state)...)
 	}
 

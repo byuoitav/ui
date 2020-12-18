@@ -10,7 +10,6 @@ import (
 
 func (c *client) helpRequest(data []byte) {
 	var msg struct {
-		DeviceID    string `json:"deviceID"`
 		RequestType string `json:"requestType"`
 	}
 
@@ -20,10 +19,9 @@ func (c *client) helpRequest(data []byte) {
 	}
 
 	event := ui.Event{
-		Device: msg.DeviceID,
-		Room:   c.roomID,
-		Key:    "help-request",
-		Value:  msg.RequestType,
+		Room:  c.roomID,
+		Key:   "help-request",
+		Value: msg.RequestType,
 	}
 
 	if err := c.publisher.Publish(context.TODO(), event); err != nil {

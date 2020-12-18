@@ -12,9 +12,11 @@ import (
 )
 
 func (c *client) doStateTransition(ctx context.Context, modify func(ui.State) ui.State, stateControls ...ui.StateControlConfig) error {
+	states := c.curStates(true)
+
 	var transitions []ui.StateTransition
 	for i, stateControl := range stateControls {
-		transition, ok := c.matchStateTransition(stateControl.StateTransitions)
+		transition, ok := c.matchStateTransition(states, stateControl.StateTransitions)
 		if !ok {
 			return fmt.Errorf("no transition matched the current state for stateControl %d", i)
 		}
@@ -47,6 +49,7 @@ func (c *client) doStateTransition(ctx context.Context, modify func(ui.State) ui
 		// update room state, send update room to frontend
 		c.updateRoomStateFromState(newState)
 		c.sendJSONMsg("room", c.Room())
+		go c.publishState(context.Background())
 	}
 
 	for _, transition := range transitions {
@@ -60,16 +63,9 @@ func (c *client) doStateTransition(ctx context.Context, modify func(ui.State) ui
 	return nil
 }
 
-func (c *client) matchStateTransition(transitions []ui.StateTransition) (ui.StateTransition, bool) {
-	// could optimize this by remembering which states we've already matched
-	c.stateMu.RLock()
-	defer c.stateMu.RUnlock()
-
-	c.configMu.RLock()
-	defer c.configMu.RUnlock()
-
+func (c *client) matchStateTransition(states map[string]bool, transitions []ui.StateTransition) (ui.StateTransition, bool) {
 	for _, transition := range transitions {
-		if c.doesStateMatch(transition.MatchStates...) {
+		if c.matchStates(states, transition.MatchStates) {
 			return transition, true
 		}
 	}

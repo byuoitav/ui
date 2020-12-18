@@ -11,9 +11,11 @@ import (
 )
 
 type Builder struct {
-	DataService  ui.DataService
-	AVController ui.AVController
-	Log          *zap.Logger
+	DataService    ui.DataService
+	AVController   ui.AVController
+	EventPublisher ui.EventPublisher
+
+	Log *zap.Logger
 }
 
 func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client, error) {
@@ -23,6 +25,7 @@ func (b *Builder) New(ctx context.Context, room, controlGroup string) (ui.Client
 		controlGroupID: controlGroup,
 		dataService:    b.DataService,
 		avController:   b.AVController,
+		publisher:      b.EventPublisher,
 		log:            b.Log,
 		outgoing:       make(chan []byte, 1),
 		kill:           make(chan struct{}),
