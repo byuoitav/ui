@@ -33,7 +33,7 @@ func (c *client) updateRoomState(ctx context.Context) error {
 	return nil
 }
 
-// TODO this should (i think?) send events for the things that have changed
+// TODO remove devices from c.state? or do we just not care?
 func (c *client) updateRoomStateFromState(state avcontrol.StateResponse) {
 	c.stateMu.Lock()
 	defer c.stateMu.Unlock()
@@ -64,17 +64,29 @@ func (c *client) updateRoomStateFromState(state avcontrol.StateResponse) {
 				curInput.AudioVideo = i.AudioVideo
 			}
 
+			if cur.Inputs == nil {
+				cur.Inputs = make(map[string]avcontrol.Input)
+			}
 			cur.Inputs[iID] = curInput
 		}
 
 		for block, v := range d.Volumes {
+			if cur.Volumes == nil {
+				cur.Volumes = make(map[string]int)
+			}
 			cur.Volumes[block] = v
 		}
 
 		for block, m := range d.Mutes {
+			if cur.Mutes == nil {
+				cur.Mutes = make(map[string]bool)
+			}
 			cur.Mutes[block] = m
 		}
 
+		if c.state.Devices == nil {
+			c.state.Devices = make(map[avcontrol.DeviceID]avcontrol.DeviceState)
+		}
 		c.state.Devices[dID] = cur
 	}
 }
